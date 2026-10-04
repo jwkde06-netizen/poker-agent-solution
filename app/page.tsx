@@ -576,7 +576,7 @@ export default function Home() {
               tab==="reports"?"리포트":"설정"}</h1>
             <p className="sub">플레이어 등록부터 코드별 레이크백, 일일·주간 정산까지 한 곳에서 관리합니다.</p>
           </div>
-          {tab!=="daily" && <div className="headingActions"><span className="status">{modeText}</span><button className="outlineGold" onClick={loadFromDatabase}>↻ 데이터 새로고침</button></div>}
+
         </div>
 
         {message && <div className="note globalNote">{message}</div>}
