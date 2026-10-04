@@ -415,6 +415,94 @@ export default function Home() {
     }
   }
 
+  function rakePerBuyIn(game:string){
+    const map:Record<string,number>={"3M":300000,"5M":500000,"10M":1000000,"15M":1500000};
+    return map[game] ?? 500000;
+  }
+
+  async function startGameSession(){
+    const tableNo=newTableNo.trim();
+    if(!tableNo){setMessage("테이블 번호를 입력해주세요.");return;}
+    if(gameSessions.some(s=>s.status==="active" && s.tableNo===tableNo)){
+      setMessage("이미 진행 중인 테이블 번호입니다.");
+      return;
+    }
+
+    if(isSupabaseConfigured && supabase && session){
+      const payload={played_on:today(),table_no:tableNo,game_name:newSessionGame,status:"active"};
+      const {data,error}=await supabase.from("game_sessions").insert(payload).select().single();
+      if(error){setMessage(error.message);return;}
+      setGameSessions(prev=>[...prev,{id:data.id,date:data.played_on,tableNo:data.table_no,game:data.game_name,status:data.status}]);
+    }else{
+      setGameSessions(prev=>[...prev,{id:uid("session"),date:today(),tableNo,game:newSessionGame,status:"active"}]);
+    }
+    setNewTableNo("");
+    setMessage(`T${tableNo} · ${newSessionGame} 게임 시작`);
+  }
+
+  async function addPlayerToSession(gameSession:GameSession,playerId:string){
+    if(!playerId)return;
+    const existing=entries.find(e=>e.sessionId===gameSession.id && e.playerId===playerId);
+    if(existing){
+      await changeSessionBuyIn(existing,1);
+      return;
+    }
+    const player=players.find(p=>p.id===playerId);
+    if(!player)return;
+    const agency=agencies.find(a=>a.id===player.agencyId);
+    if(!agency)return;
+    const perBuyIn=rakePerBuyIn(gameSession.game);
+    const rateSnapshot=agency.rate;
+    const rakeback=Math.round(perBuyIn*(rateSnapshot/100));
+
+    if(isSupabaseConfigured && supabase && session){
+      const payload={
+        played_on:gameSession.date,game_name:gameSession.game,player_id:player.id,buy_in:1,
+        rake:perBuyIn,agency_id:agency.id,agency_code_snapshot:agency.code,
+        rate_snapshot:rateSnapshot,rakeback,session_id:gameSession.id
+      };
+      const {data,error}=await supabase.from("game_entries").insert(payload).select().single();
+      if(error){setMessage(error.message);return;}
+      setEntries(prev=>[...prev,{
+        id:data.id,date:data.played_on,game:data.game_name,playerId:data.player_id,
+        buyIn:Number(data.buy_in),rake:Number(data.rake),agencyId:data.agency_id,
+        agencyCodeSnapshot:data.agency_code_snapshot,rateSnapshot:Number(data.rate_snapshot),
+        rakeback:Number(data.rakeback),sessionId:data.session_id ?? gameSession.id
+      }]);
+    }else{
+      setEntries(prev=>[...prev,{
+        id:uid("entry"),date:gameSession.date,game:gameSession.game,playerId:player.id,buyIn:1,
+        rake:perBuyIn,agencyId:agency.id,agencyCodeSnapshot:agency.code,
+        rateSnapshot,rakeback,sessionId:gameSession.id
+      }]);
+    }
+    setSessionSearch(prev=>({...prev,[gameSession.id]:""}));
+  }
+
+  async function changeSessionBuyIn(entry:GameEntry,delta:number){
+    const nextBuyIn=Math.max(1,entry.buyIn+delta);
+    if(nextBuyIn===entry.buyIn)return;
+    const perBuyIn=rakePerBuyIn(entry.game);
+    const nextRake=perBuyIn*nextBuyIn;
+    const nextRakeback=Math.round(nextRake*(entry.rateSnapshot/100));
+
+    if(isSupabaseConfigured && supabase && session){
+      const {error}=await supabase.from("game_entries").update({
+        buy_in:nextBuyIn,rake:nextRake,rakeback:nextRakeback
+      }).eq("id",entry.id);
+      if(error){setMessage(error.message);return;}
+    }
+    setEntries(prev=>prev.map(e=>e.id===entry.id?{...e,buyIn:nextBuyIn,rake:nextRake,rakeback:nextRakeback}:e));
+  }
+
+  async function closeGameSession(id:string){
+    if(isSupabaseConfigured && supabase && session){
+      const {error}=await supabase.from("game_sessions").update({status:"closed",closed_at:new Date().toISOString()}).eq("id",id);
+      if(error){setMessage(error.message);return;}
+    }
+    setGameSessions(prev=>prev.map(s=>s.id===id?{...s,status:"closed"}:s));
+  }
+
   async function addGameEntry() {
     const player=players.find(p=>p.id===gamePlayerId);
     if(!player){alert("플레이어를 선택해주세요.");return;}
