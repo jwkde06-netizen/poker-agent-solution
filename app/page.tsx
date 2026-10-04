@@ -498,6 +498,12 @@ export default function Home() {
   const fnbDayEntries = fnbEntries.filter(item=>item.date===fnbDate);
   const fnbDayTotal = fnbDayEntries.reduce((sum,item)=>sum+item.totalAmount,0);
   const fnbTodayTotal = fnbEntries.filter(item=>item.date===today()).reduce((sum,item)=>sum+item.totalAmount,0);
+  const dailyFnbTotal = fnbEntries.filter(item=>item.date===summaryDate).reduce((sum,item)=>sum+item.totalAmount,0);
+  const dailyGrossAmount = total(dailyEntries,"rake");
+  const dailyAgentRows = agencyTotals(dailyEntries).filter(a=>a.amount>0);
+  const dailyAgentTotal = dailyAgentRows.reduce((sum,a)=>sum+a.amount,0);
+  const dailyExpenseTotal = dailyFnbTotal + dailyAgentTotal;
+  const dailyProfit = dailyGrossAmount - dailyExpenseTotal;
   const navItems = [
     {key:"dashboard",label:"대시보드",icon:"▦"},
     {key:"agencies",label:"에이전트 관리",icon:"♙"},
