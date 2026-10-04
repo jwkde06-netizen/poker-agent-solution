@@ -966,3 +966,31 @@ html[data-theme="dark"] .recentSettlementAmount b{color:#e1ae49}
   .recentSettlementCopy strong{font-size:13px}
   .recentSettlementAmount b{font-size:20px}
 }
+
+.compactThemeSwitch{
+  width:auto!important;
+  min-width:68px;
+  height:38px;
+  padding:0 8px!important;
+  gap:7px!important;
+  justify-content:center;
+}
+.themeIcon{
+  display:inline-grid;
+  place-items:center;
+  width:20px;height:20px;
+  font-size:13px;
+  line-height:1;
+  color:#9b6d16;
+}
+html[data-theme="dark"] .themeIcon{color:#e1ae49}
+
+@media(max-width:820px){
+  .workspaceTopbar .compactThemeSwitch{
+    min-width:66px;
+    height:38px;
+    padding:0 8px!important;
+  }
+  .workspaceTopbar .themeIcon{display:inline-grid}
+  .workspaceTopbar .switchTrack{display:inline-block}
+}
