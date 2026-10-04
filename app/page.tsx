@@ -420,6 +420,10 @@ export default function Home() {
     return map[game] ?? 500000;
   }
 
+  function revenuePerBuyIn(game:string){
+    return Math.round(rakePerBuyIn(game)*0.5);
+  }
+
   async function startGameSession(){
     const tableNo=newTableNo.trim();
     if(!tableNo){setMessage("테이블 번호를 입력해주세요.");return;}
@@ -939,7 +943,7 @@ export default function Home() {
             {activeGameSessions.map(gs=>{
               const tableEntries=entries.filter(e=>e.sessionId===gs.id);
               const totalBuyIns=tableEntries.reduce((sum,e)=>sum+e.buyIn,0);
-              const tableRevenue=tableEntries.reduce((sum,e)=>sum+e.rake,0);
+              const tableRevenue=totalBuyIns*revenuePerBuyIn(gs.game);
               return <button
                 key={gs.id}
                 className="liveTableOverviewItem"
@@ -965,7 +969,7 @@ export default function Home() {
                 {activeGameSessions.map(gs=>{
                   const tableEntries=entries.filter(e=>e.sessionId===gs.id);
                   const totalBuyIns=tableEntries.reduce((sum,e)=>sum+e.buyIn,0);
-                  const tableRevenue=tableEntries.reduce((sum,e)=>sum+e.rake,0);
+                  const tableRevenue=totalBuyIns*revenuePerBuyIn(gs.game);
                   const query=(sessionSearch[gs.id]||"").trim().toUpperCase();
                   const matches=query
                     ? players.filter(p=>
@@ -978,9 +982,9 @@ export default function Home() {
                     <div className="liveTableHeader">
                       <div>
                         <div className="liveTableTitle"><span className="liveDot"/>T{gs.tableNo} <em>{gs.game}</em></div>
-                        <small>{money.format(rakePerBuyIn(gs.game))} ₫ / 1 BUY-IN</small>
+                        <small>매출 {money.format(revenuePerBuyIn(gs.game))} ₫ / 1 BUY-IN</small>
                       </div>
-                      <button className="closeTableButton" onClick={()=>closeGameSession(gs.id)}>테이블 종료</button>
+                      <button className="closeTableButton" onClick={()=>closeGameSession(gs.id)}>경기 종료</button>
                     </div>
 
                     <div className="tableLiveStats">
@@ -990,21 +994,30 @@ export default function Home() {
                     </div>
 
                     <div className="livePlayerList">
+                      {tableEntries.length>0 && <div className="livePlayerColumns">
+                        <span>플레이어</span><span>최초</span><span>리바인</span><span>추가</span>
+                      </div>}
                       {tableEntries.length===0
                         ? <div className="emptyTablePlayers">플레이어를 추가해주세요.</div>
                         : [...tableEntries].sort((a,b)=>b.buyIn-a.buyIn).map(entry=>{
                             const player=players.find(p=>p.id===entry.playerId);
+                            const perEntryRevenue=revenuePerBuyIn(entry.game);
+                            const rebuyCount=Math.max(0,entry.buyIn-1);
                             return <div className="livePlayerRow" key={entry.id}>
                               <div className="livePlayerInfo">
                                 <strong>{player?.name || "알 수 없음"}</strong>
-                                <span>{player?.koreanName || entry.agencyCodeSnapshot} {player?.koreanName && <small>{entry.agencyCodeSnapshot}</small>}</span>
+                                <span>{entry.agencyCodeSnapshot}</span>
                               </div>
-                              <div className="buyinCount">
-                                <small>BUY-IN</small>
-                                <b>{entry.buyIn}</b>
+                              <div className="buyinMoneyCell">
+                                <small>1회</small>
+                                <b>{money.format(perEntryRevenue)}</b>
                               </div>
-                              <div className="buyinStepButtons">
-                                <button onClick={()=>changeSessionBuyIn(entry,-1)} disabled={entry.buyIn<=1}>−</button>
+                              <div className="buyinMoneyCell rebuyCell">
+                                <small>{rebuyCount>0?`${rebuyCount}회`:"-"}</small>
+                                <b>{rebuyCount>0?money.format(perEntryRevenue*rebuyCount):"-"}</b>
+                              </div>
+                              <div className="buyinQuickActions">
+                                <button className="minusBuyinButton" onClick={()=>changeSessionBuyIn(entry,-1)} disabled={entry.buyIn<=1}>−</button>
                                 <button className="addBuyinButton" onClick={()=>changeSessionBuyIn(entry,1)}>＋1</button>
                               </div>
                             </div>
