@@ -809,11 +809,69 @@ export default function Home() {
           <div className="tableWrap"><table><thead><tr><th>날짜</th><th>게임</th><th>플레이어</th><th>에이전트</th><th>적용 정산 요율</th><th>레이크</th><th>레이크백</th></tr></thead><tbody>{entries.length===0?<tr><td colSpan={7} className="empty">입력된 게임 기록이 없습니다.</td></tr>:[...entries].reverse().map(e=><tr key={e.id}><td>{e.date}</td><td>{e.game}</td><td>{getPlayerName(e.playerId)}</td><td>{e.agencyCodeSnapshot}</td><td>{e.rateSnapshot}%</td><td>{vnd(e.rake)}</td><td className="strong">{vnd(e.rakeback)}</td></tr>)}</tbody></table></div>
         </section>}
 
-        {tab==="daily" && <section className="panel">
-          <div className="sectionTitle"><div><h2>일일 정산</h2><p>날짜별 에이전트 정산액과 플레이어 내역을 확인합니다.</p></div><input className="datePicker" type="date" value={summaryDate} onChange={e=>setSummaryDate(e.target.value)}/></div>
-          <div className="cards"><div className="metric"><span>총 레이크</span><b>{vnd(total(dailyEntries,"rake"))}</b></div><div className="metric"><span>총 에이전트 정산액</span><b>{vnd(total(dailyEntries,"rakeback"))}</b></div><div className="metric"><span>정산 후 순액</span><b>{vnd(total(dailyEntries,"rake")-total(dailyEntries,"rakeback"))}</b></div></div>
-          <div className="agencyGrid">{agencyTotals(dailyEntries).map(a=><div className="agencyCard" key={a.id}><span>{a.code}</span><small>{a.rate}%</small><b>{vnd(a.amount)}</b></div>)}</div>
-          <div className="tableWrap"><table><thead><tr><th>플레이어</th><th>에이전트</th><th>적용 정산 요율</th><th>레이크</th><th>레이크백</th></tr></thead><tbody>{dailyEntries.length===0?<tr><td colSpan={5} className="empty">해당 날짜의 기록이 없습니다.</td></tr>:dailyEntries.map(e=><tr key={e.id}><td>{getPlayerName(e.playerId)}</td><td>{e.agencyCodeSnapshot}</td><td>{e.rateSnapshot}%</td><td>{vnd(e.rake)}</td><td className="strong">{vnd(e.rakeback)}</td></tr>)}</tbody></table></div>
+        {tab==="daily" && <section className="compactDailyPage">
+          <section className="panel compactDailyPanel">
+            <div className="compactDailyHeader">
+              <div>
+                <span>일일 정산</span>
+                <strong>{summaryDate}</strong>
+              </div>
+              <input className="datePicker compactDailyDate" type="date" value={summaryDate} onChange={e=>setSummaryDate(e.target.value)}/>
+            </div>
+
+            <div className="dailyCompactGrid">
+              <div className="dailyCompactCard">
+                <span>총 레이크백</span>
+                <b>{vnd(dailyGrossAmount)}</b>
+              </div>
+              <div className="dailyCompactCard expense">
+                <span>F&B</span>
+                <b>− {vnd(dailyFnbTotal)}</b>
+              </div>
+              <div className="dailyCompactCard expense">
+                <span>에이전트 레이크백</span>
+                <b>− {vnd(dailyAgentTotal)}</b>
+              </div>
+              <div className="dailyCompactCard profit">
+                <span>일일 수익</span>
+                <b>{vnd(dailyProfit)}</b>
+              </div>
+            </div>
+
+            <div className="dailyAgentCompactList">
+              <div className="dailyAgentCompactTitle">
+                <span>에이전트별 레이크백</span>
+                <strong>{vnd(dailyAgentTotal)}</strong>
+              </div>
+              {dailyAgentRows.length===0
+                ? <div className="dailyAgentEmpty">차감할 에이전트 레이크백이 없습니다.</div>
+                : dailyAgentRows.map(a=><div className="dailyAgentCompactRow" key={a.id}>
+                    <span>{a.code}<small>{a.rate}%</small></span>
+                    <b>− {vnd(a.amount)}</b>
+                  </div>)}
+            </div>
+
+            <div className="dailyEquation">
+              <span>{vnd(dailyGrossAmount)}</span>
+              <em>−</em>
+              <span>{vnd(dailyExpenseTotal)}</span>
+              <em>=</em>
+              <strong>{vnd(dailyProfit)}</strong>
+            </div>
+
+            <details className="dailyDetails">
+              <summary>상세 내역 보기 <span>{dailyEntries.length}건</span></summary>
+              <div className="tableWrap">
+                <table>
+                  <thead><tr><th>플레이어</th><th>에이전트</th><th>요율</th><th>레이크</th><th>레이크백</th></tr></thead>
+                  <tbody>{dailyEntries.length===0
+                    ? <tr><td colSpan={5} className="empty">해당 날짜의 기록이 없습니다.</td></tr>
+                    : dailyEntries.map(e=><tr key={e.id}><td>{getPlayerName(e.playerId)}</td><td>{e.agencyCodeSnapshot}</td><td>{e.rateSnapshot}%</td><td>{vnd(e.rake)}</td><td className="strong">{vnd(e.rakeback)}</td></tr>)}
+                  </tbody>
+                </table>
+              </div>
+            </details>
+          </section>
         </section>}
 
         {tab==="weekly" && <section className="panel">
