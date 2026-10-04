@@ -61,6 +61,7 @@ export default function Home() {
   const [newAgencyCode, setNewAgencyCode] = useState("");
   const [newAgencyRate, setNewAgencyRate] = useState("25");
   const [playerName, setPlayerName] = useState("");
+  const [playerSearch, setPlayerSearch] = useState("");
   const [playerCard, setPlayerCard] = useState("");
   const [playerAgencyId, setPlayerAgencyId] = useState("agency-korea2");
   const [gameDate, setGameDate] = useState(today());
@@ -171,6 +172,11 @@ export default function Home() {
   }, [agencies, players, entries, loaded]);
 
   const activeAgencies = agencies.filter(a=>a.active);
+  const filteredPlayers = useMemo(()=>{
+    const q = playerSearch.trim().toUpperCase();
+    if (!q) return players;
+    return players.filter(p=>p.name.toUpperCase().includes(q));
+  },[players,playerSearch]);
   const dailyEntries = useMemo(()=>entries.filter(e=>e.date===summaryDate),[entries,summaryDate]);
   const weeklyEntries = useMemo(()=>entries.filter(e=>e.date>=weekStart && e.date<=weekEnd),[entries,weekStart,weekEnd]);
 
@@ -472,13 +478,27 @@ export default function Home() {
 
         {tab==="players" && <section className="panel">
           <div className="sectionTitle"><div><h2>플레이어 명단</h2><p>플레이어를 등록하고 담당 에이전트 코드를 지정합니다.</p></div></div>
+
+          <div className="playerSearchBar">
+            <div className="playerSearchInput">⌕
+              <input
+                value={playerSearch}
+                onChange={e=>setPlayerSearch(e.target.value)}
+                placeholder="플레이어 이름 검색"
+              />
+              {playerSearch && <button onClick={()=>setPlayerSearch("")}>✕</button>}
+            </div>
+            <span className="searchCount">{filteredPlayers.length}명 / 전체 {players.length}명</span>
+          </div>
+
           <div className="formGrid">
             <label>플레이어<input value={playerName} onChange={e=>setPlayerName(e.target.value)} placeholder="플레이어 이름"/></label>
             <label>카드 번호<input value={playerCard} onChange={e=>setPlayerCard(e.target.value)} placeholder="선택 입력"/></label>
             <label>에이전트 코드<select value={playerAgencyId} onChange={e=>setPlayerAgencyId(e.target.value)}>{activeAgencies.map(a=><option key={a.id} value={a.id}>{a.code} · {a.rate}%</option>)}</select></label>
             <button className="primary formButton" onClick={addPlayer}>플레이어 등록</button>
           </div>
-          <div className="tableWrap"><table><thead><tr><th>플레이어</th><th>카드 번호</th><th>에이전트 코드</th><th>현재 정산 요율</th></tr></thead><tbody>{players.length===0?<tr><td colSpan={4} className="empty">등록된 플레이어가 없습니다.</td></tr>:players.map(p=>{const a=agencies.find(x=>x.id===p.agencyId);return <tr key={p.id}><td>{p.name}</td><td>{p.cardNo||"-"}</td><td><select className="cellInput" value={p.agencyId} onChange={e=>updatePlayerAgency(p.id,e.target.value)}>{agencies.map(x=><option key={x.id} value={x.id}>{x.code}</option>)}</select></td><td>{a?.rate??0}%</td></tr>})}</tbody></table></div>
+
+          <div className="tableWrap"><table><thead><tr><th>플레이어</th><th>카드 번호</th><th>에이전트 코드</th><th>현재 정산 요율</th></tr></thead><tbody>{filteredPlayers.length===0?<tr><td colSpan={4} className="empty">{playerSearch?"검색 결과가 없습니다.":"등록된 플레이어가 없습니다."}</td></tr>:filteredPlayers.map(p=>{const a=agencies.find(x=>x.id===p.agencyId);return <tr key={p.id}><td>{p.name}</td><td>{p.cardNo||"-"}</td><td><select className="cellInput" value={p.agencyId} onChange={e=>updatePlayerAgency(p.id,e.target.value)}>{agencies.map(x=><option key={x.id} value={x.id}>{x.code}</option>)}</select></td><td>{a?.rate??0}%</td></tr>})}</tbody></table></div>
         </section>}
 
         {tab==="games" && <section className="panel">
