@@ -18,6 +18,15 @@ type GameEntry = {
   agencyCodeSnapshot: string;
   rateSnapshot: number;
   rakeback: number;
+  sessionId?: string;
+};
+
+type GameSession = {
+  id: string;
+  date: string;
+  tableNo: string;
+  game: string;
+  status: "active"|"closed";
 };
 
 type FnbEntry = {
@@ -97,6 +106,10 @@ export default function Home() {
   const [agencies, setAgencies] = useState<Agency[]>(DEFAULT_AGENCIES);
   const [players, setPlayers] = useState<Player[]>([]);
   const [entries, setEntries] = useState<GameEntry[]>([]);
+  const [gameSessions, setGameSessions] = useState<GameSession[]>([]);
+  const [newTableNo, setNewTableNo] = useState("");
+  const [newSessionGame, setNewSessionGame] = useState("5M");
+  const [sessionSearch, setSessionSearch] = useState<Record<string,string>>({});
   const [fnbEntries, setFnbEntries] = useState<FnbEntry[]>([]);
   const [fnbDate, setFnbDate] = useState(today());
   const [fnbMenuName, setFnbMenuName] = useState("Americano");
@@ -175,15 +188,16 @@ export default function Home() {
     setSyncing(true);
     setMessage("");
 
-    const [a, p, g, fnb] = await Promise.all([
+    const [a, p, g, gs, fnb] = await Promise.all([
       supabase.from("agencies").select("*").order("created_at"),
       loadAllPlayers(),
       supabase.from("game_entries").select("*").order("played_on"),
+      supabase.from("game_sessions").select("*").order("created_at"),
       supabase.from("fnb_entries").select("*").order("spent_on").order("created_at"),
     ]);
 
-    if (a.error || p.error || g.error || fnb.error) {
-      setMessage(a.error?.message || p.error?.message || g.error?.message || fnb.error?.message || "데이터를 불러오지 못했습니다.");
+    if (a.error || p.error || g.error || gs.error || fnb.error) {
+      setMessage(a.error?.message || p.error?.message || g.error?.message || gs.error?.message || fnb.error?.message || "데이터를 불러오지 못했습니다.");
       setSyncing(false);
       return;
     }
@@ -193,7 +207,10 @@ export default function Home() {
     setEntries((g.data ?? []).map((x:any)=>({
       id:x.id,date:x.played_on,game:x.game_name,playerId:x.player_id,buyIn:Number(x.buy_in),
       rake:Number(x.rake),agencyId:x.agency_id,agencyCodeSnapshot:x.agency_code_snapshot,
-      rateSnapshot:Number(x.rate_snapshot),rakeback:Number(x.rakeback)
+      rateSnapshot:Number(x.rate_snapshot),rakeback:Number(x.rakeback),sessionId:x.session_id ?? undefined
+    })));
+    setGameSessions((gs.data ?? []).map((x:any)=>({
+      id:x.id,date:x.played_on,tableNo:x.table_no,game:x.game_name,status:x.status
     })));
     setFnbEntries((fnb.data ?? []).map((x:any)=>({
       id:x.id,date:x.spent_on,itemName:x.item_name,quantity:Number(x.quantity),
