@@ -819,44 +819,38 @@ export default function Home() {
               <input className="datePicker compactDailyDate" type="date" value={summaryDate} onChange={e=>setSummaryDate(e.target.value)}/>
             </div>
 
-            <div className="dailyCompactGrid">
-              <div className="dailyCompactCard">
+            <div className="dailyStatementList">
+              <div className="dailyStatementLine income">
                 <span>총 레이크백</span>
                 <b>{vnd(dailyGrossAmount)}</b>
               </div>
-              <div className="dailyCompactCard expense">
+
+              <div className="dailyStatementLine expense">
                 <span>F&B</span>
                 <b>− {vnd(dailyFnbTotal)}</b>
               </div>
-              <div className="dailyCompactCard expense">
-                <span>에이전트 레이크백</span>
-                <b>− {vnd(dailyAgentTotal)}</b>
-              </div>
-              <div className="dailyCompactCard profit">
-                <span>일일 수익</span>
-                <b>{vnd(dailyProfit)}</b>
-              </div>
-            </div>
 
-            <div className="dailyAgentCompactList">
-              <div className="dailyAgentCompactTitle">
-                <span>에이전트별 레이크백</span>
-                <strong>{vnd(dailyAgentTotal)}</strong>
-              </div>
+              <div className="dailyStatementSectionLabel">에이전트별 레이크백</div>
+
               {dailyAgentRows.length===0
-                ? <div className="dailyAgentEmpty">차감할 에이전트 레이크백이 없습니다.</div>
-                : dailyAgentRows.map(a=><div className="dailyAgentCompactRow" key={a.id}>
+                ? <div className="dailyStatementLine muted">
+                    <span>에이전트 레이크백</span>
+                    <b>− {vnd(0)}</b>
+                  </div>
+                : dailyAgentRows.map(a=><div className="dailyStatementLine expense agentLine" key={a.id}>
                     <span>{a.code}<small>{a.rate}%</small></span>
                     <b>− {vnd(a.amount)}</b>
                   </div>)}
-            </div>
 
-            <div className="dailyEquation">
-              <span>{vnd(dailyGrossAmount)}</span>
-              <em>−</em>
-              <span>{vnd(dailyExpenseTotal)}</span>
-              <em>=</em>
-              <strong>{vnd(dailyProfit)}</strong>
+              <div className="dailyStatementLine subtotal">
+                <span>총 비용</span>
+                <b>− {vnd(dailyExpenseTotal)}</b>
+              </div>
+
+              <div className="dailyStatementLine profit">
+                <span>일일 수익</span>
+                <b>{vnd(dailyProfit)}</b>
+              </div>
             </div>
 
             <details className="dailyDetails">
