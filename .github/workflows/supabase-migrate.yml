@@ -39,10 +39,13 @@ jobs:
             filename text primary key,
             applied_at timestamptz not null default now()
           );"
-
-          PAYLOAD=$(jq -n --arg query "$SQL" '{query:$query}')
-
-          curl --fail-with-body -sS             "https://api.supabase.com/v1/projects/$SUPABASE_PROJECT_REF/database/query"             -X POST             -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN"             -H "Content-Type: application/json"             --data-binary "$PAYLOAD"
+          jq -n --arg query "$SQL" '{query:$query}' > /tmp/setup-payload.json
+          curl --fail-with-body -sS \
+            "https://api.supabase.com/v1/projects/$SUPABASE_PROJECT_REF/database/query" \
+            -X POST \
+            -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN" \
+            -H "Content-Type: application/json" \
+            --data-binary "@/tmp/setup-payload.json"
 
       - name: 새 DB 마이그레이션 적용
         shell: bash
@@ -62,26 +65,40 @@ jobs:
             CHECK_SQL="select exists(
               select 1 from public._app_migrations where filename = '$filename'
             ) as applied;"
-
-            CHECK_PAYLOAD=$(jq -n --arg query "$CHECK_SQL" '{query:$query}')
-            CHECK_RESULT=$(curl --fail-with-body -sS               "https://api.supabase.com/v1/projects/$SUPABASE_PROJECT_REF/database/query"               -X POST               -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN"               -H "Content-Type: application/json"               --data-binary "$CHECK_PAYLOAD")
+            jq -n --arg query "$CHECK_SQL" '{query:$query}' > /tmp/check-payload.json
+            CHECK_RESULT=$(curl --fail-with-body -sS \
+              "https://api.supabase.com/v1/projects/$SUPABASE_PROJECT_REF/database/query" \
+              -X POST \
+              -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN" \
+              -H "Content-Type: application/json" \
+              --data-binary "@/tmp/check-payload.json")
 
             if echo "$CHECK_RESULT" | jq -e '.[0].applied == true' >/dev/null 2>&1; then
               echo "건너뜀: $filename (이미 적용됨)"
               continue
             fi
 
-            SQL_CONTENT=$(cat "$file")
-            APPLY_SQL="begin;
-            $SQL_CONTENT
-            insert into public._app_migrations(filename) values ('$filename');
-            commit;"
+            TMP_SQL=$(mktemp)
+            TMP_PAYLOAD=$(mktemp)
+            {
+              echo "begin;"
+              cat "$file"
+              echo
+              echo "insert into public._app_migrations(filename) values ('$filename');"
+              echo "commit;"
+            } > "$TMP_SQL"
 
-            APPLY_PAYLOAD=$(jq -n --arg query "$APPLY_SQL" '{query:$query}')
+            jq -Rs '{query:.}' "$TMP_SQL" > "$TMP_PAYLOAD"
 
             echo "적용 중: $filename"
-            curl --fail-with-body -sS               "https://api.supabase.com/v1/projects/$SUPABASE_PROJECT_REF/database/query"               -X POST               -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN"               -H "Content-Type: application/json"               --data-binary "$APPLY_PAYLOAD"
+            curl --fail-with-body -sS \
+              "https://api.supabase.com/v1/projects/$SUPABASE_PROJECT_REF/database/query" \
+              -X POST \
+              -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN" \
+              -H "Content-Type: application/json" \
+              --data-binary "@$TMP_PAYLOAD"
 
+            rm -f "$TMP_SQL" "$TMP_PAYLOAD"
             echo "완료: $filename"
           done
 
