@@ -86,20 +86,47 @@ export default function Home() {
     localStorage.setItem("dream-poker-theme", nextTheme);
   }
 
+  async function loadAllPlayers() {
+    if (!supabase) return { data: [] as any[], error: null as any };
+    const pageSize = 1000;
+    const rows: any[] = [];
+    let from = 0;
+
+    while (true) {
+      const { data, error } = await supabase
+        .from("players")
+        .select("*")
+        .order("created_at")
+        .range(from, from + pageSize - 1);
+
+      if (error) return { data: rows, error };
+      const batch = data ?? [];
+      rows.push(...batch);
+
+      if (batch.length < pageSize) break;
+      from += pageSize;
+    }
+
+    return { data: rows, error: null };
+  }
+
   async function loadFromDatabase() {
     if (!supabase) return;
     setSyncing(true);
     setMessage("");
+
     const [a, p, g] = await Promise.all([
       supabase.from("agencies").select("*").order("created_at"),
-      supabase.from("players").select("*").order("created_at").range(0, 4999),
+      loadAllPlayers(),
       supabase.from("game_entries").select("*").order("played_on"),
     ]);
+
     if (a.error || p.error || g.error) {
       setMessage(a.error?.message || p.error?.message || g.error?.message || "데이터를 불러오지 못했습니다.");
       setSyncing(false);
       return;
     }
+
     setAgencies((a.data ?? []).map((x:any)=>({id:x.id,code:x.code,rate:Number(x.rate),active:x.active})));
     setPlayers((p.data ?? []).map((x:any)=>({id:x.id,name:x.name,cardNo:x.card_no ?? "",agencyId:x.agency_id})));
     setEntries((g.data ?? []).map((x:any)=>({
