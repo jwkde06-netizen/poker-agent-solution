@@ -121,6 +121,7 @@ export default function Home() {
   const [syncing, setSyncing] = useState(false);
   const [message, setMessage] = useState("");
   const [theme, setTheme] = useState<"light"|"dark">("light");
+  const [accountMenuOpen, setAccountMenuOpen] = useState(false);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -659,16 +660,48 @@ export default function Home() {
           <span>드림포커 에이전트 정산</span>
         </div>
         <div className="searchBox">⌕ <input placeholder="에이전트 코드, 플레이어명, 이메일을 검색하세요..."/><kbd>⌘ K</kbd></div>
-        <div className="accountArea">
-          <button className="themeSwitch compactThemeSwitch" onClick={()=>applyTheme(theme==="dark"?"light":"dark")} aria-label={theme==="dark"?"라이트 모드로 전환":"다크 모드로 전환"}>
-            <span className="themeIcon">{theme==="dark"?"☾":"☀"}</span>
-            <span className={`switchTrack ${theme==="dark"?"dark":""}`}><span className="switchKnob"/></span>
+        <div className="accountArea accountMenuArea">
+          <button
+            className="accountMenuTrigger"
+            onClick={()=>setAccountMenuOpen(v=>!v)}
+            aria-expanded={accountMenuOpen}
+            aria-label="계정 메뉴 열기"
+          >
+            <span className="avatar">{session?.user.email?.slice(0,1).toUpperCase() || "A"}</span>
+            <span className="accountMenuText">
+              <strong>관리자</strong>
+              <small>{session?.user.email}</small>
+            </span>
+            <span className="menuChevron">{accountMenuOpen?"⌃":"⌄"}</span>
           </button>
-          <button className="ghostButton">⇄ 에이전트 보기</button>
-          <span className="roleBadge">관리자</span>
-          <span className="avatar">{session?.user.email?.slice(0,1).toUpperCase() || "A"}</span>
-          <span className="accountEmail">{session?.user.email}</span>
-          <button className="ghostButton smallGhost" onClick={signOut}>로그아웃</button>
+
+          {accountMenuOpen && <div className="accountDropdown">
+            <div className="accountDropdownProfile">
+              <span className="avatar largeAvatar">{session?.user.email?.slice(0,1).toUpperCase() || "A"}</span>
+              <div>
+                <strong>관리자 계정</strong>
+                <small>{session?.user.email}</small>
+              </div>
+            </div>
+
+            <button onClick={()=>{setTab("settings");setAccountMenuOpen(false)}}>
+              <span>⚙</span><div><strong>설정</strong><small>계정 및 운영 설정</small></div>
+            </button>
+
+            <button onClick={()=>{applyTheme(theme==="dark"?"light":"dark");setAccountMenuOpen(false)}}>
+              <span>{theme==="dark"?"☀":"☾"}</span><div><strong>{theme==="dark"?"라이트 모드":"다크 모드"}</strong><small>화면 테마 변경</small></div>
+            </button>
+
+            <button onClick={()=>setAccountMenuOpen(false)}>
+              <span>⇄</span><div><strong>에이전트 보기</strong><small>에이전트 권한 화면</small></div>
+            </button>
+
+            <div className="accountDropdownDivider"/>
+
+            <button className="logoutMenuItem" onClick={signOut}>
+              <span>↪</span><div><strong>로그아웃</strong><small>현재 계정에서 나가기</small></div>
+            </button>
+          </div>}
         </div>
       </header>
 
