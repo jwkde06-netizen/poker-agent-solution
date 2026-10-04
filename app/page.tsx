@@ -935,6 +935,27 @@ export default function Home() {
             </div>
           </section>
 
+          {activeGameSessions.length>0 && <div className="liveTableOverview">
+            {activeGameSessions.map(gs=>{
+              const tableEntries=entries.filter(e=>e.sessionId===gs.id);
+              const totalBuyIns=tableEntries.reduce((sum,e)=>sum+e.buyIn,0);
+              const tableRevenue=tableEntries.reduce((sum,e)=>sum+e.rake,0);
+              return <button
+                key={gs.id}
+                className="liveTableOverviewItem"
+                onClick={()=>{
+                  const el=document.getElementById(`table-${gs.id}`);
+                  el?.scrollIntoView({behavior:"smooth",block:"start"});
+                }}
+              >
+                <strong>T{gs.tableNo}</strong>
+                <span>{gs.game}</span>
+                <small>{tableEntries.length}명 · {totalBuyIns}바인</small>
+                <b>{vnd(tableRevenue)}</b>
+              </button>
+            })}
+          </div>}
+
           {activeGameSessions.length===0
             ? <section className="panel buyinEmptyState">
                 <strong>현재 진행 중인 테이블이 없습니다.</strong>
@@ -953,7 +974,7 @@ export default function Home() {
                         p.cardNo.toUpperCase().includes(query)
                       ).slice(0,6)
                     : [];
-                  return <section className="panel liveTableCard" key={gs.id}>
+                  return <section className="panel liveTableCard" id={`table-${gs.id}`} key={gs.id}>
                     <div className="liveTableHeader">
                       <div>
                         <div className="liveTableTitle"><span className="liveDot"/>T{gs.tableNo} <em>{gs.game}</em></div>
