@@ -511,10 +511,10 @@ export default function Home() {
 
   const mobileNavItems = [
     {key:"dashboard",label:"대시보드",icon:"⌂"},
+    {key:"fnb",label:"F&B",icon:"☕"},
     {key:"games",label:"바이인",icon:"＋"},
     {key:"daily",label:"일일정산",icon:"▤"},
     {key:"weekly",label:"주간정산",icon:"▥"},
-    {key:"fnb",label:"F&B",icon:"☕"},
   ] as const;
 
   return <main className="appShell">
