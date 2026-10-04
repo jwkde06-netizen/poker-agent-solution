@@ -498,19 +498,15 @@ export default function Home() {
         </section>}
 
         {tab==="players" && <section className="panel">
-          <div className="sectionTitle playerSectionHeader">
+          <div className="playerSectionActions">
             <div>
-              <h2>플레이어 관리</h2>
-              <p>플레이어를 검색하거나 새 플레이어를 등록합니다.</p>
+              <h3>플레이어 검색</h3>
+              <p>영문성함 또는 한글성함으로 등록된 플레이어를 찾습니다.</p>
             </div>
             <button className="primary addPlayerButton" onClick={()=>setPlayerView("add")}>＋ 플레이어 추가</button>
           </div>
 
-          <div className="playerSearchSection">
-            <div className="subSectionTitle">
-              <h3>플레이어 검색</h3>
-              <p>영문성함 또는 한글성함으로 등록된 플레이어를 찾습니다.</p>
-            </div>
+          <div className="playerSearchSection compactSearchSection">
             <div className="playerSearchBar">
               <div className="playerSearchInput">⌕
                 <input
