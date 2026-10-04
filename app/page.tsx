@@ -503,19 +503,46 @@ export default function Home() {
               <h2>플레이어 관리</h2>
               <p>플레이어를 검색하거나 새 플레이어를 등록합니다.</p>
             </div>
-            {playerView==="list" && <button className="primary addPlayerButton" onClick={()=>setPlayerView("add")}>＋ 플레이어 추가</button>}
+            <button className="primary addPlayerButton" onClick={()=>setPlayerView("add")}>＋ 플레이어 추가</button>
           </div>
 
-          {playerView==="add" ? <div className="playerAddPage">
-            <button className="backToPlayers" onClick={()=>setPlayerView("list")}>← 플레이어 목록으로</button>
-            <div className="playerAddPageHeader">
-              <span className="modalEyebrow">NEW PLAYER</span>
-              <h2>새 플레이어 등록</h2>
-              <p>플레이어의 기본 정보와 담당 에이전트를 입력하세요.</p>
+          <div className="playerSearchSection">
+            <div className="subSectionTitle">
+              <h3>플레이어 검색</h3>
+              <p>영문성함 또는 한글성함으로 등록된 플레이어를 찾습니다.</p>
             </div>
+            <div className="playerSearchBar">
+              <div className="playerSearchInput">⌕
+                <input
+                  value={playerSearch}
+                  onChange={e=>setPlayerSearch(e.target.value)}
+                  placeholder="영문성함 또는 한글성함을 입력하세요"
+                />
+                {playerSearch && <button onClick={()=>setPlayerSearch("")}>✕</button>}
+              </div>
+              <span className="searchCount">{filteredPlayers.length}명 / 전체 {players.length}명</span>
+            </div>
+          </div>
 
-            <div className="playerAddCard">
-              <div className="playerAddFields">
+
+
+          <div className="tableWrap"><table><thead><tr><th>영문성함</th><th>한글성함</th><th>회원번호</th><th>에이전트 코드</th><th>현재 정산 요율</th></tr></thead><tbody>{filteredPlayers.length===0?<tr><td colSpan={5} className="empty">{playerSearch?"검색 결과가 없습니다.":"등록된 플레이어가 없습니다."}</td></tr>:filteredPlayers.map(p=>{const a=agencies.find(x=>x.id===p.agencyId);return <tr key={p.id}><td><button className="playerNameButton" onClick={()=>setSelectedPlayerId(p.id)}>{p.name}</button></td><td>{p.koreanName||"-"}</td><td>{p.cardNo||"-"}</td><td><select className="cellInput" value={p.agencyId} onChange={e=>updatePlayerAgency(p.id,e.target.value)}>{agencies.map(x=><option key={x.id} value={x.id}>{x.code}</option>)}</select></td><td>{a?.rate??0}%</td></tr>})}</tbody></table></div>
+
+
+
+
+          {playerView==="add" && <div className="modalBackdrop" onClick={()=>setPlayerView("list")}>
+            <div className="playerModal playerAddModal" onClick={e=>e.stopPropagation()}>
+              <div className="modalHeader">
+                <div>
+                  <span className="modalEyebrow">NEW PLAYER</span>
+                  <h3>플레이어 추가</h3>
+                  <p>플레이어의 기본 정보와 담당 에이전트를 입력하세요.</p>
+                </div>
+                <button className="modalClose" onClick={()=>setPlayerView("list")} aria-label="닫기">×</button>
+              </div>
+
+              <div className="modalForm playerModalForm">
                 <label>
                   <span>영문성함</span>
                   <input autoFocus value={playerName} onChange={e=>setPlayerName(e.target.value)} placeholder="예: KIM JI WON"/>
@@ -540,38 +567,14 @@ export default function Home() {
                 </label>
               </div>
 
-              <div className="playerAddPageActions">
+              <div className="modalActions">
                 <button className="secondary" onClick={()=>setPlayerView("list")}>취소</button>
-                <button className="primary" onClick={async()=>{await addPlayer();setPlayerView("list");}}>플레이어 등록</button>
+                <button className="primary modalPrimary" onClick={async()=>{await addPlayer();setPlayerView("list");}}>플레이어 등록</button>
               </div>
             </div>
-          </div> : <>
-          <div className="playerSearchSection">
-            <div className="subSectionTitle">
-              <h3>플레이어 검색</h3>
-              <p>영문성함 또는 한글성함으로 등록된 플레이어를 찾습니다.</p>
-            </div>
-            <div className="playerSearchBar">
-              <div className="playerSearchInput">⌕
-                <input
-                  value={playerSearch}
-                  onChange={e=>setPlayerSearch(e.target.value)}
-                  placeholder="영문성함 또는 한글성함을 입력하세요"
-                />
-                {playerSearch && <button onClick={()=>setPlayerSearch("")}>✕</button>}
-              </div>
-              <span className="searchCount">{filteredPlayers.length}명 / 전체 {players.length}명</span>
-            </div>
-          </div>
+          </div>}
 
-
-
-          <div className="tableWrap"><table><thead><tr><th>영문성함</th><th>한글성함</th><th>회원번호</th><th>에이전트 코드</th><th>현재 정산 요율</th></tr></thead><tbody>{filteredPlayers.length===0?<tr><td colSpan={5} className="empty">{playerSearch?"검색 결과가 없습니다.":"등록된 플레이어가 없습니다."}</td></tr>:filteredPlayers.map(p=>{const a=agencies.find(x=>x.id===p.agencyId);return <tr key={p.id}><td><button className="playerNameButton" onClick={()=>setSelectedPlayerId(p.id)}>{p.name}</button></td><td>{p.koreanName||"-"}</td><td>{p.cardNo||"-"}</td><td><select className="cellInput" value={p.agencyId} onChange={e=>updatePlayerAgency(p.id,e.target.value)}>{agencies.map(x=><option key={x.id} value={x.id}>{x.code}</option>)}</select></td><td>{a?.rate??0}%</td></tr>})}</tbody></table></div>
-
-
-          </>}
-
-          {playerView==="list" && selectedPlayer && <div className="modalBackdrop playerDetailBackdrop" onClick={()=>setSelectedPlayerId(null)}>
+          {selectedPlayer && <div className="modalBackdrop playerDetailBackdrop" onClick={()=>setSelectedPlayerId(null)}>
             <div className="playerDetailModal" onClick={e=>e.stopPropagation()}>
               <div className="modalHeader">
                 <div>
