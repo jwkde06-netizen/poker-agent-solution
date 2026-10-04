@@ -431,10 +431,9 @@ export default function Home() {
         </div>
         <div className="searchBox">⌕ <input placeholder="에이전트 코드, 플레이어명, 이메일을 검색하세요..."/><kbd>⌘ K</kbd></div>
         <div className="accountArea">
-          <button className="themeSwitch" onClick={()=>applyTheme(theme==="dark"?"light":"dark")} aria-label="라이트/다크 모드 전환">
-            <span className="themeOption themeLightOption">☀ <em>라이트</em></span>
+          <button className="themeSwitch compactThemeSwitch" onClick={()=>applyTheme(theme==="dark"?"light":"dark")} aria-label={theme==="dark"?"라이트 모드로 전환":"다크 모드로 전환"} title={theme==="dark"?"라이트 모드":"다크 모드"}>
+            <span className="themeIcon">{theme==="dark"?"☾":"☀"}</span>
             <span className={`switchTrack ${theme==="dark"?"dark":""}`}><span className="switchKnob"/></span>
-            <span className="themeOption themeDarkOption">☾ <em>다크</em></span>
           </button>
           <button className="ghostButton">⇄ 에이전트 보기</button>
           <span className="roleBadge">관리자</span>
