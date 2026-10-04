@@ -994,3 +994,92 @@ html[data-theme="dark"] .themeIcon{color:#e1ae49}
   .workspaceTopbar .themeIcon{display:inline-grid}
   .workspaceTopbar .switchTrack{display:inline-block}
 }
+
+/* Interactive sales chart */
+.salesChartCard{overflow:hidden}
+.salesChartHeader{
+  display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:10px
+}
+.salesChartHeader h2{margin:0;font-size:18px;color:#202327}
+.salesChartHeader p{margin:5px 0 0;color:var(--muted);font-size:11px}
+.chartRangeTabs{
+  display:inline-flex;align-items:center;gap:3px;
+  padding:3px;border:1px solid var(--line);border-radius:10px;background:#f7f8fa
+}
+.chartRangeTabs button{
+  min-width:48px;height:32px;padding:0 10px;border:0;border-radius:7px;
+  background:transparent;color:#777f88;font-size:11px;font-weight:750;cursor:pointer
+}
+.chartRangeTabs button:hover{transform:none;background:#fff}
+.chartRangeTabs button.active{
+  background:#fff;color:#855e12;
+  box-shadow:0 1px 4px rgba(20,24,28,.08)
+}
+.salesTotalBlock{margin:6px 0 16px}
+.salesTotalBlock span{display:block;color:#858c94;font-size:10px;font-weight:700}
+.salesTotalBlock b{display:block;margin-top:4px;font-size:25px;color:#17191c;letter-spacing:-.035em}
+.salesBars{
+  height:230px;
+  display:flex;align-items:stretch;gap:8px;
+  padding:12px 4px 0;
+  border-top:1px solid var(--line);
+  background:repeating-linear-gradient(to bottom,transparent 0,transparent 53px,#f1f3f5 54px)
+}
+.salesBarItem{
+  min-width:0;flex:1;
+  display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:7px
+}
+.salesBarTrack{
+  width:min(30px,78%);
+  flex:1;
+  min-height:0;
+  display:flex;align-items:flex-end;
+  border-radius:6px 6px 2px 2px;
+  background:#f0f1f3;
+  overflow:hidden
+}
+.salesBarFill{
+  width:100%;
+  min-height:0;
+  border-radius:6px 6px 2px 2px;
+  background:linear-gradient(180deg,#d7aa4d,#b9821c);
+  transition:height .22s ease
+}
+.salesBarItem>span{
+  width:100%;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  text-align:center;color:#7d858e;font-size:9px
+}
+.salesBars-month{gap:3px}
+.salesBars-month .salesBarTrack{width:min(16px,82%)}
+.salesBars-month .salesBarItem>span{font-size:8px}
+.salesBars-month .salesBarItem:nth-child(even)>span{visibility:hidden}
+
+html[data-theme="dark"] .salesChartHeader h2,
+html[data-theme="dark"] .salesTotalBlock b{color:#f3f3f3}
+html[data-theme="dark"] .chartRangeTabs{background:#151515;border-color:#2b2b2b}
+html[data-theme="dark"] .chartRangeTabs button{color:#999}
+html[data-theme="dark"] .chartRangeTabs button.active{background:#242018;color:#e2b052}
+html[data-theme="dark"] .salesBars{
+  border-color:#272727;
+  background:repeating-linear-gradient(to bottom,transparent 0,transparent 53px,#1b1b1b 54px)
+}
+html[data-theme="dark"] .salesBarTrack{background:#202020}
+
+@media(max-width:820px){
+  .salesChartHeader{align-items:center}
+  .salesChartHeader h2{font-size:16px}
+  .chartRangeTabs button{min-width:44px;height:34px;padding:0 8px}
+  .salesTotalBlock b{font-size:23px}
+  .salesBars{height:205px;gap:5px}
+  .salesBars-day .salesBarTrack{width:min(34px,80%)}
+  .salesBars-week .salesBarTrack{width:min(30px,76%)}
+  .salesBars-month{
+    overflow-x:auto;
+    justify-content:flex-start;
+    gap:4px;
+    padding-bottom:4px;
+  }
+  .salesBars-month .salesBarItem{flex:0 0 18px}
+  .salesBars-month .salesBarTrack{width:12px}
+}
