@@ -1382,3 +1382,114 @@ html[data-theme="dark"] .dailyEquation{background:#171717;color:#aaa}
   .dailyCompactCard b{font-size:14px}
   .dailyAgentCompactRow{padding-top:6px;padding-bottom:6px}
 }
+
+/* Vertical daily financial statement */
+.dailyStatementList{
+  border:1px solid var(--line);
+  border-radius:14px;
+  overflow:hidden;
+  background:#fff;
+}
+.dailyStatementLine{
+  min-height:54px;
+  padding:0 14px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  border-bottom:1px solid var(--line);
+}
+.dailyStatementLine:last-child{border-bottom:0}
+.dailyStatementLine span{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  color:#4e555d;
+  font-size:12px;
+  font-weight:750;
+}
+.dailyStatementLine span small{
+  color:#969da4;
+  font-size:9px;
+  font-weight:650;
+}
+.dailyStatementLine b{
+  color:#24272b;
+  font-size:14px;
+  letter-spacing:-.025em;
+}
+.dailyStatementLine.income{
+  background:#fafafa;
+}
+.dailyStatementLine.expense b{color:#b16e42}
+.dailyStatementLine.muted span,
+.dailyStatementLine.muted b{color:#9aa1a8}
+.dailyStatementSectionLabel{
+  padding:8px 14px;
+  border-bottom:1px solid var(--line);
+  background:#f6f7f8;
+  color:#8a9199;
+  font-size:9px;
+  font-weight:850;
+  letter-spacing:.04em;
+}
+.dailyStatementLine.subtotal{
+  min-height:48px;
+  background:#f7f8f9;
+  border-top:1px solid var(--line-strong);
+}
+.dailyStatementLine.subtotal span,
+.dailyStatementLine.subtotal b{
+  font-weight:850;
+}
+.dailyStatementLine.profit{
+  min-height:64px;
+  background:#fff9e9;
+  border-top:2px solid #c99631;
+}
+.dailyStatementLine.profit span{
+  color:#6f571f;
+  font-size:13px;
+  font-weight:900;
+}
+.dailyStatementLine.profit b{
+  color:#b37b0e;
+  font-size:20px;
+  font-weight:900;
+}
+html[data-theme="dark"] .dailyStatementList{
+  background:#101010;
+  border-color:#292929;
+}
+html[data-theme="dark"] .dailyStatementLine{
+  border-color:#292929;
+}
+html[data-theme="dark"] .dailyStatementLine span,
+html[data-theme="dark"] .dailyStatementLine b{color:#e6e6e6}
+html[data-theme="dark"] .dailyStatementLine.income{background:#121212}
+html[data-theme="dark"] .dailyStatementLine.expense b{color:#d99a6d}
+html[data-theme="dark"] .dailyStatementSectionLabel{
+  background:#171717;
+  border-color:#292929;
+  color:#7f858b;
+}
+html[data-theme="dark"] .dailyStatementLine.subtotal{
+  background:#171717;
+  border-color:#343434;
+}
+html[data-theme="dark"] .dailyStatementLine.profit{
+  background:#1c170c;
+  border-top-color:#c99631;
+}
+html[data-theme="dark"] .dailyStatementLine.profit span,
+html[data-theme="dark"] .dailyStatementLine.profit b{color:#e0ad49}
+
+@media(max-width:820px){
+  .compactDailyPanel{padding:10px}
+  .dailyStatementLine{min-height:46px;padding:0 12px}
+  .dailyStatementLine span{font-size:11px}
+  .dailyStatementLine b{font-size:13px}
+  .dailyStatementLine.profit{min-height:56px}
+  .dailyStatementLine.profit b{font-size:18px}
+  .dailyStatementSectionLabel{padding:7px 12px}
+}
