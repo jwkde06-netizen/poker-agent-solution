@@ -502,7 +502,6 @@ export default function Home() {
           <div className="playerSectionActions">
             <div>
               <h3>플레이어 검색</h3>
-              <p>영문 또는 한글로 성함을 입력하세요.</p>
             </div>
             <button className="primary addPlayerButton" onClick={()=>setPlayerView("add")}>＋ 플레이어 추가</button>
           </div>
