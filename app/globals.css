@@ -790,3 +790,179 @@ html[data-theme="dark"] .themeDarkOption{color:#e6b451}
   .pageHeading .eyebrow{display:none}
   html[data-theme="dark"] .mobileTopTitle{color:#f4f4f4}
 }
+
+/* Dashboard visual refresh */
+.dashboardKpi{
+  position:relative;
+  width:100%;
+  text-align:left;
+  cursor:pointer;
+}
+.dashboardKpi .kpiCopy{min-width:0}
+.dashboardKpi .kpiArrow{
+  margin-left:auto;
+  color:#a7adb4;
+  font-size:26px;
+  line-height:1;
+}
+.dashboardKpi:hover{border-color:#d9bf82;background:#fffdf8}
+.dashboardEmpty{
+  padding:24px;
+  border:1px dashed var(--line);
+  border-radius:14px;
+  text-align:center;
+  color:var(--muted);
+  font-size:12px;
+}
+.recentSettlementHero{
+  display:grid;
+  grid-template-columns:auto minmax(0,1fr) auto;
+  align-items:center;
+  gap:14px;
+  padding:16px;
+  margin-bottom:14px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:linear-gradient(180deg,#fff,#fafafa);
+}
+.recentSettlementIcon{
+  width:46px;height:46px;
+  display:grid;place-items:center;
+  border-radius:12px;
+  background:var(--gold-soft);
+  color:#9c6d14;
+  font-size:21px;
+}
+.recentSettlementCopy strong{display:block;font-size:14px;color:#25282c}
+.recentSettlementCopy span{display:block;margin-top:5px;font-size:11px;color:#858c94}
+.recentSettlementAmount{text-align:right}
+.recentSettlementAmount small{display:block;color:#8a9199;font-size:10px}
+.recentSettlementAmount b{display:block;margin-top:4px;color:#8a6212;font-size:20px}
+.recentSettlementAmount em{
+  display:inline-block;margin-top:6px;
+  padding:4px 8px;border-radius:999px;
+  background:var(--green-soft);color:#18713d;
+  font-size:9px;font-style:normal;font-weight:800
+}
+.mobileTopTitle img{display:none}
+
+html[data-theme="dark"] .dashboardKpi:hover{background:#15120c;border-color:#4a3a1d}
+html[data-theme="dark"] .recentSettlementHero{
+  background:linear-gradient(180deg,#151515,#101010);
+  border-color:#292929
+}
+html[data-theme="dark"] .recentSettlementCopy strong{color:#f0f0f0}
+html[data-theme="dark"] .recentSettlementAmount b{color:#e1ae49}
+
+@media(max-width:820px){
+  .workspaceTopbar{
+    min-height:62px;
+  }
+  .mobileTopTitle{
+    display:flex;
+    align-items:center;
+    gap:9px;
+    font-size:13px;
+  }
+  .mobileTopTitle img{
+    display:block;
+    width:34px;height:34px;
+    object-fit:contain;
+  }
+
+  .dashboardKpis{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:10px!important;
+  }
+  .dashboardKpi{
+    min-height:118px;
+    padding:14px 12px!important;
+    display:grid;
+    grid-template-columns:auto minmax(0,1fr);
+    align-items:start;
+    gap:10px;
+  }
+  .dashboardKpi .kpiIcon{
+    width:40px;height:40px;
+    font-size:19px;
+  }
+  .dashboardKpi .kpiCopy span{font-size:11px}
+  .dashboardKpi .kpiCopy b{
+    margin-top:7px;
+    font-size:20px;
+    line-height:1.15;
+    word-break:keep-all;
+  }
+  .dashboardKpi .kpiCopy small{
+    margin-top:6px;
+    font-size:9px;
+  }
+  .dashboardKpi .kpiArrow{
+    position:absolute;
+    top:12px;
+    right:10px;
+    font-size:20px;
+  }
+
+  .dashboardRecent{order:2}
+  .desktopRecentTable{display:none}
+  .recentSettlementHero{
+    grid-template-columns:auto minmax(0,1fr);
+    gap:12px;
+    margin-bottom:0;
+  }
+  .recentSettlementAmount{
+    grid-column:1/-1;
+    display:flex;
+    align-items:end;
+    justify-content:space-between;
+    gap:12px;
+    text-align:left;
+    padding-top:10px;
+    border-top:1px solid var(--line);
+  }
+  .recentSettlementAmount b{font-size:22px}
+
+  .redesignedDashboardGrid{
+    display:flex!important;
+    flex-direction:column;
+    gap:12px!important;
+  }
+  .redesignedDashboardGrid .chartCard{order:1}
+  .redesignedDashboardGrid .agentSummaryCard{order:2}
+
+  .chartCard .cardHeader{
+    align-items:center;
+  }
+  .chartCard .fakeChart{
+    height:180px;
+    padding:24px 8px 14px;
+  }
+  .chartLegend{font-size:9px;gap:12px}
+
+  .agentSummaryCard .summaryTable{border-radius:12px}
+  .agentSummaryCard .summaryHead,
+  .agentSummaryCard .summaryRow{
+    grid-template-columns:1.2fr .8fr .7fr .8fr;
+    padding:10px 9px;
+    gap:5px;
+  }
+  .agentSummaryCard .summaryHead{font-size:9px}
+  .agentSummaryCard .summaryRow{font-size:10px}
+  .agentSummaryCard .summaryRow strong{font-size:11px}
+
+  .pageHeading{
+    margin-bottom:12px;
+  }
+  .pageHeading h1{
+    font-size:22px;
+  }
+}
+
+@media(max-width:430px){
+  .mobileTopTitle span{font-size:12px}
+  .dashboardKpi{min-height:112px}
+  .dashboardKpi .kpiCopy b{font-size:18px}
+  .recentSettlementCopy strong{font-size:13px}
+  .recentSettlementAmount b{font-size:20px}
+}
