@@ -47,7 +47,7 @@ function plusDays(dateString: string, days: number) {
 }
 
 export default function Home() {
-  const [tab, setTab] = useState<"dashboard"|"agencies"|"players"|"games"|"daily"|"weekly"|"reports"|"settings">("dashboard");
+  const [tab, setTab] = useState<"dashboard"|"agencies"|"players"|"games"|"daily"|"weekly"|"reports"|"settings"|"fnb">("dashboard");
   const [agencies, setAgencies] = useState<Agency[]>(DEFAULT_AGENCIES);
   const [players, setPlayers] = useState<Player[]>([]);
   const [entries, setEntries] = useState<GameEntry[]>([]);
@@ -404,6 +404,14 @@ export default function Home() {
     {key:"settings",label:"설정",icon:"⚙"},
   ] as const;
 
+  const mobileNavItems = [
+    {key:"dashboard",label:"대시보드",icon:"⌂"},
+    {key:"games",label:"바이인",icon:"＋"},
+    {key:"daily",label:"일일정산",icon:"▤"},
+    {key:"weekly",label:"주간정산",icon:"▥"},
+    {key:"fnb",label:"F&B",icon:"☕"},
+  ] as const;
+
   return <main className="appShell">
     <aside className="sidebar">
       <div className="brand">
@@ -454,6 +462,7 @@ export default function Home() {
               tab==="games"?"게임 입력":
               tab==="daily"?"일일 정산":
               tab==="weekly"?"주간 정산":
+              tab==="fnb"?"F&B":
               tab==="reports"?"리포트":"설정"}</h1>
             <p className="sub">플레이어 등록부터 코드별 레이크백, 일일·주간 정산까지 한 곳에서 관리합니다.</p>
           </div>
@@ -705,15 +714,21 @@ export default function Home() {
           <div className="tableWrap"><table><thead><tr><th>플레이어</th><th>에이전트</th><th>바이인</th><th>총 레이크</th><th>레이크백</th></tr></thead><tbody>{weeklyPlayerRows.length===0?<tr><td colSpan={5} className="empty">해당 기간의 정산 기록이 없습니다.</td></tr>:weeklyPlayerRows.map(r=><tr key={`${r.playerId}-${r.agency}`}><td>{r.playerName}</td><td>{r.agency}</td><td>{vnd(r.buyIn)}</td><td>{vnd(r.rake)}</td><td className="strong">{vnd(r.rakeback)}</td></tr>)}</tbody></table></div>
         </section>}
 
+        {tab==="fnb" && <section className="panel placeholderPanel"><h2>F&B</h2><p>직원용 F&B 입력 및 정산 기능을 이곳에서 관리합니다.</p></section>}
+
         {tab==="reports" && <section className="panel placeholderPanel"><h2>리포트</h2><p>에이전트별 정산 리포트와 다운로드 기능을 다음 단계에서 연결합니다.</p></section>}
         {tab==="settings" && <section className="panel placeholderPanel"><h2>설정</h2><p>권한, 에이전트 계정, 시스템 설정을 이곳에서 관리하게 됩니다.</p></section>}
       </div>
     </section>
 
     <nav className="mobileBottomNav" aria-label="모바일 메뉴">
-      {navItems.map(item=><button key={item.key} className={tab===item.key?"active":""} onClick={()=>setTab(item.key as any)}>
+      {mobileNavItems.map(item=><button
+        key={item.key}
+        className={`${tab===item.key?"active":""} ${item.key==="games"?"buyinNavItem":""}`}
+        onClick={()=>setTab(item.key as any)}
+      >
         <span className="mobileNavIcon">{item.icon}</span>
-        <span>{item.label.replace(" 관리","").replace(" 정산","")}</span>
+        <span>{item.label}</span>
       </button>)}
     </nav>
   </main>;
