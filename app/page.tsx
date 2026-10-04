@@ -53,6 +53,7 @@ export default function Home() {
   const [session, setSession] = useState<Session | null>(null);
   const [syncing, setSyncing] = useState(false);
   const [message, setMessage] = useState("");
+  const [theme, setTheme] = useState<"light"|"dark">("light");
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -71,6 +72,18 @@ export default function Home() {
   const start = monday(today());
   const [weekStart, setWeekStart] = useState(start);
   const [weekEnd, setWeekEnd] = useState(plusDays(start, 6));
+
+  useEffect(() => {
+    const saved = localStorage.getItem("dream-poker-theme");
+    const nextTheme = saved === "dark" ? "dark" : "light";
+    setTheme(nextTheme);
+    document.documentElement.dataset.theme = nextTheme;
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    localStorage.setItem("dream-poker-theme", theme);
+  }, [theme]);
 
   async function loadFromDatabase() {
     if (!supabase) return;
@@ -285,6 +298,7 @@ export default function Home() {
   if (isSupabaseConfigured && !session) {
     return <main className="shell authShell">
       <section className="panel authPanel">
+        <button className="authThemeToggle" onClick={()=>setTheme(theme==="dark"?"light":"dark")}>{theme==="dark"?"☀ 라이트 모드":"☾ 다크 모드"}</button>
         <img className="authLogo" src="/dream-poker-logo.svg" alt="Dream Poker Da Nang"/>
         <p className="eyebrow">포커 에이전트 통합 정산</p>
         <h1>관리자 로그인</h1>
@@ -344,6 +358,10 @@ export default function Home() {
       <header className="workspaceTopbar">
         <div className="searchBox">⌕ <input placeholder="에이전트 코드, 플레이어명, 이메일을 검색하세요..."/><kbd>⌘ K</kbd></div>
         <div className="accountArea">
+          <button className="themeToggle" onClick={()=>setTheme(theme==="dark"?"light":"dark")} aria-label="테마 전환">
+            <span className={theme==="light"?"active":""}>☀ 라이트</span>
+            <span className={theme==="dark"?"active":""}>☾ 다크</span>
+          </button>
           <button className="ghostButton">⇄ 에이전트 보기</button>
           <span className="roleBadge">관리자</span>
           <span className="avatar">{session?.user.email?.slice(0,1).toUpperCase() || "A"}</span>
