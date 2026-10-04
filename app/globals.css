@@ -2125,3 +2125,146 @@ html[data-theme="dark"] .minusBuyinButton{
   }
   .buyinMoneyCell b{font-size:8px}
 }
+
+/* Mobile width hotfix only — keep buy-in UI inside viewport */
+@media(max-width:820px){
+  html,body{
+    width:100%;
+    max-width:100%;
+    overflow-x:hidden;
+  }
+
+  .workspace,
+  .contentArea,
+  .buyinPage,
+  .newTablePanel,
+  .liveTableOverview,
+  .liveTablesGrid,
+  .liveTableCard,
+  .liveTableHeader,
+  .tableLiveStats,
+  .livePlayerList,
+  .livePlayerColumns,
+  .livePlayerRow,
+  .tablePlayerSearch,
+  .tableSearchInput{
+    min-width:0!important;
+    max-width:100%!important;
+    box-sizing:border-box!important;
+  }
+
+  .contentArea{
+    width:100%!important;
+    padding-left:12px!important;
+    padding-right:12px!important;
+  }
+
+  .buyinPage,
+  .liveTablesGrid,
+  .liveTableCard{
+    width:100%!important;
+  }
+
+  .newTableForm{
+    width:100%!important;
+    max-width:100%!important;
+    grid-template-columns:minmax(0,1fr) 68px 88px!important;
+  }
+
+  .newTableForm input,
+  .newTableForm select,
+  .startTableButton{
+    min-width:0!important;
+    width:100%!important;
+    box-sizing:border-box!important;
+  }
+
+  .liveTableOverview{
+    width:100%!important;
+    max-width:100%!important;
+    padding-right:0!important;
+  }
+
+  .liveTableHeader{
+    padding-left:8px!important;
+    padding-right:8px!important;
+  }
+
+  .liveTableHeader>div:first-child{
+    flex:1 1 auto;
+    min-width:0!important;
+  }
+
+  .liveTableTitle{
+    min-width:0!important;
+    white-space:nowrap;
+  }
+
+  .closeTableButton{
+    flex:0 0 68px!important;
+    width:68px!important;
+    max-width:68px!important;
+    padding:0 5px!important;
+  }
+
+  .tableLiveStats{
+    width:100%!important;
+  }
+
+  .tableLiveStats>div{
+    min-width:0!important;
+    padding-left:6px!important;
+    padding-right:6px!important;
+  }
+
+  .livePlayerColumns,
+  .livePlayerRow{
+    grid-template-columns:minmax(0,1fr) 50px 58px 58px!important;
+    gap:3px!important;
+    padding-left:6px!important;
+    padding-right:6px!important;
+  }
+
+  .livePlayerInfo,
+  .buyinMoneyCell,
+  .buyinQuickActions{
+    min-width:0!important;
+  }
+
+  .buyinMoneyCell b{
+    font-size:8px!important;
+  }
+
+  .buyinQuickActions{
+    grid-template-columns:22px minmax(0,1fr)!important;
+    gap:3px!important;
+  }
+
+  .tablePlayerSearch{
+    padding-left:6px!important;
+    padding-right:6px!important;
+  }
+
+  .tableSearchResults{
+    left:6px!important;
+    right:6px!important;
+    width:auto!important;
+    max-width:calc(100% - 12px)!important;
+  }
+}
+
+@media(max-width:390px){
+  .contentArea{
+    padding-left:8px!important;
+    padding-right:8px!important;
+  }
+
+  .newTableForm{
+    grid-template-columns:minmax(0,1fr) 64px 82px!important;
+  }
+
+  .livePlayerColumns,
+  .livePlayerRow{
+    grid-template-columns:minmax(0,1fr) 46px 54px 54px!important;
+  }
+}
