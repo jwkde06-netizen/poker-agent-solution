@@ -153,15 +153,38 @@ export default function Home() {
 
   async function signIn() {
     if (!supabase) return;
+    const cleanEmail = email.trim();
+    if (!cleanEmail || !password) {
+      setMessage("이메일과 비밀번호를 입력해주세요.");
+      return;
+    }
     setMessage("");
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { error } = await supabase.auth.signInWithPassword({ email: cleanEmail, password });
     if (error) setMessage(error.message);
   }
+
   async function signUp() {
     if (!supabase) return;
+    const cleanEmail = email.trim();
+    if (!cleanEmail) {
+      setMessage("관리자 이메일을 입력해주세요.");
+      return;
+    }
+    if (!password) {
+      setMessage("비밀번호를 입력해주세요.");
+      return;
+    }
+    if (password.length < 6) {
+      setMessage("비밀번호는 6자 이상으로 입력해주세요.");
+      return;
+    }
     setMessage("");
-    const { error } = await supabase.auth.signUp({ email, password });
-    setMessage(error ? error.message : "가입 요청이 완료되었습니다. 이메일 인증이 설정되어 있다면 메일을 확인해주세요.");
+    const { error } = await supabase.auth.signUp({ email: cleanEmail, password });
+    if (error) {
+      setMessage(error.message);
+      return;
+    }
+    setMessage("관리자 계정 생성 요청이 완료되었습니다. 이메일 인증이 켜져 있으면 메일함을 확인해주세요.");
   }
   async function signOut() {
     if (!supabase) return;
