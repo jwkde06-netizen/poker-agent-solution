@@ -2371,3 +2371,5 @@ select
   (select count(*) from public.game_entries) as game_entries_imported;
 
 -- retry after large-payload workflow fix
+
+-- retry 2 after workflow rewrite
