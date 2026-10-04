@@ -393,7 +393,7 @@ export default function Home() {
   const todayRevenue = total(todayEntries,"rake");
   const todayGameCount = todayEntries.length;
 
-  const dashboardSalesData = useMemo(()=>{
+  const dashboardSalesData = (()=>{
     if(dashboardRange==="day"){
       return todayEntries.map((e,i)=>({
         label:e.game || `게임 ${i+1}`,
@@ -412,7 +412,7 @@ export default function Home() {
         value: entries.filter(e=>e.date===date).reduce((sum,e)=>sum+e.rake,0),
       };
     });
-  },[dashboardRange,entries,todayEntries]);
+  })();
 
   const dashboardSalesTotal = dashboardSalesData.reduce((sum,item)=>sum+item.value,0);
   const dashboardSalesMax = Math.max(1,...dashboardSalesData.map(item=>item.value));
