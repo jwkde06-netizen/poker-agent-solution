@@ -1287,3 +1287,98 @@ html[data-theme="dark"] .fnbDeleteButton{background:#1b1b1b;color:#aaa}
   .fnbSaveBar{gap:10px}
   .fnbSaveBar .primary{min-width:126px;padding-left:10px;padding-right:10px}
 }
+
+/* Compact daily settlement mobile dashboard */
+.compactDailyPage{display:grid}
+.compactDailyPanel{padding:16px}
+.compactDailyHeader{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  margin-bottom:12px
+}
+.compactDailyHeader>div span{display:block;color:#8a9199;font-size:10px;font-weight:800}
+.compactDailyHeader>div strong{display:block;margin-top:3px;color:#222;font-size:15px}
+.compactDailyDate{min-width:146px}
+.dailyCompactGrid{
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin-bottom:12px
+}
+.dailyCompactCard{
+  min-height:88px;padding:13px;border:1px solid var(--line);border-radius:14px;background:#fafafa
+}
+.dailyCompactCard span{display:block;color:#7f8790;font-size:10px;font-weight:800}
+.dailyCompactCard b{
+  display:block;margin-top:10px;color:#202327;font-size:18px;line-height:1.18;letter-spacing:-.035em
+}
+.dailyCompactCard.expense{background:#fffaf6}
+.dailyCompactCard.expense b{color:#a56135}
+.dailyCompactCard.profit{background:#fff9e9;border-color:#ead5a4}
+.dailyCompactCard.profit b{color:#8a6212}
+.dailyAgentCompactList{
+  border:1px solid var(--line);border-radius:13px;overflow:hidden;background:#fff
+}
+.dailyAgentCompactTitle,.dailyAgentCompactRow{
+  display:flex;align-items:center;justify-content:space-between;gap:12px
+}
+.dailyAgentCompactTitle{
+  padding:10px 12px;background:#f7f8f9;border-bottom:1px solid var(--line)
+}
+.dailyAgentCompactTitle span{font-size:11px;font-weight:800;color:#4f555c}
+.dailyAgentCompactTitle strong{font-size:12px;color:#333}
+.dailyAgentCompactRow{padding:8px 12px;border-bottom:1px solid var(--line)}
+.dailyAgentCompactRow:last-child{border-bottom:0}
+.dailyAgentCompactRow>span{font-size:11px;font-weight:750;color:#454b52}
+.dailyAgentCompactRow small{margin-left:6px;color:#969da4;font-size:9px;font-weight:600}
+.dailyAgentCompactRow b{font-size:11px;color:#8f5d3c}
+.dailyAgentEmpty{padding:12px;color:#969da4;font-size:10px;text-align:center}
+.dailyEquation{
+  display:flex;align-items:center;justify-content:flex-end;gap:7px;
+  margin-top:10px;padding:9px 11px;border-radius:11px;background:#f7f8f9;
+  color:#6e767f;font-size:10px
+}
+.dailyEquation em{font-style:normal;color:#a5abb1}
+.dailyEquation strong{color:#8a6212;font-size:12px}
+.dailyDetails{margin-top:10px;border-top:1px solid var(--line);padding-top:8px}
+.dailyDetails summary{
+  cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;
+  padding:8px 2px;color:#616870;font-size:11px;font-weight:800
+}
+.dailyDetails summary::-webkit-details-marker{display:none}
+.dailyDetails summary span{color:#999;font-weight:700}
+html[data-theme="dark"] .compactDailyHeader>div strong{color:#f2f2f2}
+html[data-theme="dark"] .dailyCompactCard{background:#121212;border-color:#292929}
+html[data-theme="dark"] .dailyCompactCard b{color:#f1f1f1}
+html[data-theme="dark"] .dailyCompactCard.expense{background:#17130f}
+html[data-theme="dark"] .dailyCompactCard.expense b{color:#d69a6e}
+html[data-theme="dark"] .dailyCompactCard.profit{background:#1d180e;border-color:#49391d}
+html[data-theme="dark"] .dailyCompactCard.profit b{color:#e1ae49}
+html[data-theme="dark"] .dailyAgentCompactList{background:#101010;border-color:#292929}
+html[data-theme="dark"] .dailyAgentCompactTitle{background:#171717;border-color:#292929}
+html[data-theme="dark"] .dailyAgentCompactTitle span,
+html[data-theme="dark"] .dailyAgentCompactTitle strong,
+html[data-theme="dark"] .dailyAgentCompactRow>span{color:#ddd}
+html[data-theme="dark"] .dailyAgentCompactRow{border-color:#252525}
+html[data-theme="dark"] .dailyEquation{background:#171717;color:#aaa}
+
+@media(max-width:820px){
+  .compactDailyPanel{padding:12px}
+  .compactDailyHeader{margin-bottom:9px}
+  .compactDailyHeader>div span{font-size:9px}
+  .compactDailyHeader>div strong{font-size:13px}
+  .compactDailyDate{min-width:132px;height:40px;font-size:13px}
+  .dailyCompactGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-bottom:9px}
+  .dailyCompactCard{min-height:74px;padding:10px 11px;border-radius:12px}
+  .dailyCompactCard span{font-size:9px}
+  .dailyCompactCard b{margin-top:7px;font-size:15px}
+  .dailyAgentCompactTitle{padding:8px 10px}
+  .dailyAgentCompactRow{padding:7px 10px}
+  .dailyEquation{margin-top:8px;padding:7px 9px}
+  .dailyDetails{margin-top:7px;padding-top:5px}
+  .dailyDetails summary{padding:6px 1px}
+}
+
+@media(max-width:430px){
+  .compactDailyPanel{padding:10px}
+  .compactDailyDate{min-width:124px}
+  .dailyCompactCard{min-height:70px}
+  .dailyCompactCard b{font-size:14px}
+  .dailyAgentCompactRow{padding-top:6px;padding-bottom:6px}
+}
