@@ -317,3 +317,88 @@ html[data-theme="dark"] .searchCount{color:#8f8f8f}
 html[data-theme="dark"] .playerSearchSection{background:#0d0d0d;border-color:#272727}
 html[data-theme="dark"] .playerAddSection{background:#17130c;border-color:#4b3b1e}
 html[data-theme="dark"] .subSectionTitle h3{color:#f1f1f1}
+
+/* Softer typography and modal player flow */
+html,body{
+  font-family:"Pretendard Variable","Pretendard","Noto Sans KR",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  letter-spacing:-0.015em;
+}
+body{font-weight:450}
+h1,h2,h3,strong,b{letter-spacing:-0.03em}
+.pageHeading h1{font-size:30px;font-weight:760}
+.sectionTitle h2,.cardHeader h2,.placeholderPanel h2{font-weight:720}
+.sub,.sectionTitle p,.cardHeader p{line-height:1.6}
+.sideNav button{font-weight:650}
+.kpiCard b{font-weight:760}
+.primary,.secondary,.ghostButton,.outlineGold{font-weight:650}
+.panel,.dashCard,.kpiCard{border-radius:16px}
+.tableWrap{border-radius:12px}
+th{font-weight:700}
+td{line-height:1.5}
+.playerSearchSection{border-radius:14px}
+.playerSearchInput{height:46px;border-radius:12px}
+.addPlayerButton{border-radius:11px;padding:11px 15px}
+
+.modalBackdrop{
+  position:fixed;inset:0;z-index:50;
+  display:grid;place-items:center;padding:24px;
+  background:rgba(17,19,22,.42);
+  backdrop-filter:blur(4px);
+}
+.playerModal{
+  width:min(480px,100%);
+  background:#fff;border:1px solid #e5e7ea;border-radius:22px;
+  box-shadow:0 28px 80px rgba(17,19,22,.2);
+  overflow:hidden;
+}
+.modalHeader{
+  display:flex;align-items:flex-start;justify-content:space-between;gap:20px;
+  padding:24px 24px 18px;border-bottom:1px solid #eef0f2;
+}
+.modalEyebrow{
+  display:block;margin-bottom:7px;
+  color:#ad7b1d;font-size:10px;font-weight:800;letter-spacing:.14em;
+}
+.modalHeader h3{margin:0;font-size:22px;font-weight:760;color:#17191c}
+.modalHeader p{margin:7px 0 0;color:#7c838b;font-size:12px;line-height:1.55}
+.modalClose{
+  width:34px;height:34px;border:0;border-radius:10px;background:#f4f5f6;
+  color:#777f87;font-size:22px;line-height:1;cursor:pointer
+}
+.modalClose:hover{background:#ebedf0;color:#222}
+.modalForm{display:grid;gap:16px;padding:22px 24px}
+.modalForm label{display:grid;gap:8px}
+.modalForm label>span{font-size:12px;font-weight:700;color:#555d65}
+.modalForm input,.modalForm select{
+  height:46px;width:100%;border:1px solid #d9dde1;background:#fff;color:#202327;
+  border-radius:11px;padding:0 13px;outline:none
+}
+.modalForm input:focus,.modalForm select:focus{
+  border-color:#c79a41;box-shadow:0 0 0 4px rgba(199,154,65,.11)
+}
+.modalActions{
+  display:flex;justify-content:flex-end;gap:9px;
+  padding:16px 24px 22px;background:#fafafa;border-top:1px solid #eef0f2
+}
+.modalActions .secondary,.modalActions .primary{min-width:92px;border-radius:10px}
+.modalPrimary{padding-left:18px;padding-right:18px}
+
+html[data-theme="dark"] .modalBackdrop{background:rgba(0,0,0,.68)}
+html[data-theme="dark"] .playerModal{background:#111;border-color:#2b2b2b;box-shadow:0 28px 80px rgba(0,0,0,.56)}
+html[data-theme="dark"] .modalHeader{border-color:#262626}
+html[data-theme="dark"] .modalHeader h3{color:#f4f4f4}
+html[data-theme="dark"] .modalHeader p{color:#929292}
+html[data-theme="dark"] .modalClose{background:#1d1d1d;color:#aaa}
+html[data-theme="dark"] .modalClose:hover{background:#252525;color:#fff}
+html[data-theme="dark"] .modalForm label>span{color:#c7c7c7}
+html[data-theme="dark"] .modalForm input,
+html[data-theme="dark"] .modalForm select{background:#0b0b0b;border-color:#303030;color:#eee}
+html[data-theme="dark"] .modalActions{background:#0d0d0d;border-color:#242424}
+
+@media(max-width:640px){
+  .modalBackdrop{padding:14px;align-items:end}
+  .playerModal{border-radius:20px 20px 14px 14px}
+  .modalHeader{padding:20px 18px 16px}
+  .modalForm{padding:18px}
+  .modalActions{padding:14px 18px 18px}
+}
