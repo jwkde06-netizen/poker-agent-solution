@@ -513,7 +513,7 @@ export default function Home() {
             </div>
             <div className="formGrid">
               <label>플레이어 이름<input value={playerName} onChange={e=>setPlayerName(e.target.value)} placeholder="플레이어 이름"/></label>
-              <label>카드 번호<input value={playerCard} onChange={e=>setPlayerCard(e.target.value)} placeholder="선택 입력"/></label>
+              <label>회원번호<input value={playerCard} onChange={e=>setPlayerCard(e.target.value)} placeholder="선택 입력"/></label>
               <label>에이전트 코드<select value={playerAgencyId} onChange={e=>setPlayerAgencyId(e.target.value)}>{activeAgencies.map(a=><option key={a.id} value={a.id}>{a.code} · {a.rate}%</option>)}</select></label>
               <div className="playerAddActions">
                 <button className="secondary" onClick={()=>setShowPlayerAdd(false)}>취소</button>
@@ -522,7 +522,7 @@ export default function Home() {
             </div>
           </div>}
 
-          <div className="tableWrap"><table><thead><tr><th>플레이어</th><th>카드 번호</th><th>에이전트 코드</th><th>현재 정산 요율</th></tr></thead><tbody>{filteredPlayers.length===0?<tr><td colSpan={4} className="empty">{playerSearch?"검색 결과가 없습니다.":"등록된 플레이어가 없습니다."}</td></tr>:filteredPlayers.map(p=>{const a=agencies.find(x=>x.id===p.agencyId);return <tr key={p.id}><td>{p.name}</td><td>{p.cardNo||"-"}</td><td><select className="cellInput" value={p.agencyId} onChange={e=>updatePlayerAgency(p.id,e.target.value)}>{agencies.map(x=><option key={x.id} value={x.id}>{x.code}</option>)}</select></td><td>{a?.rate??0}%</td></tr>})}</tbody></table></div>
+          <div className="tableWrap"><table><thead><tr><th>플레이어</th><th>회원번호</th><th>에이전트 코드</th><th>현재 정산 요율</th></tr></thead><tbody>{filteredPlayers.length===0?<tr><td colSpan={4} className="empty">{playerSearch?"검색 결과가 없습니다.":"등록된 플레이어가 없습니다."}</td></tr>:filteredPlayers.map(p=>{const a=agencies.find(x=>x.id===p.agencyId);return <tr key={p.id}><td>{p.name}</td><td>{p.cardNo||"-"}</td><td><select className="cellInput" value={p.agencyId} onChange={e=>updatePlayerAgency(p.id,e.target.value)}>{agencies.map(x=><option key={x.id} value={x.id}>{x.code}</option>)}</select></td><td>{a?.rate??0}%</td></tr>})}</tbody></table></div>
         </section>}
 
         {tab==="games" && <section className="panel">
