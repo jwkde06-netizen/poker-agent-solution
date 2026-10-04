@@ -762,3 +762,31 @@ html[data-theme="dark"] .themeDarkOption{color:#e6b451}
   .workspaceTopbar .switchKnob{width:14px;height:14px;top:3px;left:3px}
   .workspaceTopbar .switchTrack.dark .switchKnob{transform:translateX(16px)}
 }
+
+.mobileTopTitle{display:none}
+
+@media(max-width:820px){
+  .workspaceTopbar{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) auto;
+    align-items:center;
+    gap:10px;
+  }
+  .mobileTopTitle{
+    display:block;
+    min-width:0;
+    color:#191b1e;
+    font-size:14px;
+    font-weight:800;
+    letter-spacing:-0.03em;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .workspaceTopbar .accountArea{
+    width:auto;
+    justify-content:flex-end;
+  }
+  .pageHeading .eyebrow{display:none}
+  html[data-theme="dark"] .mobileTopTitle{color:#f4f4f4}
+}
