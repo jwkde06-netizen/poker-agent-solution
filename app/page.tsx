@@ -56,6 +56,7 @@ export default function Home() {
   const [syncing, setSyncing] = useState(false);
   const [message, setMessage] = useState("");
   const [theme, setTheme] = useState<"light"|"dark">("light");
+  const [dashboardRange, setDashboardRange] = useState<"day"|"week"|"month">("week");
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -391,6 +392,30 @@ export default function Home() {
   const todaySettlement = total(todayEntries,"rakeback");
   const todayRevenue = total(todayEntries,"rake");
   const todayGameCount = todayEntries.length;
+
+  const dashboardSalesData = useMemo(()=>{
+    if(dashboardRange==="day"){
+      return todayEntries.map((e,i)=>({
+        label:e.game || `게임 ${i+1}`,
+        value:e.rake,
+      }));
+    }
+
+    const days = dashboardRange==="week" ? 7 : 30;
+    return Array.from({length:days},(_,idx)=>{
+      const offset = -(days-1-idx);
+      const date = plusDays(today(),offset);
+      return {
+        label: dashboardRange==="week"
+          ? new Date(`${date}T00:00:00`).toLocaleDateString("ko-KR",{weekday:"short"})
+          : date.slice(5).replace("-","/"),
+        value: entries.filter(e=>e.date===date).reduce((sum,e)=>sum+e.rake,0),
+      };
+    });
+  },[dashboardRange,entries,todayEntries]);
+
+  const dashboardSalesTotal = dashboardSalesData.reduce((sum,item)=>sum+item.value,0);
+  const dashboardSalesMax = Math.max(1,...dashboardSalesData.map(item=>item.value));
   const weekSettlement = total(thisWeekEntries,"rakeback");
   const recentEntries = [...entries].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,6);
   const navItems = [
@@ -507,13 +532,34 @@ export default function Home() {
           </section>
 
           <div className="dashboardGrid redesignedDashboardGrid">
-            <section className="dashCard chartCard">
-              <div className="cardHeader"><div><h2>주간 정산 추이</h2><p>최근 입력 기록 기준</p></div><span className="miniSelect">최근 7일</span></div>
-              <div className="fakeChart">
-                {[42,58,47,66,75,54,82,69,91,64,78,88,61,95,73,86,99].map((h,i)=><div key={i} className="bar" style={{height:`${h}%`}}></div>)}
-                <svg viewBox="0 0 600 160" preserveAspectRatio="none"><polyline points="0,120 75,110 150,88 225,82 300,77 375,74 450,60 525,47 600,28" fill="none" stroke="currentColor" strokeWidth="3"/></svg>
+            <section className="dashCard chartCard salesChartCard">
+              <div className="salesChartHeader">
+                <div>
+                  <h2>매출 추이</h2>
+                  <p>{dashboardRange==="day"?"오늘 매출":dashboardRange==="week"?"최근 7일 매출":"최근 30일 매출"}</p>
+                </div>
+                <div className="chartRangeTabs">
+                  <button className={dashboardRange==="day"?"active":""} onClick={()=>setDashboardRange("day")}>1일</button>
+                  <button className={dashboardRange==="week"?"active":""} onClick={()=>setDashboardRange("week")}>7일</button>
+                  <button className={dashboardRange==="month"?"active":""} onClick={()=>setDashboardRange("month")}>한 달</button>
+                </div>
               </div>
-              <div className="chartLegend"><span>● 정산 금액</span><span>● 플레이어 수</span></div>
+
+              <div className="salesTotalBlock">
+                <span>기간 매출</span>
+                <b>{vnd(dashboardSalesTotal)}</b>
+              </div>
+
+              <div className={`salesBars salesBars-${dashboardRange}`}>
+                {dashboardSalesData.length===0
+                  ? <div className="dashboardEmpty">오늘 입력된 매출 데이터가 없습니다.</div>
+                  : dashboardSalesData.map((item,i)=><div className="salesBarItem" key={`${item.label}-${i}`}>
+                      <div className="salesBarTrack" title={`${item.label} · ${vnd(item.value)}`}>
+                        <div className="salesBarFill" style={{height:`${Math.max(item.value>0?6:0,(item.value/dashboardSalesMax)*100)}%`}}/>
+                      </div>
+                      <span>{item.label}</span>
+                    </div>)}
+              </div>
             </section>
 
             <section className="dashCard agentSummaryCard">
