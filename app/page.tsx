@@ -62,6 +62,7 @@ export default function Home() {
   const [newAgencyRate, setNewAgencyRate] = useState("25");
   const [playerName, setPlayerName] = useState("");
   const [playerSearch, setPlayerSearch] = useState("");
+  const [showPlayerAdd, setShowPlayerAdd] = useState(false);
   const [playerCard, setPlayerCard] = useState("");
   const [playerAgencyId, setPlayerAgencyId] = useState("agency-korea2");
   const [gameDate, setGameDate] = useState(today());
@@ -477,26 +478,49 @@ export default function Home() {
         </section>}
 
         {tab==="players" && <section className="panel">
-          <div className="sectionTitle"><div><h2>플레이어 명단</h2><p>플레이어를 등록하고 담당 에이전트 코드를 지정합니다.</p></div></div>
-
-          <div className="playerSearchBar">
-            <div className="playerSearchInput">⌕
-              <input
-                value={playerSearch}
-                onChange={e=>setPlayerSearch(e.target.value)}
-                placeholder="플레이어 이름 검색"
-              />
-              {playerSearch && <button onClick={()=>setPlayerSearch("")}>✕</button>}
+          <div className="sectionTitle playerSectionHeader">
+            <div>
+              <h2>플레이어 관리</h2>
+              <p>플레이어를 검색하거나 새 플레이어를 등록합니다.</p>
             </div>
-            <span className="searchCount">{filteredPlayers.length}명 / 전체 {players.length}명</span>
+            <button className="primary addPlayerButton" onClick={()=>setShowPlayerAdd(v=>!v)}>
+              {showPlayerAdd?"닫기":"+ 플레이어 추가"}
+            </button>
           </div>
 
-          <div className="formGrid">
-            <label>플레이어<input value={playerName} onChange={e=>setPlayerName(e.target.value)} placeholder="플레이어 이름"/></label>
-            <label>카드 번호<input value={playerCard} onChange={e=>setPlayerCard(e.target.value)} placeholder="선택 입력"/></label>
-            <label>에이전트 코드<select value={playerAgencyId} onChange={e=>setPlayerAgencyId(e.target.value)}>{activeAgencies.map(a=><option key={a.id} value={a.id}>{a.code} · {a.rate}%</option>)}</select></label>
-            <button className="primary formButton" onClick={addPlayer}>플레이어 등록</button>
+          <div className="playerSearchSection">
+            <div className="subSectionTitle">
+              <h3>플레이어 검색</h3>
+              <p>이름으로 등록된 플레이어를 찾습니다.</p>
+            </div>
+            <div className="playerSearchBar">
+              <div className="playerSearchInput">⌕
+                <input
+                  value={playerSearch}
+                  onChange={e=>setPlayerSearch(e.target.value)}
+                  placeholder="플레이어 이름을 입력하세요"
+                />
+                {playerSearch && <button onClick={()=>setPlayerSearch("")}>✕</button>}
+              </div>
+              <span className="searchCount">{filteredPlayers.length}명 / 전체 {players.length}명</span>
+            </div>
           </div>
+
+          {showPlayerAdd && <div className="playerAddSection">
+            <div className="subSectionTitle">
+              <h3>플레이어 추가</h3>
+              <p>새 플레이어 정보를 입력한 뒤 등록하세요.</p>
+            </div>
+            <div className="formGrid">
+              <label>플레이어 이름<input value={playerName} onChange={e=>setPlayerName(e.target.value)} placeholder="플레이어 이름"/></label>
+              <label>카드 번호<input value={playerCard} onChange={e=>setPlayerCard(e.target.value)} placeholder="선택 입력"/></label>
+              <label>에이전트 코드<select value={playerAgencyId} onChange={e=>setPlayerAgencyId(e.target.value)}>{activeAgencies.map(a=><option key={a.id} value={a.id}>{a.code} · {a.rate}%</option>)}</select></label>
+              <div className="playerAddActions">
+                <button className="secondary" onClick={()=>setShowPlayerAdd(false)}>취소</button>
+                <button className="primary" onClick={async()=>{await addPlayer();setShowPlayerAdd(false);}}>플레이어 등록</button>
+              </div>
+            </div>
+          </div>}
 
           <div className="tableWrap"><table><thead><tr><th>플레이어</th><th>카드 번호</th><th>에이전트 코드</th><th>현재 정산 요율</th></tr></thead><tbody>{filteredPlayers.length===0?<tr><td colSpan={4} className="empty">{playerSearch?"검색 결과가 없습니다.":"등록된 플레이어가 없습니다."}</td></tr>:filteredPlayers.map(p=>{const a=agencies.find(x=>x.id===p.agencyId);return <tr key={p.id}><td>{p.name}</td><td>{p.cardNo||"-"}</td><td><select className="cellInput" value={p.agencyId} onChange={e=>updatePlayerAgency(p.id,e.target.value)}>{agencies.map(x=><option key={x.id} value={x.id}>{x.code}</option>)}</select></td><td>{a?.rate??0}%</td></tr>})}</tbody></table></div>
         </section>}
