@@ -1493,3 +1493,153 @@ html[data-theme="dark"] .dailyStatementLine.profit b{color:#e0ad49}
   .dailyStatementLine.profit b{font-size:18px}
   .dailyStatementSectionLabel{padding:7px 12px}
 }
+
+/* Live multi-table buy-in operations */
+.buyinPage{display:grid;gap:12px}
+.newTablePanel{padding:16px}
+.newTableHeading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+.newTableHeading h2{margin:0;font-size:18px}
+.newTableHeading p{margin:5px 0 0;color:var(--muted);font-size:11px}
+.liveTableCount{
+  padding:7px 10px;border-radius:999px;background:#fff6df;color:#96670d;
+  border:1px solid #ead19a;font-size:9px;font-weight:900;letter-spacing:.04em
+}
+.newTableForm{
+  display:grid;grid-template-columns:1.2fr 1fr auto;gap:10px;align-items:end
+}
+.newTableForm label{display:grid;gap:6px;color:#7d858d;font-size:10px;font-weight:800}
+.newTableForm input,.newTableForm select{
+  height:44px;border:1px solid var(--line-strong);border-radius:10px;padding:0 12px;
+  background:#fff;color:#222;font:inherit
+}
+.startTableButton{height:44px;padding:0 18px}
+.liveTablesGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.liveTableCard{padding:0;overflow:visible}
+.liveTableHeader{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:14px 15px;border-bottom:1px solid var(--line)
+}
+.liveTableTitle{display:flex;align-items:center;gap:7px;color:#222;font-size:17px;font-weight:900}
+.liveTableTitle em{
+  padding:4px 7px;border-radius:7px;background:#f3f4f5;color:#696f76;
+  font-style:normal;font-size:10px;font-weight:850
+}
+.liveTableHeader small{display:block;margin-top:5px;color:#969da4;font-size:9px}
+.liveDot{width:8px;height:8px;border-radius:50%;background:#28a96b;box-shadow:0 0 0 4px rgba(40,169,107,.12)}
+.closeTableButton{
+  height:34px;padding:0 10px;border:1px solid var(--line);border-radius:9px;
+  background:transparent;color:#7e858d;font-size:9px;font-weight:800;cursor:pointer
+}
+.tableLiveStats{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+  border-bottom:1px solid var(--line);background:#fafafa
+}
+.tableLiveStats>div{padding:10px 12px;border-right:1px solid var(--line)}
+.tableLiveStats>div:last-child{border-right:0}
+.tableLiveStats span{display:block;color:#90979e;font-size:8px;font-weight:800}
+.tableLiveStats b{display:block;margin-top:4px;color:#24272b;font-size:13px}
+.livePlayerList{display:grid}
+.livePlayerRow{
+  display:grid;grid-template-columns:minmax(0,1fr) 64px 88px;
+  align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--line)
+}
+.livePlayerInfo{min-width:0}
+.livePlayerInfo strong{
+  display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  color:#24272b;font-size:12px
+}
+.livePlayerInfo span{display:block;margin-top:3px;color:#8e959c;font-size:9px}
+.livePlayerInfo span small{margin-left:5px;color:#b0b5ba}
+.buyinCount{text-align:center}
+.buyinCount small{display:block;color:#9aa0a6;font-size:7px;font-weight:850;letter-spacing:.04em}
+.buyinCount b{display:block;margin-top:2px;color:#8a6212;font-size:18px}
+.buyinStepButtons{display:grid;grid-template-columns:34px 1fr;gap:5px}
+.buyinStepButtons button{
+  height:36px;border:1px solid var(--line);border-radius:9px;background:#f6f7f8;
+  color:#666;font-weight:900;cursor:pointer
+}
+.buyinStepButtons button:disabled{opacity:.3;cursor:default}
+.buyinStepButtons .addBuyinButton{
+  background:#c99631;border-color:#c99631;color:#111;font-size:12px
+}
+.emptyTablePlayers{padding:18px;text-align:center;color:#9aa0a6;font-size:10px}
+.tablePlayerSearch{position:relative;padding:11px 12px 13px}
+.tableSearchInput{
+  height:42px;display:flex;align-items:center;gap:8px;padding:0 11px;
+  border:1px solid var(--line-strong);border-radius:10px;background:#fff
+}
+.tableSearchInput span{color:#a0a6ac}
+.tableSearchInput input{flex:1;min-width:0;border:0;outline:0;background:transparent;color:#222;font-size:11px}
+.tableSearchResults{
+  position:absolute;left:12px;right:12px;top:54px;z-index:30;
+  border:1px solid var(--line);border-radius:11px;background:#fff;
+  box-shadow:0 16px 38px rgba(20,24,28,.14);overflow:hidden
+}
+.tableSearchResults button{
+  width:100%;display:grid;grid-template-columns:minmax(0,1fr) auto auto;
+  align-items:center;gap:8px;padding:9px 11px;border:0;border-bottom:1px solid var(--line);
+  background:#fff;text-align:left;cursor:pointer
+}
+.tableSearchResults button:last-child{border-bottom:0}
+.tableSearchResults button:hover{background:#faf8f2}
+.tableSearchResults button span{min-width:0}
+.tableSearchResults button strong{
+  display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#26292d;font-size:11px
+}
+.tableSearchResults button small{display:block;margin-top:2px;color:#999;font-size:8px}
+.tableSearchResults button em{font-style:normal;color:#858c93;font-size:8px}
+.tableSearchResults button b{
+  padding:5px 7px;border-radius:7px;background:#fff6df;color:#96670d;font-size:8px;white-space:nowrap
+}
+.buyinEmptyState{display:grid;place-items:center;min-height:160px;text-align:center}
+.buyinEmptyState strong{font-size:14px}
+.buyinEmptyState span{margin-top:5px;color:#969da4;font-size:10px}
+
+html[data-theme="dark"] .liveTableCount{background:#1d180e;border-color:#49391d;color:#e0ad49}
+html[data-theme="dark"] .newTableForm input,
+html[data-theme="dark"] .newTableForm select,
+html[data-theme="dark"] .tableSearchInput{background:#101010;border-color:#303030;color:#eee}
+html[data-theme="dark"] .liveTableTitle,
+html[data-theme="dark"] .livePlayerInfo strong,
+html[data-theme="dark"] .tableLiveStats b{color:#f1f1f1}
+html[data-theme="dark"] .liveTableTitle em{background:#1c1c1c;color:#aaa}
+html[data-theme="dark"] .tableLiveStats{background:#121212}
+html[data-theme="dark"] .tableLiveStats>div,
+html[data-theme="dark"] .liveTableHeader,
+html[data-theme="dark"] .livePlayerRow{border-color:#292929}
+html[data-theme="dark"] .buyinStepButtons button{background:#191919;border-color:#303030;color:#ccc}
+html[data-theme="dark"] .buyinStepButtons .addBuyinButton{background:#c99631;border-color:#c99631;color:#111}
+html[data-theme="dark"] .tableSearchResults{background:#111;border-color:#303030}
+html[data-theme="dark"] .tableSearchResults button{background:#111;border-color:#292929}
+html[data-theme="dark"] .tableSearchResults button:hover{background:#19160f}
+html[data-theme="dark"] .tableSearchResults button strong{color:#eee}
+html[data-theme="dark"] .tableSearchResults button b{background:#211a0d;color:#e0ad49}
+
+@media(max-width:980px){
+  .liveTablesGrid{grid-template-columns:1fr}
+}
+@media(max-width:820px){
+  .buyinPage{gap:9px}
+  .newTablePanel{padding:12px}
+  .newTableHeading{margin-bottom:10px}
+  .newTableHeading h2{font-size:15px}
+  .newTableHeading p{display:none}
+  .newTableForm{grid-template-columns:1fr 92px;gap:7px}
+  .newTableForm label span{font-size:8px}
+  .startTableButton{grid-column:1/-1;width:100%;height:42px}
+  .liveTablesGrid{gap:9px}
+  .liveTableHeader{padding:11px 12px}
+  .liveTableTitle{font-size:15px}
+  .tableLiveStats>div{padding:8px 10px}
+  .tableLiveStats b{font-size:12px}
+  .livePlayerRow{
+    grid-template-columns:minmax(0,1fr) 50px 82px;
+    padding:8px 10px;gap:6px
+  }
+  .livePlayerInfo strong{font-size:11px}
+  .buyinCount b{font-size:16px}
+  .buyinStepButtons{grid-template-columns:31px 1fr}
+  .buyinStepButtons button{height:34px}
+  .tablePlayerSearch{padding:9px 10px 11px}
+  .tableSearchResults{left:10px;right:10px;top:51px}
+}
