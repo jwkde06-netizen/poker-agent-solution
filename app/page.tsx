@@ -270,13 +270,13 @@ export default function Home() {
     <main className="shell">
       <header className="topbar">
         <div>
-          <p className="eyebrow">DREAM · 에이전트 운영</p>
+          <p className="eyebrow">드림 포커 · 에이전트 운영</p>
           <h1>포커 에이전트 통합 정산</h1>
           <p className="sub">
             플레이어 등록부터 코드별 레이크백, 일일·주간 정산까지 한 곳에서 관리합니다.
           </p>
         </div>
-        <div className="status">MVP · 브라우저 저장 모드</div>
+        <div className="status">개발 버전 · 브라우저 저장</div>
       </header>
 
       <nav className="tabs">
@@ -292,7 +292,7 @@ export default function Home() {
           <div className="sectionTitle">
             <div>
               <h2>에이전트 코드 관리</h2>
-              <p>코드명과 레이크백 요율은 언제든 변경할 수 있습니다.</p>
+              <p>코드명과 정산 요율은 언제든 변경할 수 있습니다.</p>
             </div>
           </div>
 
@@ -317,9 +317,9 @@ export default function Home() {
             <table>
               <thead>
                 <tr>
-                  <th>내부 ID</th>
+                  <th>내부 식별값</th>
                   <th>코드명</th>
-                  <th>레이크백 요율</th>
+                  <th>정산 요율</th>
                   <th>상태</th>
                 </tr>
               </thead>
@@ -372,7 +372,7 @@ export default function Home() {
           </div>
 
           <div className="note">
-            예: KOREA2를 HOUSE2로 바꿔도 내부 ID는 그대로 유지되므로 기존 플레이어 연결은 깨지지 않습니다. 요율을 변경해도 과거 게임은 당시 저장된 요율로 유지됩니다.
+            예: KOREA2를 HOUSE2로 바꿔도 내부 식별값는 그대로 유지되므로 기존 플레이어 연결은 깨지지 않습니다. 요율을 변경해도 과거 게임은 당시 저장된 요율로 유지됩니다.
           </div>
         </section>
       )}
@@ -428,7 +428,7 @@ export default function Home() {
                   <th>플레이어</th>
                   <th>카드 번호</th>
                   <th>에이전트 코드</th>
-                  <th>현재 요율</th>
+                  <th>현재 정산 요율</th>
                 </tr>
               </thead>
               <tbody>
@@ -517,7 +517,7 @@ export default function Home() {
                   <th>게임</th>
                   <th>플레이어</th>
                   <th>에이전트</th>
-                  <th>적용 요율</th>
+                  <th>적용 정산 요율</th>
                   <th>레이크</th>
                   <th>레이크백</th>
                 </tr>
@@ -551,7 +551,7 @@ export default function Home() {
           <div className="sectionTitle">
             <div>
               <h2>일일 정산</h2>
-              <p>날짜별 에이전트 지급액과 플레이어 정산 내역입니다.</p>
+              <p>날짜별 에이전트 정산액과 플레이어 정산 내역입니다.</p>
             </div>
             <input
               className="datePicker"
@@ -567,11 +567,11 @@ export default function Home() {
               <b>{money.format(dailyTotalRake)}</b>
             </div>
             <div className="metric">
-              <span>총 에이전트 지급액</span>
+              <span>총 에이전트 정산액</span>
               <b>{money.format(dailyTotalRakeback)}</b>
             </div>
             <div className="metric">
-              <span>지급 후 순액</span>
+              <span>정산 후 순액</span>
               <b>{money.format(dailyTotalRake - dailyTotalRakeback)}</b>
             </div>
           </div>
@@ -592,7 +592,7 @@ export default function Home() {
                 <tr>
                   <th>플레이어</th>
                   <th>에이전트</th>
-                  <th>적용 요율</th>
+                  <th>적용 정산 요율</th>
                   <th>레이크</th>
                   <th>레이크백</th>
                 </tr>
@@ -649,11 +649,11 @@ export default function Home() {
               <b>{money.format(weeklyTotalRake)}</b>
             </div>
             <div className="metric">
-              <span>주간 총 에이전트 지급액</span>
+              <span>주간 총 에이전트 정산액</span>
               <b>{money.format(weeklyTotalRakeback)}</b>
             </div>
             <div className="metric">
-              <span>주간 지급 후 순액</span>
+              <span>주간 정산 후 순액</span>
               <b>{money.format(weeklyTotalRake - weeklyTotalRakeback)}</b>
             </div>
           </div>
@@ -662,7 +662,7 @@ export default function Home() {
             {weeklyAgencyTotals.map((a) => (
               <div className="agencyCard" key={a.id}>
                 <span>{a.code}</span>
-                <small>현재 요율 {a.rate}%</small>
+                <small>현재 정산 요율 {a.rate}%</small>
                 <b>{money.format(a.amount)}</b>
               </div>
             ))}
