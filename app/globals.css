@@ -305,3 +305,15 @@ html[data-theme="dark"] .playerSearchInput input{color:#f2f2f2}
 html[data-theme="dark"] .playerSearchInput button{color:#aaa}
 html[data-theme="dark"] .searchCount{color:#8f8f8f}
 @media(max-width:820px){.playerSearchBar{align-items:stretch;flex-direction:column}.playerSearchInput{min-width:0;max-width:none;width:100%}.searchCount{text-align:right}}
+
+.playerSectionHeader{align-items:center}
+.addPlayerButton{white-space:nowrap}
+.playerSearchSection{margin-bottom:18px;padding:16px;border:1px solid var(--line);border-radius:12px;background:var(--surface-2)}
+.playerAddSection{margin-bottom:18px;padding:16px;border:1px solid #dec892;border-radius:12px;background:#fffaf0}
+.subSectionTitle{margin-bottom:12px}
+.subSectionTitle h3{margin:0;font-size:15px;color:#25282c}
+.subSectionTitle p{margin:4px 0 0;color:var(--muted);font-size:11px}
+.playerAddActions{display:flex;justify-content:flex-end;align-items:end;gap:8px}
+html[data-theme="dark"] .playerSearchSection{background:#0d0d0d;border-color:#272727}
+html[data-theme="dark"] .playerAddSection{background:#17130c;border-color:#4b3b1e}
+html[data-theme="dark"] .subSectionTitle h3{color:#f1f1f1}
