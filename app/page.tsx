@@ -66,6 +66,7 @@ export default function Home() {
   const [playerSearch, setPlayerSearch] = useState("");
   const [playerView, setPlayerView] = useState<"list"|"add">("list");
   const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
+  const [detailAgencyId, setDetailAgencyId] = useState("");
   const [playerCard, setPlayerCard] = useState("");
   const [playerNote, setPlayerNote] = useState("");
   const [playerAgencyId, setPlayerAgencyId] = useState("agency-korea2");
@@ -323,6 +324,12 @@ export default function Home() {
     setPlayerName(""); setPlayerKoreanName(""); setPlayerCard(""); setPlayerNote("");
   }
 
+  function openPlayerDetail(playerId:string) {
+    const player = players.find(p=>p.id===playerId);
+    setSelectedPlayerId(playerId);
+    setDetailAgencyId(player?.agencyId ?? "");
+  }
+
   async function updatePlayerAgency(playerId:string, agencyId:string) {
     setPlayers(prev=>prev.map(p=>p.id===playerId?{...p,agencyId}:p));
     if(isSupabaseConfigured && supabase && session){
@@ -522,7 +529,7 @@ export default function Home() {
 
 
 
-          <div className="tableWrap playerListTable"><table><thead><tr><th>플레이어</th><th>회원번호</th><th>에이전트</th></tr></thead><tbody>{filteredPlayers.length===0?<tr><td colSpan={3} className="empty">{playerSearch?"검색 결과가 없습니다.":"등록된 플레이어가 없습니다."}</td></tr>:filteredPlayers.map(p=>{return <tr key={p.id}><td><button className="playerNameButton playerNameStack" onClick={()=>setSelectedPlayerId(p.id)}><strong>{p.name}</strong>{p.koreanName && <span>{p.koreanName}</span>}</button></td><td>{p.cardNo||"-"}</td><td><select className="cellInput agencySelectCompact" value={p.agencyId} onChange={e=>updatePlayerAgency(p.id,e.target.value)}>{agencies.map(x=><option key={x.id} value={x.id}>{x.code}</option>)}</select></td></tr>})}</tbody></table></div>
+          <div className="tableWrap playerListTable"><table><thead><tr><th>플레이어</th><th>회원번호</th><th>에이전트</th></tr></thead><tbody>{filteredPlayers.length===0?<tr><td colSpan={3} className="empty">{playerSearch?"검색 결과가 없습니다.":"등록된 플레이어가 없습니다."}</td></tr>:filteredPlayers.map(p=>{return <tr key={p.id}><td><button className="playerNameButton playerNameStack" onClick={()=>openPlayerDetail(p.id)}><strong>{p.name}</strong>{p.koreanName && <span>{p.koreanName}</span>}</button></td><td>{p.cardNo||"-"}</td><td><span className="agencyCodeText">{agencies.find(x=>x.id===p.agencyId)?.code || "-"}</span></td></tr>})}</tbody></table></div>
 
 
 
@@ -585,6 +592,28 @@ export default function Home() {
                 <div className="playerStatCard"><span>참여 게임</span><b>{selectedPlayerEntries.length}회</b></div>
                 <div className="playerStatCard"><span>총 바이인</span><b>{money.format(selectedPlayerBuyIns)}회</b></div>
                 <div className="playerStatCard"><span>총 발생 레이크</span><b>{money.format(selectedPlayerRake)}</b></div>
+              </div>
+
+              <div className="playerAgencyEditor">
+                <div>
+                  <span>에이전트</span>
+                  <small>현재 정산 요율 {agencies.find(a=>a.id===selectedPlayer.agencyId)?.rate ?? 0}%</small>
+                </div>
+                <div className="playerAgencyControls">
+                  <select value={detailAgencyId || selectedPlayer.agencyId} onChange={e=>setDetailAgencyId(e.target.value)}>
+                    {agencies.map(a=><option key={a.id} value={a.id}>{a.code} · {a.rate}%</option>)}
+                  </select>
+                  <button
+                    className="primary"
+                    disabled={!detailAgencyId || detailAgencyId===selectedPlayer.agencyId}
+                    onClick={async()=>{
+                      if(!detailAgencyId || detailAgencyId===selectedPlayer.agencyId) return;
+                      await updatePlayerAgency(selectedPlayer.id,detailAgencyId);
+                    }}
+                  >
+                    변경 저장
+                  </button>
+                </div>
               </div>
 
               {selectedPlayer.note && <div className="playerNoteBox">
