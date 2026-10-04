@@ -2369,3 +2369,5 @@ join public.agencies a on a.code=s.agency_code;
 select
   (select count(*) from public.players) as players_imported,
   (select count(*) from public.game_entries) as game_entries_imported;
+
+-- retry after large-payload workflow fix
