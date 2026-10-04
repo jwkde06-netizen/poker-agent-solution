@@ -285,6 +285,7 @@ export default function Home() {
   if (isSupabaseConfigured && !session) {
     return <main className="shell authShell">
       <section className="panel authPanel">
+        <img className="authLogo" src="/dream-poker-logo.svg" alt="Dream Poker Da Nang"/>
         <p className="eyebrow">포커 에이전트 통합 정산</p>
         <h1>관리자 로그인</h1>
         <p className="sub">로그인하면 모든 기기에서 같은 데이터를 사용할 수 있습니다.</p>
@@ -323,7 +324,7 @@ export default function Home() {
   return <main className="appShell">
     <aside className="sidebar">
       <div className="brand">
-        <div className="brandMark">♠</div>
+        <img className="brandLogo" src="/dream-poker-logo.svg" alt="Dream Poker Da Nang"/>
         <div><strong>드림 포커</strong><span>에이전트 운영</span></div>
       </div>
 
