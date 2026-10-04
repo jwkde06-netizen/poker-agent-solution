@@ -20,6 +20,52 @@ type GameEntry = {
   rakeback: number;
 };
 
+type FnbEntry = {
+  id: string;
+  date: string;
+  itemName: string;
+  quantity: number;
+  unitPrice: number;
+  totalAmount: number;
+  expenseGroup: string;
+  note: string;
+};
+
+const FNB_MENU = [
+  {name:"Americano", label:"아메리카노", price:60000},
+  {name:"Coconut Coffee", label:"코코넛커피", price:70000},
+  {name:"Salted Coffee", label:"소금커피", price:60000},
+  {name:"White Coffee", label:"박시우", price:60000},
+  {name:"Black Coffee", label:"블랙커피", price:50000},
+  {name:"Condensed Milk Coffee", label:"연유커피", price:55000},
+  {name:"Espresso", label:"에스프레소", price:60000},
+  {name:"Caramel Macchiato", label:"카라멜 마키아토", price:75000},
+  {name:"Cappuccino", label:"카푸치노", price:65000},
+  {name:"Latte", label:"라떼", price:65000},
+  {name:"Chocolate", label:"초콜릿", price:70000},
+  {name:"Sunshine", label:"선샤인", price:75000},
+  {name:"New Day", label:"뉴데이", price:75000},
+  {name:"Watermelon", label:"수박주스", price:60000},
+  {name:"Orange", label:"오렌지주스", price:60000},
+  {name:"Pineapple", label:"파인애플주스", price:60000},
+  {name:"Fresh Coconut Water", label:"코코넛워터", price:65000},
+  {name:"Mango Smoothie", label:"망고스무디", price:75000},
+  {name:"Avocado & Coco Milk", label:"아보카도 코코넛", price:75000},
+  {name:"Coconut Smoothie", label:"코코넛스무디", price:75000},
+  {name:"Lychee Tea", label:"리치티", price:75000},
+  {name:"Peach Tea", label:"피치티", price:70000},
+  {name:"Ginger Tea", label:"진저티", price:70000},
+  {name:"Heineken Beer", label:"하이네켄", price:55000},
+  {name:"Red Bull", label:"레드불", price:45000},
+  {name:"Aquarius", label:"아쿠아리우스", price:45000},
+  {name:"Sprite", label:"스프라이트", price:45000},
+  {name:"Coca", label:"콜라", price:45000},
+  {name:"Coca Light", label:"콜라 라이트", price:45000},
+  {name:"Blue Soda", label:"블루소다", price:65000},
+  {name:"Fruit Special", label:"과일 스페셜", price:220000},
+  {name:"Fruit Normal", label:"과일", price:90000},
+] as const;
+
 const DEFAULT_AGENCIES: Agency[] = [
   { id: "agency-korea", code: "KOREA", rate: 0, active: true },
   { id: "agency-mongol", code: "MONGOL", rate: 30, active: true },
@@ -51,6 +97,12 @@ export default function Home() {
   const [agencies, setAgencies] = useState<Agency[]>(DEFAULT_AGENCIES);
   const [players, setPlayers] = useState<Player[]>([]);
   const [entries, setEntries] = useState<GameEntry[]>([]);
+  const [fnbEntries, setFnbEntries] = useState<FnbEntry[]>([]);
+  const [fnbDate, setFnbDate] = useState(today());
+  const [fnbMenuName, setFnbMenuName] = useState("Americano");
+  const [fnbQuantity, setFnbQuantity] = useState("1");
+  const [fnbExpenseGroup, setFnbExpenseGroup] = useState("2FLOOR");
+  const [fnbNote, setFnbNote] = useState("");
   const [loaded, setLoaded] = useState(false);
   const [session, setSession] = useState<Session | null>(null);
   const [syncing, setSyncing] = useState(false);
@@ -123,14 +175,15 @@ export default function Home() {
     setSyncing(true);
     setMessage("");
 
-    const [a, p, g] = await Promise.all([
+    const [a, p, g, fnb] = await Promise.all([
       supabase.from("agencies").select("*").order("created_at"),
       loadAllPlayers(),
       supabase.from("game_entries").select("*").order("played_on"),
+      supabase.from("fnb_entries").select("*").order("spent_on").order("created_at"),
     ]);
 
-    if (a.error || p.error || g.error) {
-      setMessage(a.error?.message || p.error?.message || g.error?.message || "데이터를 불러오지 못했습니다.");
+    if (a.error || p.error || g.error || fnb.error) {
+      setMessage(a.error?.message || p.error?.message || g.error?.message || fnb.error?.message || "데이터를 불러오지 못했습니다.");
       setSyncing(false);
       return;
     }
@@ -141,6 +194,11 @@ export default function Home() {
       id:x.id,date:x.played_on,game:x.game_name,playerId:x.player_id,buyIn:Number(x.buy_in),
       rake:Number(x.rake),agencyId:x.agency_id,agencyCodeSnapshot:x.agency_code_snapshot,
       rateSnapshot:Number(x.rate_snapshot),rakeback:Number(x.rakeback)
+    })));
+    setFnbEntries((fnb.data ?? []).map((x:any)=>({
+      id:x.id,date:x.spent_on,itemName:x.item_name,quantity:Number(x.quantity),
+      unitPrice:Number(x.unit_price),totalAmount:Number(x.total_amount),
+      expenseGroup:x.expense_group ?? "",note:x.note ?? ""
     })));
     setSyncing(false);
   }
@@ -154,6 +212,7 @@ export default function Home() {
           setAgencies(parsed.agencies ?? DEFAULT_AGENCIES);
           setPlayers(parsed.players ?? []);
           setEntries(parsed.entries ?? []);
+          setFnbEntries(parsed.fnbEntries ?? []);
         } catch {}
       }
       setLoaded(true);
@@ -175,8 +234,8 @@ export default function Home() {
 
   useEffect(() => {
     if (!loaded || isSupabaseConfigured) return;
-    localStorage.setItem("poker-agent-solution-v1", JSON.stringify({ agencies, players, entries }));
-  }, [agencies, players, entries, loaded]);
+    localStorage.setItem("poker-agent-solution-v1", JSON.stringify({ agencies, players, entries, fnbEntries }));
+  }, [agencies, players, entries, fnbEntries, loaded]);
 
   const activeAgencies = agencies.filter(a=>a.active);
   const filteredPlayers = useMemo(()=>{
@@ -359,6 +418,48 @@ export default function Home() {
     }
   }
 
+  async function addFnbEntry() {
+    const menu=FNB_MENU.find(item=>item.name===fnbMenuName);
+    if(!menu)return;
+    const quantity=Math.max(1,Number(fnbQuantity)||1);
+    const totalAmount=menu.price*quantity;
+
+    if(isSupabaseConfigured && supabase && session){
+      const payload={
+        spent_on:fnbDate,
+        item_name:menu.name,
+        quantity,
+        unit_price:menu.price,
+        expense_group:fnbExpenseGroup,
+        note:fnbNote.trim() || null,
+      };
+      const {data,error}=await supabase.from("fnb_entries").insert(payload).select().single();
+      if(error){setMessage(error.message);return;}
+      setFnbEntries(prev=>[...prev,{
+        id:data.id,date:data.spent_on,itemName:data.item_name,quantity:Number(data.quantity),
+        unitPrice:Number(data.unit_price),totalAmount:Number(data.total_amount),
+        expenseGroup:data.expense_group ?? "",note:data.note ?? ""
+      }]);
+    } else {
+      setFnbEntries(prev=>[...prev,{
+        id:uid("fnb"),date:fnbDate,itemName:menu.name,quantity,
+        unitPrice:menu.price,totalAmount,expenseGroup:fnbExpenseGroup,note:fnbNote.trim()
+      }]);
+    }
+
+    setFnbQuantity("1");
+    setFnbNote("");
+    setMessage(`${menu.label} ${quantity}개 · ${vnd(totalAmount)} 저장 완료`);
+  }
+
+  async function deleteFnbEntry(id:string) {
+    if(isSupabaseConfigured && supabase && session){
+      const {error}=await supabase.from("fnb_entries").delete().eq("id",id);
+      if(error){setMessage(error.message);return;}
+    }
+    setFnbEntries(prev=>prev.filter(item=>item.id!==id));
+  }
+
   if (isSupabaseConfigured && !session) {
     return <main className="shell authShell">
       <section className="panel authPanel">
@@ -393,6 +494,10 @@ export default function Home() {
   const todayGameCount = todayEntries.length;
   const weekSettlement = total(thisWeekEntries,"rakeback");
   const recentEntries = [...entries].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,6);
+  const selectedFnbMenu = FNB_MENU.find(item=>item.name===fnbMenuName) ?? FNB_MENU[0];
+  const fnbDayEntries = fnbEntries.filter(item=>item.date===fnbDate);
+  const fnbDayTotal = fnbDayEntries.reduce((sum,item)=>sum+item.totalAmount,0);
+  const fnbTodayTotal = fnbEntries.filter(item=>item.date===today()).reduce((sum,item)=>sum+item.totalAmount,0);
   const navItems = [
     {key:"dashboard",label:"대시보드",icon:"▦"},
     {key:"agencies",label:"에이전트 관리",icon:"♙"},
@@ -439,10 +544,9 @@ export default function Home() {
         </div>
         <div className="searchBox">⌕ <input placeholder="에이전트 코드, 플레이어명, 이메일을 검색하세요..."/><kbd>⌘ K</kbd></div>
         <div className="accountArea">
-          <button className="themeSwitch" onClick={()=>applyTheme(theme==="dark"?"light":"dark")} aria-label="라이트/다크 모드 전환">
-            <span className="themeOption themeLightOption">☀ <em>라이트</em></span>
+          <button className="themeSwitch compactThemeSwitch" onClick={()=>applyTheme(theme==="dark"?"light":"dark")} aria-label={theme==="dark"?"라이트 모드로 전환":"다크 모드로 전환"}>
+            <span className="themeIcon">{theme==="dark"?"☾":"☀"}</span>
             <span className={`switchTrack ${theme==="dark"?"dark":""}`}><span className="switchKnob"/></span>
-            <span className="themeOption themeDarkOption">☾ <em>다크</em></span>
           </button>
           <button className="ghostButton">⇄ 에이전트 보기</button>
           <span className="roleBadge">관리자</span>
@@ -714,7 +818,91 @@ export default function Home() {
           <div className="tableWrap"><table><thead><tr><th>플레이어</th><th>에이전트</th><th>바이인</th><th>총 레이크</th><th>레이크백</th></tr></thead><tbody>{weeklyPlayerRows.length===0?<tr><td colSpan={5} className="empty">해당 기간의 정산 기록이 없습니다.</td></tr>:weeklyPlayerRows.map(r=><tr key={`${r.playerId}-${r.agency}`}><td>{r.playerName}</td><td>{r.agency}</td><td>{vnd(r.buyIn)}</td><td>{vnd(r.rake)}</td><td className="strong">{vnd(r.rakeback)}</td></tr>)}</tbody></table></div>
         </section>}
 
-        {tab==="fnb" && <section className="panel placeholderPanel"><h2>F&B</h2><p>직원용 F&B 입력 및 정산 기능을 이곳에서 관리합니다.</p></section>}
+        {tab==="fnb" && <section className="fnbPage">
+          <div className="fnbSummary">
+            <div>
+              <span>오늘 F&B 경비</span>
+              <b>{vnd(fnbTodayTotal)}</b>
+              <small>{today()} 기준</small>
+            </div>
+            <div className="fnbCoffeeIcon">☕</div>
+          </div>
+
+          <section className="panel fnbEntryPanel">
+            <div className="sectionTitle">
+              <div><h2>F&B 빠른 입력</h2><p>메뉴를 선택하면 단가가 자동 적용됩니다.</p></div>
+              <input className="datePicker" type="date" value={fnbDate} onChange={e=>setFnbDate(e.target.value)}/>
+            </div>
+
+            <div className="fnbQuickMenu">
+              {FNB_MENU.slice(0,8).map(item=><button
+                key={item.name}
+                className={fnbMenuName===item.name?"active":""}
+                onClick={()=>setFnbMenuName(item.name)}
+              >
+                <span>{item.label}</span>
+                <small>{money.format(item.price)} ₫</small>
+              </button>)}
+            </div>
+
+            <div className="fnbFormGrid">
+              <label>메뉴
+                <select value={fnbMenuName} onChange={e=>setFnbMenuName(e.target.value)}>
+                  {FNB_MENU.map(item=><option key={item.name} value={item.name}>{item.label} · {money.format(item.price)} ₫</option>)}
+                </select>
+              </label>
+              <label>수량
+                <div className="quantityControl">
+                  <button type="button" onClick={()=>setFnbQuantity(String(Math.max(1,(Number(fnbQuantity)||1)-1)))}>−</button>
+                  <input inputMode="numeric" type="number" min="1" value={fnbQuantity} onChange={e=>setFnbQuantity(e.target.value)}/>
+                  <button type="button" onClick={()=>setFnbQuantity(String((Number(fnbQuantity)||1)+1))}>＋</button>
+                </div>
+              </label>
+              <label>경비 구분
+                <select value={fnbExpenseGroup} onChange={e=>setFnbExpenseGroup(e.target.value)}>
+                  <option value="2FLOOR">2FLOOR</option>
+                  <option value="3FLOOR">3FLOOR</option>
+                  <option value="4FLOOR">4FLOOR</option>
+                  <option value="10M">10M</option>
+                  <option value="AGENT">AGENT</option>
+                  <option value="TIME ATTACK">TIME ATTACK</option>
+                  <option value="OTHER">기타</option>
+                </select>
+              </label>
+              <label className="fnbNoteField">대상 / 메모
+                <input value={fnbNote} onChange={e=>setFnbNote(e.target.value)} placeholder="예: 성현행님, 얼리버드 손님"/>
+              </label>
+            </div>
+
+            <div className="fnbSaveBar">
+              <div><span>입력 금액</span><strong>{vnd(selectedFnbMenu.price*Math.max(1,Number(fnbQuantity)||1))}</strong></div>
+              <button className="primary" onClick={addFnbEntry}>F&B 경비 저장</button>
+            </div>
+          </section>
+
+          <section className="panel fnbHistoryPanel">
+            <div className="sectionTitle">
+              <div><h2>{fnbDate===today()?"오늘":"선택 날짜"} 입력 내역</h2><p>{fnbDayEntries.length}건 입력</p></div>
+              <strong className="fnbDayTotal">{vnd(fnbDayTotal)}</strong>
+            </div>
+            {fnbDayEntries.length===0
+              ? <div className="dashboardEmpty">이 날짜에 입력된 F&B 경비가 없습니다.</div>
+              : <div className="fnbEntryList">{[...fnbDayEntries].reverse().map(item=>{
+                  const menu=FNB_MENU.find(m=>m.name===item.itemName);
+                  return <div className="fnbEntryRow" key={item.id}>
+                    <div className="fnbEntryMain">
+                      <strong>{menu?.label || item.itemName}</strong>
+                      <span>{item.expenseGroup}{item.note?` · ${item.note}`:""}</span>
+                    </div>
+                    <div className="fnbEntryAmount">
+                      <small>{item.quantity}개 × {money.format(item.unitPrice)} ₫</small>
+                      <b>{vnd(item.totalAmount)}</b>
+                    </div>
+                    <button className="fnbDeleteButton" onClick={()=>deleteFnbEntry(item.id)} aria-label="F&B 항목 삭제">×</button>
+                  </div>
+                })}</div>}
+          </section>
+        </section>}
 
         {tab==="reports" && <section className="panel placeholderPanel"><h2>리포트</h2><p>에이전트별 정산 리포트와 다운로드 기능을 다음 단계에서 연결합니다.</p></section>}
         {tab==="settings" && <section className="panel placeholderPanel"><h2>설정</h2><p>권한, 에이전트 계정, 시스템 설정을 이곳에서 관리하게 됩니다.</p></section>}
