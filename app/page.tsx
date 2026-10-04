@@ -422,7 +422,10 @@ export default function Home() {
 
     <section className="workspace">
       <header className="workspaceTopbar">
-        <div className="mobileTopTitle">드림포커 에이전트 정산</div>
+        <div className="mobileTopTitle">
+          <img src="/dream-poker-logo.svg" alt=""/>
+          <span>드림포커 에이전트 정산</span>
+        </div>
         <div className="searchBox">⌕ <input placeholder="에이전트 코드, 플레이어명, 이메일을 검색하세요..."/><kbd>⌘ K</kbd></div>
         <div className="accountArea">
           <button className="themeSwitch" onClick={()=>applyTheme(theme==="dark"?"light":"dark")} aria-label="라이트/다크 모드 전환">
@@ -442,7 +445,7 @@ export default function Home() {
         <div className="pageHeading">
           <div>
             <p className="eyebrow">드림 포커 · 에이전트 운영</p>
-            <h1>{tab==="dashboard"?"포커 에이전트 통합 정산":
+            <h1>{tab==="dashboard"?"대시보드":
               tab==="agencies"?"에이전트 관리":
               tab==="players"?"플레이어 관리":
               tab==="games"?"게임 입력":
@@ -457,16 +460,53 @@ export default function Home() {
         {message && <div className="note globalNote">{message}</div>}
 
         {tab==="dashboard" && <>
-          <div className="kpiGrid">
-            <div className="kpiCard"><div className="kpiIcon">♟</div><div><span>전체 에이전트</span><b>{activeAgentCount}명</b><small>현재 사용 중인 코드</small></div></div>
-            <div className="kpiCard"><div className="kpiIcon">♙</div><div><span>전체 플레이어</span><b>{players.length}명</b><small>등록 플레이어</small></div></div>
-            <div className="kpiCard"><div className="kpiIcon">◎</div><div><span>오늘 정산 금액</span><b>₩ {money.format(todaySettlement)}</b><small>오늘 레이크백 합계</small></div></div>
-            <div className="kpiCard"><div className="kpiIcon">▣</div><div><span>이번 주 지급액</span><b>₩ {money.format(weekSettlement)}</b><small>{weekStart} ~ {weekEnd}</small></div></div>
+          <div className="kpiGrid dashboardKpis">
+            <button className="kpiCard dashboardKpi" onClick={()=>setTab("agencies")}>
+              <div className="kpiIcon">♟</div>
+              <div className="kpiCopy"><span>전체 에이전트</span><b>{activeAgentCount}명</b><small>현재 운영 중</small></div>
+              <span className="kpiArrow">›</span>
+            </button>
+            <button className="kpiCard dashboardKpi" onClick={()=>setTab("players")}>
+              <div className="kpiIcon">♙</div>
+              <div className="kpiCopy"><span>전체 플레이어</span><b>{players.length}명</b><small>등록 플레이어</small></div>
+              <span className="kpiArrow">›</span>
+            </button>
+            <button className="kpiCard dashboardKpi" onClick={()=>setTab("daily")}>
+              <div className="kpiIcon">◎</div>
+              <div className="kpiCopy"><span>오늘 정산 금액</span><b>₩ {money.format(todaySettlement)}</b><small>오늘 레이크백 합계</small></div>
+              <span className="kpiArrow">›</span>
+            </button>
+            <button className="kpiCard dashboardKpi" onClick={()=>setTab("weekly")}>
+              <div className="kpiIcon">▣</div>
+              <div className="kpiCopy"><span>이번 주 지급액</span><b>₩ {money.format(weekSettlement)}</b><small>{weekStart} ~ {weekEnd}</small></div>
+              <span className="kpiArrow">›</span>
+            </button>
           </div>
 
-          <div className="dashboardGrid">
+          <section className="dashCard recentCard dashboardRecent">
+            <div className="cardHeader"><div><h2>최근 정산 현황</h2><p>최근 게임 입력 기준</p></div><button className="linkButton" onClick={()=>setTab("weekly")}>전체보기 ›</button></div>
+            {recentEntries.length===0
+              ? <div className="dashboardEmpty">아직 정산 내역이 없습니다.</div>
+              : <div className="recentSettlementHero">
+                  <div className="recentSettlementIcon">▤</div>
+                  <div className="recentSettlementCopy">
+                    <strong>{recentEntries[0].date} 정산 내역</strong>
+                    <span>{recentEntries[0].agencyCodeSnapshot} · {getPlayerName(recentEntries[0].playerId)}</span>
+                  </div>
+                  <div className="recentSettlementAmount">
+                    <small>정산 금액</small>
+                    <b>₩ {money.format(recentEntries[0].rakeback)}</b>
+                    <em>정산 완료</em>
+                  </div>
+                </div>}
+            <div className="tableWrap cleanTable desktopRecentTable"><table><thead><tr><th>정산일</th><th>에이전트 코드</th><th>플레이어</th><th>게임</th><th>레이크</th><th>정산 금액</th><th>상태</th></tr></thead>
+              <tbody>{recentEntries.length===0?<tr><td colSpan={7} className="empty">최근 정산 내역이 없습니다.</td></tr>:recentEntries.map(e=><tr key={e.id}><td>{e.date}</td><td>{e.agencyCodeSnapshot}</td><td>{getPlayerName(e.playerId)}</td><td>{e.game}</td><td>₩ {money.format(e.rake)}</td><td className="strong">₩ {money.format(e.rakeback)}</td><td><span className="greenBadge">정산 완료</span></td></tr>)}</tbody>
+            </table></div>
+          </section>
+
+          <div className="dashboardGrid redesignedDashboardGrid">
             <section className="dashCard chartCard">
-              <div className="cardHeader"><div><h2>주간 정산 추이</h2><p>최근 입력 기록 기준</p></div><span className="miniSelect">최근 4주⌄</span></div>
+              <div className="cardHeader"><div><h2>주간 정산 추이</h2><p>최근 입력 기록 기준</p></div><span className="miniSelect">최근 7일</span></div>
               <div className="fakeChart">
                 {[42,58,47,66,75,54,82,69,91,64,78,88,61,95,73,86,99].map((h,i)=><div key={i} className="bar" style={{height:`${h}%`}}></div>)}
                 <svg viewBox="0 0 600 160" preserveAspectRatio="none"><polyline points="0,120 75,110 150,88 225,82 300,77 375,74 450,60 525,47 600,28" fill="none" stroke="currentColor" strokeWidth="3"/></svg>
@@ -475,22 +515,15 @@ export default function Home() {
             </section>
 
             <section className="dashCard agentSummaryCard">
-              <div className="cardHeader"><div><h2>에이전트 요약</h2><p>코드별 현황</p></div><button className="linkButton" onClick={()=>setTab("agencies")}>전체보기 →</button></div>
+              <div className="cardHeader"><div><h2>에이전트 요약</h2><p>코드별 플레이어 현황</p></div><button className="linkButton" onClick={()=>setTab("agencies")}>전체보기 ›</button></div>
               <div className="summaryTable">
                 <div className="summaryHead"><span>코드명</span><span>정산 요율</span><span>플레이어</span><span>상태</span></div>
                 {agencies.slice(0,7).map(a=><div className="summaryRow" key={a.id}>
-                  <strong>{a.code}</strong><span>{a.rate}%</span><span>{players.filter(p=>p.agencyId===a.id).length}명</span><em className={a.active?"greenBadge":"grayBadge"}>{a.active?"사용 중":"중지"}</em>
+                  <strong>{a.code}</strong><span>{a.rate}%</span><span>{players.filter(p=>p.agencyId===a.id).length}명</span><em className={a.active?"greenBadge":"grayBadge"}>{a.active?"운영중":"중지"}</em>
                 </div>)}
               </div>
             </section>
           </div>
-
-          <section className="dashCard recentCard">
-            <div className="cardHeader"><div><h2>최근 정산 내역</h2><p>최근 게임 입력 기준</p></div><button className="linkButton" onClick={()=>setTab("weekly")}>전체보기 →</button></div>
-            <div className="tableWrap cleanTable"><table><thead><tr><th>정산일</th><th>에이전트 코드</th><th>플레이어</th><th>게임</th><th>레이크</th><th>정산 금액</th><th>상태</th></tr></thead>
-              <tbody>{recentEntries.length===0?<tr><td colSpan={7} className="empty">최근 정산 내역이 없습니다.</td></tr>:recentEntries.map(e=><tr key={e.id}><td>{e.date}</td><td>{e.agencyCodeSnapshot}</td><td>{getPlayerName(e.playerId)}</td><td>{e.game}</td><td>₩ {money.format(e.rake)}</td><td className="strong">₩ {money.format(e.rakeback)}</td><td><span className="greenBadge">정산 완료</span></td></tr>)}</tbody>
-            </table></div>
-          </section>
         </>}
 
         {tab==="agencies" && <section className="panel">
