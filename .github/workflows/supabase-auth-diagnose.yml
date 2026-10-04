@@ -50,3 +50,21 @@ jobs:
           order by 1,2;"
           PAYLOAD=$(jq -n --arg query "$SQL" '{query:$query}')
           curl --fail-with-body -sS             "https://api.supabase.com/v1/projects/$SUPABASE_PROJECT_REF/database/query"             -X POST             -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN"             -H "Content-Type: application/json"             --data-binary "$PAYLOAD"
+
+
+      - name: 최근 Auth / Postgres 오류 로그 확인
+        shell: bash
+        run: |
+          START=$(date -u -d '20 minutes ago' +%Y-%m-%dT%H:%M:%SZ)
+          END=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          SQL="select timestamp, source, event_message
+          from logs
+          where source in ('auth_logs','postgres_logs')
+            and (
+              positionCaseInsensitive(event_message, 'error') > 0
+              or positionCaseInsensitive(event_message, 'fail') > 0
+              or positionCaseInsensitive(event_message, 'unexpected') > 0
+            )
+          order by timestamp desc
+          limit 100"
+          curl --fail-with-body -sS --get             "https://api.supabase.com/v1/projects/$SUPABASE_PROJECT_REF/analytics/endpoints/logs"             -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN"             --data-urlencode "sql=$SQL"             --data-urlencode "iso_timestamp_start=$START"             --data-urlencode "iso_timestamp_end=$END"
