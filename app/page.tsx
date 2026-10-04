@@ -63,6 +63,7 @@ export default function Home() {
   const [playerName, setPlayerName] = useState("");
   const [playerSearch, setPlayerSearch] = useState("");
   const [showPlayerAdd, setShowPlayerAdd] = useState(false);
+  const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
   const [playerCard, setPlayerCard] = useState("");
   const [playerAgencyId, setPlayerAgencyId] = useState("agency-korea2");
   const [gameDate, setGameDate] = useState(today());
@@ -178,6 +179,23 @@ export default function Home() {
     if (!q) return players;
     return players.filter(p=>p.name.toUpperCase().includes(q));
   },[players,playerSearch]);
+
+  const selectedPlayer = players.find(p=>p.id===selectedPlayerId) ?? null;
+  const selectedPlayerEntries = useMemo(
+    ()=>selectedPlayerId ? entries.filter(e=>e.playerId===selectedPlayerId) : [],
+    [entries,selectedPlayerId]
+  );
+  const selectedPlayerBuyIns = selectedPlayerEntries.reduce((s,e)=>s+e.buyIn,0);
+  const selectedPlayerRake = selectedPlayerEntries.reduce((s,e)=>s+e.rake,0);
+  const selectedPlayerGameBreakdown = useMemo(()=>{
+    const map = new Map<string,{game:string;games:number;buyIns:number;rake:number}>();
+    selectedPlayerEntries.forEach(e=>{
+      const old=map.get(e.game);
+      if(old){old.games+=1;old.buyIns+=e.buyIn;old.rake+=e.rake;}
+      else map.set(e.game,{game:e.game,games:1,buyIns:e.buyIn,rake:e.rake});
+    });
+    return [...map.values()].sort((a,b)=>b.rake-a.rake);
+  },[selectedPlayerEntries]);
   const dailyEntries = useMemo(()=>entries.filter(e=>e.date===summaryDate),[entries,summaryDate]);
   const weeklyEntries = useMemo(()=>entries.filter(e=>e.date>=weekStart && e.date<=weekEnd),[entries,weekStart,weekEnd]);
 
@@ -539,7 +557,48 @@ export default function Home() {
             </div>
           </div>}
 
-          <div className="tableWrap"><table><thead><tr><th>플레이어</th><th>회원번호</th><th>에이전트 코드</th><th>현재 정산 요율</th></tr></thead><tbody>{filteredPlayers.length===0?<tr><td colSpan={4} className="empty">{playerSearch?"검색 결과가 없습니다.":"등록된 플레이어가 없습니다."}</td></tr>:filteredPlayers.map(p=>{const a=agencies.find(x=>x.id===p.agencyId);return <tr key={p.id}><td>{p.name}</td><td>{p.cardNo||"-"}</td><td><select className="cellInput" value={p.agencyId} onChange={e=>updatePlayerAgency(p.id,e.target.value)}>{agencies.map(x=><option key={x.id} value={x.id}>{x.code}</option>)}</select></td><td>{a?.rate??0}%</td></tr>})}</tbody></table></div>
+          <div className="tableWrap"><table><thead><tr><th>플레이어</th><th>회원번호</th><th>에이전트 코드</th><th>현재 정산 요율</th></tr></thead><tbody>{filteredPlayers.length===0?<tr><td colSpan={4} className="empty">{playerSearch?"검색 결과가 없습니다.":"등록된 플레이어가 없습니다."}</td></tr>:filteredPlayers.map(p=>{const a=agencies.find(x=>x.id===p.agencyId);return <tr key={p.id}><td><button className="playerNameButton" onClick={()=>setSelectedPlayerId(p.id)}>{p.name}</button></td><td>{p.cardNo||"-"}</td><td><select className="cellInput" value={p.agencyId} onChange={e=>updatePlayerAgency(p.id,e.target.value)}>{agencies.map(x=><option key={x.id} value={x.id}>{x.code}</option>)}</select></td><td>{a?.rate??0}%</td></tr>})}</tbody></table></div>
+
+          {selectedPlayer && <div className="modalBackdrop playerDetailBackdrop" onClick={()=>setSelectedPlayerId(null)}>
+            <div className="playerDetailModal" onClick={e=>e.stopPropagation()}>
+              <div className="modalHeader">
+                <div>
+                  <span className="modalEyebrow">PLAYER DETAIL</span>
+                  <h3>{selectedPlayer.name}</h3>
+                  <p>회원번호 {selectedPlayer.cardNo || "-"} · {agencies.find(a=>a.id===selectedPlayer.agencyId)?.code || "-"}</p>
+                </div>
+                <button className="modalClose" onClick={()=>setSelectedPlayerId(null)} aria-label="닫기">×</button>
+              </div>
+
+              <div className="playerStatsGrid">
+                <div className="playerStatCard"><span>참여 게임</span><b>{selectedPlayerEntries.length}회</b></div>
+                <div className="playerStatCard"><span>총 바이인</span><b>{money.format(selectedPlayerBuyIns)}회</b></div>
+                <div className="playerStatCard"><span>총 발생 레이크</span><b>{money.format(selectedPlayerRake)}</b></div>
+              </div>
+
+              <div className="playerDetailSection">
+                <div className="playerDetailTitle"><h4>게임별 기록</h4><span>{selectedPlayerGameBreakdown.length}개 게임</span></div>
+                <div className="tableWrap playerDetailTable"><table>
+                  <thead><tr><th>게임</th><th>참여</th><th>바이인</th><th>레이크</th></tr></thead>
+                  <tbody>{selectedPlayerGameBreakdown.length===0
+                    ? <tr><td colSpan={4} className="empty">아직 게임 기록이 없습니다.</td></tr>
+                    : selectedPlayerGameBreakdown.map(r=><tr key={r.game}><td><strong>{r.game}</strong></td><td>{r.games}회</td><td>{money.format(r.buyIns)}회</td><td>{money.format(r.rake)}</td></tr>)}
+                  </tbody>
+                </table></div>
+              </div>
+
+              <div className="playerDetailSection">
+                <div className="playerDetailTitle"><h4>게임 내역</h4><span>최근 기록순</span></div>
+                <div className="tableWrap playerDetailTable"><table>
+                  <thead><tr><th>날짜</th><th>게임</th><th>바이인</th><th>레이크</th><th>레이크백</th></tr></thead>
+                  <tbody>{selectedPlayerEntries.length===0
+                    ? <tr><td colSpan={5} className="empty">아직 게임 기록이 없습니다.</td></tr>
+                    : [...selectedPlayerEntries].sort((a,b)=>b.date.localeCompare(a.date)).map(e=><tr key={e.id}><td>{e.date}</td><td>{e.game}</td><td>{money.format(e.buyIn)}회</td><td>{money.format(e.rake)}</td><td>{money.format(e.rakeback)}</td></tr>)}
+                  </tbody>
+                </table></div>
+              </div>
+            </div>
+          </div>}
         </section>}
 
         {tab==="games" && <section className="panel">
