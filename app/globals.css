@@ -294,3 +294,14 @@ html[data-theme="dark"] .authLogo{background:transparent;filter:none}
   .brandLogo{width:58px;height:50px}
   .authLogo{width:160px;height:135px}
 }
+
+.playerSearchBar{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:16px}
+.playerSearchInput{height:42px;min-width:320px;max-width:520px;flex:1;display:flex;align-items:center;gap:9px;border:1px solid var(--line-strong);background:#fff;border-radius:9px;padding:0 12px;color:#8b9299}
+.playerSearchInput input{flex:1;border:0;background:transparent;outline:0;color:#222}
+.playerSearchInput button{border:0;background:transparent;color:#8d949c;cursor:pointer;padding:4px}
+.searchCount{font-size:12px;color:#7a828a;white-space:nowrap}
+html[data-theme="dark"] .playerSearchInput{background:#0d0d0d;border-color:#303030;color:#888}
+html[data-theme="dark"] .playerSearchInput input{color:#f2f2f2}
+html[data-theme="dark"] .playerSearchInput button{color:#aaa}
+html[data-theme="dark"] .searchCount{color:#8f8f8f}
+@media(max-width:820px){.playerSearchBar{align-items:stretch;flex-direction:column}.playerSearchInput{min-width:0;max-width:none;width:100%}.searchCount{text-align:right}}
