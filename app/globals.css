@@ -1162,3 +1162,128 @@ html[data-theme="dark"] .salesBarTrack{background:#202020}
     color:#e0ad49;
   }
 }
+
+/* Practical F&B expense entry */
+.fnbPage{display:grid;gap:14px}
+.fnbSummary{
+  display:flex;align-items:center;justify-content:space-between;gap:18px;
+  padding:20px 22px;border:1px solid var(--line);border-radius:18px;
+  background:linear-gradient(135deg,#fffaf0,#fff);
+  box-shadow:0 10px 28px rgba(20,24,28,.05)
+}
+.fnbSummary span{display:block;color:#8a7347;font-size:11px;font-weight:800}
+.fnbSummary b{display:block;margin-top:6px;color:#191b1e;font-size:30px;letter-spacing:-.04em}
+.fnbSummary small{display:block;margin-top:5px;color:#8b9299;font-size:10px}
+.fnbCoffeeIcon{
+  width:54px;height:54px;display:grid;place-items:center;border-radius:16px;
+  background:#c99631;color:#14110b;font-size:26px;
+  box-shadow:0 8px 20px rgba(201,150,49,.2)
+}
+.fnbEntryPanel,.fnbHistoryPanel{padding:18px}
+.fnbQuickMenu{
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:8px;margin-bottom:16px
+}
+.fnbQuickMenu button{
+  min-height:64px;padding:9px 10px;border:1px solid var(--line);
+  border-radius:12px;background:#fff;color:#2b2e32;cursor:pointer;text-align:left
+}
+.fnbQuickMenu button span{display:block;font-size:12px;font-weight:800;line-height:1.25}
+.fnbQuickMenu button small{display:block;margin-top:5px;color:#8b9299;font-size:9px}
+.fnbQuickMenu button.active{
+  border-color:#c99631;background:#fff9eb;
+  box-shadow:0 0 0 2px rgba(201,150,49,.1)
+}
+.fnbQuickMenu button.active small{color:#9b6c12}
+.fnbFormGrid{
+  display:grid;grid-template-columns:2fr 1fr 1fr 2fr;gap:12px
+}
+.fnbFormGrid label{display:grid;gap:7px;color:#69717a;font-size:11px;font-weight:750}
+.fnbFormGrid select,.fnbFormGrid input{
+  width:100%;height:46px;border:1px solid var(--line-strong);border-radius:10px;
+  padding:0 12px;background:#fff;color:#222;outline:none;font:inherit
+}
+.quantityControl{
+  display:grid;grid-template-columns:40px 1fr 40px;
+  align-items:center;border:1px solid var(--line-strong);border-radius:10px;overflow:hidden;background:#fff
+}
+.quantityControl input{
+  border:0;border-radius:0;text-align:center;padding:0;min-width:0
+}
+.quantityControl button{
+  height:44px;border:0;background:#f6f7f8;color:#333;font-size:18px;cursor:pointer
+}
+.fnbSaveBar{
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+  margin-top:16px;padding-top:15px;border-top:1px solid var(--line)
+}
+.fnbSaveBar span{display:block;color:#8a9199;font-size:10px;font-weight:700}
+.fnbSaveBar strong{display:block;margin-top:3px;font-size:20px;color:#8a6212}
+.fnbSaveBar .primary{min-height:44px;min-width:160px}
+.fnbDayTotal{font-size:19px;color:#8a6212}
+.fnbEntryList{display:grid}
+.fnbEntryRow{
+  display:grid;grid-template-columns:minmax(0,1fr) auto 32px;
+  align-items:center;gap:12px;padding:13px 4px;border-bottom:1px solid var(--line)
+}
+.fnbEntryRow:last-child{border-bottom:0}
+.fnbEntryMain strong{display:block;font-size:13px;color:#25282c}
+.fnbEntryMain span{display:block;margin-top:4px;color:#8b9299;font-size:10px}
+.fnbEntryAmount{text-align:right}
+.fnbEntryAmount small{display:block;color:#969da4;font-size:9px}
+.fnbEntryAmount b{display:block;margin-top:4px;color:#34383d;font-size:13px}
+.fnbDeleteButton{
+  width:30px;height:30px;border:0;border-radius:8px;background:#f3f4f5;color:#979da4;
+  cursor:pointer;font-size:18px
+}
+
+html[data-theme="dark"] .fnbSummary{
+  background:linear-gradient(135deg,#1c170e,#111);border-color:#2b2b2b
+}
+html[data-theme="dark"] .fnbSummary b,
+html[data-theme="dark"] .fnbEntryMain strong,
+html[data-theme="dark"] .fnbEntryAmount b{color:#f3f3f3}
+html[data-theme="dark"] .fnbQuickMenu button{
+  background:#111;border-color:#2b2b2b;color:#e9e9e9
+}
+html[data-theme="dark"] .fnbQuickMenu button.active{
+  background:#211a0d;border-color:#8e6824
+}
+html[data-theme="dark"] .fnbFormGrid select,
+html[data-theme="dark"] .fnbFormGrid input,
+html[data-theme="dark"] .quantityControl{background:#0d0d0d;border-color:#303030;color:#eee}
+html[data-theme="dark"] .quantityControl button{background:#171717;color:#ddd}
+html[data-theme="dark"] .fnbDeleteButton{background:#1b1b1b;color:#aaa}
+
+@media(max-width:820px){
+  .fnbPage{gap:10px}
+  .fnbSummary{padding:16px;border-radius:15px}
+  .fnbSummary b{font-size:26px}
+  .fnbCoffeeIcon{width:48px;height:48px;border-radius:14px;font-size:23px}
+  .fnbEntryPanel,.fnbHistoryPanel{padding:14px}
+  .fnbQuickMenu{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:7px
+  }
+  .fnbQuickMenu button{min-height:58px}
+  .fnbFormGrid{grid-template-columns:1fr 1fr;gap:10px}
+  .fnbFormGrid .fnbNoteField{grid-column:1/-1}
+  .fnbFormGrid select,.fnbFormGrid input{height:48px;font-size:16px}
+  .fnbSaveBar{
+    position:sticky;bottom:82px;z-index:8;
+    margin:16px -14px -14px;padding:12px 14px calc(12px + env(safe-area-inset-bottom));
+    background:rgba(255,255,255,.97);backdrop-filter:blur(10px);
+    box-shadow:0 -7px 18px rgba(20,24,28,.06)
+  }
+  .fnbSaveBar strong{font-size:18px}
+  .fnbSaveBar .primary{min-width:136px}
+  .fnbEntryRow{grid-template-columns:minmax(0,1fr) auto 30px;padding:12px 0}
+  html[data-theme="dark"] .fnbSaveBar{background:rgba(15,15,15,.97)}
+}
+
+@media(max-width:430px){
+  .fnbFormGrid{grid-template-columns:1fr}
+  .fnbFormGrid .fnbNoteField{grid-column:auto}
+  .fnbSaveBar{gap:10px}
+  .fnbSaveBar .primary{min-width:126px;padding-left:10px;padding-right:10px}
+}
