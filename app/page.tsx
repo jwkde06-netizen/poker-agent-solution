@@ -5,7 +5,7 @@ import type { Session } from "@supabase/supabase-js";
 import { isSupabaseConfigured, supabase } from "../lib/supabase";
 
 type Agency = { id: string; code: string; rate: number; active: boolean };
-type Player = { id: string; name: string; cardNo: string; agencyId: string; note: string };
+type Player = { id: string; name: string; koreanName: string; cardNo: string; agencyId: string; note: string };
 type GameEntry = {
   id: string;
   date: string;
@@ -61,6 +61,7 @@ export default function Home() {
   const [newAgencyCode, setNewAgencyCode] = useState("");
   const [newAgencyRate, setNewAgencyRate] = useState("25");
   const [playerName, setPlayerName] = useState("");
+  const [playerKoreanName, setPlayerKoreanName] = useState("");
   const [playerSearch, setPlayerSearch] = useState("");
   const [playerView, setPlayerView] = useState<"list"|"add">("list");
   const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
@@ -132,7 +133,7 @@ export default function Home() {
     }
 
     setAgencies((a.data ?? []).map((x:any)=>({id:x.id,code:x.code,rate:Number(x.rate),active:x.active})));
-    setPlayers((p.data ?? []).map((x:any)=>({id:x.id,name:x.name,cardNo:x.card_no ?? "",agencyId:x.agency_id,note:x.note ?? ""})));
+    setPlayers((p.data ?? []).map((x:any)=>({id:x.id,name:x.name,koreanName:x.korean_name ?? "",cardNo:x.card_no ?? "",agencyId:x.agency_id,note:x.note ?? ""})));
     setEntries((g.data ?? []).map((x:any)=>({
       id:x.id,date:x.played_on,game:x.game_name,playerId:x.player_id,buyIn:Number(x.buy_in),
       rake:Number(x.rake),agencyId:x.agency_id,agencyCodeSnapshot:x.agency_code_snapshot,
@@ -178,7 +179,7 @@ export default function Home() {
   const filteredPlayers = useMemo(()=>{
     const q = playerSearch.trim().toUpperCase();
     if (!q) return players;
-    return players.filter(p=>p.name.toUpperCase().includes(q));
+    return players.filter(p=>p.name.toUpperCase().includes(q) || p.koreanName.includes(playerSearch.trim()));
   },[players,playerSearch]);
 
   const selectedPlayer = players.find(p=>p.id===selectedPlayerId) ?? null;
@@ -310,15 +311,15 @@ export default function Home() {
     const name=playerName.trim().toUpperCase();
     if(!name || !playerAgencyId) return;
     if(isSupabaseConfigured && supabase && session){
-      const { data,error }=await supabase.from("players").insert({name,card_no:playerCard.trim()||null,agency_id:playerAgencyId,note:playerNote.trim()||null}).select().single();
+      const { data,error }=await supabase.from("players").insert({name,korean_name:playerKoreanName.trim()||null,card_no:playerCard.trim()||null,agency_id:playerAgencyId,note:playerNote.trim()||null}).select().single();
       if(error){setMessage(error.message);return;}
-      const p={id:data.id,name:data.name,cardNo:data.card_no??"",agencyId:data.agency_id,note:data.note??""};
+      const p={id:data.id,name:data.name,koreanName:data.korean_name??"",cardNo:data.card_no??"",agencyId:data.agency_id,note:data.note??""};
       setPlayers(prev=>[...prev,p]); setGamePlayerId(p.id);
     } else {
-      const p={id:uid("player"),name,cardNo:playerCard.trim(),agencyId:playerAgencyId,note:playerNote.trim()};
+      const p={id:uid("player"),name,koreanName:playerKoreanName.trim(),cardNo:playerCard.trim(),agencyId:playerAgencyId,note:playerNote.trim()};
       setPlayers(prev=>[...prev,p]); setGamePlayerId(p.id);
     }
-    setPlayerName(""); setPlayerCard(""); setPlayerNote("");
+    setPlayerName(""); setPlayerKoreanName(""); setPlayerCard(""); setPlayerNote("");
   }
 
   async function updatePlayerAgency(playerId:string, agencyId:string) {
@@ -516,8 +517,12 @@ export default function Home() {
             <div className="playerAddCard">
               <div className="playerAddFields">
                 <label>
-                  <span>플레이어 이름</span>
+                  <span>영문성함</span>
                   <input autoFocus value={playerName} onChange={e=>setPlayerName(e.target.value)} placeholder="예: KIM JI WON"/>
+                </label>
+                <label>
+                  <span>한글성함</span>
+                  <input value={playerKoreanName} onChange={e=>setPlayerKoreanName(e.target.value)} placeholder="예: 김지원"/>
                 </label>
                 <label>
                   <span>회원번호</span>
@@ -544,14 +549,14 @@ export default function Home() {
           <div className="playerSearchSection">
             <div className="subSectionTitle">
               <h3>플레이어 검색</h3>
-              <p>이름으로 등록된 플레이어를 찾습니다.</p>
+              <p>영문성함 또는 한글성함으로 등록된 플레이어를 찾습니다.</p>
             </div>
             <div className="playerSearchBar">
               <div className="playerSearchInput">⌕
                 <input
                   value={playerSearch}
                   onChange={e=>setPlayerSearch(e.target.value)}
-                  placeholder="플레이어 이름을 입력하세요"
+                  placeholder="영문성함 또는 한글성함을 입력하세요"
                 />
                 {playerSearch && <button onClick={()=>setPlayerSearch("")}>✕</button>}
               </div>
@@ -561,7 +566,7 @@ export default function Home() {
 
 
 
-          <div className="tableWrap"><table><thead><tr><th>플레이어</th><th>회원번호</th><th>에이전트 코드</th><th>현재 정산 요율</th></tr></thead><tbody>{filteredPlayers.length===0?<tr><td colSpan={4} className="empty">{playerSearch?"검색 결과가 없습니다.":"등록된 플레이어가 없습니다."}</td></tr>:filteredPlayers.map(p=>{const a=agencies.find(x=>x.id===p.agencyId);return <tr key={p.id}><td><button className="playerNameButton" onClick={()=>setSelectedPlayerId(p.id)}>{p.name}</button></td><td>{p.cardNo||"-"}</td><td><select className="cellInput" value={p.agencyId} onChange={e=>updatePlayerAgency(p.id,e.target.value)}>{agencies.map(x=><option key={x.id} value={x.id}>{x.code}</option>)}</select></td><td>{a?.rate??0}%</td></tr>})}</tbody></table></div>
+          <div className="tableWrap"><table><thead><tr><th>영문성함</th><th>한글성함</th><th>회원번호</th><th>에이전트 코드</th><th>현재 정산 요율</th></tr></thead><tbody>{filteredPlayers.length===0?<tr><td colSpan={5} className="empty">{playerSearch?"검색 결과가 없습니다.":"등록된 플레이어가 없습니다."}</td></tr>:filteredPlayers.map(p=>{const a=agencies.find(x=>x.id===p.agencyId);return <tr key={p.id}><td><button className="playerNameButton" onClick={()=>setSelectedPlayerId(p.id)}>{p.name}</button></td><td>{p.koreanName||"-"}</td><td>{p.cardNo||"-"}</td><td><select className="cellInput" value={p.agencyId} onChange={e=>updatePlayerAgency(p.id,e.target.value)}>{agencies.map(x=><option key={x.id} value={x.id}>{x.code}</option>)}</select></td><td>{a?.rate??0}%</td></tr>})}</tbody></table></div>
 
 
           </>}
@@ -572,7 +577,7 @@ export default function Home() {
                 <div>
                   <span className="modalEyebrow">PLAYER DETAIL</span>
                   <h3>{selectedPlayer.name}</h3>
-                  <p>회원번호 {selectedPlayer.cardNo || "-"} · {agencies.find(a=>a.id===selectedPlayer.agencyId)?.code || "-"}</p>
+                  <p>{selectedPlayer.koreanName ? `${selectedPlayer.koreanName} · ` : ""}회원번호 {selectedPlayer.cardNo || "-"} · {agencies.find(a=>a.id===selectedPlayer.agencyId)?.code || "-"}</p>
                 </div>
                 <button className="modalClose" onClick={()=>setSelectedPlayerId(null)} aria-label="닫기">×</button>
               </div>
