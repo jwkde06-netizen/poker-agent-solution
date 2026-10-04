@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Poker Agent Settlement",
-  description: "Dynamic poker agent rakeback settlement dashboard",
+  title: "포커 에이전트 통합 정산",
+  description: "플레이어, 에이전트 코드, 레이크백, 일일 및 주간 정산 관리",
 };
 
 export default function RootLayout({
