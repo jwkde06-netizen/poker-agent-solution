@@ -402,3 +402,23 @@ html[data-theme="dark"] .modalActions{background:#0d0d0d;border-color:#242424}
   .modalForm{padding:18px}
   .modalActions{padding:14px 18px 18px}
 }
+
+.playerNameButton{border:0;background:transparent;padding:0;color:#956914;font-weight:750;cursor:pointer;text-align:left}
+.playerNameButton:hover{text-decoration:underline}
+.playerDetailModal{width:min(860px,100%);max-height:88vh;overflow:auto;background:#fff;border:1px solid #e5e7ea;border-radius:22px;box-shadow:0 28px 80px rgba(17,19,22,.22)}
+.playerStatsGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:20px 24px 6px}
+.playerStatCard{border:1px solid var(--line);background:#fafafa;border-radius:14px;padding:16px}
+.playerStatCard span{display:block;color:#747c84;font-size:11px;font-weight:700}
+.playerStatCard b{display:block;margin-top:8px;color:#17191c;font-size:23px;font-weight:760}
+.playerDetailSection{padding:18px 24px 0}
+.playerDetailSection:last-child{padding-bottom:24px}
+.playerDetailTitle{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.playerDetailTitle h4{margin:0;font-size:15px;color:#25282c}
+.playerDetailTitle span{color:#8b9299;font-size:11px}
+.playerDetailTable table{min-width:620px}
+html[data-theme="dark"] .playerNameButton{color:#dfad4c}
+html[data-theme="dark"] .playerDetailModal{background:#111;border-color:#2b2b2b;box-shadow:0 28px 80px rgba(0,0,0,.58)}
+html[data-theme="dark"] .playerStatCard{background:#0d0d0d;border-color:#292929}
+html[data-theme="dark"] .playerStatCard b{color:#f5f5f5}
+html[data-theme="dark"] .playerDetailTitle h4{color:#f2f2f2}
+@media(max-width:700px){.playerStatsGrid{grid-template-columns:1fr}.playerDetailModal{max-height:92vh}.playerDetailSection{padding-left:18px;padding-right:18px}.playerStatsGrid{padding-left:18px;padding-right:18px}}
