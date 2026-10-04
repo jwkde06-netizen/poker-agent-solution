@@ -1909,3 +1909,219 @@ html[data-theme="dark"] .liveTableOverviewItem b{color:#e0ad49}
   .liveTableOverviewItem b{font-size:10px}
   .liveTableOverviewItem small{font-size:7px}
 }
+
+/* Buy-in mobile width fix + entry/rebuy columns */
+.buyinPage,
+.newTablePanel,
+.liveTablesGrid,
+.liveTableCard,
+.livePlayerList,
+.tablePlayerSearch{
+  min-width:0;
+  max-width:100%;
+}
+
+.liveTableCard{
+  width:100%;
+  overflow:hidden!important;
+}
+
+.liveTableHeader>div{
+  min-width:0;
+}
+
+.livePlayerColumns{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 72px 82px 78px;
+  align-items:center;
+  gap:6px;
+  padding:6px 10px;
+  border-bottom:1px solid var(--line);
+  background:#f7f8f9;
+  color:#8f969d;
+  font-size:8px;
+  font-weight:850;
+  text-align:center;
+}
+.livePlayerColumns span:first-child{text-align:left}
+
+.livePlayerRow{
+  grid-template-columns:minmax(0,1fr) 72px 82px 78px!important;
+  width:100%;
+  max-width:100%;
+  box-sizing:border-box;
+}
+.livePlayerInfo{min-width:0}
+.livePlayerInfo strong{
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.livePlayerInfo span{
+  display:block;
+  color:#9aa0a6;
+  font-size:9px;
+  font-weight:800;
+  text-transform:uppercase;
+}
+
+.buyinMoneyCell{
+  min-width:0;
+  text-align:center;
+}
+.buyinMoneyCell small{
+  display:block;
+  color:#969da4;
+  font-size:7px;
+  line-height:1;
+}
+.buyinMoneyCell b{
+  display:block;
+  margin-top:4px;
+  color:#d5a33a;
+  font-size:11px;
+  line-height:1.05;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.rebuyCell b{color:#e7b857}
+
+.buyinQuickActions{
+  min-width:0;
+  display:grid;
+  grid-template-columns:28px minmax(0,1fr);
+  gap:4px;
+}
+.buyinQuickActions button{
+  height:34px;
+  min-width:0;
+  border-radius:8px;
+  font-weight:900;
+  cursor:pointer;
+}
+.minusBuyinButton{
+  border:1px solid var(--line);
+  background:#f5f6f7;
+  color:#777;
+}
+.minusBuyinButton:disabled{opacity:.25;cursor:default}
+.buyinQuickActions .addBuyinButton{
+  border:1px solid #c99631;
+  background:#c99631;
+  color:#111;
+  font-size:11px;
+}
+
+html[data-theme="dark"] .livePlayerColumns{
+  background:#151515;
+  border-color:#292929;
+  color:#7f858b;
+}
+html[data-theme="dark"] .minusBuyinButton{
+  background:#171717;
+  border-color:#303030;
+  color:#aaa;
+}
+
+@media(max-width:820px){
+  .contentArea,
+  .buyinPage,
+  .newTablePanel,
+  .liveTablesGrid,
+  .liveTableCard{
+    width:100%;
+    max-width:100%;
+    overflow-x:hidden;
+    box-sizing:border-box;
+  }
+
+  .newTableHeading,
+  .liveTableHeader,
+  .tableLiveStats,
+  .livePlayerColumns,
+  .livePlayerRow,
+  .tablePlayerSearch{
+    width:100%;
+    max-width:100%;
+    box-sizing:border-box;
+  }
+
+  .newTableForm{
+    width:100%;
+    max-width:100%;
+    grid-template-columns:minmax(0,1fr) 72px 92px!important;
+  }
+
+  .newTableForm>*{min-width:0}
+
+  .liveTableHeader{
+    gap:8px!important;
+  }
+
+  .closeTableButton{
+    flex:0 0 auto;
+    max-width:72px;
+    white-space:nowrap;
+  }
+
+  .livePlayerColumns{
+    grid-template-columns:minmax(0,1fr) 58px 68px 66px;
+    gap:4px;
+    padding:5px 8px;
+  }
+
+  .livePlayerRow{
+    grid-template-columns:minmax(0,1fr) 58px 68px 66px!important;
+    gap:4px!important;
+    padding:7px 8px!important;
+  }
+
+  .livePlayerInfo strong{font-size:10px!important}
+  .livePlayerInfo span{font-size:8px!important}
+
+  .buyinMoneyCell b{
+    font-size:9px;
+    letter-spacing:-.03em;
+  }
+
+  .buyinMoneyCell small{font-size:6px}
+
+  .buyinQuickActions{
+    grid-template-columns:24px minmax(0,1fr);
+    gap:3px;
+  }
+
+  .buyinQuickActions button{
+    height:31px;
+    padding:0;
+  }
+
+  .buyinQuickActions .addBuyinButton{
+    font-size:10px;
+  }
+
+  .tableLiveStats{
+    overflow:hidden;
+  }
+
+  .tableLiveStats>div{
+    min-width:0;
+  }
+
+  .tableLiveStats b{
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+}
+
+@media(max-width:390px){
+  .livePlayerColumns{
+    grid-template-columns:minmax(0,1fr) 52px 62px 60px;
+  }
+  .livePlayerRow{
+    grid-template-columns:minmax(0,1fr) 52px 62px 60px!important;
+  }
+  .buyinMoneyCell b{font-size:8px}
+}
