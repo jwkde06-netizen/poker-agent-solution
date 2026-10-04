@@ -478,3 +478,16 @@ html[data-theme="dark"] .playerAddFields textarea{background:#0b0b0b;border-colo
 html[data-theme="dark"] .playerNoteBox{background:#17130c;border-color:#49391d}
 html[data-theme="dark"] .playerNoteBox span{color:#d9a94a}
 html[data-theme="dark"] .playerNoteBox p{color:#c8bfae}
+
+.playerAddModal{max-height:88vh;overflow:auto}
+.playerModalForm textarea{
+  width:100%;min-height:110px;resize:vertical;
+  border:1px solid #d9dde1;border-radius:11px;padding:12px 13px;
+  background:#fff;color:#202327;outline:none;line-height:1.55;font:inherit;
+}
+.playerModalForm textarea:focus{
+  border-color:#c79a41;box-shadow:0 0 0 4px rgba(199,154,65,.11)
+}
+html[data-theme="dark"] .playerModalForm textarea{
+  background:#0b0b0b;border-color:#303030;color:#eee
+}
