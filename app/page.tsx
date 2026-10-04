@@ -422,6 +422,7 @@ export default function Home() {
 
     <section className="workspace">
       <header className="workspaceTopbar">
+        <div className="mobileTopTitle">드림포커 에이전트 정산</div>
         <div className="searchBox">⌕ <input placeholder="에이전트 코드, 플레이어명, 이메일을 검색하세요..."/><kbd>⌘ K</kbd></div>
         <div className="accountArea">
           <button className="themeSwitch" onClick={()=>applyTheme(theme==="dark"?"light":"dark")} aria-label="라이트/다크 모드 전환">
