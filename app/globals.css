@@ -459,3 +459,22 @@ html[data-theme="dark"] .playerAddFields input,
 html[data-theme="dark"] .playerAddFields select{background:#0b0b0b;border-color:#303030;color:#eee}
 html[data-theme="dark"] .playerAddPageActions{background:#0d0d0d;border-color:#242424}
 @media(max-width:700px){.playerAddPage{max-width:none}.playerAddFields{padding:18px}.playerAddPageActions{padding:14px 18px 18px}}
+
+.playerAddFields textarea{
+  width:100%;min-height:118px;resize:vertical;
+  border:1px solid #d9dde1;border-radius:12px;padding:12px 14px;
+  background:#fff;color:#202327;outline:none;line-height:1.55;font:inherit;
+}
+.playerAddFields textarea:focus{
+  border-color:#c79a41;box-shadow:0 0 0 4px rgba(199,154,65,.11)
+}
+.playerNoteBox{
+  margin:14px 24px 0;padding:14px 16px;border:1px solid #eadbb8;
+  background:#fffaf0;border-radius:13px
+}
+.playerNoteBox span{display:block;font-size:11px;font-weight:800;color:#9a7124;margin-bottom:6px}
+.playerNoteBox p{margin:0;color:#5c5240;font-size:12px;line-height:1.65;white-space:pre-wrap}
+html[data-theme="dark"] .playerAddFields textarea{background:#0b0b0b;border-color:#303030;color:#eee}
+html[data-theme="dark"] .playerNoteBox{background:#17130c;border-color:#49391d}
+html[data-theme="dark"] .playerNoteBox span{color:#d9a94a}
+html[data-theme="dark"] .playerNoteBox p{color:#c8bfae}
