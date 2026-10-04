@@ -29,7 +29,8 @@ const DEFAULT_AGENCIES: Agency[] = [
   { id: "agency-korea2", code: "KOREA2", rate: 25, active: true },
 ];
 
-const money = new Intl.NumberFormat("ko-KR");
+const money = new Intl.NumberFormat("vi-VN", { maximumFractionDigits: 0 });
+const vnd = (value:number) => `${money.format(value)} ₫`;
 const today = () => new Date().toISOString().slice(0, 10);
 const uid = (prefix: string) => `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
@@ -470,12 +471,12 @@ export default function Home() {
             </button>
             <button className="kpiCard dashboardKpi" onClick={()=>setTab("daily")}>
               <div className="kpiIcon">◎</div>
-              <div className="kpiCopy"><span>오늘 매출</span><b>₩ {money.format(todayRevenue)}</b><small>오늘 발생 레이크</small></div>
+              <div className="kpiCopy"><span>오늘 매출</span><b>{vnd(todayRevenue)}</b><small>오늘 발생 레이크</small></div>
               <span className="kpiArrow">›</span>
             </button>
             <button className="kpiCard dashboardKpi" onClick={()=>setTab("daily")}>
               <div className="kpiIcon">◉</div>
-              <div className="kpiCopy"><span>오늘 레이크백</span><b>₩ {money.format(todaySettlement)}</b><small>오늘 에이전트 지급액</small></div>
+              <div className="kpiCopy"><span>오늘 레이크백</span><b>{vnd(todaySettlement)}</b><small>오늘 에이전트 지급액</small></div>
               <span className="kpiArrow">›</span>
             </button>
             <button className="kpiCard dashboardKpi" onClick={()=>setTab("players")}>
@@ -497,12 +498,12 @@ export default function Home() {
                   </div>
                   <div className="recentSettlementAmount">
                     <small>정산 금액</small>
-                    <b>₩ {money.format(recentEntries[0].rakeback)}</b>
+                    <b>{vnd(recentEntries[0].rakeback)}</b>
                     <em>정산 완료</em>
                   </div>
                 </div>}
             <div className="tableWrap cleanTable desktopRecentTable"><table><thead><tr><th>정산일</th><th>에이전트 코드</th><th>플레이어</th><th>게임</th><th>레이크</th><th>정산 금액</th><th>상태</th></tr></thead>
-              <tbody>{recentEntries.length===0?<tr><td colSpan={7} className="empty">최근 정산 내역이 없습니다.</td></tr>:recentEntries.map(e=><tr key={e.id}><td>{e.date}</td><td>{e.agencyCodeSnapshot}</td><td>{getPlayerName(e.playerId)}</td><td>{e.game}</td><td>₩ {money.format(e.rake)}</td><td className="strong">₩ {money.format(e.rakeback)}</td><td><span className="greenBadge">정산 완료</span></td></tr>)}</tbody>
+              <tbody>{recentEntries.length===0?<tr><td colSpan={7} className="empty">최근 정산 내역이 없습니다.</td></tr>:recentEntries.map(e=><tr key={e.id}><td>{e.date}</td><td>{e.agencyCodeSnapshot}</td><td>{getPlayerName(e.playerId)}</td><td>{e.game}</td><td>{vnd(e.rake)}</td><td className="strong">{vnd(e.rakeback)}</td><td><span className="greenBadge">정산 완료</span></td></tr>)}</tbody>
             </table></div>
           </section>
 
@@ -625,8 +626,8 @@ export default function Home() {
 
               <div className="playerStatsGrid">
                 <div className="playerStatCard"><span>참여 게임</span><b>{selectedPlayerEntries.length}회</b></div>
-                <div className="playerStatCard"><span>총 바이인</span><b>{money.format(selectedPlayerBuyIns)}회</b></div>
-                <div className="playerStatCard"><span>총 발생 레이크</span><b>{money.format(selectedPlayerRake)}</b></div>
+                <div className="playerStatCard"><span>총 바이인</span><b>{vnd(selectedPlayerBuyIns)}</b></div>
+                <div className="playerStatCard"><span>총 발생 레이크</span><b>{vnd(selectedPlayerRake)}</b></div>
               </div>
 
               <div className="playerAgencyEditor">
@@ -662,7 +663,7 @@ export default function Home() {
                   <thead><tr><th>게임</th><th>참여</th><th>바이인</th><th>레이크</th></tr></thead>
                   <tbody>{selectedPlayerGameBreakdown.length===0
                     ? <tr><td colSpan={4} className="empty">아직 게임 기록이 없습니다.</td></tr>
-                    : selectedPlayerGameBreakdown.map(r=><tr key={r.game}><td><strong>{r.game}</strong></td><td>{r.games}회</td><td>{money.format(r.buyIns)}회</td><td>{money.format(r.rake)}</td></tr>)}
+                    : selectedPlayerGameBreakdown.map(r=><tr key={r.game}><td><strong>{r.game}</strong></td><td>{r.games}회</td><td>{vnd(r.buyIns)}</td><td>{vnd(r.rake)}</td></tr>)}
                   </tbody>
                 </table></div>
               </div>
@@ -673,7 +674,7 @@ export default function Home() {
                   <thead><tr><th>날짜</th><th>게임</th><th>바이인</th><th>레이크</th><th>레이크백</th></tr></thead>
                   <tbody>{selectedPlayerEntries.length===0
                     ? <tr><td colSpan={5} className="empty">아직 게임 기록이 없습니다.</td></tr>
-                    : [...selectedPlayerEntries].sort((a,b)=>b.date.localeCompare(a.date)).map(e=><tr key={e.id}><td>{e.date}</td><td>{e.game}</td><td>{money.format(e.buyIn)}회</td><td>{money.format(e.rake)}</td><td>{money.format(e.rakeback)}</td></tr>)}
+                    : [...selectedPlayerEntries].sort((a,b)=>b.date.localeCompare(a.date)).map(e=><tr key={e.id}><td>{e.date}</td><td>{e.game}</td><td>{vnd(e.buyIn)}</td><td>{vnd(e.rake)}</td><td>{vnd(e.rakeback)}</td></tr>)}
                   </tbody>
                 </table></div>
               </div>
@@ -686,22 +687,22 @@ export default function Home() {
           <div className="formGrid">
             <label>날짜<input type="date" value={gameDate} onChange={e=>setGameDate(e.target.value)}/></label><label>게임<input value={gameName} onChange={e=>setGameName(e.target.value)}/></label><label>플레이어<select value={gamePlayerId} onChange={e=>setGamePlayerId(e.target.value)}><option value="">플레이어 선택</option>{players.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}</select></label><label>바이인<input type="number" value={gameBuyIn} onChange={e=>setGameBuyIn(e.target.value)}/></label><label>레이크<input type="number" value={gameRake} onChange={e=>setGameRake(e.target.value)}/></label><button className="primary formButton" onClick={addGameEntry}>게임 기록 추가</button>
           </div>
-          <div className="tableWrap"><table><thead><tr><th>날짜</th><th>게임</th><th>플레이어</th><th>에이전트</th><th>적용 정산 요율</th><th>레이크</th><th>레이크백</th></tr></thead><tbody>{entries.length===0?<tr><td colSpan={7} className="empty">입력된 게임 기록이 없습니다.</td></tr>:[...entries].reverse().map(e=><tr key={e.id}><td>{e.date}</td><td>{e.game}</td><td>{getPlayerName(e.playerId)}</td><td>{e.agencyCodeSnapshot}</td><td>{e.rateSnapshot}%</td><td>{money.format(e.rake)}</td><td className="strong">{money.format(e.rakeback)}</td></tr>)}</tbody></table></div>
+          <div className="tableWrap"><table><thead><tr><th>날짜</th><th>게임</th><th>플레이어</th><th>에이전트</th><th>적용 정산 요율</th><th>레이크</th><th>레이크백</th></tr></thead><tbody>{entries.length===0?<tr><td colSpan={7} className="empty">입력된 게임 기록이 없습니다.</td></tr>:[...entries].reverse().map(e=><tr key={e.id}><td>{e.date}</td><td>{e.game}</td><td>{getPlayerName(e.playerId)}</td><td>{e.agencyCodeSnapshot}</td><td>{e.rateSnapshot}%</td><td>{vnd(e.rake)}</td><td className="strong">{vnd(e.rakeback)}</td></tr>)}</tbody></table></div>
         </section>}
 
         {tab==="daily" && <section className="panel">
           <div className="sectionTitle"><div><h2>일일 정산</h2><p>날짜별 에이전트 정산액과 플레이어 내역을 확인합니다.</p></div><input className="datePicker" type="date" value={summaryDate} onChange={e=>setSummaryDate(e.target.value)}/></div>
-          <div className="cards"><div className="metric"><span>총 레이크</span><b>{money.format(total(dailyEntries,"rake"))}</b></div><div className="metric"><span>총 에이전트 정산액</span><b>{money.format(total(dailyEntries,"rakeback"))}</b></div><div className="metric"><span>정산 후 순액</span><b>{money.format(total(dailyEntries,"rake")-total(dailyEntries,"rakeback"))}</b></div></div>
-          <div className="agencyGrid">{agencyTotals(dailyEntries).map(a=><div className="agencyCard" key={a.id}><span>{a.code}</span><small>{a.rate}%</small><b>{money.format(a.amount)}</b></div>)}</div>
-          <div className="tableWrap"><table><thead><tr><th>플레이어</th><th>에이전트</th><th>적용 정산 요율</th><th>레이크</th><th>레이크백</th></tr></thead><tbody>{dailyEntries.length===0?<tr><td colSpan={5} className="empty">해당 날짜의 기록이 없습니다.</td></tr>:dailyEntries.map(e=><tr key={e.id}><td>{getPlayerName(e.playerId)}</td><td>{e.agencyCodeSnapshot}</td><td>{e.rateSnapshot}%</td><td>{money.format(e.rake)}</td><td className="strong">{money.format(e.rakeback)}</td></tr>)}</tbody></table></div>
+          <div className="cards"><div className="metric"><span>총 레이크</span><b>{vnd(total(dailyEntries,"rake"))}</b></div><div className="metric"><span>총 에이전트 정산액</span><b>{vnd(total(dailyEntries,"rakeback"))}</b></div><div className="metric"><span>정산 후 순액</span><b>{vnd(total(dailyEntries,"rake")-total(dailyEntries,"rakeback"))}</b></div></div>
+          <div className="agencyGrid">{agencyTotals(dailyEntries).map(a=><div className="agencyCard" key={a.id}><span>{a.code}</span><small>{a.rate}%</small><b>{vnd(a.amount)}</b></div>)}</div>
+          <div className="tableWrap"><table><thead><tr><th>플레이어</th><th>에이전트</th><th>적용 정산 요율</th><th>레이크</th><th>레이크백</th></tr></thead><tbody>{dailyEntries.length===0?<tr><td colSpan={5} className="empty">해당 날짜의 기록이 없습니다.</td></tr>:dailyEntries.map(e=><tr key={e.id}><td>{getPlayerName(e.playerId)}</td><td>{e.agencyCodeSnapshot}</td><td>{e.rateSnapshot}%</td><td>{vnd(e.rake)}</td><td className="strong">{vnd(e.rakeback)}</td></tr>)}</tbody></table></div>
         </section>}
 
         {tab==="weekly" && <section className="panel">
           <div className="sectionTitle"><div><h2>주간 정산</h2><p>기간별 에이전트·플레이어 정산 결과를 확인합니다.</p></div><div className="dateRange"><input className="datePicker" type="date" value={weekStart} onChange={e=>setWeekStart(e.target.value)}/><span>~</span><input className="datePicker" type="date" value={weekEnd} onChange={e=>setWeekEnd(e.target.value)}/></div></div>
-          <div className="cards"><div className="metric"><span>주간 총 레이크</span><b>{money.format(total(weeklyEntries,"rake"))}</b></div><div className="metric"><span>주간 총 에이전트 정산액</span><b>{money.format(total(weeklyEntries,"rakeback"))}</b></div><div className="metric"><span>주간 정산 후 순액</span><b>{money.format(total(weeklyEntries,"rake")-total(weeklyEntries,"rakeback"))}</b></div></div>
-          <div className="agencyGrid">{agencyTotals(weeklyEntries).map(a=><div className="agencyCard" key={a.id}><span>{a.code}</span><small>현재 정산 요율 {a.rate}%</small><b>{money.format(a.amount)}</b></div>)}</div>
+          <div className="cards"><div className="metric"><span>주간 총 레이크</span><b>{vnd(total(weeklyEntries,"rake"))}</b></div><div className="metric"><span>주간 총 에이전트 정산액</span><b>{vnd(total(weeklyEntries,"rakeback"))}</b></div><div className="metric"><span>주간 정산 후 순액</span><b>{vnd(total(weeklyEntries,"rake")-total(weeklyEntries,"rakeback"))}</b></div></div>
+          <div className="agencyGrid">{agencyTotals(weeklyEntries).map(a=><div className="agencyCard" key={a.id}><span>{a.code}</span><small>현재 정산 요율 {a.rate}%</small><b>{vnd(a.amount)}</b></div>)}</div>
           <div className="sectionTitle compact"><div><h2>플레이어별 주간 정산</h2><p>각 게임 입력 당시 저장된 정산 요율을 기준으로 계산합니다.</p></div></div>
-          <div className="tableWrap"><table><thead><tr><th>플레이어</th><th>에이전트</th><th>바이인</th><th>총 레이크</th><th>레이크백</th></tr></thead><tbody>{weeklyPlayerRows.length===0?<tr><td colSpan={5} className="empty">해당 기간의 정산 기록이 없습니다.</td></tr>:weeklyPlayerRows.map(r=><tr key={`${r.playerId}-${r.agency}`}><td>{r.playerName}</td><td>{r.agency}</td><td>{money.format(r.buyIn)}</td><td>{money.format(r.rake)}</td><td className="strong">{money.format(r.rakeback)}</td></tr>)}</tbody></table></div>
+          <div className="tableWrap"><table><thead><tr><th>플레이어</th><th>에이전트</th><th>바이인</th><th>총 레이크</th><th>레이크백</th></tr></thead><tbody>{weeklyPlayerRows.length===0?<tr><td colSpan={5} className="empty">해당 기간의 정산 기록이 없습니다.</td></tr>:weeklyPlayerRows.map(r=><tr key={`${r.playerId}-${r.agency}`}><td>{r.playerName}</td><td>{r.agency}</td><td>{vnd(r.buyIn)}</td><td>{vnd(r.rake)}</td><td className="strong">{vnd(r.rakeback)}</td></tr>)}</tbody></table></div>
         </section>}
 
         {tab==="reports" && <section className="panel placeholderPanel"><h2>리포트</h2><p>에이전트별 정산 리포트와 다운로드 기능을 다음 단계에서 연결합니다.</p></section>}
