@@ -523,7 +523,7 @@ export default function Home() {
 
 
 
-          <div className="tableWrap"><table><thead><tr><th>영문성함</th><th>한글성함</th><th>회원번호</th><th>에이전트 코드</th><th>현재 정산 요율</th></tr></thead><tbody>{filteredPlayers.length===0?<tr><td colSpan={5} className="empty">{playerSearch?"검색 결과가 없습니다.":"등록된 플레이어가 없습니다."}</td></tr>:filteredPlayers.map(p=>{const a=agencies.find(x=>x.id===p.agencyId);return <tr key={p.id}><td><button className="playerNameButton" onClick={()=>setSelectedPlayerId(p.id)}>{p.name}</button></td><td>{p.koreanName||"-"}</td><td>{p.cardNo||"-"}</td><td><select className="cellInput" value={p.agencyId} onChange={e=>updatePlayerAgency(p.id,e.target.value)}>{agencies.map(x=><option key={x.id} value={x.id}>{x.code}</option>)}</select></td><td>{a?.rate??0}%</td></tr>})}</tbody></table></div>
+          <div className="tableWrap playerListTable"><table><thead><tr><th>플레이어</th><th>회원번호</th><th>에이전트</th></tr></thead><tbody>{filteredPlayers.length===0?<tr><td colSpan={3} className="empty">{playerSearch?"검색 결과가 없습니다.":"등록된 플레이어가 없습니다."}</td></tr>:filteredPlayers.map(p=>{return <tr key={p.id}><td><button className="playerNameButton playerNameStack" onClick={()=>setSelectedPlayerId(p.id)}><strong>{p.name}</strong>{p.koreanName && <span>{p.koreanName}</span>}</button></td><td>{p.cardNo||"-"}</td><td><select className="cellInput agencySelectCompact" value={p.agencyId} onChange={e=>updatePlayerAgency(p.id,e.target.value)}>{agencies.map(x=><option key={x.id} value={x.id}>{x.code}</option>)}</select></td></tr>})}</tbody></table></div>
 
 
 
@@ -577,7 +577,7 @@ export default function Home() {
                 <div>
                   <span className="modalEyebrow">PLAYER DETAIL</span>
                   <h3>{selectedPlayer.name}</h3>
-                  <p>{selectedPlayer.koreanName ? `${selectedPlayer.koreanName} · ` : ""}회원번호 {selectedPlayer.cardNo || "-"} · {agencies.find(a=>a.id===selectedPlayer.agencyId)?.code || "-"}</p>
+                  <p>{selectedPlayer.koreanName ? `${selectedPlayer.koreanName} · ` : ""}회원번호 {selectedPlayer.cardNo || "-"} · {agencies.find(a=>a.id===selectedPlayer.agencyId)?.code || "-"} · 정산 요율 {agencies.find(a=>a.id===selectedPlayer.agencyId)?.rate ?? 0}%</p>
                 </div>
                 <button className="modalClose" onClick={()=>setSelectedPlayerId(null)} aria-label="닫기">×</button>
               </div>
