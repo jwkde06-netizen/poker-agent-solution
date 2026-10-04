@@ -388,6 +388,8 @@ export default function Home() {
   const thisWeekEntries = entries.filter(e=>e.date>=weekStart && e.date<=weekEnd);
   const activeAgentCount = agencies.filter(a=>a.active).length;
   const todaySettlement = total(todayEntries,"rakeback");
+  const todayRevenue = total(todayEntries,"rake");
+  const todayGameCount = todayEntries.length;
   const weekSettlement = total(thisWeekEntries,"rakeback");
   const recentEntries = [...entries].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,6);
   const navItems = [
@@ -461,24 +463,24 @@ export default function Home() {
 
         {tab==="dashboard" && <>
           <div className="kpiGrid dashboardKpis">
-            <button className="kpiCard dashboardKpi" onClick={()=>setTab("agencies")}>
-              <div className="kpiIcon">♟</div>
-              <div className="kpiCopy"><span>전체 에이전트</span><b>{activeAgentCount}명</b><small>현재 운영 중</small></div>
-              <span className="kpiArrow">›</span>
-            </button>
-            <button className="kpiCard dashboardKpi" onClick={()=>setTab("players")}>
-              <div className="kpiIcon">♙</div>
-              <div className="kpiCopy"><span>전체 플레이어</span><b>{players.length}명</b><small>등록 플레이어</small></div>
+            <button className="kpiCard dashboardKpi" onClick={()=>setTab("games")}>
+              <div className="kpiIcon">▣</div>
+              <div className="kpiCopy"><span>오늘 진행 게임</span><b>{todayGameCount}건</b><small>오늘 입력된 게임 기록</small></div>
               <span className="kpiArrow">›</span>
             </button>
             <button className="kpiCard dashboardKpi" onClick={()=>setTab("daily")}>
               <div className="kpiIcon">◎</div>
-              <div className="kpiCopy"><span>오늘 정산 금액</span><b>₩ {money.format(todaySettlement)}</b><small>오늘 레이크백 합계</small></div>
+              <div className="kpiCopy"><span>오늘 매출</span><b>₩ {money.format(todayRevenue)}</b><small>오늘 발생 레이크</small></div>
               <span className="kpiArrow">›</span>
             </button>
-            <button className="kpiCard dashboardKpi" onClick={()=>setTab("weekly")}>
-              <div className="kpiIcon">▣</div>
-              <div className="kpiCopy"><span>이번 주 지급액</span><b>₩ {money.format(weekSettlement)}</b><small>{weekStart} ~ {weekEnd}</small></div>
+            <button className="kpiCard dashboardKpi" onClick={()=>setTab("daily")}>
+              <div className="kpiIcon">◉</div>
+              <div className="kpiCopy"><span>오늘 레이크백</span><b>₩ {money.format(todaySettlement)}</b><small>오늘 에이전트 지급액</small></div>
+              <span className="kpiArrow">›</span>
+            </button>
+            <button className="kpiCard dashboardKpi" onClick={()=>setTab("players")}>
+              <div className="kpiIcon">♙</div>
+              <div className="kpiCopy"><span>총 플레이어 수</span><b>{players.length}명</b><small>등록된 전체 플레이어</small></div>
               <span className="kpiArrow">›</span>
             </button>
           </div>
