@@ -186,6 +186,26 @@ export default function Home() {
     }
     setMessage("관리자 계정 생성 요청이 완료되었습니다. 이메일 인증이 켜져 있으면 메일함을 확인해주세요.");
   }
+  async function resetPassword() {
+    if (!supabase) return;
+    const cleanEmail = email.trim();
+    if (!cleanEmail) {
+      setMessage("비밀번호를 재설정할 이메일을 입력해주세요.");
+      return;
+    }
+    setMessage("");
+    const redirectTo =
+      typeof window !== "undefined" ? window.location.origin : undefined;
+    const { error } = await supabase.auth.resetPasswordForEmail(cleanEmail, {
+      redirectTo,
+    });
+    setMessage(
+      error
+        ? error.message
+        : "비밀번호 재설정 메일을 보냈습니다. 이메일의 링크를 열어 새 비밀번호를 설정해주세요."
+    );
+  }
+
   async function signOut() {
     if (!supabase) return;
     await supabase.auth.signOut();
@@ -274,6 +294,7 @@ export default function Home() {
           <div className="authButtons">
             <button className="primary" onClick={signIn}>로그인</button>
             <button className="secondary" onClick={signUp}>관리자 계정 만들기</button>
+            <button className="secondary" onClick={resetPassword}>비밀번호 재설정</button>
           </div>
           {message && <div className="note">{message}</div>}
         </div>
