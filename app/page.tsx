@@ -92,7 +92,7 @@ export default function Home() {
     setMessage("");
     const [a, p, g] = await Promise.all([
       supabase.from("agencies").select("*").order("created_at"),
-      supabase.from("players").select("*").order("created_at"),
+      supabase.from("players").select("*").order("created_at").range(0, 4999),
       supabase.from("game_entries").select("*").order("played_on"),
     ]);
     if (a.error || p.error || g.error) {
