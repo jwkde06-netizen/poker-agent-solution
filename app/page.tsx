@@ -483,9 +483,7 @@ export default function Home() {
               <h2>플레이어 관리</h2>
               <p>플레이어를 검색하거나 새 플레이어를 등록합니다.</p>
             </div>
-            <button className="primary addPlayerButton" onClick={()=>setShowPlayerAdd(v=>!v)}>
-              {showPlayerAdd?"닫기":"+ 플레이어 추가"}
-            </button>
+            <button className="primary addPlayerButton" onClick={()=>setShowPlayerAdd(true)}>＋ 플레이어 추가</button>
           </div>
 
           <div className="playerSearchSection">
@@ -506,18 +504,37 @@ export default function Home() {
             </div>
           </div>
 
-          {showPlayerAdd && <div className="playerAddSection">
-            <div className="subSectionTitle">
-              <h3>플레이어 추가</h3>
-              <p>새 플레이어 정보를 입력한 뒤 등록하세요.</p>
-            </div>
-            <div className="formGrid">
-              <label>플레이어 이름<input value={playerName} onChange={e=>setPlayerName(e.target.value)} placeholder="플레이어 이름"/></label>
-              <label>회원번호<input value={playerCard} onChange={e=>setPlayerCard(e.target.value)} placeholder="선택 입력"/></label>
-              <label>에이전트 코드<select value={playerAgencyId} onChange={e=>setPlayerAgencyId(e.target.value)}>{activeAgencies.map(a=><option key={a.id} value={a.id}>{a.code} · {a.rate}%</option>)}</select></label>
-              <div className="playerAddActions">
+          {showPlayerAdd && <div className="modalBackdrop" onClick={()=>setShowPlayerAdd(false)}>
+            <div className="playerModal" onClick={e=>e.stopPropagation()}>
+              <div className="modalHeader">
+                <div>
+                  <span className="modalEyebrow">NEW PLAYER</span>
+                  <h3>플레이어 추가</h3>
+                  <p>기본 정보와 담당 에이전트를 등록하세요.</p>
+                </div>
+                <button className="modalClose" onClick={()=>setShowPlayerAdd(false)} aria-label="닫기">×</button>
+              </div>
+
+              <div className="modalForm">
+                <label>
+                  <span>플레이어 이름</span>
+                  <input autoFocus value={playerName} onChange={e=>setPlayerName(e.target.value)} placeholder="예: KIM JI WON"/>
+                </label>
+                <label>
+                  <span>회원번호</span>
+                  <input value={playerCard} onChange={e=>setPlayerCard(e.target.value)} placeholder="선택 입력"/>
+                </label>
+                <label>
+                  <span>에이전트 코드</span>
+                  <select value={playerAgencyId} onChange={e=>setPlayerAgencyId(e.target.value)}>
+                    {activeAgencies.map(a=><option key={a.id} value={a.id}>{a.code} · {a.rate}%</option>)}
+                  </select>
+                </label>
+              </div>
+
+              <div className="modalActions">
                 <button className="secondary" onClick={()=>setShowPlayerAdd(false)}>취소</button>
-                <button className="primary" onClick={async()=>{await addPlayer();setShowPlayerAdd(false);}}>플레이어 등록</button>
+                <button className="primary modalPrimary" onClick={async()=>{await addPlayer();setShowPlayerAdd(false);}}>플레이어 등록</button>
               </div>
             </div>
           </div>}
