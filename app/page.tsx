@@ -673,5 +673,12 @@ export default function Home() {
         {tab==="settings" && <section className="panel placeholderPanel"><h2>설정</h2><p>권한, 에이전트 계정, 시스템 설정을 이곳에서 관리하게 됩니다.</p></section>}
       </div>
     </section>
+
+    <nav className="mobileBottomNav" aria-label="모바일 메뉴">
+      {navItems.map(item=><button key={item.key} className={tab===item.key?"active":""} onClick={()=>setTab(item.key as any)}>
+        <span className="mobileNavIcon">{item.icon}</span>
+        <span>{item.label.replace(" 관리","").replace(" 정산","")}</span>
+      </button>)}
+    </nav>
   </main>;
 }
