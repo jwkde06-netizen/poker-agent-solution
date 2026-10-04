@@ -5,7 +5,7 @@ import type { Session } from "@supabase/supabase-js";
 import { isSupabaseConfigured, supabase } from "../lib/supabase";
 
 type Agency = { id: string; code: string; rate: number; active: boolean };
-type Player = { id: string; name: string; cardNo: string; agencyId: string };
+type Player = { id: string; name: string; cardNo: string; agencyId: string; note: string };
 type GameEntry = {
   id: string;
   date: string;
@@ -65,6 +65,7 @@ export default function Home() {
   const [playerView, setPlayerView] = useState<"list"|"add">("list");
   const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
   const [playerCard, setPlayerCard] = useState("");
+  const [playerNote, setPlayerNote] = useState("");
   const [playerAgencyId, setPlayerAgencyId] = useState("agency-korea2");
   const [gameDate, setGameDate] = useState(today());
   const [gameName, setGameName] = useState("5M");
@@ -131,7 +132,7 @@ export default function Home() {
     }
 
     setAgencies((a.data ?? []).map((x:any)=>({id:x.id,code:x.code,rate:Number(x.rate),active:x.active})));
-    setPlayers((p.data ?? []).map((x:any)=>({id:x.id,name:x.name,cardNo:x.card_no ?? "",agencyId:x.agency_id})));
+    setPlayers((p.data ?? []).map((x:any)=>({id:x.id,name:x.name,cardNo:x.card_no ?? "",agencyId:x.agency_id,note:x.note ?? ""})));
     setEntries((g.data ?? []).map((x:any)=>({
       id:x.id,date:x.played_on,game:x.game_name,playerId:x.player_id,buyIn:Number(x.buy_in),
       rake:Number(x.rake),agencyId:x.agency_id,agencyCodeSnapshot:x.agency_code_snapshot,
@@ -309,15 +310,15 @@ export default function Home() {
     const name=playerName.trim().toUpperCase();
     if(!name || !playerAgencyId) return;
     if(isSupabaseConfigured && supabase && session){
-      const { data,error }=await supabase.from("players").insert({name,card_no:playerCard.trim()||null,agency_id:playerAgencyId}).select().single();
+      const { data,error }=await supabase.from("players").insert({name,card_no:playerCard.trim()||null,agency_id:playerAgencyId,note:playerNote.trim()||null}).select().single();
       if(error){setMessage(error.message);return;}
-      const p={id:data.id,name:data.name,cardNo:data.card_no??"",agencyId:data.agency_id};
+      const p={id:data.id,name:data.name,cardNo:data.card_no??"",agencyId:data.agency_id,note:data.note??""};
       setPlayers(prev=>[...prev,p]); setGamePlayerId(p.id);
     } else {
-      const p={id:uid("player"),name,cardNo:playerCard.trim(),agencyId:playerAgencyId};
+      const p={id:uid("player"),name,cardNo:playerCard.trim(),agencyId:playerAgencyId,note:playerNote.trim()};
       setPlayers(prev=>[...prev,p]); setGamePlayerId(p.id);
     }
-    setPlayerName(""); setPlayerCard("");
+    setPlayerName(""); setPlayerCard(""); setPlayerNote("");
   }
 
   async function updatePlayerAgency(playerId:string, agencyId:string) {
@@ -528,6 +529,10 @@ export default function Home() {
                     {activeAgencies.map(a=><option key={a.id} value={a.id}>{a.code} · {a.rate}%</option>)}
                   </select>
                 </label>
+                <label>
+                  <span>메모 / 비고</span>
+                  <textarea value={playerNote} onChange={e=>setPlayerNote(e.target.value)} placeholder="예: 크레딧 플레이어, 선호 게임, 특이사항 등"/>
+                </label>
               </div>
 
               <div className="playerAddPageActions">
@@ -577,6 +582,11 @@ export default function Home() {
                 <div className="playerStatCard"><span>총 바이인</span><b>{money.format(selectedPlayerBuyIns)}회</b></div>
                 <div className="playerStatCard"><span>총 발생 레이크</span><b>{money.format(selectedPlayerRake)}</b></div>
               </div>
+
+              {selectedPlayer.note && <div className="playerNoteBox">
+                <span>메모 / 비고</span>
+                <p>{selectedPlayer.note}</p>
+              </div>}
 
               <div className="playerDetailSection">
                 <div className="playerDetailTitle"><h4>게임별 기록</h4><span>{selectedPlayerGameBreakdown.length}개 게임</span></div>
