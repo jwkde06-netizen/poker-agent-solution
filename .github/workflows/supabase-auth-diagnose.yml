@@ -52,6 +52,17 @@ jobs:
           curl --fail-with-body -sS             "https://api.supabase.com/v1/projects/$SUPABASE_PROJECT_REF/database/query"             -X POST             -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN"             -H "Content-Type: application/json"             --data-binary "$PAYLOAD"
 
 
+      - name: 기존 관리자 계정 상태 확인
+        shell: bash
+        run: |
+          SQL="select id, email, created_at, email_confirmed_at,
+          length(coalesce(encrypted_password,'')) as password_length,
+          is_anonymous
+          from auth.users
+          where lower(email)=lower('jwkde06@gmail.com');"
+          PAYLOAD=$(jq -n --arg query "$SQL" '{query:$query}')
+          curl --fail-with-body -sS             "https://api.supabase.com/v1/projects/$SUPABASE_PROJECT_REF/database/query"             -X POST             -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN"             -H "Content-Type: application/json"             --data-binary "$PAYLOAD"
+
       - name: 최근 Auth / Postgres 오류 로그 확인
         shell: bash
         run: |
