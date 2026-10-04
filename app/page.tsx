@@ -501,7 +501,7 @@ export default function Home() {
           <div className="playerSectionActions">
             <div>
               <h3>플레이어 검색</h3>
-              <p>영문성함 또는 한글성함으로 등록된 플레이어를 찾습니다.</p>
+              <p>영문 또는 한글로 성함을 입력하세요.</p>
             </div>
             <button className="primary addPlayerButton" onClick={()=>setPlayerView("add")}>＋ 플레이어 추가</button>
           </div>
@@ -512,7 +512,7 @@ export default function Home() {
                 <input
                   value={playerSearch}
                   onChange={e=>setPlayerSearch(e.target.value)}
-                  placeholder="영문성함 또는 한글성함을 입력하세요"
+                  placeholder="영문 또는 한글로 성함을 입력하세요"
                 />
                 {playerSearch && <button onClick={()=>setPlayerSearch("")}>✕</button>}
               </div>
