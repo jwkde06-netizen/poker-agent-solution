@@ -2,6 +2,10 @@ name: Supabase Auth 진단
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/supabase-auth-diagnose.yml"
 
 permissions:
   contents: read
