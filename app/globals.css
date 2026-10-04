@@ -564,3 +564,8 @@ html[data-theme="dark"] .playerAgencyControls select{background:#0b0b0b;border-c
   .playerAgencyControls{align-items:stretch;flex-direction:column}
   .playerAgencyControls select{min-width:0;width:100%}
 }
+
+.clickablePlayerRow{cursor:pointer;transition:background .16s ease,box-shadow .16s ease}
+.clickablePlayerRow:hover{background:#fffaf0}
+.clickablePlayerRow:focus{outline:2px solid rgba(201,149,46,.35);outline-offset:-2px}
+html[data-theme="dark"] .clickablePlayerRow:hover{background:#17130c}
