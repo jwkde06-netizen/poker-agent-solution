@@ -80,10 +80,11 @@ export default function Home() {
     document.documentElement.dataset.theme = nextTheme;
   }, []);
 
-  useEffect(() => {
-    document.documentElement.dataset.theme = theme;
-    localStorage.setItem("dream-poker-theme", theme);
-  }, [theme]);
+  function applyTheme(nextTheme: "light"|"dark") {
+    setTheme(nextTheme);
+    document.documentElement.dataset.theme = nextTheme;
+    localStorage.setItem("dream-poker-theme", nextTheme);
+  }
 
   async function loadFromDatabase() {
     if (!supabase) return;
@@ -298,7 +299,10 @@ export default function Home() {
   if (isSupabaseConfigured && !session) {
     return <main className="shell authShell">
       <section className="panel authPanel">
-        <button className="authThemeToggle" onClick={()=>setTheme(theme==="dark"?"light":"dark")}>{theme==="dark"?"☀ 라이트 모드":"☾ 다크 모드"}</button>
+        <button className="authThemeToggle" onClick={()=>applyTheme(theme==="dark"?"light":"dark")}>
+          <span className="toggleIcon">{theme==="dark"?"☾":"☀"}</span>
+          <span>{theme==="dark"?"다크 모드":"라이트 모드"}</span>
+        </button>
         <img className="authLogo" src="/dream-poker-logo.svg" alt="Dream Poker Da Nang"/>
         <p className="eyebrow">포커 에이전트 통합 정산</p>
         <h1>관리자 로그인</h1>
@@ -358,9 +362,11 @@ export default function Home() {
       <header className="workspaceTopbar">
         <div className="searchBox">⌕ <input placeholder="에이전트 코드, 플레이어명, 이메일을 검색하세요..."/><kbd>⌘ K</kbd></div>
         <div className="accountArea">
-          <button className="themeToggle" onClick={()=>setTheme(theme==="dark"?"light":"dark")} aria-label="테마 전환">
-            <span className={theme==="light"?"active":""}>☀ 라이트</span>
-            <span className={theme==="dark"?"active":""}>☾ 다크</span>
+          <button className="themeSwitch" onClick={()=>applyTheme(theme==="dark"?"light":"dark")} aria-label="라이트/다크 모드 전환">
+            <span className="themeLabel">☀</span>
+            <span className={`switchTrack ${theme==="dark"?"dark":""}`}><span className="switchKnob"/></span>
+            <span className="themeLabel">☾</span>
+            <strong>{theme==="dark"?"다크":"라이트"}</strong>
           </button>
           <button className="ghostButton">⇄ 에이전트 보기</button>
           <span className="roleBadge">관리자</span>
