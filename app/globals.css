@@ -176,3 +176,78 @@ tbody tr:last-child td{border-bottom:0}
   .brandLogo{width:48px;height:48px}
   .authLogo{width:120px;height:120px}
 }
+
+.themeToggle{display:flex;align-items:center;gap:4px;border:1px solid var(--line-strong);background:#fff;border-radius:999px;padding:3px}
+.themeToggle span{padding:6px 9px;border-radius:999px;color:#7b828a;font-size:11px;font-weight:700}
+.themeToggle span.active{background:#1a1a1a;color:#fff}
+.authThemeToggle{position:absolute;top:18px;right:18px;border:1px solid var(--line-strong);background:#fff;color:#555;border-radius:999px;padding:8px 11px;font-size:11px;cursor:pointer}
+.authPanel{position:relative}
+
+html[data-theme="dark"] body{background:#090909;color:#f3f3f3}
+html[data-theme="dark"] .appShell{background:#090909}
+html[data-theme="dark"] .sidebar{background:#0b0b0b;border-color:#252525}
+html[data-theme="dark"] .brand{border-color:#252525}
+html[data-theme="dark"] .brand strong{color:#f1f1f1}
+html[data-theme="dark"] .brand span{color:#8e8e8e}
+html[data-theme="dark"] .sideNav button{color:#aaa}
+html[data-theme="dark"] .sideNav button:hover{background:#151515;color:#fff}
+html[data-theme="dark"] .sideNav button.active{background:#221b0d;color:#e4b24f}
+html[data-theme="dark"] .agentPreview{background:#111;border-color:#4e3a16}
+html[data-theme="dark"] .agentPreview span{color:#8f8f8f}
+html[data-theme="dark"] .workspaceTopbar{background:rgba(10,10,10,.96);border-color:#252525}
+html[data-theme="dark"] .searchBox,
+html[data-theme="dark"] .ghostButton,
+html[data-theme="dark"] .status,
+html[data-theme="dark"] .outlineGold,
+html[data-theme="dark"] .themeToggle,
+html[data-theme="dark"] .authThemeToggle{background:#111;border-color:#2b2b2b;color:#d7d7d7}
+html[data-theme="dark"] .searchBox input{color:#fff}
+html[data-theme="dark"] .searchBox kbd{background:#1b1b1b;border-color:#333;color:#aaa}
+html[data-theme="dark"] .themeToggle span{color:#999}
+html[data-theme="dark"] .themeToggle span.active{background:#e0ad49;color:#15100a}
+html[data-theme="dark"] .contentArea{background:#090909}
+html[data-theme="dark"] .pageHeading h1,
+html[data-theme="dark"] .kpiCard b,
+html[data-theme="dark"] .cardHeader h2,
+html[data-theme="dark"] .sectionTitle h2,
+html[data-theme="dark"] .placeholderPanel h2,
+html[data-theme="dark"] .summaryRow strong,
+html[data-theme="dark"] .agencyCard b,
+html[data-theme="dark"] .metric b{color:#f5f5f5}
+html[data-theme="dark"] .sub,
+html[data-theme="dark"] .cardHeader p,
+html[data-theme="dark"] .sectionTitle p,
+html[data-theme="dark"] .placeholderPanel p{color:#919191}
+html[data-theme="dark"] .kpiCard,
+html[data-theme="dark"] .dashCard,
+html[data-theme="dark"] .panel,
+html[data-theme="dark"] .tableWrap,
+html[data-theme="dark"] .summaryTable,
+html[data-theme="dark"] .metric,
+html[data-theme="dark"] .agencyCard{background:#111;border-color:#272727;box-shadow:0 8px 30px rgba(0,0,0,.26)}
+html[data-theme="dark"] .kpiIcon{background:#211a0d}
+html[data-theme="dark"] .summaryHead,
+html[data-theme="dark"] th{background:#181818;color:#aaa;border-color:#292929}
+html[data-theme="dark"] .summaryRow,
+html[data-theme="dark"] td{border-color:#222;color:#ddd}
+html[data-theme="dark"] tbody tr:hover{background:#151515}
+html[data-theme="dark"] .inlineForm input,
+html[data-theme="dark"] .formGrid input,
+html[data-theme="dark"] .formGrid select,
+html[data-theme="dark"] .datePicker,
+html[data-theme="dark"] .authForm input{background:#0d0d0d;border-color:#2f2f2f;color:#f0f0f0}
+html[data-theme="dark"] .cellInput{color:#eee}
+html[data-theme="dark"] .note{background:#1b170e;color:#c5b58f}
+html[data-theme="dark"] .fakeChart{border-color:#252525;background:repeating-linear-gradient(to bottom,transparent 0,transparent 48px,#1b1b1b 49px)}
+html[data-theme="dark"] .fakeChart svg{color:#ddd}
+html[data-theme="dark"] .miniSelect{background:#141414;border-color:#2b2b2b;color:#ccc}
+html[data-theme="dark"] .authShell{background:#090909}
+html[data-theme="dark"] .authPanel{background:#111;border-color:#292929;box-shadow:0 20px 60px rgba(0,0,0,.45)}
+html[data-theme="dark"] .authPanel h1{color:#fff}
+html[data-theme="dark"] .secondary{background:#111;border-color:#2f2f2f;color:#ddd}
+html[data-theme="dark"] .secondary:hover,
+html[data-theme="dark"] .ghostButton:hover{background:#181818}
+html[data-theme="dark"] .roleBadge{background:#211a0d;border-color:#5d461c;color:#e0ad49}
+html[data-theme="dark"] .avatar{background:#f0f0f0;color:#111}
+html[data-theme="dark"] .brandLogo,
+html[data-theme="dark"] .authLogo{filter:none}
