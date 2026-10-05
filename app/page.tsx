@@ -1234,17 +1234,17 @@ export default function Home() {
             aria-expanded={accountMenuOpen}
             aria-label="계정 메뉴 열기"
           >
-            <span className="avatar">{session?.user.email?.slice(0,1).toUpperCase() || "A"}</span>
+            <span className="avatar">{(profile?.displayName || profile?.username || "A").slice(0,1).toUpperCase()}</span>
             <span className="accountMenuText">
               <strong>{profile?.role==="admin"?"관리자":profile?.role==="staff"?"직원":profile?.role==="agent"?"에이전트":"승인 대기"}</strong>
-              <small>{session?.user.email}</small>
+              <small>{profile?.username ? `@${profile.username}` : ""}</small>
             </span>
             <span className="menuChevron">{accountMenuOpen?"⌃":"⌄"}</span>
           </button>
 
           {accountMenuOpen && <div className="accountDropdown">
             <div className="accountDropdownProfile">
-              <span className="avatar largeAvatar">{session?.user.email?.slice(0,1).toUpperCase() || "A"}</span>
+              <span className="avatar largeAvatar">{(profile?.displayName || profile?.username || "A").slice(0,1).toUpperCase()}</span>
               <div>
                 <strong>{profile?.displayName || (profile?.role==="admin"?"관리자 계정":profile?.role==="staff"?"직원 계정":profile?.role==="agent"?"에이전트 계정":"승인 대기")}</strong>
                 <small>{session?.user.email}</small>
