@@ -2070,7 +2070,7 @@ export default function Home() {
         {message && <div className="note globalNote">{message}</div>}
 
         {tab==="dashboard" && <>
-          <section className="dashboardFinanceStrip">
+          <section className={isStaff?"dashboardFinanceStrip staffDashboardStrip":"dashboardFinanceStrip"}>
             <div className="dashboardFinanceHeader">
               <div>
                 <span>오늘 운영 현황</span>
@@ -2082,28 +2082,35 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="dashboardFinanceGrid">
-              <button className="dashboardFinanceCard gross" onClick={()=>navigateTab("daily")}>
-                <span>오늘 엔트리피</span>
-                <strong>{vnd(todayRevenue)}</strong>
-                <small>오늘 발생 금액</small>
-              </button>
-              <button className="dashboardFinanceCard agent" onClick={()=>navigateTab("daily")}>
-                <span>에이전트 레이크백</span>
-                <strong>{vnd(todaySettlement)}</strong>
-                <small>지급 예정</small>
-              </button>
-              <button className="dashboardFinanceCard fnb" onClick={()=>navigateTab("fnb")}>
-                <span>F&B</span>
-                <strong>{vnd(fnbTodayTotal)}</strong>
-                <small>오늘 비용</small>
-              </button>
-              <button className="dashboardFinanceCard profit" onClick={()=>navigateTab("daily")}>
-                <span>오늘 수익</span>
-                <strong>{vnd(dashboardTodayProfit)}</strong>
-                <small>레이크 - 레이크백 - F&B</small>
-              </button>
-            </div>
+            {isStaff
+              ? <div className="dashboardFinanceGrid staffOperationsGrid">
+                  <button className="dashboardFinanceCard" onClick={()=>navigateTab("games")}>
+                    <span>진행 테이블</span><strong>{activeGameSessions.length}</strong><small>현재 LIVE</small>
+                  </button>
+                  <button className="dashboardFinanceCard" onClick={()=>navigateTab("games")}>
+                    <span>오늘 플레이어</span><strong>{todayPlayerCount}명</strong><small>참여 인원</small>
+                  </button>
+                  <button className="dashboardFinanceCard" onClick={()=>navigateTab("games")}>
+                    <span>오늘 BUY-IN</span><strong>{todayEntries.reduce((sum,e)=>sum+e.buyIn,0)}</strong><small>총 바이인 수</small>
+                  </button>
+                  <button className="dashboardFinanceCard fnb" onClick={()=>navigateTab("fnb")}>
+                    <span>F&B 입력</span><strong>{fnbTodayEntries.length}건</strong><small>오늘 등록 내역</small>
+                  </button>
+                </div>
+              : <div className="dashboardFinanceGrid">
+                  <button className="dashboardFinanceCard gross" onClick={()=>navigateTab("daily")}>
+                    <span>오늘 엔트리피</span><strong>{vnd(todayRevenue)}</strong><small>오늘 발생 금액</small>
+                  </button>
+                  <button className="dashboardFinanceCard agent" onClick={()=>navigateTab("daily")}>
+                    <span>에이전트 레이크백</span><strong>{vnd(todaySettlement)}</strong><small>지급 예정</small>
+                  </button>
+                  <button className="dashboardFinanceCard fnb" onClick={()=>navigateTab("fnb")}>
+                    <span>F&B</span><strong>{vnd(fnbTodayTotal)}</strong><small>오늘 비용</small>
+                  </button>
+                  <button className="dashboardFinanceCard profit" onClick={()=>navigateTab("daily")}>
+                    <span>오늘 수익</span><strong>{vnd(dashboardTodayProfit)}</strong><small>엔트리피 - 레이크백 - F&B</small>
+                  </button>
+                </div>}
           </section>
 
           <section className="dashboardMainSplit">
@@ -2135,45 +2142,53 @@ export default function Home() {
                         <div className="dashboardLiveMetrics">
                           <div><small>플레이어</small><b>{tableEntries.length}명</b></div>
                           <div><small>BUY-IN</small><b>{buyins}</b></div>
-                          <div className="rake"><small>레이크</small><b>{vnd(rake)}</b></div>
+                          {!isStaff && <div className="rake"><small>엔트리피</small><b>{vnd(rake)}</b></div>}
                         </div>
                       </button>
                     })}
                   </div>}
             </section>
 
-            <section className="dashboardTrendPanel">
-              <div className="dashboardPanelHeader trendHeader">
-                <div>
-                  <h2>운영 추이</h2>
-                  <span>{dashboardTrendMode==="daily"?"최근 7일":"최근 4주"}</span>
-                </div>
-                <div className="dashboardTrendToggle">
-                  <button className={dashboardTrendMode==="daily"?"active":""} onClick={()=>setDashboardTrendMode("daily")}>일간</button>
-                  <button className={dashboardTrendMode==="weekly"?"active":""} onClick={()=>setDashboardTrendMode("weekly")}>주간</button>
-                </div>
-              </div>
-
-              <div className="dashboardTrendSummary">
-                <div><span>총 엔트리피</span><strong>{vnd(dashboardTrendRake)}</strong></div>
-                <div><span>순수익</span><strong>{vnd(dashboardTrendProfit)}</strong></div>
-              </div>
-
-              <div className="dashboardTrendChart" aria-label="운영 추이 그래프">
-                {dashboardTrendData.map((item,index)=><div className="dashboardTrendColumn" key={item.label+"-"+index}>
-                  <div className="dashboardTrendBars">
-                    <span className="rakeBar" style={{height:`${Math.max(item.rake>0?8:2,(item.rake/dashboardTrendMax)*100)}%`}} title={`레이크 ${vnd(item.rake)}`}/>
-                    <span className="profitBar" style={{height:`${Math.max(item.profit>0?8:2,(Math.max(0,item.profit)/dashboardTrendMax)*100)}%`}} title={`순수익 ${vnd(item.profit)}`}/>
+            {isStaff
+              ? <section className="dashboardTrendPanel staffQuickPanel">
+                  <div className="dashboardPanelHeader">
+                    <div><h2>빠른 업무</h2><span>직원용</span></div>
                   </div>
-                  <small>{item.label}</small>
-                </div>)}
-              </div>
-
-              <div className="dashboardTrendLegend">
-                <span><i className="rakeLegend"/>총 엔트리피</span>
-                <span><i className="profitLegend"/>순수익</span>
-              </div>
-            </section>
+                  <div className="staffQuickActions">
+                    <button onClick={()=>navigateTab("games")}><strong>게임 입력</strong><span>테이블 · BUY-IN 관리</span></button>
+                    <button onClick={()=>navigateTab("players")}><strong>플레이어 관리</strong><span>검색 · 등록 · 정보 수정</span></button>
+                    <button onClick={()=>navigateTab("fnb")}><strong>F&B 입력</strong><span>음료 · 경비 등록</span></button>
+                  </div>
+                </section>
+              : <section className="dashboardTrendPanel">
+                  <div className="dashboardPanelHeader trendHeader">
+                    <div>
+                      <h2>운영 추이</h2>
+                      <span>{dashboardTrendMode==="daily"?"최근 7일":"최근 4주"}</span>
+                    </div>
+                    <div className="dashboardTrendToggle">
+                      <button className={dashboardTrendMode==="daily"?"active":""} onClick={()=>setDashboardTrendMode("daily")}>일간</button>
+                      <button className={dashboardTrendMode==="weekly"?"active":""} onClick={()=>setDashboardTrendMode("weekly")}>주간</button>
+                    </div>
+                  </div>
+                  <div className="dashboardTrendSummary">
+                    <div><span>총 엔트리피</span><strong>{vnd(dashboardTrendRake)}</strong></div>
+                    <div><span>순수익</span><strong>{vnd(dashboardTrendProfit)}</strong></div>
+                  </div>
+                  <div className="dashboardTrendChart" aria-label="운영 추이 그래프">
+                    {dashboardTrendData.map((item,index)=><div className="dashboardTrendColumn" key={item.label+"-"+index}>
+                      <div className="dashboardTrendBars">
+                        <span className="rakeBar" style={{height:`${Math.max(item.rake>0?8:2,(item.rake/dashboardTrendMax)*100)}%`}} title={`엔트리피 ${vnd(item.rake)}`}/>
+                        <span className="profitBar" style={{height:`${Math.max(item.profit>0?8:2,(Math.max(0,item.profit)/dashboardTrendMax)*100)}%`}} title={`순수익 ${vnd(item.profit)}`}/>
+                      </div>
+                      <small>{item.label}</small>
+                    </div>)}
+                  </div>
+                  <div className="dashboardTrendLegend">
+                    <span><i className="rakeLegend"/>총 엔트리피</span>
+                    <span><i className="profitLegend"/>순수익</span>
+                  </div>
+                </section>}
           </section>
         </>}
 
