@@ -3498,29 +3498,23 @@ export default function Home() {
               <h2>지출 내역서</h2>
             </div>
             <div className="expenseCompactSummary">
-              <div className={ledgerBalance<0?"primary negative":"primary positive"}><span>현재 장부 잔액</span><strong>{ledgerBalance>0?"+":""}{vnd(ledgerBalance)}</strong></div>
+              <div className={ledgerBalance<0?"primary negative":"primary positive"}><span>Balance</span><strong>{ledgerBalance>0?"+":""}{vnd(ledgerBalance)}</strong></div>
               <div><span>Deposit</span><b>+ {vnd(totalDepositAmount)}</b></div>
-              <div><span>전체 경비</span><b>− {vnd(totalExpenseAmount)}</b></div>
-              <div><span>미처리 경비</span><b>{vnd(pendingExpenseTotal)}</b></div>
+              <div><span>Withdrawal</span><b>− {vnd(totalExpenseAmount)}</b></div>
             </div>
           </section>
 
           <section className="panel expenseLedgerPanel">
-            <div className="expenseLedgerHeader">
+            <div className="expenseLedgerHeader simpleLedgerHeader">
               <div>
                 <h2>입출금 장부</h2>
-                <p>Deposit은 주간 정산금(+), Expense는 경비(−)로 누적되어 장부 잔액이 계산됩니다.</p>
-              </div>
-              <div className="expenseFilterTabs">
-                <button className={expenseFilter==="pending"?"active":""} onClick={()=>setExpenseFilter("pending")}>미처리 {pendingExpenseRows.length}</button>
-                <button className={expenseFilter==="all"?"active":""} onClick={()=>setExpenseFilter("all")}>전체 {expenseItems.length+expenseDeposits.length}</button>
-                <button className={expenseFilter==="processed"?"active":""} onClick={()=>setExpenseFilter("processed")}>처리완료 {processedExpenseRows.length}</button>
+                <p>Deposit은 들어온 돈, Withdrawal은 나간 돈이며 Balance는 누적 잔액입니다.</p>
               </div>
             </div>
 
             <div className={expenseEntryType==="deposit"?"expenseQuickAdd depositMode":"expenseQuickAdd"}>
               <select className="ledgerTypeSelect" value={expenseEntryType} onChange={e=>setExpenseEntryType(e.target.value as "expense"|"deposit")} aria-label="장부 유형">
-                <option value="expense">Expense</option>
+                <option value="expense">Withdrawal</option>
                 <option value="deposit">Deposit</option>
               </select>
               <input type="date" value={expenseDate} onChange={e=>setExpenseDate(e.target.value)} aria-label="날짜"/>
@@ -3550,21 +3544,18 @@ export default function Home() {
               <div className="expenseLedgerTable">
                 <div className="expenseLedgerHead">
                   <span>날짜</span>
-                  <span>유형 / 항목</span>
+                  <span>항목</span>
                   <span>선지급자</span>
                   <span>Deposit</span>
-                  <span>원래 금액</span>
-                  <span>처리된 금액</span>
-                  <span>미처리 잔액</span>
+                  <span>Withdrawal</span>
                   <span>Balance</span>
-                  <span>상태</span>
                   <span>메모</span>
                   <span></span>
                 </div>
 
-                {visibleLedgerRows.length===0
+                {ledgerRows.length===0
                   ? <div className="expenseLedgerEmpty">표시할 장부 항목이 없습니다.</div>
-                  : visibleLedgerRows.map(row=>{
+                  : ledgerRows.map(row=>{
                       if(row.kind==="deposit"){
                         return <div className="expenseLedgerRow depositLedgerRow" key={"deposit-"+row.id}>
                           <span>{row.date}</span>
@@ -3572,17 +3563,12 @@ export default function Home() {
                           <span>-</span>
                           <b className="depositValue">+ {vnd(row.amount)}</b>
                           <span>-</span>
-                          <span>-</span>
-                          <span>-</span>
                           <b className={row.balance<0?"ledgerBalance negative":"ledgerBalance positive"}>{row.balance>0?"+":""}{vnd(row.balance)}</b>
-                          <em className="deposit">입금</em>
                           <span className="expenseNoteCell">{row.note || "-"}</span>
                           <span></span>
                         </div>;
                       }
                       const item=row.expense!;
-                      const remaining=Math.max(0,item.amount-item.processedAmount);
-                      const state=item.processedAmount>=item.amount?"processed":item.processedAmount>0?"partial":"pending";
                       return <div className="expenseLedgerRow editableExpenseRow" key={"expense-"+item.id} onClick={()=>openExpenseEditor(item)} role="button" tabIndex={0} onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();openExpenseEditor(item);}}}>
                         <span>{item.date}</span>
                         <span className="expenseItemName"><strong>{item.description}</strong></span>
@@ -3597,11 +3583,8 @@ export default function Home() {
                           />
                         </span>
                         <span>-</span>
-                        <span>{vnd(item.amount)}</span>
-                        <span>{vnd(item.processedAmount)}</span>
-                        <b>{vnd(remaining)}</b>
+                        <b className="withdrawalValue">− {vnd(item.amount)}</b>
                         <b className={row.balance<0?"ledgerBalance negative":"ledgerBalance positive"}>{row.balance>0?"+":""}{vnd(row.balance)}</b>
-                        <em className={state}>{state==="processed"?"처리완료":state==="partial"?"일부처리":"미처리"}</em>
                         <span className="expenseNoteCell">{item.note || "-"}</span>
                         <button onClick={e=>{e.stopPropagation();deleteExpenseItem(item);}} disabled={item.processedAmount>0} aria-label="지출 삭제">×</button>
                       </div>;
@@ -3857,9 +3840,6 @@ export default function Home() {
       const item=expenseItems.find(x=>x.id===editingExpenseId);
       if(!item)return null;
       const originalAmount=Number(expenseEditAmount.replace(/,/g,"")) || 0;
-      const processedAmount=Number(expenseEditProcessedAmount.replace(/,/g,"")) || 0;
-      const remaining=Math.max(0,originalAmount-processedAmount);
-      const editState=processedAmount>=originalAmount && originalAmount>0?"processed":processedAmount>0?"partial":"pending";
       return <div className="playerManageOverlay expenseEditOverlay" onClick={closeExpenseEditor}>
         <section className="expenseEditModal" onClick={e=>e.stopPropagation()}>
           <div className="expenseEditHeader">
@@ -3871,11 +3851,8 @@ export default function Home() {
             <button onClick={closeExpenseEditor} aria-label="닫기">×</button>
           </div>
 
-          <div className="expenseEditSummary">
-            <div><span>원래 금액</span><b>{vnd(originalAmount)}</b></div>
-            <div><span>처리된 금액</span><b>{vnd(processedAmount)}</b></div>
-            <div className="remaining"><span>미처리 잔액</span><b>{vnd(remaining)}</b></div>
-            <em className={editState}>{editState==="processed"?"처리완료":editState==="partial"?"일부처리":"미처리"}</em>
+          <div className="expenseEditSummary simpleExpenseEditSummary">
+            <div><span>Withdrawal</span><b>− {vnd(originalAmount)}</b></div>
           </div>
 
           <div className="expenseEditGrid">
@@ -3895,8 +3872,7 @@ export default function Home() {
             </label>
             <label className="wide">경비 항목<input value={expenseEditDescription} onChange={e=>setExpenseEditDescription(e.target.value)}/></label>
             <label>선지급자<input value={expenseEditPrepaidBy} onChange={e=>setExpenseEditPrepaidBy(e.target.value)} placeholder="예: 김지원"/></label>
-            <label>원래 금액<input inputMode="numeric" value={expenseEditAmount} onChange={e=>setExpenseEditAmount(e.target.value.replace(/[^0-9]/g,""))}/></label>
-            <label>처리된 일부 금액<input inputMode="numeric" value={expenseEditProcessedAmount} onChange={e=>setExpenseEditProcessedAmount(e.target.value.replace(/[^0-9]/g,""))}/></label>
+            <label>Withdrawal 금액<input inputMode="numeric" value={expenseEditAmount} onChange={e=>setExpenseEditAmount(e.target.value.replace(/[^0-9]/g,""))}/></label>
             <label className="wide">메모<input value={expenseEditNote} onChange={e=>setExpenseEditNote(e.target.value)}/></label>
           </div>
 
