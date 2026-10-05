@@ -4,6 +4,7 @@
 import { useEffect, useMemo, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { createProvisioningClient, isSupabaseConfigured, supabase } from "../lib/supabase";
+import { jsPDF } from "jspdf";
 
 type Agency = { id: string; code: string; rate: number; active: boolean };
 type Player = { id: string; name: string; koreanName: string; cardNo: string; agencyId: string; note: string; createdAt: string };
@@ -199,6 +200,7 @@ export default function Home() {
   const [gameRake, setGameRake] = useState("500000");
   const [summaryDate, setSummaryDate] = useState(today());
   const [dailyLogSearch, setDailyLogSearch] = useState("");
+  const [dailyExportOpen, setDailyExportOpen] = useState(false);
   const [fnbDetailOpen, setFnbDetailOpen] = useState(false);
   const [reportPreset, setReportPreset] = useState<"today"|"week"|"custom">("today");
   const [reportStart, setReportStart] = useState(today());
@@ -451,6 +453,18 @@ export default function Home() {
       entries:GameEntry[];
     }>();
 
+    if(!dailyLogSearch.trim()){
+      gameSessions
+        .filter(s=>s.date===summaryDate)
+        .forEach(gs=>groups.set(gs.id,{
+          key:gs.id,
+          tableNo:gs.tableNo,
+          gameNo:gs.gameNo,
+          game:gs.game,
+          entries:[]
+        }));
+    }
+
     filteredDailyEntries.forEach(entry=>{
       const gs=gameSessions.find(s=>s.id===entry.sessionId);
       const key=entry.sessionId || `legacy-${entry.game}`;
@@ -469,7 +483,7 @@ export default function Home() {
     });
 
     return [...groups.values()];
-  },[filteredDailyEntries,gameSessions]);
+  },[filteredDailyEntries,gameSessions,dailyLogSearch,summaryDate]);
   const weeklyEntries = useMemo(()=>entries.filter(e=>e.date>=weekStart && e.date<=weekEnd),[entries,weekStart,weekEnd]);
 
   const total = (items: GameEntry[], key: "rake"|"rakeback") => items.reduce((s,e)=>s+e[key],0);
@@ -1066,9 +1080,10 @@ export default function Home() {
     reportFnb.forEach(x=>rows.push([x.date,x.itemName,String(x.quantity),String(x.unitPrice),String(x.totalAmount),x.expenseGroup,x.note||""]));
     const csv="\uFEFF"+rows.map(r=>r.map(v=>'"'+String(v??"").replace(/"/g,'""')+'"').join(",")).join("\n");
     downloadBlob("dream-poker-settlement-"+reportStart+"-"+reportEnd+".csv",new Blob([csv],{type:"text/csv;charset=utf-8"}));
+    setDailyExportOpen(false);
   }
 
-  function exportSettlementPng(){
+  function buildSettlementCanvas(){
     const reportEntries=entries.filter(e=>e.date>=reportStart && e.date<=reportEnd);
     const reportFnb=fnbEntries.filter(e=>e.date>=reportStart && e.date<=reportEnd);
     const revenue=reportEntries.reduce((sum,e)=>sum+revenuePerBuyIn(e.game)*e.buyIn,0);
@@ -1081,41 +1096,69 @@ export default function Home() {
     const canvas=document.createElement("canvas");
     canvas.width=width; canvas.height=height;
     const ctx=canvas.getContext("2d");
-    if(!ctx)return;
+    if(!ctx)return null;
     ctx.fillStyle="#0d0d0d"; ctx.fillRect(0,0,width,height);
     ctx.fillStyle="#d7aa4d"; ctx.fillRect(0,0,width,10);
-    ctx.fillStyle="#ffffff"; ctx.font="700 42px sans-serif"; ctx.fillText("드림포커 운영 시스템 정산표",70,85);
+    ctx.fillStyle="#ffffff"; ctx.font="700 42px sans-serif"; ctx.fillText("Dream Poker Settlement",70,85);
     ctx.fillStyle="#a0a0a0"; ctx.font="24px sans-serif"; ctx.fillText(reportStart+" ~ "+reportEnd,70,125);
 
     const cards:[string,number][]=[
-      ["바이인 금액",revenue],
-      ["에이전트 레이크백",rakeback],
+      ["Total Rake",revenue],
+      ["Agent Rakeback",rakeback],
       ["F&B",fnb],
-      ["순수익",net]
+      ["Net Profit",net]
     ];
     cards.forEach((item,i)=>{
       const x=70+(i%2)*540, y=175+Math.floor(i/2)*145;
       ctx.fillStyle="#171717"; ctx.fillRect(x,y,500,115);
       ctx.fillStyle="#9a9a9a"; ctx.font="22px sans-serif"; ctx.fillText(item[0],x+24,y+36);
       ctx.fillStyle=i===3?"#e0ad49":"#ffffff"; ctx.font="700 34px sans-serif";
-      ctx.fillText(money.format(item[1])+" ₫",x+24,y+82);
+      ctx.fillText(money.format(item[1])+" VND",x+24,y+82);
     });
 
     let y=510;
-    ctx.fillStyle="#ffffff"; ctx.font="700 28px sans-serif"; ctx.fillText("바이인 내역",70,y);
+    ctx.fillStyle="#ffffff"; ctx.font="700 28px sans-serif"; ctx.fillText("Game Entries",70,y);
     y+=36;
-    ctx.fillStyle="#8c8c8c"; ctx.font="20px sans-serif"; ctx.fillText("날짜   테이블   게임   플레이어   BUY-IN   바이인 금액",70,y);
+    ctx.fillStyle="#8c8c8c"; ctx.font="20px sans-serif"; ctx.fillText("Date   Table   Game   Player   BUY-IN   Amount",70,y);
     y+=28;
     reportEntries.slice(0,18).forEach(e=>{
       const gs=gameSessions.find(s=>s.id===e.sessionId);
       ctx.fillStyle="#202020"; ctx.fillRect(70,y-24,1060,36);
       ctx.fillStyle="#e8e8e8"; ctx.font="19px sans-serif";
-      const label=e.date+"   "+(gs?.tableNo?"T"+gs.tableNo:"-")+"   "+(gs?.gameNo?"No."+gs.gameNo+" ":"")+e.game+"   "+getPlayerName(e.playerId)+"   "+e.buyIn+"회   "+money.format(revenuePerBuyIn(e.game)*e.buyIn)+" ₫";
+      const label=e.date+"   "+(gs?.tableNo?"Table "+gs.tableNo:"-")+"   "+(gs?.gameNo?"No."+gs.gameNo+" ":"")+e.game+"   "+getPlayerName(e.playerId)+"   "+e.buyIn+"   "+money.format(revenuePerBuyIn(e.game)*e.buyIn)+" VND";
       ctx.fillText(label.slice(0,95),82,y);
       y+=42;
     });
     ctx.fillStyle="#777"; ctx.font="17px sans-serif"; ctx.fillText("Dream Poker Operations Report",70,height-42);
-    canvas.toBlob(blob=>{if(blob)downloadBlob("dream-poker-settlement-"+reportStart+"-"+reportEnd+".png",blob)},"image/png");
+    return canvas;
+  }
+
+  function exportSettlementPng(){
+    const canvas=buildSettlementCanvas();
+    if(!canvas)return;
+    canvas.toBlob(blob=>{
+      if(blob)downloadBlob("dream-poker-settlement-"+reportStart+"-"+reportEnd+".png",blob);
+    },"image/png");
+    setDailyExportOpen(false);
+  }
+
+  function exportSettlementPdf(){
+    const canvas=buildSettlementCanvas();
+    if(!canvas)return;
+    const image=canvas.toDataURL("image/jpeg",0.92);
+    const pdf=new jsPDF({
+      orientation: canvas.width>=canvas.height?"landscape":"portrait",
+      unit:"pt",
+      format:"a4"
+    });
+    const pageWidth=pdf.internal.pageSize.getWidth();
+    const pageHeight=pdf.internal.pageSize.getHeight();
+    const ratio=Math.min(pageWidth/canvas.width,pageHeight/canvas.height);
+    const width=canvas.width*ratio;
+    const height=canvas.height*ratio;
+    pdf.addImage(image,"JPEG",(pageWidth-width)/2,(pageHeight-height)/2,width,height);
+    pdf.save("dream-poker-settlement-"+reportStart+"-"+reportEnd+".pdf");
+    setDailyExportOpen(false);
   }
 
   if (isSupabaseConfigured && !session) {
@@ -2212,8 +2255,17 @@ export default function Home() {
               </div>
 
               <div className="dailyTopActions compactExportActions">
-                <button className="dailyExportButton primary" onClick={exportSettlementPng}>PNG 출력</button>
-                <button className="dailyExportButton" onClick={exportSettlementCsv}>CSV</button>
+                <div className="dailyDownloadMenu">
+                  <button className="dailyDownloadTrigger" onClick={()=>setDailyExportOpen(v=>!v)}>
+                    정산서 다운로드
+                    <span>{dailyExportOpen?"⌃":"⌄"}</span>
+                  </button>
+                  {dailyExportOpen && <div className="dailyDownloadDropdown">
+                    <button onClick={exportSettlementPdf}><strong>PDF</strong><small>인쇄·공유용 문서</small></button>
+                    <button onClick={exportSettlementPng}><strong>PNG</strong><small>이미지 파일</small></button>
+                    <button onClick={exportSettlementCsv}><strong>스프레드시트</strong><small>CSV 파일</small></button>
+                  </div>}
+                </div>
               </div>
             </div>
 
@@ -2291,6 +2343,7 @@ export default function Home() {
                               <span></span>
                             </div>
 
+                            {group.entries.length===0 && <div className="dailyGameEmptyRow">플레이어 기록이 없는 게임입니다.</div>}
                             {group.entries.map(e=><div className="dailyGameRow" key={e.id}>
                               <div className="dailyGamePlayerCell">
                                 <select className="dailyPlayerSelect" value={e.playerId} onChange={ev=>replaceSessionPlayer(e,ev.target.value)}>
