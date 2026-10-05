@@ -3843,3 +3843,26 @@ html[data-theme="dark"] .accountDropdown>button:hover{
     padding-bottom:7px!important;
   }
 }
+
+/* Unified product title with role */
+.mobileProductTitle strong{
+  display:flex!important;
+  align-items:center;
+  gap:5px;
+}
+.mobileProductTitle strong em{
+  color:#8f969d;
+  font-size:9px;
+  font-style:normal;
+  font-weight:800;
+  white-space:nowrap;
+}
+
+@media(max-width:820px){
+  .mobileProductTitle strong{
+    font-size:13px!important;
+  }
+  .mobileProductTitle strong em{
+    font-size:8px!important;
+  }
+}
