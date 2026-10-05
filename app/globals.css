@@ -11374,3 +11374,30 @@ html[data-theme="dark"] .inlineAgencyCode{
     min-width:56px
   }
 }
+
+
+/* Pregame/live table visual continuity */
+.preStartSessionEdit{
+  display:flex!important;
+  align-items:center!important;
+  gap:10px!important;
+}
+.preStartSessionEdit label,
+.preStartSessionEdit select{
+  margin:0!important
+}
+.preStartSessionEdit input[readonly]{
+  cursor:default!important;
+  background:transparent!important
+}
+.unifiedStartButton{
+  min-width:86px!important;
+  height:40px!important;
+  padding:0 14px!important;
+  border-radius:9px!important;
+  font-size:13px!important;
+  font-weight:700!important
+}
+.selectedTablePanel>.selectedTableStats{
+  margin-top:0!important
+}
