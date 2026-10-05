@@ -702,6 +702,7 @@ export default function Home() {
   const todayBuyinRevenue = todayEntries.reduce((sum,e)=>sum + revenuePerBuyIn(e.game)*e.buyIn,0);
   const activeTableBuyins = activeGameSessions.reduce((sum,s)=>sum+entries.filter(e=>e.sessionId===s.id).reduce((n,e)=>n+e.buyIn,0),0);
   const activeTablePlayers = activeGameSessions.reduce((sum,s)=>sum+entries.filter(e=>e.sessionId===s.id).length,0);
+  const todayOperatingNet = todayBuyinRevenue - todaySettlement - fnbTodayTotal;
   const dailyFnbTotal = fnbEntries.filter(item=>item.date===summaryDate).reduce((sum,item)=>sum+item.totalAmount,0);
   const dailyGrossAmount = total(dailyEntries,"rake");
   const dailyAgentRows = agencyTotals(dailyEntries).filter(a=>a.amount>0);
@@ -865,31 +866,42 @@ export default function Home() {
         {message && <div className="note globalNote">{message}</div>}
 
         {tab==="dashboard" && <>
-          <section className="dashboardHero panel">
-            <div className="dashboardHeroTop">
+          <section className="dashboardOverview">
+            <div className="dashboardOverviewHeader">
               <div>
-                <span>오늘 운영 현황</span>
-                <strong>{activeGameSessions.length}개 테이블 진행 중</strong>
-                <small>{activeTablePlayers}명 플레이 · {activeTableBuyins} BUY-IN</small>
+                <span>오늘 현황</span>
+                <strong>{today()}</strong>
               </div>
-              <div className="dashboardLiveBadge"><i/> LIVE</div>
+              <small>{activeGameSessions.length} TABLE LIVE</small>
             </div>
 
-            <div className="dashboardHeroMetrics">
-              <button onClick={()=>setTab("games")}>
+            <div className="dashboardMetricGrid">
+              <button className="dashboardMetricCard revenue" onClick={()=>setTab("games")}>
                 <span>오늘 매출</span>
                 <b>{vnd(todayBuyinRevenue)}</b>
-                <small>바이인 기준</small>
+                <small>{activeTableBuyins} BUY-IN</small>
+                <em>›</em>
               </button>
-              <button onClick={()=>setTab("daily")}>
-                <span>에이전트 레이크백</span>
-                <b>{vnd(todaySettlement)}</b>
-                <small>오늘 지급 기준</small>
+
+              <button className="dashboardMetricCard profit" onClick={()=>setTab("daily")}>
+                <span>오늘 순수익</span>
+                <b>{vnd(todayOperatingNet)}</b>
+                <small>레이크백 · F&B 차감</small>
+                <em>›</em>
               </button>
-              <button onClick={()=>setTab("fnb")}>
-                <span>F&B</span>
+
+              <button className="dashboardMetricCard live" onClick={()=>setTab("games")}>
+                <span>진행 테이블</span>
+                <b>{activeGameSessions.length}개</b>
+                <small>{activeTablePlayers}명 플레이 중</small>
+                <em>›</em>
+              </button>
+
+              <button className="dashboardMetricCard fnb" onClick={()=>setTab("fnb")}>
+                <span>오늘 F&B</span>
                 <b>{vnd(fnbTodayTotal)}</b>
-                <small>오늘 비용</small>
+                <small>오늘 입력 비용</small>
+                <em>›</em>
               </button>
             </div>
           </section>
@@ -897,7 +909,7 @@ export default function Home() {
           <section className="dashCard dashboardLiveTables">
             <div className="cardHeader">
               <div><h2>현재 진행 테이블</h2><p>실시간 바이인 현황</p></div>
-              <button className="linkButton" onClick={()=>setTab("games")}>바이인 관리 ›</button>
+              <button className="linkButton" onClick={()=>setTab("games")}>전체보기 ›</button>
             </div>
 
             {activeGameSessions.length===0
@@ -926,14 +938,14 @@ export default function Home() {
 
           <section className="dashCard dashboardTodaySummary">
             <div className="cardHeader">
-              <div><h2>오늘 정산 요약</h2><p>오늘 입력된 실제 데이터 기준</p></div>
-              <button className="linkButton" onClick={()=>setTab("daily")}>상세보기 ›</button>
+              <div><h2>오늘 정산 요약</h2><p>오늘 입력 기준</p></div>
+              <button className="linkButton" onClick={()=>setTab("daily")}>정산 보기 ›</button>
             </div>
-
             <div className="dashboardSummaryRows">
-              <div><span>바이인 매출</span><b>{vnd(todayBuyinRevenue)}</b></div>
-              <div><span>에이전트 레이크백</span><b>− {vnd(todaySettlement)}</b></div>
-              <div><span>F&B</span><b>− {vnd(fnbTodayTotal)}</b></div>
+              <button onClick={()=>setTab("games")}><span>바이인 매출</span><b>{vnd(todayBuyinRevenue)}</b></button>
+              <button onClick={()=>setTab("daily")}><span>에이전트 레이크백</span><b>− {vnd(todaySettlement)}</b></button>
+              <button onClick={()=>setTab("fnb")}><span>F&B</span><b>− {vnd(fnbTodayTotal)}</b></button>
+              <button className="netRow" onClick={()=>setTab("daily")}><span>순수익</span><b>{vnd(todayOperatingNet)}</b></button>
             </div>
           </section>
 
