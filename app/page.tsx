@@ -101,6 +101,16 @@ function plusDays(dateString: string, days: number) {
   return d.toISOString().slice(0, 10);
 }
 
+function MobileBottomIcon({type}:{type:"dashboard"|"fnb"|"games"|"daily"|"weekly"}) {
+  const common={width:"100%",height:"100%",viewBox:"0 0 24 24",fill:"none",stroke:"currentColor",strokeWidth:2.2,strokeLinecap:"round" as const,strokeLinejoin:"round" as const,ariaHidden:true};
+  if(type==="dashboard") return <svg {...common}><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>;
+  if(type==="fnb") return <svg {...common}><path d="M5 8h11v5.5A4.5 4.5 0 0 1 11.5 18h-2A4.5 4.5 0 0 1 5 13.5V8Z"/><path d="M16 10h1.5a2.5 2.5 0 0 1 0 5H16"/><path d="M4 21h15"/><path d="M8 3c0 1 .8 1.2.8 2.2S8 6.4 8 7"/><path d="M12 3c0 1 .8 1.2.8 2.2S12 6.4 12 7"/></svg>;
+  if(type==="games") return <svg {...common} strokeWidth={2.5}><path d="M12 5v14"/><path d="M5 12h14"/></svg>;
+  if(type==="daily") return <svg {...common}><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6"/><path d="M9 12h6"/><path d="M9 16h4"/></svg>;
+  return <svg {...common}><path d="M5 20V12"/><path d="M10 20V8"/><path d="M15 20V4"/><path d="M20 20V10"/></svg>;
+}
+
+
 export default function Home() {
   const [tab, setTab] = useState<"dashboard"|"agencies"|"players"|"games"|"daily"|"weekly"|"reports"|"settings"|"fnb">("dashboard");
   const [agencies, setAgencies] = useState<Agency[]>(DEFAULT_AGENCIES);
@@ -627,11 +637,11 @@ export default function Home() {
   ] as const;
 
   const mobileNavItems = [
-    {key:"dashboard",label:"대시보드",icon:"⌂"},
-    {key:"fnb",label:"F&B",icon:"☕"},
-    {key:"games",label:"바이인",icon:"＋"},
-    {key:"daily",label:"일일정산",icon:"▤"},
-    {key:"weekly",label:"주간정산",icon:"▥"},
+    {key:"dashboard",label:"대시보드"},
+    {key:"fnb",label:"F&B"},
+    {key:"games",label:"바이인"},
+    {key:"daily",label:"일일정산"},
+    {key:"weekly",label:"주간정산"},
   ] as const;
 
   return <main className="appShell">
@@ -1247,7 +1257,7 @@ export default function Home() {
         className={`${tab===item.key?"active":""} ${item.key==="games"?"buyinNavItem":""}`}
         onClick={()=>setTab(item.key as any)}
       >
-        <span className="mobileNavIcon">{item.icon}</span>
+        <span className="mobileNavIcon"><MobileBottomIcon type={item.key}/></span>
         <span>{item.label}</span>
       </button>)}
     </nav>
