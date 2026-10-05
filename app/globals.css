@@ -15559,3 +15559,143 @@ html[data-theme="dark"] .weeklyDepositButton{
     white-space:normal
   }
 }
+
+
+/* Weekly settlement v2 — report sheet style */
+.weeklyStatementSheet{
+  display:grid;
+  grid-template-columns:280px minmax(420px,720px);
+  gap:18px;
+  align-items:start;
+  margin-bottom:14px
+}
+.weeklyStatementMeta{
+  display:grid;
+  border:1px solid var(--line-strong);
+  border-radius:10px;
+  overflow:hidden;
+  background:var(--surface)
+}
+.weeklyStatementMeta>div{
+  min-height:44px;
+  display:grid;
+  grid-template-columns:1.2fr 1fr;
+  align-items:center;
+  gap:10px;
+  padding:0 12px;
+  border-bottom:1px solid var(--line-strong)
+}
+.weeklyStatementMeta>div:last-child{
+  border-bottom:0
+}
+.weeklyStatementMeta span{
+  font-size:11px;
+  font-weight:800;
+  color:var(--text)
+}
+.weeklyStatementMeta strong{
+  font-size:12px;
+  text-align:right
+}
+.weeklyStatementTable{
+  border:1px solid var(--line-strong);
+  border-radius:10px;
+  overflow:hidden;
+  background:var(--surface)
+}
+.weeklyStatementHead,
+.weeklyStatementRow{
+  display:grid;
+  grid-template-columns:minmax(250px,1fr) 180px;
+  align-items:center
+}
+.weeklyStatementHead{
+  min-height:42px;
+  background:#3d3d3d;
+  color:#fff;
+  font-size:13px;
+  font-weight:850
+}
+.weeklyStatementHead span,
+.weeklyStatementRow span,
+.weeklyStatementRow b{
+  padding:0 16px
+}
+.weeklyStatementHead span:last-child,
+.weeklyStatementRow b{
+  text-align:right
+}
+.weeklyStatementRow{
+  min-height:43px;
+  border-top:1px solid var(--line-strong);
+  font-size:13px
+}
+.weeklyStatementRow span{
+  font-weight:700
+}
+.weeklyStatementRow b{
+  font-size:14px
+}
+.weeklyStatementRow.totalExpense{
+  background:#7a1b06;
+  color:#fff
+}
+.weeklyStatementRow.totalExpense span,
+.weeklyStatementRow.totalExpense b{
+  color:#fff;
+  font-weight:850
+}
+.weeklyStatementRow.netProfit{
+  background:#3d3d3d;
+  color:#fff
+}
+.weeklyStatementRow.netProfit span,
+.weeklyStatementRow.netProfit b{
+  color:#fff;
+  font-size:15px;
+  font-weight:850
+}
+.weeklyReportGrid{
+  grid-template-columns:1fr!important
+}
+.weeklyAgentSection{
+  width:100%
+}
+html[data-theme="dark"] .weeklyStatementMeta,
+html[data-theme="dark"] .weeklyStatementTable{
+  background:#18191c
+}
+html[data-theme="dark"] .weeklyStatementHead,
+html[data-theme="dark"] .weeklyStatementRow.netProfit{
+  background:#2d2f32
+}
+html[data-theme="dark"] .weeklyStatementRow.totalExpense{
+  background:#64200f
+}
+@media(max-width:900px){
+  .weeklyStatementSheet{
+    grid-template-columns:1fr
+  }
+  .weeklyStatementMeta{
+    grid-template-columns:1fr 1fr
+  }
+  .weeklyStatementMeta>div{
+    grid-template-columns:1fr;
+    gap:2px;
+    padding:8px 10px
+  }
+  .weeklyStatementMeta strong{
+    text-align:left
+  }
+}
+@media(max-width:620px){
+  .weeklyStatementHead,
+  .weeklyStatementRow{
+    grid-template-columns:minmax(0,1fr) 130px
+  }
+  .weeklyStatementHead span,
+  .weeklyStatementRow span,
+  .weeklyStatementRow b{
+    padding:0 10px
+  }
+}
