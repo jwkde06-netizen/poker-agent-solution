@@ -1145,6 +1145,7 @@ export default function Home() {
   const selectedTableEntries = selectedGameSession ? entries.filter(e=>e.sessionId===selectedGameSession.id) : [];
   const selectedTableBuyIns = selectedTableEntries.reduce((sum,e)=>sum+e.buyIn,0);
   const selectedTableRevenue = selectedGameSession ? selectedTableBuyIns*revenuePerBuyIn(selectedGameSession.game) : 0;
+  const selectedTableRakeback = selectedTableEntries.reduce((sum,e)=>sum+e.rakeback,0);
   const selectedTableSearch = selectedGameSession ? (sessionSearch[selectedGameSession.id]||"") : "";
   const selectedTableQuery = selectedTableSearch.trim().toUpperCase();
   const selectedTableMatches = selectedGameSession && selectedTableQuery
@@ -1847,7 +1848,7 @@ export default function Home() {
 
           <section className="panel selectedTablePanel">
             <div className="selectedTableTop">
-              <div className={selectedGameSession?"selectedTableHeadline editableSessionMeta":"selectedTableHeadline"}>
+              <div className={selectedGameSession?"selectedTableHeadline editableSessionMeta unifiedSessionHeader":"selectedTableHeadline"}>
                 {selectedGameSession
                   ? <>
                       <label className="inlineSessionEdit tableEdit">
@@ -1894,10 +1895,11 @@ export default function Home() {
                 : <button className="closeTableButton selectedCloseButton" onClick={()=>closeGameSession(selectedGameSession.id)}>경기 종료</button>}
             </div>
 
-            {selectedGameSession && <div className="selectedTableStats compactSelectedStats">
+            {selectedGameSession && <div className="selectedTableStats compactSelectedStats fourStats">
               <div><span>플레이어</span><b>{selectedTableEntries.length}명</b></div>
               <div><span>총 바이인</span><b>{selectedTableBuyIns}회</b></div>
-              <div><span>현재 매출</span><b>{vnd(selectedTableRevenue)}</b></div>
+              <div><span>전체 매출</span><b>{vnd(selectedTableRevenue)}</b></div>
+              <div><span>레이크백</span><b>{vnd(selectedTableRakeback)}</b></div>
             </div>}
 
             {!selectedGameSession
