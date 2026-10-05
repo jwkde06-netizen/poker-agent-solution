@@ -2449,20 +2449,20 @@ html[data-theme="dark"] .accountDropdown>button:hover{
   .mobileBottomNav{
     min-height:76px;
     padding:8px 8px calc(9px + env(safe-area-inset-bottom))!important;
-    background:rgba(8,8,8,.985)!important;
-    border-top:1px solid #242424!important;
-    box-shadow:0 -12px 34px rgba(0,0,0,.38)!important;
+    background:rgba(255,255,255,.985)!important;
+    border-top:1px solid #e1e4e7!important;
+    box-shadow:0 -10px 28px rgba(24,28,32,.10)!important;
   }
   .mobileBottomNav button{
     min-height:62px!important;
     padding:4px 2px 2px!important;
     border-radius:14px!important;
-    color:#a0a0a0!important;
+    color:#7b828a!important;
     font-size:10px!important;
     font-weight:800!important;
   }
   .mobileBottomNav button.active{
-    color:#e2ad43!important;
+    color:#a8791b!important;
   }
   .mobileBottomNav button.active::before{
     display:none!important;
@@ -2504,6 +2504,19 @@ html[data-theme="dark"] .accountDropdown>button:hover{
       0 7px 22px rgba(227,173,66,.42)!important;
   }
   .mobileBottomNav .buyinNavItem>span:last-child{
+    color:#a8791b!important;
+  }
+
+  html[data-theme="dark"] .mobileBottomNav{
+    background:rgba(8,8,8,.985)!important;
+    border-top-color:#242424!important;
+    box-shadow:0 -12px 34px rgba(0,0,0,.38)!important;
+  }
+  html[data-theme="dark"] .mobileBottomNav button{
+    color:#a0a0a0!important;
+  }
+  html[data-theme="dark"] .mobileBottomNav button.active,
+  html[data-theme="dark"] .mobileBottomNav .buyinNavItem>span:last-child{
     color:#e2ad43!important;
   }
 }
