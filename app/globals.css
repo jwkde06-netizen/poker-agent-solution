@@ -8810,3 +8810,467 @@ html[data-theme="dark"] .dashboardBlock.players{
     font-size:18px
   }
 }
+
+
+/* Global readability + density pass */
+html,body{
+  font-size:15px;
+  line-height:1.45
+}
+.contentArea{
+  padding-top:22px!important;
+  padding-bottom:34px!important
+}
+.pageHeading{
+  margin-bottom:16px!important
+}
+.pageHeading h1{
+  font-size:31px!important
+}
+.eyebrow{
+  font-size:13px!important;
+  margin-bottom:5px!important
+}
+.sub{
+  font-size:15px!important;
+  margin-top:5px!important
+}
+
+.panel,.dashCard{
+  padding:16px!important
+}
+.cardHeader,.sectionTitle{
+  margin-bottom:12px!important
+}
+.cardHeader h2,.sectionTitle h2,.placeholderPanel h2{
+  font-size:20px!important
+}
+.cardHeader p,.sectionTitle p,.placeholderPanel p{
+  font-size:13px!important
+}
+
+.sideNav button{
+  font-size:14px!important
+}
+.brand strong{
+  font-size:18px!important
+}
+.brand span{
+  font-size:12px!important
+}
+.searchBox input,
+.globalSearchInput{
+  font-size:14px!important
+}
+.accountMenuText strong{
+  font-size:13px!important
+}
+.accountMenuText small{
+  font-size:11px!important
+}
+
+th{
+  font-size:11px!important;
+  padding:9px 12px!important
+}
+td{
+  font-size:13px!important;
+  padding:10px 12px!important
+}
+.playerNameStack strong{
+  font-size:14px!important
+}
+.playerNameStack span{
+  font-size:12px!important
+}
+.agencyCodeText{
+  font-size:11px!important
+}
+
+.primary,.secondary,.outlineGold,.ghostButton{
+  font-size:13px!important
+}
+.formGrid label,
+.accountCreateGrid label,
+.ownLoginGrid label{
+  font-size:11px!important
+}
+.formGrid input,.formGrid select,
+.accountCreateGrid input,.accountCreateGrid select,
+.ownLoginGrid input,.datePicker{
+  font-size:14px!important
+}
+
+/* Dashboard: larger type, less empty space */
+.dashboardCommandCenter{
+  padding:14px!important
+}
+.dashboardCommandHeader{
+  margin-bottom:10px!important
+}
+.dashboardCommandHeader span{
+  font-size:12px!important
+}
+.dashboardCommandHeader strong{
+  font-size:21px!important
+}
+.dashboardLiveStatus{
+  font-size:11px!important
+}
+.dashboardBlockGrid{
+  gap:9px!important
+}
+.dashboardBlock{
+  min-height:112px!important;
+  padding:13px 14px!important
+}
+.dashboardBlockTop span{
+  font-size:12px!important
+}
+.dashboardBlock>b{
+  margin-top:10px!important;
+  font-size:24px!important
+}
+.dashboardBlock>b small{
+  font-size:12px!important
+}
+.dashboardBlock>p{
+  margin-top:6px!important;
+  font-size:11px!important
+}
+.dashboardBlock>footer{
+  padding-top:7px!important;
+  font-size:10px!important
+}
+.dashboardStatusGrid{
+  gap:10px!important;
+  margin-top:10px!important
+}
+.dashboardSectionCard{
+  padding:14px!important
+}
+.dashboardSectionCard .cardHeader{
+  margin-bottom:9px!important
+}
+.dashboardSectionCard .cardHeader h2{
+  font-size:17px!important
+}
+.dashboardSectionCard .headerCount{
+  font-size:10px!important
+}
+.dashboardLiveTableList{
+  gap:6px!important
+}
+.dashboardLiveTableList>button{
+  min-height:58px!important;
+  padding:8px 10px!important
+}
+.dashTableMain strong{
+  font-size:16px!important
+}
+.dashTableMain em{
+  font-size:10px!important
+}
+.dashTableMain b{
+  font-size:11px!important
+}
+.dashTableStats span{
+  font-size:10px!important
+}
+.dashTableStats strong{
+  font-size:12px!important
+}
+.dashboardQuickList{
+  gap:6px!important
+}
+.dashboardQuickList button{
+  min-height:46px!important
+}
+.dashboardQuickList span{
+  font-size:11px!important
+}
+.dashboardQuickList b{
+  font-size:12px!important
+}
+.dashboardRecent{
+  margin-top:10px!important
+}
+.dashboardRecentList{
+  gap:6px!important
+}
+.dashboardRecentList>button{
+  min-height:56px!important;
+  padding:8px 10px!important
+}
+.dashboardRecentList strong{
+  font-size:12px!important
+}
+.dashboardRecentList span{
+  font-size:10px!important
+}
+.dashboardRecentList small{
+  font-size:9px!important
+}
+.dashboardRecentList b{
+  font-size:11px!important
+}
+
+/* Players / agencies */
+.playerSectionActions{
+  margin-bottom:12px!important
+}
+.playerSectionActions h3{
+  font-size:18px!important
+}
+.playerSearchSection{
+  padding:12px!important;
+  margin-bottom:12px!important
+}
+.playerSearchInput{
+  height:44px!important
+}
+.searchCount{
+  font-size:13px!important
+}
+.agencyManageHeader{
+  margin-bottom:12px!important
+}
+.agencySimpleRow strong{
+  font-size:14px!important
+}
+.agencySimpleRow small{
+  font-size:11px!important
+}
+
+/* Buy-in screen */
+.floorSelectorPanel,
+.selectedTablePanel,
+.gameLogPanel{
+  padding:14px!important
+}
+.floorSelectorHeader{
+  margin-bottom:10px!important
+}
+.floorSelectorHeader h2{
+  font-size:20px!important
+}
+.floorTableButton strong{
+  font-size:15px!important
+}
+.floorTableButton small{
+  font-size:10px!important
+}
+.selectedTableHeadline strong,
+.selectedTableHeadline b{
+  font-size:20px!important
+}
+.selectedTableStats span{
+  font-size:11px!important
+}
+.selectedTableStats b{
+  font-size:14px!important
+}
+.selectedPlayerSectionTitle strong{
+  font-size:16px!important
+}
+.selectedPlayerSectionTitle b{
+  font-size:12px!important
+}
+.selectedPlayerIdentity strong{
+  font-size:14px!important
+}
+.selectedPlayerIdentity span{
+  font-size:11px!important
+}
+.selectedSearchLabel strong{
+  font-size:15px!important
+}
+.selectedSearchLabel small{
+  font-size:11px!important
+}
+
+/* Daily / weekly settlement */
+.redesignedDailyPanel{
+  padding:14px!important
+}
+.dailyTopBar{
+  margin-bottom:10px!important
+}
+.dailyTitleBlock>strong{
+  font-size:20px!important
+}
+.dailySummaryGrid,
+.dailySummaryGridCompact{
+  gap:8px!important;
+  margin-bottom:10px!important
+}
+.dailySummaryCard{
+  min-height:92px!important;
+  padding:12px!important
+}
+.dailySummaryCard span{
+  font-size:11px!important
+}
+.dailySummaryCard b{
+  margin-top:6px!important;
+  font-size:20px!important
+}
+.dailySummaryCard small{
+  margin-top:5px!important;
+  font-size:10px!important
+}
+.dailyWorkspaceGrid{
+  gap:10px!important
+}
+.dailyGameLogHeader{
+  margin-bottom:9px!important
+}
+.dailyGameLogHeader h3{
+  font-size:18px!important
+}
+.dailyLogCount{
+  font-size:11px!important
+}
+.dailyGameGroupHeader{
+  min-height:52px!important;
+  padding:8px 11px!important
+}
+.dailyGameGroupIdentity strong{
+  font-size:14px!important
+}
+.dailyGameGroupIdentity span{
+  font-size:11px!important
+}
+.dailyGameGroupIdentity b{
+  font-size:14px!important
+}
+.dailyGameGroupSummary span,
+.dailyGameGroupSummary em{
+  font-size:11px!important
+}
+.dailyGameGroupSummary strong{
+  font-size:13px!important
+}
+.dailyGameRow{
+  min-height:50px!important;
+  padding:6px 10px!important
+}
+.dailyGameRowHead{
+  min-height:32px!important;
+  font-size:10px!important
+}
+.dailyMoneyCell{
+  font-size:12px!important
+}
+.dailySideCardHeader strong{
+  font-size:12px!important
+}
+.dailyAgentRow strong,
+.dailyAgentRow b,
+.dailyExpenseRows b{
+  font-size:12px!important
+}
+.dailyAgentRow small,
+.dailyExpenseRows span,
+.dailySideTotal span{
+  font-size:10px!important
+}
+.dailySideTotal b{
+  font-size:13px!important
+}
+
+/* F&B / account management */
+.fnbEntryPanel,.fnbHistoryPanel{
+  padding:14px!important
+}
+.fnbQuickMenu{
+  gap:7px!important
+}
+.fnbQuickMenu button span{
+  font-size:12px!important
+}
+.fnbQuickMenu button small{
+  font-size:10px!important
+}
+.fnbEntryMain strong{
+  font-size:13px!important
+}
+.fnbEntryMain span,
+.fnbEntryAmount small{
+  font-size:10px!important
+}
+.fnbEntryAmount b{
+  font-size:12px!important
+}
+.accountManagementPage{
+  gap:10px!important
+}
+.accountCreatePanel,.accountListPanel,.ownLoginPanel{
+  padding:14px!important
+}
+.accountRow{
+  min-height:60px!important;
+  padding:8px 10px!important
+}
+.accountIdentity strong{
+  font-size:13px!important
+}
+.accountIdentity small{
+  font-size:11px!important
+}
+
+/* Reduce excessive desktop whitespace */
+@media(min-width:821px){
+  .contentArea{
+    padding-left:28px!important;
+    padding-right:28px!important
+  }
+  .dashboardCommandCenter,
+  .dashboardSectionCard,
+  .panel,
+  .dashCard{
+    border-radius:16px!important
+  }
+  .sectionTitle{
+    margin-bottom:12px!important
+  }
+  .formGrid{
+    gap:10px!important;
+    margin-bottom:12px!important
+  }
+  .inlineForm{
+    margin-bottom:12px!important
+  }
+  .cards{
+    gap:9px!important;
+    margin-bottom:10px!important
+  }
+  .agencyGrid{
+    gap:7px!important;
+    margin-bottom:12px!important
+  }
+}
+
+@media(max-width:820px){
+  html,body{
+    font-size:16px
+  }
+  .contentArea{
+    padding:14px!important
+  }
+  .panel,.dashCard{
+    padding:13px!important
+  }
+  .dashboardBlock{
+    min-height:100px!important
+  }
+  .dashboardBlockTop span{
+    font-size:11px!important
+  }
+  .dashboardBlock>b{
+    font-size:19px!important
+  }
+  .dailySummaryCard{
+    min-height:88px!important
+  }
+}
