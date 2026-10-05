@@ -6139,3 +6139,356 @@ html[data-theme="light"] .agencyDeleteButton{
   .agencyPlayerList span,
   .agencyPlayerList em{font-size:8px}
 }
+
+/* Buy-in logs + settlement reporting */
+.buyinModeSwitcher{
+  margin-bottom:10px;
+}
+.gameLogPanel{
+  padding:14px;
+}
+.gameLogHeader{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:10px;
+}
+.gameLogHeader h2{
+  margin:0;
+  font-size:16px;
+}
+.gameLogHeader p{
+  margin:3px 0 0;
+  color:#858c93;
+  font-size:9px;
+}
+.gameLogHeader>span{
+  padding:6px 9px;
+  border:1px solid #3b311d;
+  border-radius:999px;
+  background:#18130b;
+  color:#d7a94b;
+  font-size:8px;
+  font-weight:900;
+}
+.gameLogList{
+  display:grid;
+  gap:7px;
+}
+.gameLogItem{
+  border:1px solid #292929;
+  border-radius:12px;
+  background:#111;
+  overflow:hidden;
+}
+.gameLogItem>summary{
+  min-height:64px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:10px 12px;
+  cursor:pointer;
+  list-style:none;
+}
+.gameLogItem>summary::-webkit-details-marker{display:none}
+.gameLogItem>summary>div:first-child{
+  min-width:0;
+}
+.gameLogItem>summary strong{
+  color:#eee;
+  font-size:14px;
+}
+.gameLogItem>summary span{
+  margin-left:6px;
+  color:#d7a94b;
+  font-size:9px;
+  font-weight:800;
+}
+.gameLogItem>summary small{
+  display:block;
+  margin-top:4px;
+  color:#7d848a;
+  font-size:8px;
+}
+.gameLogItem>summary>div:last-child{
+  text-align:right;
+  white-space:nowrap;
+}
+.gameLogItem>summary b{
+  display:block;
+  color:#eee;
+  font-size:10px;
+}
+.gameLogItem>summary em{
+  display:block;
+  margin-top:3px;
+  color:#d7a94b;
+  font-size:10px;
+  font-style:normal;
+}
+.gameLogSummary{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:1px;
+  border-top:1px solid #292929;
+  border-bottom:1px solid #292929;
+  background:#151515;
+}
+.gameLogSummary span{
+  padding:8px 6px;
+  color:#8d949a;
+  font-size:8px;
+  text-align:center;
+}
+.gameLogPlayers{
+  display:grid;
+}
+.gameLogPlayers>div{
+  min-height:44px;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto auto;
+  align-items:center;
+  gap:10px;
+  padding:7px 10px;
+  border-bottom:1px solid #242424;
+}
+.gameLogPlayers>div:last-child{border-bottom:0}
+.gameLogPlayers strong{
+  display:block;
+  color:#eee;
+  font-size:10px;
+}
+.gameLogPlayers small{
+  display:block;
+  margin-top:2px;
+  color:#7c8389;
+  font-size:7px;
+}
+.gameLogPlayers>div>span:nth-child(2){
+  color:#a1a6ab;
+  font-size:9px;
+}
+.gameLogPlayers>div>b{
+  color:#d7a94b;
+  font-size:9px;
+}
+.gameLogEmpty{
+  padding:14px;
+  color:#777e85;
+  font-size:9px;
+  text-align:center;
+}
+
+.settlementExportPanel{
+  padding:14px;
+  margin-bottom:9px;
+}
+.settlementExportHeader{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+.settlementExportHeader strong{
+  display:block;
+  color:#eee;
+  font-size:14px;
+}
+.settlementExportHeader span{
+  display:block;
+  margin-top:2px;
+  color:#7f868c;
+  font-size:8px;
+}
+.reportPresetButtons{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:5px;
+  margin-top:10px;
+}
+.reportPresetButtons button{
+  height:36px;
+  border:1px solid #2d2d2d;
+  border-radius:9px;
+  background:#151515;
+  color:#90969c;
+  font-size:9px;
+  font-weight:850;
+}
+.reportPresetButtons button.active{
+  border-color:#8a651f;
+  background:#211a0d;
+  color:#e0ad49;
+}
+.reportDateRange{
+  display:grid;
+  grid-template-columns:1fr auto 1fr;
+  align-items:center;
+  gap:6px;
+  margin-top:8px;
+}
+.reportDateRange input{
+  min-width:0;
+  height:38px;
+  padding:0 8px;
+  border:1px solid #303030;
+  border-radius:9px;
+  background:#111;
+  color:#eee;
+}
+.reportDateRange span{
+  color:#6f767c;
+  font-size:9px;
+}
+.reportMiniSummary{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:5px;
+  margin-top:10px;
+}
+.reportMiniSummary>div{
+  min-width:0;
+  padding:8px;
+  border:1px solid #292929;
+  border-radius:9px;
+  background:#121212;
+}
+.reportMiniSummary span{
+  display:block;
+  color:#7f868c;
+  font-size:7px;
+}
+.reportMiniSummary b{
+  display:block;
+  margin-top:3px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  color:#eee;
+  font-size:9px;
+}
+.reportMiniSummary>div:last-child b{
+  color:#e0ad49;
+}
+.reportExportActions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:6px;
+  margin-top:9px;
+}
+.reportExportActions button{
+  height:40px;
+  border:1px solid #3a3a3a;
+  border-radius:10px;
+  background:#171717;
+  color:#eee;
+  font-size:10px;
+  font-weight:900;
+}
+.reportExportActions button:first-child{
+  border-color:#8a651f;
+  background:#c99631;
+  color:#111;
+}
+.clickableStatementLine{
+  width:100%;
+  border:0;
+  border-bottom:1px solid var(--line);
+  background:transparent;
+  color:inherit;
+  text-align:left;
+  cursor:pointer;
+}
+.clickableStatementLine span small{
+  display:inline-block;
+  margin-left:5px;
+  color:#9d7a37;
+  font-size:8px;
+}
+.fnbDetailList{
+  display:grid;
+  margin-top:12px;
+  border:1px solid #2a2a2a;
+  border-radius:11px;
+  overflow:hidden;
+}
+.fnbDetailList>div{
+  min-height:50px;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto auto;
+  align-items:center;
+  gap:9px;
+  padding:8px 10px;
+  border-bottom:1px solid #272727;
+}
+.fnbDetailList>div:last-child{border-bottom:0}
+.fnbDetailList strong{
+  display:block;
+  color:#eee;
+  font-size:11px;
+}
+.fnbDetailList small{
+  display:block;
+  margin-top:2px;
+  color:#7e858b;
+  font-size:8px;
+}
+.fnbDetailList>div>span:nth-child(2){
+  color:#90969c;
+  font-size:9px;
+}
+.fnbDetailList b{
+  color:#d7a94b;
+  font-size:10px;
+}
+
+html[data-theme="light"] .gameLogItem,
+html[data-theme="light"] .gameLogSummary,
+html[data-theme="light"] .settlementExportPanel,
+html[data-theme="light"] .reportPresetButtons button,
+html[data-theme="light"] .reportMiniSummary>div,
+html[data-theme="light"] .reportExportActions button,
+html[data-theme="light"] .reportDateRange input,
+html[data-theme="light"] .fnbDetailList{
+  background:#fff!important;
+  border-color:#e0e2e4!important;
+}
+html[data-theme="light"] .gameLogItem>summary strong,
+html[data-theme="light"] .gameLogItem>summary b,
+html[data-theme="light"] .gameLogPlayers strong,
+html[data-theme="light"] .settlementExportHeader strong,
+html[data-theme="light"] .reportMiniSummary b,
+html[data-theme="light"] .fnbDetailList strong{
+  color:#111!important;
+}
+html[data-theme="light"] .reportPresetButtons button.active{
+  background:#fff7e8!important;
+  color:#8b6110!important;
+}
+html[data-theme="light"] .reportExportActions button{
+  color:#111!important;
+}
+html[data-theme="light"] .reportExportActions button:first-child{
+  background:#c99631!important;
+  color:#111!important;
+}
+html[data-theme="light"] .fnbDetailList>div{
+  border-color:#e5e6e8!important;
+}
+
+@media(max-width:820px){
+  .gameLogPanel{padding:11px!important}
+  .gameLogHeader h2{font-size:15px}
+  .gameLogItem>summary{min-height:60px;padding:9px 10px}
+  .gameLogItem>summary strong{font-size:13px}
+  .gameLogItem>summary span{font-size:9px}
+  .settlementExportPanel{padding:11px!important}
+  .settlementExportHeader strong{font-size:13px}
+  .reportMiniSummary{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+  .reportMiniSummary b{font-size:10px}
+  .reportExportActions button{font-size:10px}
+}
