@@ -161,6 +161,7 @@ export default function Home() {
   const [gameBuyIn, setGameBuyIn] = useState("1");
   const [gameRake, setGameRake] = useState("500000");
   const [summaryDate, setSummaryDate] = useState(today());
+  const [dailyLogSearch, setDailyLogSearch] = useState("");
   const [fnbDetailOpen, setFnbDetailOpen] = useState(false);
   const [reportPreset, setReportPreset] = useState<"today"|"week"|"custom">("today");
   const [reportStart, setReportStart] = useState(today());
@@ -301,6 +302,22 @@ export default function Home() {
     return [...map.values()].sort((a,b)=>b.rake-a.rake);
   },[selectedPlayerEntries]);
   const dailyEntries = useMemo(()=>entries.filter(e=>e.date===summaryDate),[entries,summaryDate]);
+  const filteredDailyEntries = useMemo(()=>{
+    const q=dailyLogSearch.trim().toLowerCase();
+    const rows=[...dailyEntries].reverse();
+    if(!q)return rows;
+    return rows.filter(e=>{
+      const player=players.find(p=>p.id===e.playerId);
+      const haystack=[
+        e.game,
+        e.agencyCodeSnapshot,
+        player?.name ?? "",
+        player?.koreanName ?? "",
+        player?.cardNo ?? ""
+      ].join(" ").toLowerCase();
+      return haystack.includes(q);
+    });
+  },[dailyEntries,dailyLogSearch,players]);
   const weeklyEntries = useMemo(()=>entries.filter(e=>e.date>=weekStart && e.date<=weekEnd),[entries,weekStart,weekEnd]);
 
   const total = (items: GameEntry[], key: "rake"|"rakeback") => items.reduce((s,e)=>s+e[key],0);
@@ -1620,18 +1637,63 @@ export default function Home() {
               </div>
             </div>
 
-            <details className="dailyDetails">
-              <summary>상세 내역 보기 <span>{dailyEntries.length}건</span></summary>
-              <div className="tableWrap">
+            <section className="dailyGameLog">
+              <div className="dailyGameLogHeader">
+                <div>
+                  <h3>지난 게임 로그</h3>
+                  <p>선택한 날짜의 게임 기록을 확인하고 플레이어 또는 바이인을 바로 수정할 수 있습니다.</p>
+                </div>
+                <span className="dailyLogCount">{dailyEntries.length}건</span>
+              </div>
+
+              <div className="dailyLogSearch">
+                <span>⌕</span>
+                <input
+                  value={dailyLogSearch}
+                  onChange={e=>setDailyLogSearch(e.target.value)}
+                  placeholder="플레이어, 게임, 에이전트 검색"
+                />
+                {dailyLogSearch && <button onClick={()=>setDailyLogSearch("")}>×</button>}
+              </div>
+
+              <div className="tableWrap dailyLogTable">
                 <table>
-                  <thead><tr><th>플레이어</th><th>에이전트</th><th>요율</th><th>레이크</th><th>레이크백</th></tr></thead>
-                  <tbody>{dailyEntries.length===0
-                    ? <tr><td colSpan={5} className="empty">해당 날짜의 기록이 없습니다.</td></tr>
-                    : dailyEntries.map(e=><tr key={e.id}><td>{getPlayerName(e.playerId)}</td><td>{e.agencyCodeSnapshot}</td><td>{e.rateSnapshot}%</td><td>{vnd(e.rake)}</td><td className="strong">{vnd(e.rakeback)}</td></tr>)}
+                  <thead><tr><th>게임</th><th>플레이어</th><th>에이전트</th><th>바이인</th><th>레이크</th><th>레이크백</th><th></th></tr></thead>
+                  <tbody>{filteredDailyEntries.length===0
+                    ? <tr><td colSpan={7} className="empty">{dailyEntries.length===0?"해당 날짜의 게임 기록이 없습니다.":"검색 결과가 없습니다."}</td></tr>
+                    : filteredDailyEntries.map(e=><tr key={e.id}>
+                        <td><span className="dailyGameBadge">{e.game}</span></td>
+                        <td>
+                          <select className="dailyPlayerSelect" value={e.playerId} onChange={ev=>replaceSessionPlayer(e,ev.target.value)}>
+                            {players.map(p=><option key={p.id} value={p.id}>{p.name}{p.koreanName?` · ${p.koreanName}`:""}</option>)}
+                          </select>
+                        </td>
+                        <td><span className="agencyCodeText">{e.agencyCodeSnapshot}</span></td>
+                        <td>
+                          <div className="dailyBuyInEditor">
+                            <button onClick={()=>changeSessionBuyIn(e,-1)} aria-label="바이인 감소">−</button>
+                            <input
+                              type="number"
+                              min="1"
+                              value={e.buyIn}
+                              onChange={ev=>{
+                                const value=Math.max(1,Number(ev.target.value)||1);
+                                setEntries(prev=>prev.map(row=>row.id===e.id?{...row,buyIn:value}:row));
+                              }}
+                              onBlur={ev=>setSessionBuyInCount(e,Number(ev.target.value))}
+                              onKeyDown={ev=>{if(ev.key==="Enter"){(ev.currentTarget as HTMLInputElement).blur();}}}
+                            />
+                            <button onClick={()=>changeSessionBuyIn(e,1)} aria-label="바이인 증가">＋</button>
+                          </div>
+                        </td>
+                        <td>{vnd(e.rake)}</td>
+                        <td className="strong">{vnd(e.rakeback)}</td>
+                        <td><button className="dailyDeleteButton" onClick={()=>removePlayerFromSession(e)}>삭제</button></td>
+                      </tr>)}
                   </tbody>
                 </table>
               </div>
-            </details>
+            </section>
           </section>
         </section>}
 
