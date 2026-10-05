@@ -58,6 +58,16 @@ type ExpenseItem = {
   note:string;
 };
 
+type ExpenseDeposit = {
+  id:string;
+  date:string;
+  description:string;
+  amount:number;
+  distributionId:string;
+  sourceRef:string;
+  note:string;
+};
+
 type Shareholder = {
   id:string;
   name:string;
@@ -224,6 +234,7 @@ export default function Home() {
   const [fnbExpenseGroup, setFnbExpenseGroup] = useState("2FLOOR");
   const [fnbNote, setFnbNote] = useState("");
   const [expenseItems,setExpenseItems]=useState<ExpenseItem[]>([]);
+  const [expenseDeposits,setExpenseDeposits]=useState<ExpenseDeposit[]>([]);
   const [shareholders,setShareholders]=useState<Shareholder[]>([]);
   const [weeklyDistributions,setWeeklyDistributions]=useState<WeeklyDistribution[]>([]);
   const [shareholderPayouts,setShareholderPayouts]=useState<ShareholderPayout[]>([]);
@@ -233,7 +244,8 @@ export default function Home() {
   const [expenseAmount,setExpenseAmount]=useState("");
   const [expensePrepaidBy,setExpensePrepaidBy]=useState("");
   const [expenseNote,setExpenseNote]=useState("");
-  const [expenseFilter,setExpenseFilter]=useState<"all"|"pending"|"processed">("pending");
+  const [expenseEntryType,setExpenseEntryType]=useState<"expense"|"deposit">("expense");
+  const [expenseFilter,setExpenseFilter]=useState<"all"|"pending"|"processed">("all");
   const [editingExpenseId,setEditingExpenseId]=useState<string | null>(null);
   const [expenseEditDate,setExpenseEditDate]=useState("");
   const [expenseEditCategory,setExpenseEditCategory]=useState("OTHER");
@@ -471,9 +483,10 @@ export default function Home() {
     })));
 
     if (currentProfile.role==="admin") {
-      const [profilesResult,expenseResult,shareholderResult,distributionResult,payoutResult]=await Promise.all([
+      const [profilesResult,expenseResult,depositResult,shareholderResult,distributionResult,payoutResult]=await Promise.all([
         supabase.from("user_profiles").select("*").order("created_at"),
         supabase.from("expense_items").select("*").order("expense_date").order("created_at"),
+        supabase.from("expense_deposits").select("*").order("deposited_on").order("created_at"),
         supabase.from("shareholders").select("*").order("sort_order").order("created_at"),
         supabase.from("weekly_distributions").select("*").order("week_start",{ascending:false}),
         supabase.from("shareholder_payouts").select("*").order("created_at")
@@ -487,6 +500,10 @@ export default function Home() {
         id:x.id,date:x.expense_date,category:x.category ?? "OTHER",description:x.description,
         amount:Number(x.amount),processedAmount:Number(x.processed_amount),status:x.status,
         sourceRef:x.source_ref ?? "",prepaidBy:x.prepaid_by ?? "",note:x.note ?? ""
+      })));
+      setExpenseDeposits((depositResult.data ?? []).map((x:any)=>({
+        id:x.id,date:x.deposited_on,description:x.description,amount:Number(x.amount),
+        distributionId:x.weekly_distribution_id ?? "",sourceRef:x.source_ref ?? "",note:x.note ?? ""
       })));
       setShareholders((shareholderResult.data ?? []).map((x:any)=>({
         id:x.id,name:x.name,rate:Number(x.ownership_rate),active:Boolean(x.active),sortOrder:Number(x.sort_order)
