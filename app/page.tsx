@@ -693,13 +693,13 @@ export default function Home() {
     const rows:string[][]=[
       ["드림포커 운영 시스템 정산표"],
       ["기간",reportStart,reportEnd],
-      ["바이인 매출",String(revenue)],
+      ["바이인 금액",String(revenue)],
       ["에이전트 레이크백",String(rakeback)],
       ["F&B",String(fnb)],
       ["순수익",String(net)],
       [],
       ["게임 내역"],
-      ["날짜","테이블","게임번호","게임","플레이어","에이전트","바이인","매출","레이크백"]
+      ["날짜","테이블","게임번호","게임","플레이어","에이전트","바이인","바이인 금액","레이크백"]
     ];
     reportEntries.forEach(e=>{
       const gs=gameSessions.find(s=>s.id===e.sessionId);
@@ -741,7 +741,7 @@ export default function Home() {
     ctx.fillStyle="#a0a0a0"; ctx.font="24px sans-serif"; ctx.fillText(reportStart+" ~ "+reportEnd,70,125);
 
     const cards:[string,number][]=[
-      ["바이인 매출",revenue],
+      ["바이인 금액",revenue],
       ["에이전트 레이크백",rakeback],
       ["F&B",fnb],
       ["순수익",net]
@@ -757,7 +757,7 @@ export default function Home() {
     let y=510;
     ctx.fillStyle="#ffffff"; ctx.font="700 28px sans-serif"; ctx.fillText("바이인 내역",70,y);
     y+=36;
-    ctx.fillStyle="#8c8c8c"; ctx.font="20px sans-serif"; ctx.fillText("날짜   테이블   게임   플레이어   BUY-IN   매출",70,y);
+    ctx.fillStyle="#8c8c8c"; ctx.font="20px sans-serif"; ctx.fillText("날짜   테이블   게임   플레이어   BUY-IN   바이인 금액",70,y);
     y+=28;
     reportEntries.slice(0,18).forEach(e=>{
       const gs=gameSessions.find(s=>s.id===e.sessionId);
@@ -853,7 +853,7 @@ export default function Home() {
 
   const reportPanel = <section className="panel settlementExportPanel">
     <div className="settlementExportHeader">
-      <div><strong>정산표 출력</strong><span>보고용 PNG 또는 시트용 CSV</span></div>
+      <div><strong>정산표 출력</strong></div>
     </div>
     <div className="reportPresetButtons">
       <button className={reportPreset==="today"?"active":""} onClick={()=>applyReportPreset("today")}>오늘</button>
@@ -866,7 +866,7 @@ export default function Home() {
       <input type="date" value={reportEnd} onChange={e=>setReportEnd(e.target.value)}/>
     </div>}
     <div className="reportMiniSummary">
-      <div><span>매출</span><b>{vnd(reportRevenue)}</b></div>
+      <div><span>바이인</span><b>{vnd(reportRevenue)}</b></div>
       <div><span>레이크백</span><b>{vnd(reportRakeback)}</b></div>
       <div><span>F&B</span><b>{vnd(reportFnbTotal)}</b></div>
       <div><span>순수익</span><b>{vnd(reportNet)}</b></div>
@@ -1034,109 +1034,87 @@ export default function Home() {
         {message && <div className="note globalNote">{message}</div>}
 
         {tab==="dashboard" && <>
-          <section className="studioDashboardHead">
-            <div>
-              <span>오늘 대시보드</span>
-              <strong>{today()}</strong>
-            </div>
-            <button onClick={()=>setTab("daily")}>정산 보기 ›</button>
-          </section>
-
-          <section className="studioMetricGrid">
-            <button className="studioMetricCard" onClick={()=>setTab("games")}>
-              <span>오늘 매출</span>
-              <b>{vnd(todayBuyinRevenue)}</b>
-              <small>{activeTableBuyins} BUY-IN</small>
-              <em>›</em>
-            </button>
-
-            <button className="studioMetricCard" onClick={()=>setTab("games")}>
-              <span>진행 중 테이블</span>
-              <b>{activeGameSessions.length}개</b>
-              <small>{activeTablePlayers}명 플레이 중</small>
-              <em>›</em>
-            </button>
-
-            <button className="studioMetricCard" onClick={()=>setTab("fnb")}>
-              <span>오늘 F&B</span>
-              <b>{vnd(fnbTodayTotal)}</b>
-              <small>오늘 입력 비용</small>
-              <em>›</em>
-            </button>
-
-            <button className="studioMetricCard profitCard" onClick={()=>setTab("daily")}>
-              <span>오늘 순수익</span>
-              <b>{vnd(todayOperatingNet)}</b>
-              <small>레이크백 · F&B 차감</small>
-              <em>›</em>
-            </button>
-          </section>
-
-          <section className="studioSectionCard">
-            <div className="studioSectionHeader">
+          <section className="dashboardOverview dashboardOverviewV2">
+            <div className="dashboardOverviewHeader">
               <div>
-                <h2>현재 진행 게임</h2>
-                <p>실시간 테이블 현황</p>
+                <span>오늘</span>
+                <strong>{today()}</strong>
               </div>
-              <button onClick={()=>setTab("games")}>전체보기 ›</button>
+              <small>{activeGameSessions.length} LIVE</small>
+            </div>
+
+            <div className="dashboardMetricGrid dashboardMetricGridV2">
+              <button className="dashboardMetricCard revenue heroMetric" onClick={()=>setTab("games")}>
+                <span>오늘 바이인</span>
+                <b>{vnd(todayBuyinRevenue)}</b>
+                <small>{activeTableBuyins} BUY-IN</small>
+                <em>›</em>
+              </button>
+
+              <button className="dashboardMetricCard profit" onClick={()=>setTab("daily")}>
+                <span>오늘 순수익</span>
+                <b>{vnd(todayOperatingNet)}</b>
+                <small>정산 보기</small>
+                <em>›</em>
+              </button>
+
+              <button className="dashboardMetricCard fnb" onClick={()=>setTab("fnb")}>
+                <span>F&B</span>
+                <b>{vnd(fnbTodayTotal)}</b>
+                <small>오늘 비용</small>
+                <em>›</em>
+              </button>
+            </div>
+          </section>
+
+          <section className="dashCard dashboardLiveTables dashboardSectionCard">
+            <div className="cardHeader compactCardHeader">
+              <h2>LIVE 테이블</h2>
+              <span className="headerCount">{activeGameSessions.length}</span>
             </div>
 
             {activeGameSessions.length===0
-              ? <div className="studioEmpty">현재 진행 중인 테이블이 없습니다.</div>
-              : <div className="studioLiveList">
-                  {activeGameSessions.slice(0,5).map(gs=>{
+              ? <div className="dashboardEmpty liveEmpty">진행 중인 테이블이 없습니다.</div>
+              : <div className="dashboardLiveTableList">
+                  {activeGameSessions.map(gs=>{
                     const tableEntries=entries.filter(e=>e.sessionId===gs.id);
                     const buyins=tableEntries.reduce((sum,e)=>sum+e.buyIn,0);
                     const revenue=buyins*revenuePerBuyIn(gs.game);
                     return <button key={gs.id} onClick={()=>{setSelectedTableNo(gs.tableNo);setTab("games")}}>
-                      <div className="studioTableBadge">T{gs.tableNo}</div>
-                      <div className="studioTableCopy">
-                        <strong>T{gs.tableNo} {gs.gameNo?`· No.${gs.gameNo}`:""} · {gs.game}</strong>
-                        <span>{tableEntries.length}명 · {buyins} BUY-IN</span>
+                      <div className="dashTableMain">
+                        <span className="dashLiveDot"/>
+                        <strong>T{gs.tableNo}</strong>
+                        <em>{gs.gameNo?`No.${gs.gameNo}`:"No.-"}</em>
+                        <b>{gs.game}</b>
                       </div>
-                      <div className="studioTableAmount">
-                        <b>{vnd(revenue)}</b>
-                        <span>›</span>
+                      <div className="dashTableStats">
+                        <span>{tableEntries.length}명</span>
+                        <span>{buyins} BUY-IN</span>
+                        <strong>{vnd(revenue)}</strong>
+                        <i>›</i>
                       </div>
                     </button>
                   })}
                 </div>}
           </section>
 
-          <section className="studioSectionCard settlementCard">
-            <div className="studioSectionHeader">
-              <div>
-                <h2>오늘 정산</h2>
-                <p>실제 입력 데이터 기준</p>
-              </div>
-              <button onClick={()=>setTab("daily")}>상세보기 ›</button>
+          <section className="dashCard recentCard dashboardRecent dashboardSectionCard">
+            <div className="cardHeader compactCardHeader">
+              <h2>최근 바이인</h2>
+              <span className="headerCount">{Math.min(recentEntries.length,4)}</span>
             </div>
-
-            <div className="studioSettlementRows">
-              <button onClick={()=>setTab("games")}><span>바이인 매출</span><b>{vnd(todayBuyinRevenue)}</b></button>
-              <button onClick={()=>setTab("daily")}><span>에이전트 레이크백</span><b>− {vnd(todaySettlement)}</b></button>
-              <button onClick={()=>setTab("fnb")}><span>F&B</span><b>− {vnd(fnbTodayTotal)}</b></button>
-              <button className="studioNetRow" onClick={()=>setTab("daily")}><span>순수익</span><b>{vnd(todayOperatingNet)}</b></button>
-            </div>
-          </section>
-
-          <section className="studioSectionCard recentInputCard">
-            <div className="studioSectionHeader">
-              <div>
-                <h2>최근 바이인</h2>
-                <p>최근 입력 내역</p>
-              </div>
-            </div>
-
             {recentEntries.length===0
-              ? <div className="studioEmpty">아직 입력된 기록이 없습니다.</div>
-              : <div className="studioRecentList">
-                  {recentEntries.slice(0,3).map(e=><div key={e.id}>
+              ? <div className="dashboardEmpty">아직 입력된 기록이 없습니다.</div>
+              : <div className="dashboardRecentList">
+                  {recentEntries.slice(0,4).map(e=><div key={e.id}>
                     <div>
                       <strong>{getPlayerName(e.playerId)}</strong>
-                      <span>{e.agencyCodeSnapshot} · {e.game} · {e.buyIn} BUY-IN</span>
+                      <span>{e.agencyCodeSnapshot} · {e.game}</span>
                     </div>
-                    <b>{vnd(revenuePerBuyIn(e.game)*e.buyIn)}</b>
+                    <div>
+                      <small>{e.buyIn} BUY-IN</small>
+                      <b>{vnd(revenuePerBuyIn(e.game)*e.buyIn)}</b>
+                    </div>
                   </div>)}
                 </div>}
           </section>
@@ -1401,10 +1379,7 @@ export default function Home() {
           {gamesView==="live" && <>
           <section className="panel floorSelectorPanel">
             <div className="floorSelectorHeader">
-              <div>
-                <h2>테이블 선택</h2>
-                <p>매장 위치와 같은 배치에서 테이블을 선택하세요.</p>
-              </div>
+              <div><h2>테이블 선택</h2></div>
               <span className="liveTableCount">{activeGameSessions.length} TABLE LIVE</span>
             </div>
 
@@ -1487,7 +1462,7 @@ export default function Home() {
                       ? <div className="selectedTableEmpty playerEmpty">
                           <div className="emptyPlayersIcon">♙</div>
                           <strong>등록된 플레이어가 없습니다.</strong>
-                          <span>아래 검색창에서 첫 플레이어를 추가하세요.</span>
+                          <span>플레이어를 검색해 추가하세요.</span>
                         </div>
                       : <div className="selectedPlayerList">
                           {[...selectedTableEntries].sort((a,b)=>b.buyIn-a.buyIn).map(entry=>{
@@ -1522,7 +1497,7 @@ export default function Home() {
                     <div className="selectedPlayerSearch">
                       <div className="selectedSearchLabel">
                         <strong>플레이어 추가</strong>
-                        <small>선택하면 최초 바이인 1회가 자동 입력됩니다.</small>
+                        <small>선택 즉시 1 BUY-IN</small>
                       </div>
                       <div className="tableSearchInput selectedSearchInput">
                         <span>⌕</span>
@@ -1554,7 +1529,7 @@ export default function Home() {
 
           {gamesView==="logs" && <section className="panel gameLogPanel">
             <div className="gameLogHeader">
-              <div><h2>게임 로그</h2><p>지금까지 진행한 게임과 바이인 기록입니다.</p></div>
+              <div><h2>게임 로그</h2></div>
               <span>{gameSessions.length} GAME</span>
             </div>
             <div className="gameLogList">
@@ -1578,7 +1553,7 @@ export default function Home() {
                   <div className="gameLogSummary">
                     <span>플레이어 {logEntries.length}명</span>
                     <span>레이크백 {vnd(rakeback)}</span>
-                    <span>매출 {vnd(revenue)}</span>
+                    <span>바이인 금액 {vnd(revenue)}</span>
                   </div>
                   <div className="gameLogPlayers">
                     {logEntries.length===0
