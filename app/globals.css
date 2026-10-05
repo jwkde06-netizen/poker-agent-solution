@@ -14629,3 +14629,146 @@ html[data-theme="dark"] .expenseLedgerRow>em.processed{
     min-width:1080px
   }
 }
+
+
+/* Expense ledger v3 — compact top, ledger-first */
+.compactExpensePage{
+  gap:8px!important
+}
+.expenseCompactTop{
+  min-height:64px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  padding:10px 14px;
+  border:1px solid var(--line);
+  border-radius:13px;
+  background:var(--surface)
+}
+.expenseCompactTitle{
+  flex:0 0 auto
+}
+.expenseCompactTitle>span{
+  display:block;
+  color:#9a6c14;
+  font-size:8px;
+  font-weight:850
+}
+.expenseCompactTitle h2{
+  margin:2px 0 0;
+  font-size:20px;
+  letter-spacing:-.035em
+}
+.expenseCompactSummary{
+  min-width:0;
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:18px
+}
+.expenseCompactSummary>div{
+  min-width:118px;
+  display:grid;
+  gap:2px;
+  text-align:right
+}
+.expenseCompactSummary span{
+  color:var(--muted);
+  font-size:8px;
+  font-weight:700
+}
+.expenseCompactSummary b,
+.expenseCompactSummary strong{
+  color:var(--text);
+  font-size:13px;
+  line-height:1.15
+}
+.expenseCompactSummary .primary{
+  padding-right:18px;
+  border-right:1px solid var(--line)
+}
+.expenseCompactSummary .primary strong{
+  color:#b35c4d;
+  font-size:19px
+}
+.compactExpensePage .expenseLedgerHeader{
+  min-height:52px;
+  padding:8px 12px
+}
+.compactExpensePage .expenseLedgerHeader h2{
+  font-size:14px
+}
+.compactExpensePage .expenseLedgerHeader p{
+  margin-top:2px;
+  font-size:8px
+}
+.compactExpensePage .expenseFilterTabs button{
+  height:28px;
+  padding:0 9px;
+  font-size:8px
+}
+.compactExpensePage .expenseQuickAdd{
+  padding:7px 10px
+}
+.compactExpensePage .expenseQuickAdd input,
+.compactExpensePage .expenseQuickAdd select{
+  height:33px;
+  font-size:9px
+}
+.compactExpensePage .expenseQuickAdd button{
+  height:33px!important;
+  font-size:9px!important
+}
+.compactExpensePage .expenseLedgerHead{
+  min-height:32px
+}
+.compactExpensePage .expenseLedgerRow{
+  min-height:49px
+}
+.compactExpensePage .expensePayerInput{
+  height:28px
+}
+
+@media(max-width:1000px){
+  .expenseCompactTop{
+    align-items:flex-start
+  }
+  .expenseCompactSummary{
+    gap:10px
+  }
+  .expenseCompactSummary>div{
+    min-width:96px
+  }
+}
+@media(max-width:820px){
+  .expenseCompactTop{
+    min-height:auto;
+    align-items:stretch;
+    flex-direction:column;
+    gap:8px;
+    padding:10px
+  }
+  .expenseCompactSummary{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:7px
+  }
+  .expenseCompactSummary>div{
+    min-width:0;
+    padding:7px 8px;
+    border:1px solid var(--line);
+    border-radius:9px;
+    text-align:left
+  }
+  .expenseCompactSummary .primary{
+    padding-right:8px;
+    border-right:1px solid var(--line)
+  }
+  .expenseCompactSummary .primary strong{
+    font-size:16px
+  }
+  .compactExpensePage .expenseLedgerHeader{
+    min-height:auto
+  }
+}
