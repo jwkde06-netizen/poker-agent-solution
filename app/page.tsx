@@ -3170,6 +3170,58 @@ export default function Home() {
               <div className="profit"><span>주간 수익</span><b>{vnd(weeklyProfit)}</b><small>엔트리피 − 레이크백 − F&B</small></div>
             </div>
 
+            <section className="weeklyDistributionFlow">
+              <div className="weeklyDistributionHead">
+                <div>
+                  <h3>지출 처리 → 지분 배당</h3>
+                  <p>주간 수익에서 미처리 경비를 먼저 상계한 뒤 남은 금액만 지분율로 배당합니다.</p>
+                </div>
+                <button className="expenseLinkButton" onClick={()=>navigateTab("expenses")}>지출 내역서 ›</button>
+              </div>
+
+              <div className="distributionFlowGrid">
+                <div>
+                  <span>주간 영업이익</span>
+                  <b>{vnd(weeklyProfit)}</b>
+                  <small>엔트리피 − 레이크백 − F&B</small>
+                </div>
+                <i>→</i>
+                <div className="expenseStep">
+                  <span>경비 우선 처리</span>
+                  <b>− {vnd(previewExpenseApplied)}</b>
+                  <small>미처리 경비 {vnd(pendingExpenseTotal)}</small>
+                </div>
+                <i>→</i>
+                <div className="profitStep">
+                  <span>배당 가능 금액</span>
+                  <b>{vnd(previewDistributableProfit)}</b>
+                  <small>{selectedWeekDistribution?"확정 완료":"확정 전 예상"}</small>
+                </div>
+              </div>
+
+              {profile?.role==="admin" && <div className="distributionActionRow">
+                <div>
+                  {selectedWeekDistribution
+                    ? <><strong>이 주차는 확정되었습니다.</strong><span>경비 {vnd(selectedWeekDistribution.expenseApplied)} 처리 · 배당기준 {vnd(selectedWeekDistribution.distributableProfit)}</span></>
+                    : <><strong>주간 마감 시 한 번 확정하세요.</strong><span>오래된 미처리 경비부터 FIFO로 자동 처리됩니다.</span></>}
+                </div>
+                {!selectedWeekDistribution && <button className="primary" onClick={finalizeSelectedWeek} disabled={finalizingDistribution}>
+                  {finalizingDistribution?"처리 중...":"주간 지출·배당 확정"}
+                </button>}
+              </div>}
+
+              <div className="sharePreviewRows">
+                {(selectedWeekDistribution
+                  ? selectedWeekPayouts.map(x=>({id:x.id,name:x.name,rate:x.rate,amount:x.amount,status:x.status}))
+                  : shareholders.filter(x=>x.active).map(x=>({id:x.id,name:x.name,rate:x.rate,amount:Math.round(previewDistributableProfit*x.rate/100),status:"preview" as const}))
+                ).map(row=><div key={row.id}>
+                  <span><strong>{row.name}</strong><small>{row.rate}%</small></span>
+                  <b>{vnd(row.amount)}</b>
+                  {row.status!=="preview" && <em className={row.status==="paid"?"paid":""}>{row.status==="paid"?"지급완료":"지급대기"}</em>}
+                </div>)}
+              </div>
+            </section>
+
             <div className="weeklyReportGrid">
               <section className="weeklyAgentSection">
                 <div className="weeklySectionHeader">
@@ -3255,6 +3307,118 @@ export default function Home() {
                     </section>)}
                   </div>}
             </section>
+          </section>
+        </section>}
+
+        {tab==="expenses" && profile?.role==="admin" && <section className="expenseWorkflowPage">
+          <section className="expenseHero">
+            <div>
+              <span>배당 전 비용 정산</span>
+              <h2>지출 내역서</h2>
+              <p>미처리 경비를 주간 수익에서 우선 처리하고 남은 이익만 지분자에게 배당합니다.</p>
+            </div>
+            <div className="expenseHeroAmount">
+              <small>경비처리 대기</small>
+              <strong>{vnd(pendingExpenseTotal)}</strong>
+            </div>
+          </section>
+
+          <div className="expenseKpiGrid">
+            <div><span>전체 등록 경비</span><b>{vnd(expenseItems.reduce((sum,x)=>sum+x.amount,0))}</b><small>{expenseItems.length}건</small></div>
+            <div className="expense"><span>미처리 잔액</span><b>{vnd(pendingExpenseTotal)}</b><small>{pendingExpenseRows.length}건 대기</small></div>
+            <div><span>이번 주 영업이익</span><b>{vnd(weeklyProfit)}</b><small>{weekStart} ~ {weekEnd}</small></div>
+            <div className="profit"><span>예상 배당 가능액</span><b>{vnd(previewDistributableProfit)}</b><small>경비 우선 차감 후</small></div>
+          </div>
+
+          <div className="expenseWorkspaceGrid">
+            <section className="panel expenseEntryPanel">
+              <div className="sectionTitle">
+                <div><h2>지출 등록</h2><p>새 경비는 자동으로 미처리 큐의 마지막에 추가됩니다.</p></div>
+              </div>
+              <div className="expenseFormGrid">
+                <label>날짜<input type="date" value={expenseDate} onChange={e=>setExpenseDate(e.target.value)}/></label>
+                <label>구분
+                  <select value={expenseCategory} onChange={e=>setExpenseCategory(e.target.value)}>
+                    <option value="OTHER">기타</option>
+                    <option value="HOUSING">숙소 / 임대</option>
+                    <option value="LODGING">호텔</option>
+                    <option value="MEAL">식대</option>
+                    <option value="ENTERTAINMENT">접대비</option>
+                    <option value="SUPPLIES">비품</option>
+                    <option value="INCIDENT">사고비</option>
+                    <option value="SALARY">급여</option>
+                    <option value="TRANSPORT">교통</option>
+                  </select>
+                </label>
+                <label className="expenseDescriptionField">항목<input value={expenseDescription} onChange={e=>setExpenseDescription(e.target.value)} placeholder="예: 10월 숙소비"/></label>
+                <label>금액<input inputMode="numeric" value={expenseAmount} onChange={e=>setExpenseAmount(e.target.value.replace(/[^0-9]/g,""))} placeholder="VND"/></label>
+                <label className="expenseNoteField">메모<input value={expenseNote} onChange={e=>setExpenseNote(e.target.value)} placeholder="선택"/></label>
+                <button className="primary expenseAddButton" onClick={addExpenseItem}>＋ 지출 등록</button>
+              </div>
+            </section>
+
+            <section className="panel shareholderPanel">
+              <div className="sectionTitle">
+                <div><h2>지분 설정</h2><p>배당 확정 시 현재 지분율을 스냅샷으로 저장합니다.</p></div>
+                <strong className={Math.abs(shareholderRateTotal-100)<0.001?"shareTotal ok":"shareTotal"}>{shareholderRateTotal}%</strong>
+              </div>
+              <div className="shareholderRows">
+                {shareholders.map(holder=><div key={holder.id}>
+                  <span><strong>{holder.name}</strong><small>{holder.active?"배당 대상":"비활성"}</small></span>
+                  <div><input type="number" min="0" max="100" step="0.5" value={holder.rate} onChange={e=>setShareholders(prev=>prev.map(x=>x.id===holder.id?{...x,rate:Number(e.target.value)}:x))} onBlur={e=>updateShareholderRate(holder,Number(e.target.value))}/><em>%</em></div>
+                </div>)}
+              </div>
+            </section>
+          </div>
+
+          <section className="panel expenseQueuePanel">
+            <div className="sectionTitle">
+              <div><h2>경비처리 대기</h2><p>오래된 항목부터 주간 수익으로 자동 상계됩니다.</p></div>
+              <span className="expenseQueueTotal">{pendingExpenseRows.length}건 · {vnd(pendingExpenseTotal)}</span>
+            </div>
+            {pendingExpenseRows.length===0
+              ? <div className="weeklyEmpty">미처리 경비가 없습니다.</div>
+              : <div className="expenseTable">
+                  <div className="expenseTableHead"><span>날짜 / 항목</span><span>구분</span><span>원금</span><span>처리</span><span>남은 금액</span><span>상태</span><span></span></div>
+                  {pendingExpenseRows.map(item=>{
+                    const remaining=item.amount-item.processedAmount;
+                    return <div className="expenseTableRow" key={item.id}>
+                      <span><strong>{item.description}</strong><small>{item.date}{item.note?" · "+item.note:""}</small></span>
+                      <span>{item.category}</span>
+                      <span>{vnd(item.amount)}</span>
+                      <span>{vnd(item.processedAmount)}</span>
+                      <b>{vnd(remaining)}</b>
+                      <em className={item.status}>{item.status==="partial"?"일부처리":"대기"}</em>
+                      <button onClick={()=>deleteExpenseItem(item)} disabled={item.processedAmount>0} aria-label="지출 삭제">×</button>
+                    </div>;
+                  })}
+                </div>}
+          </section>
+
+          <section className="panel distributionHistoryPanel">
+            <div className="sectionTitle">
+              <div><h2>주간 배당 내역</h2><p>주간 수익 → 경비 처리 → 지분 배당 결과입니다.</p></div>
+            </div>
+            {weeklyDistributions.length===0
+              ? <div className="weeklyEmpty">아직 확정된 주간 배당이 없습니다.</div>
+              : <div className="distributionHistoryList">
+                  {weeklyDistributions.map(dist=>{
+                    const payouts=shareholderPayouts.filter(x=>x.distributionId===dist.id);
+                    return <section key={dist.id}>
+                      <header>
+                        <div><strong>{dist.weekStart} ~ {dist.weekEnd}</strong><small>주간 영업이익 {vnd(dist.operatingProfit)}</small></div>
+                        <div><span>경비 −{vnd(dist.expenseApplied)}</span><b>배당 {vnd(dist.distributableProfit)}</b></div>
+                      </header>
+                      <div className="distributionPayoutRows">
+                        {payouts.map(payout=><div key={payout.id}>
+                          <span><strong>{payout.name}</strong><small>{payout.rate}%</small></span>
+                          <b>{vnd(payout.amount)}</b>
+                          <button className={payout.status==="paid"?"paid":""} onClick={()=>markShareholderPayoutPaid(payout)}>{payout.status==="paid"?"지급완료":"지급대기"}</button>
+                        </div>)}
+                      </div>
+                    </section>;
+                  })}
+                </div>}
           </section>
         </section>}
 
