@@ -795,6 +795,7 @@ export default function Home() {
       }]);
     }
     setSessionSearch(prev=>({...prev,[gameSession.id]:""}));
+    setSelectedSearchIndex(0);
   }
 
   async function changeSessionBuyIn(entry:GameEntry,delta:number){
@@ -1204,11 +1205,21 @@ export default function Home() {
   const selectedTableSearch = selectedGameSession ? (sessionSearch[selectedGameSession.id]||"") : "";
   const selectedTableQuery = selectedTableSearch.trim().toUpperCase();
   const selectedTableMatches = selectedGameSession && selectedTableQuery
-    ? players.filter(p=>
-        p.name.toUpperCase().includes(selectedTableQuery) ||
-        p.koreanName.includes(selectedTableSearch) ||
-        p.cardNo.toUpperCase().includes(selectedTableQuery)
-      ).slice(0,8)
+    ? players
+        .filter(p=>
+          p.name.toUpperCase().includes(selectedTableQuery) ||
+          p.koreanName.includes(selectedTableSearch) ||
+          p.cardNo.toUpperCase().includes(selectedTableQuery)
+        )
+        .sort((a,b)=>{
+          const aName=a.name.toUpperCase();
+          const bName=b.name.toUpperCase();
+          const aStarts=aName.startsWith(selectedTableQuery) || a.koreanName.startsWith(selectedTableSearch) || a.cardNo.toUpperCase().startsWith(selectedTableQuery);
+          const bStarts=bName.startsWith(selectedTableQuery) || b.koreanName.startsWith(selectedTableSearch) || b.cardNo.toUpperCase().startsWith(selectedTableQuery);
+          if(aStarts!==bStarts)return aStarts?-1:1;
+          return aName.localeCompare(bName);
+        })
+        .slice(0,8)
     : [];
   const managedEntry = manageEntryId ? entries.find(e=>e.id===manageEntryId) ?? null : null;
   const managedPlayer = managedEntry ? players.find(p=>p.id===managedEntry.playerId) ?? null : null;
