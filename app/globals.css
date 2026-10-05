@@ -11783,3 +11783,171 @@ html[data-theme="dark"] .undoToast>button{
     width:calc(100vw - 24px)
   }
 }
+
+
+/* Daily settlement V6 — Korean number formatting + accounting sidebar */
+.dailyGameGroupIdentity{
+  display:flex!important;
+  align-items:center!important;
+  gap:10px!important
+}
+.dailyGameGroupIdentity > strong,
+.dailyGameGroupIdentity > span,
+.dailyGameGroupIdentity > b{
+  display:inline!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  color:var(--text)!important;
+  font-size:15px!important;
+  font-weight:650!important;
+  line-height:1.2!important
+}
+.dailyGameGroupSummary{
+  margin-left:auto!important
+}
+.dailyGameGroupSummary > strong{
+  color:var(--text)!important;
+  font-size:14px!important;
+  font-weight:750!important
+}
+
+.dailyAccountingCard{
+  width:100%;
+  overflow:hidden;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:var(--surface)
+}
+.dailyAccountingHeader{
+  min-height:52px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:0 14px;
+  border-bottom:1px solid var(--line);
+  background:var(--surface-2)
+}
+.dailyAccountingHeader strong{
+  color:var(--text);
+  font-size:15px;
+  font-weight:750
+}
+.dailyAccountingHeader span{
+  color:var(--muted);
+  font-size:11px;
+  font-weight:650
+}
+.dailyAccountingRows{
+  display:block
+}
+.dailyAccountingRows > div,
+.dailyAccountingRows > button{
+  width:100%;
+  min-height:62px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  padding:0 15px;
+  border:0;
+  border-bottom:1px solid var(--line);
+  background:transparent;
+  color:var(--text);
+  text-align:left;
+  box-sizing:border-box
+}
+.dailyAccountingRows > button{
+  cursor:pointer
+}
+.dailyAccountingRows > button:hover{
+  background:var(--surface-2);
+  transform:none
+}
+.dailyAccountingRows > :last-child{
+  border-bottom:0
+}
+.dailyAccountingRows span{
+  color:#5d6670;
+  font-size:13px;
+  font-weight:650
+}
+.dailyAccountingRows b{
+  color:var(--text);
+  font-size:17px;
+  font-weight:750;
+  letter-spacing:-.025em;
+  white-space:nowrap
+}
+.dailyAccountingRows .expense b{
+  color:#a95f31
+}
+.dailyAccountingRows .profit{
+  min-height:76px;
+  background:#fffaf0
+}
+.dailyAccountingRows .profit span{
+  color:#8a6417;
+  font-weight:750
+}
+.dailyAccountingRows .profit b{
+  color:#9d6908;
+  font-size:22px;
+  font-weight:850
+}
+
+html[data-theme="dark"] .dailyAccountingCard{
+  background:#18191c;
+  border-color:#303238
+}
+html[data-theme="dark"] .dailyAccountingHeader{
+  background:#1d1f22;
+  border-color:#303238
+}
+html[data-theme="dark"] .dailyAccountingRows > div,
+html[data-theme="dark"] .dailyAccountingRows > button{
+  border-color:#303238
+}
+html[data-theme="dark"] .dailyAccountingRows .profit{
+  background:#211b0f
+}
+
+@media(max-width:1100px){
+  .dailyAccountingRows{
+    display:grid;
+    grid-template-columns:repeat(4,minmax(0,1fr))
+  }
+  .dailyAccountingRows > div,
+  .dailyAccountingRows > button{
+    min-height:74px;
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
+    justify-content:center;
+    gap:5px;
+    border-bottom:0;
+    border-right:1px solid var(--line)
+  }
+  .dailyAccountingRows > :last-child{
+    border-right:0
+  }
+}
+@media(max-width:700px){
+  .dailyAccountingRows{
+    grid-template-columns:repeat(2,minmax(0,1fr))
+  }
+  .dailyAccountingRows > div,
+  .dailyAccountingRows > button{
+    border-bottom:1px solid var(--line)
+  }
+  .dailyAccountingRows > :nth-child(2n){
+    border-right:0
+  }
+  .dailyAccountingRows > :nth-last-child(-n+2){
+    border-bottom:0
+  }
+}
