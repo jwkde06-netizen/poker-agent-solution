@@ -667,7 +667,7 @@ export default function Home() {
     <aside className="sidebar">
       <div className="brand">
         <img className="brandLogo" src="/dream-poker-logo.svg" alt="Dream Poker Da Nang"/>
-        <div><strong>Dream Poker OPS</strong><span>통합 운영 시스템</span></div>
+        <div><strong>드림포커 운영 시스템</strong><span>관리자</span></div>
       </div>
 
       <nav className="sideNav">
@@ -686,7 +686,7 @@ export default function Home() {
       <header className="workspaceTopbar">
         <div className="mobileTopTitle">
           <img src="/dream-poker-logo.svg" alt=""/>
-          <span className="mobileProductTitle"><strong>드림포커 운영</strong><small>Dream Poker OPS · 관리자</small></span>
+          <span className="mobileProductTitle"><strong>드림포커 운영 시스템 <em>· 관리자</em></strong></span>
         </div>
         <button
           className="mobileSideMenuButton"
