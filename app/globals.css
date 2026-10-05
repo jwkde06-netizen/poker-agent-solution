@@ -7021,3 +7021,87 @@ html[data-theme="dark"] .fakeChart{
     background:#212226!important
   }
 }
+
+
+/* Daily settlement — editable historical game log */
+.dailyGameLog{
+  margin-top:18px;
+  padding-top:18px;
+  border-top:1px solid var(--line)
+}
+.dailyGameLogHeader{
+  display:flex;align-items:flex-start;justify-content:space-between;gap:16px;
+  margin-bottom:12px
+}
+.dailyGameLogHeader h3{margin:0;font-size:17px;color:var(--text)}
+.dailyGameLogHeader p{margin:5px 0 0;color:var(--muted);font-size:11px;line-height:1.55}
+.dailyLogCount{
+  flex:0 0 auto;padding:6px 9px;border:1px solid var(--line);border-radius:999px;
+  background:var(--surface-2);color:var(--muted);font-size:10px;font-weight:800
+}
+.dailyLogSearch{
+  height:44px;display:flex;align-items:center;gap:9px;margin-bottom:12px;
+  padding:0 12px;border:1px solid var(--line-strong);border-radius:11px;
+  background:var(--surface);color:var(--muted)
+}
+.dailyLogSearch input{
+  flex:1;min-width:0;border:0;outline:0;background:transparent;color:var(--text);font-size:13px
+}
+.dailyLogSearch button{
+  border:0;background:transparent;color:var(--muted);cursor:pointer;font-size:18px;padding:2px 4px
+}
+.dailyLogTable table{min-width:880px}
+.dailyGameBadge{
+  display:inline-flex;align-items:center;min-height:30px;padding:4px 9px;
+  border-radius:8px;background:var(--gold-soft);color:var(--gold-dark);
+  font-size:11px;font-weight:800
+}
+.dailyPlayerSelect{
+  width:100%;min-width:210px;height:36px;
+  border:1px solid var(--line-strong);border-radius:8px;
+  background:var(--surface);color:var(--text);padding:0 9px;outline:none
+}
+.dailyPlayerSelect:focus{
+  border-color:#c79b43;box-shadow:0 0 0 3px rgba(199,155,67,.12)
+}
+.dailyBuyInEditor{
+  display:grid;grid-template-columns:32px 52px 32px;align-items:center;gap:5px
+}
+.dailyBuyInEditor button{
+  width:32px;height:32px;border:1px solid var(--line-strong);border-radius:8px;
+  background:var(--surface);color:var(--text);cursor:pointer;font-weight:800
+}
+.dailyBuyInEditor input{
+  width:52px;height:32px;box-sizing:border-box;text-align:center;
+  border:1px solid var(--line-strong);border-radius:8px;
+  background:var(--surface);color:var(--text);outline:none
+}
+.dailyBuyInEditor input::-webkit-outer-spin-button,
+.dailyBuyInEditor input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.dailyDeleteButton{
+  border:0;background:transparent;color:#b84a4a;font-size:11px;font-weight:750;cursor:pointer;padding:7px
+}
+
+html[data-theme="dark"] .dailyLogSearch,
+html[data-theme="dark"] .dailyPlayerSelect,
+html[data-theme="dark"] .dailyBuyInEditor button,
+html[data-theme="dark"] .dailyBuyInEditor input{
+  background:#202126;border-color:#36383d;color:#f0f1f2
+}
+html[data-theme="dark"] .dailyLogCount{background:#1d1f22;border-color:#34363b;color:#aaa}
+html[data-theme="dark"] .dailyGameBadge{background:#2a2111;color:#dfb155}
+
+@media(max-width:820px){
+  .dailyGameLog{margin-top:16px;padding-top:16px}
+  .dailyGameLogHeader p{max-width:270px}
+  .dailyLogSearch{height:48px}
+  .dailyLogSearch input{font-size:16px}
+  .dailyLogTable{
+    margin-left:-14px;margin-right:-14px;
+    border-left:0;border-right:0;border-radius:0
+  }
+  .dailyLogTable table{min-width:780px}
+  .dailyPlayerSelect{height:40px}
+  .dailyBuyInEditor{grid-template-columns:36px 52px 36px}
+  .dailyBuyInEditor button,.dailyBuyInEditor input{height:36px}
+}
