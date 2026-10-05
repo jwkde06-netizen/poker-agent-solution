@@ -2321,6 +2321,29 @@ export default function Home() {
               </div>
             </div>
 
+            <div className="dailySummaryGrid dailySummaryGridCompact restoredDailySummary">
+              <div className="dailySummaryCard">
+                <span>총 엔트리피</span>
+                <b>{vnd(dailyGrossAmount)}</b>
+                <small>{dailyEntries.reduce((sum,e)=>sum+e.buyIn,0)} BUY-IN</small>
+              </div>
+              <div className="dailySummaryCard expense">
+                <span>레이크백</span>
+                <b>− {vnd(dailyAgentTotal)}</b>
+                <small>{dailyAgentRows.length}개 에이전트</small>
+              </div>
+              <button className="dailySummaryCard expense" onClick={()=>setFnbDetailOpen(true)}>
+                <span>F&B</span>
+                <b>− {vnd(dailyFnbTotal)}</b>
+                <small>비용 상세 ›</small>
+              </button>
+              <div className="dailySummaryCard profit">
+                <span>오늘 수익</span>
+                <b>{vnd(dailyProfit)}</b>
+                <small>총 비용 {vnd(dailyExpenseTotal)}</small>
+              </div>
+            </div>
+
             <div className="dailyWorkspaceGrid">
               <section className="dailyGameLog dailyMainDetail">
                 <div className="dailyGameLogHeader">
