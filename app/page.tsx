@@ -1948,7 +1948,7 @@ export default function Home() {
                   className={`floorTableButton table${no} ${selectedTableNo===no?"selected":""} ${liveSession?"live":""}`}
                   onClick={()=>setSelectedTableNo(no)}
                 >
-                  <strong>T{no}</strong>
+                  <strong>{no}</strong>
                   <small>{liveSession?`${liveEntries.length}명 · LIVE`:"대기"}</small>
                 </button>
               })}
