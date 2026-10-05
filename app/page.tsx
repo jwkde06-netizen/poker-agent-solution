@@ -3549,8 +3549,6 @@ export default function Home() {
                   <span>Deposit</span>
                   <span>Withdrawal</span>
                   <span>Balance</span>
-                  <span>메모</span>
-                  <span></span>
                 </div>
 
                 {ledgerRows.length===0
@@ -3564,8 +3562,6 @@ export default function Home() {
                           <b className="depositValue">+ {vnd(row.amount)}</b>
                           <span>-</span>
                           <b className={row.balance<0?"ledgerBalance negative":"ledgerBalance positive"}>{row.balance>0?"+":""}{vnd(row.balance)}</b>
-                          <span className="expenseNoteCell">{row.note || "-"}</span>
-                          <span></span>
                         </div>;
                       }
                       const item=row.expense!;
@@ -3585,8 +3581,6 @@ export default function Home() {
                         <span>-</span>
                         <b className="withdrawalValue">− {vnd(item.amount)}</b>
                         <b className={row.balance<0?"ledgerBalance negative":"ledgerBalance positive"}>{row.balance>0?"+":""}{vnd(row.balance)}</b>
-                        <span className="expenseNoteCell">{item.note || "-"}</span>
-                        <button onClick={e=>{e.stopPropagation();deleteExpenseItem(item);}} disabled={item.processedAmount>0} aria-label="지출 삭제">×</button>
                       </div>;
                     })}
               </div>
@@ -3877,8 +3871,21 @@ export default function Home() {
           </div>
 
           <div className="expenseEditFooter">
-            <button className="secondary" onClick={closeExpenseEditor}>취소</button>
-            <button className="primary" onClick={saveExpenseEditor} disabled={savingExpenseEdit}>{savingExpenseEdit?"저장 중...":"수정 저장"}</button>
+            <button
+              className="danger expenseDetailDelete"
+              onClick={async()=>{
+                if(item.processedAmount>0){
+                  setMessage("이미 Deposit으로 일부 또는 전액 상계된 Withdrawal은 삭제할 수 없습니다.");
+                  return;
+                }
+                await deleteExpenseItem(item);
+                setEditingExpenseId(null);
+              }}
+            >삭제</button>
+            <div className="expenseEditFooterActions">
+              <button className="secondary" onClick={closeExpenseEditor}>취소</button>
+              <button className="primary" onClick={saveExpenseEditor} disabled={savingExpenseEdit}>{savingExpenseEdit?"저장 중...":"수정 저장"}</button>
+            </div>
           </div>
         </section>
       </div>;
