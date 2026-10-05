@@ -126,6 +126,9 @@ export default function Home() {
   const [newGameNo, setNewGameNo] = useState("");
   const [newSessionGame, setNewSessionGame] = useState("5M");
   const [gamesView, setGamesView] = useState<"live"|"logs">("live");
+  const [editingSessionId, setEditingSessionId] = useState<string | null>(null);
+  const [editSessionTableNo, setEditSessionTableNo] = useState("");
+  const [editSessionGame, setEditSessionGame] = useState("5M");
   const [sessionSearch, setSessionSearch] = useState<Record<string,string>>({});
   const [manageEntryId, setManageEntryId] = useState<string | null>(null);
   const [managePlayerSearch, setManagePlayerSearch] = useState("");
@@ -1847,32 +1850,33 @@ export default function Home() {
           </section>
 
           <section className="panel selectedTablePanel">
-            <div className="selectedTableTop">
-              <div className={selectedGameSession?"selectedTableHeadline sessionHeaderClean":"selectedTableHeadline"}>
+            <div className="selectedTableTop simpleSessionTop">
+              <div className="selectedTableHeadline simpleSessionHeader">
                 {selectedGameSession
-                  ? <>
-                      <div className="sessionTitleGroup">
-                        <label className="sessionTableEdit">
+                  ? editingSessionId===selectedGameSession.id
+                    ? <div className="sessionEditInline">
+                        <label>
                           <span>Table</span>
                           <input
-                            defaultValue={selectedGameSession.tableNo}
-                            onInput={e=>{e.currentTarget.value=e.currentTarget.value.replace(/\D/g,"");}}
-                            onBlur={e=>updateActiveGameSession(selectedGameSession,{tableNo:e.target.value})}
-                            onKeyDown={e=>{if(e.key==="Enter")(e.currentTarget as HTMLInputElement).blur();}}
-                            aria-label="테이블 번호 수정"
+                            autoFocus
+                            inputMode="numeric"
+                            value={editSessionTableNo}
+                            onChange={e=>setEditSessionTableNo(e.target.value.replace(/\D/g,""))}
                           />
                         </label>
-                        <span className="sessionMetaBadge">{selectedGameSession.gameNo ? `No.${selectedGameSession.gameNo}` : "No.-"}</span>
-                        <label className="sessionGameEdit">
-                          <select value={selectedGameSession.game} onChange={e=>updateActiveGameSession(selectedGameSession,{game:e.target.value})} aria-label="게임 바이인 금액 수정">
-                            <option value="3M">3M</option>
-                            <option value="5M">5M</option>
-                            <option value="10M">10M</option>
-                            <option value="15M">15M</option>
-                          </select>
-                        </label>
+                        <span className="simpleSessionNo">{selectedGameSession.gameNo ? `No.${selectedGameSession.gameNo}` : "No.-"}</span>
+                        <select value={editSessionGame} onChange={e=>setEditSessionGame(e.target.value)}>
+                          <option value="3M">3M</option>
+                          <option value="5M">5M</option>
+                          <option value="10M">10M</option>
+                          <option value="15M">15M</option>
+                        </select>
                       </div>
-                    </>
+                    : <div className="sessionTitlePlain">
+                        <strong>Table {selectedGameSession.tableNo}</strong>
+                        <span>{selectedGameSession.gameNo ? `No.${selectedGameSession.gameNo}` : "No.-"}</span>
+                        <b>{selectedGameSession.game}</b>
+                      </div>
                   : <strong>Table {selectedTableNo || "-"}</strong>}
               </div>
 
@@ -1893,7 +1897,29 @@ export default function Home() {
                     </label>
                     <button className="primary startTableButton" onClick={startGameSession}>게임 시작</button>
                   </div>
-                : <button className="closeTableButton selectedCloseButton" onClick={()=>closeGameSession(selectedGameSession.id)}>경기 종료</button>}
+                : <div className="sessionTopActions">
+                    {editingSessionId===selectedGameSession.id
+                      ? <>
+                          <button className="sessionCancelButton" onClick={()=>setEditingSessionId(null)}>취소</button>
+                          <button
+                            className="sessionSaveButton"
+                            onClick={async()=>{
+                              if(!editSessionTableNo.trim())return;
+                              await updateActiveGameSession(selectedGameSession,{tableNo:editSessionTableNo,game:editSessionGame});
+                              setEditingSessionId(null);
+                            }}
+                          >저장</button>
+                        </>
+                      : <button
+                          className="sessionEditButton"
+                          onClick={()=>{
+                            setEditSessionTableNo(selectedGameSession.tableNo);
+                            setEditSessionGame(selectedGameSession.game);
+                            setEditingSessionId(selectedGameSession.id);
+                          }}
+                        >수정</button>}
+                    <button className="closeTableButton selectedCloseButton" onClick={()=>closeGameSession(selectedGameSession.id)}>경기 종료</button>
+                  </div>}
             </div>
 
             {selectedGameSession && <div className="selectedTableStats compactSelectedStats fourStats">
