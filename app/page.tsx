@@ -1853,8 +1853,8 @@ export default function Home() {
                       <label className="inlineSessionEdit tableEdit">
                         <span>TABLE</span>
                         <input
-                          value={selectedGameSession.tableNo}
-                          onChange={e=>setGameSessions(prev=>prev.map(s=>s.id===selectedGameSession.id?{...s,tableNo:e.target.value.replace(/\D/g,"")}:s))}
+                          defaultValue={selectedGameSession.tableNo}
+                          onInput={e=>{e.currentTarget.value=e.currentTarget.value.replace(/\D/g,"");}}
                           onBlur={e=>updateActiveGameSession(selectedGameSession,{tableNo:e.target.value})}
                           onKeyDown={e=>{if(e.key==="Enter")(e.currentTarget as HTMLInputElement).blur();}}
                           aria-label="테이블 번호 수정"
