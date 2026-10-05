@@ -1384,9 +1384,9 @@ export default function Home() {
       </>}
 
       <div className="contentArea">
-        <div className="pageHeading">
+        <div className={tab==="dashboard"?"pageHeading dashboardPageHeading":"pageHeading"}>
           <div>
-            <p className="eyebrow">드림 포커 · 에이전트 운영</p>
+            {tab!=="dashboard" && <p className="eyebrow">드림 포커 · 에이전트 운영</p>}
             <h1>{tab==="dashboard"?"대시보드":
               tab==="agencies"?"에이전트 관리":
               tab==="players"?"플레이어 관리":
@@ -1395,9 +1395,8 @@ export default function Home() {
               tab==="weekly"?"주간 정산":
               tab==="fnb"?"F&B":
               tab==="reports"?"리포트":"설정"}</h1>
-            <p className="sub">플레이어 등록부터 코드별 레이크백, 일일·주간 정산까지 한 곳에서 관리합니다.</p>
+            {tab!=="dashboard" && <p className="sub">운영 데이터와 정산 정보를 관리합니다.</p>}
           </div>
-
         </div>
 
         {message && <div className="note globalNote">{message}</div>}
