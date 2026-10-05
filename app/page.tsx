@@ -333,6 +333,35 @@ export default function Home() {
       return haystack.includes(q);
     });
   },[dailyEntries,dailyLogSearch,players]);
+
+  const dailyGameGroups = useMemo(()=>{
+    const groups = new Map<string,{
+      key:string;
+      tableNo:string;
+      gameNo:string;
+      game:string;
+      entries:GameEntry[];
+    }>();
+
+    filteredDailyEntries.forEach(entry=>{
+      const gs=gameSessions.find(s=>s.id===entry.sessionId);
+      const key=entry.sessionId || `legacy-${entry.game}`;
+      const existing=groups.get(key);
+      if(existing){
+        existing.entries.push(entry);
+      }else{
+        groups.set(key,{
+          key,
+          tableNo:gs?.tableNo ?? "",
+          gameNo:gs?.gameNo ?? "",
+          game:entry.game,
+          entries:[entry]
+        });
+      }
+    });
+
+    return [...groups.values()];
+  },[filteredDailyEntries,gameSessions]);
   const weeklyEntries = useMemo(()=>entries.filter(e=>e.date>=weekStart && e.date<=weekEnd),[entries,weekStart,weekEnd]);
 
   const total = (items: GameEntry[], key: "rake"|"rakeback") => items.reduce((s,e)=>s+e[key],0);
@@ -1862,8 +1891,8 @@ export default function Home() {
             <section className="dailyGameLog">
               <div className="dailyGameLogHeader">
                 <div>
-                  <h3>지난 게임 로그</h3>
-                  <p>선택한 날짜의 게임 기록을 확인하고 플레이어 또는 바이인을 바로 수정할 수 있습니다.</p>
+                  <h3>게임별 상세내역</h3>
+                  <p>모든 게임 기록은 항상 펼쳐져 있으며 플레이어·바이인 수정 또는 삭제가 바로 가능합니다.</p>
                 </div>
                 <span className="dailyLogCount">{dailyEntries.length}건</span>
               </div>
@@ -1878,43 +1907,81 @@ export default function Home() {
                 {dailyLogSearch && <button onClick={()=>setDailyLogSearch("")}>×</button>}
               </div>
 
-              <div className="tableWrap dailyLogTable">
-                <table>
-                  <thead><tr><th>게임</th><th>플레이어</th><th>에이전트</th><th>바이인</th><th>레이크</th><th>레이크백</th><th></th></tr></thead>
-                  <tbody>{filteredDailyEntries.length===0
-                    ? <tr><td colSpan={7} className="empty">{dailyEntries.length===0?"해당 날짜의 게임 기록이 없습니다.":"검색 결과가 없습니다."}</td></tr>
-                    : filteredDailyEntries.map(e=><tr key={e.id}>
-                        <td><span className="dailyGameBadge">{e.game}</span></td>
-                        <td>
-                          <select className="dailyPlayerSelect" value={e.playerId} onChange={ev=>replaceSessionPlayer(e,ev.target.value)}>
-                            {players.map(p=><option key={p.id} value={p.id}>{p.name}{p.koreanName?` · ${p.koreanName}`:""}</option>)}
-                          </select>
-                        </td>
-                        <td><span className="agencyCodeText">{e.agencyCodeSnapshot}</span></td>
-                        <td>
-                          <div className="dailyBuyInEditor">
-                            <button onClick={()=>changeSessionBuyIn(e,-1)} aria-label="바이인 감소">−</button>
-                            <input
-                              type="number"
-                              min="1"
-                              value={e.buyIn}
-                              onChange={ev=>{
-                                const value=Math.max(1,Number(ev.target.value)||1);
-                                setEntries(prev=>prev.map(row=>row.id===e.id?{...row,buyIn:value}:row));
-                              }}
-                              onBlur={ev=>setSessionBuyInCount(e,Number(ev.target.value))}
-                              onKeyDown={ev=>{if(ev.key==="Enter"){(ev.currentTarget as HTMLInputElement).blur();}}}
-                            />
-                            <button onClick={()=>changeSessionBuyIn(e,1)} aria-label="바이인 증가">＋</button>
+              {dailyGameGroups.length===0
+                ? <div className="dailyGameGroupsEmpty">{dailyEntries.length===0?"해당 날짜의 게임 기록이 없습니다.":"검색 결과가 없습니다."}</div>
+                : <div className="dailyGameGroups">
+                    {dailyGameGroups.map(group=>{
+                      const groupBuyIns=group.entries.reduce((sum,e)=>sum+e.buyIn,0);
+                      const groupRake=group.entries.reduce((sum,e)=>sum+e.rake,0);
+                      return <section className="dailyGameGroup" key={group.key}>
+                        <header className="dailyGameGroupHeader">
+                          <div className="dailyGameGroupIdentity">
+                            <strong>{group.tableNo?`T${group.tableNo}`:"GAME"}</strong>
+                            {group.gameNo && <span>No.{group.gameNo}</span>}
+                            <b>{group.game}</b>
                           </div>
-                        </td>
-                        <td>{vnd(e.rake)}</td>
-                        <td className="strong">{vnd(e.rakeback)}</td>
-                        <td><button className="dailyDeleteButton" onClick={()=>removePlayerFromSession(e)}>삭제</button></td>
-                      </tr>)}
-                  </tbody>
-                </table>
-              </div>
+                          <div className="dailyGameGroupSummary">
+                            <span>{group.entries.length}명</span>
+                            <span>{groupBuyIns} BUY-IN</span>
+                            <strong>{vnd(groupRake)}</strong>
+                          </div>
+                        </header>
+
+                        <div className="dailyGameRows">
+                          <div className="dailyGameRow dailyGameRowHead">
+                            <span>플레이어</span>
+                            <span>에이전트</span>
+                            <span>바이인</span>
+                            <span>레이크</span>
+                            <span>레이크백</span>
+                            <span></span>
+                          </div>
+
+                          {group.entries.map(e=><div className="dailyGameRow" key={e.id}>
+                            <div className="dailyGamePlayerCell">
+                              <select className="dailyPlayerSelect" value={e.playerId} onChange={ev=>replaceSessionPlayer(e,ev.target.value)}>
+                                {players.map(p=><option key={p.id} value={p.id}>{p.name}{p.koreanName?` · ${p.koreanName}`:""}</option>)}
+                              </select>
+                            </div>
+
+                            <div><span className="agencyCodeText">{e.agencyCodeSnapshot}</span></div>
+
+                            <div>
+                              <div className="dailyBuyInEditor">
+                                <button onClick={()=>changeSessionBuyIn(e,-1)} aria-label="바이인 감소">−</button>
+                                <input
+                                  type="number"
+                                  min="1"
+                                  value={e.buyIn}
+                                  onChange={ev=>{
+                                    const value=Math.max(1,Number(ev.target.value)||1);
+                                    const rake=rakePerBuyIn(e.game)*value;
+                                    const rakeback=Math.round(rake*(e.rateSnapshot/100));
+                                    setEntries(prev=>prev.map(row=>row.id===e.id?{...row,buyIn:value,rake,rakeback}:row));
+                                  }}
+                                  onBlur={ev=>setSessionBuyInCount(e,Number(ev.target.value))}
+                                  onKeyDown={ev=>{if(ev.key==="Enter"){(ev.currentTarget as HTMLInputElement).blur();}}}
+                                />
+                                <button onClick={()=>changeSessionBuyIn(e,1)} aria-label="바이인 증가">＋</button>
+                              </div>
+                            </div>
+
+                            <div className="dailyMoneyCell">{vnd(e.rake)}</div>
+                            <div className="dailyMoneyCell strong">{vnd(e.rakeback)}</div>
+
+                            <div className="dailyDeleteCell">
+                              <button
+                                className="dailyDeleteButton"
+                                onClick={()=>removePlayerFromSession(e)}
+                                aria-label={`${getPlayerName(e.playerId)} 기록 삭제`}
+                                title="기록 삭제"
+                              >×</button>
+                            </div>
+                          </div>)}
+                        </div>
+                      </section>;
+                    })}
+                  </div>}
             </section>
           </section>
         </section>}
