@@ -150,6 +150,9 @@ export default function Home() {
   const [newAccountRole, setNewAccountRole] = useState<UserRole>("staff");
   const [newAccountAgencyId, setNewAccountAgencyId] = useState("");
   const [creatingAccount, setCreatingAccount] = useState(false);
+  const [ownUsername, setOwnUsername] = useState("");
+  const [ownPassword, setOwnPassword] = useState("");
+  const [updatingOwnLogin, setUpdatingOwnLogin] = useState(false);
 
   const [loginId, setLoginId] = useState("");
   const [password, setPassword] = useState("");
@@ -267,6 +270,7 @@ export default function Home() {
       active:Boolean(profileRow.active)
     };
     setProfile(currentProfile);
+    setOwnUsername(currentProfile.username || "");
 
     if (!currentProfile.active || currentProfile.role==="pending") {
       setMessage(!currentProfile.active ? "비활성화된 계정입니다. 관리자에게 문의해주세요." : "관리자 승인 대기 중인 계정입니다.");
@@ -450,6 +454,73 @@ export default function Home() {
     const authEmail = cleanId.includes("@") ? cleanId : `${cleanId}@dream-poker.local`;
     const { error } = await supabase.auth.signInWithPassword({ email: authEmail, password });
     if (error) setMessage("아이디 또는 비밀번호가 올바르지 않습니다.");
+  }
+
+  async function updateOwnLogin() {
+    if (!supabase || !profile) return;
+    const cleanUsername=ownUsername.trim().toLowerCase().replace(/\s+/g,"");
+    const nextPassword=ownPassword.trim();
+
+    if(!cleanUsername){
+      setMessage("로그인 아이디를 입력해주세요.");
+      return;
+    }
+    if(!/^[a-z0-9._-]+$/.test(cleanUsername)){
+      setMessage("아이디는 영문 소문자, 숫자, ., _, - 만 사용할 수 있습니다.");
+      return;
+    }
+    if(nextPassword && nextPassword.length<6){
+      setMessage("새 비밀번호는 6자 이상이어야 합니다.");
+      return;
+    }
+
+    setUpdatingOwnLogin(true);
+    setMessage("");
+
+    const usernameChanged=cleanUsername!==(profile.username || "").toLowerCase();
+    const internalEmail=`${cleanUsername}@dream-poker.local`;
+
+    if(usernameChanged){
+      const {data:authUpdate,error:authError}=await supabase.auth.updateUser({
+        email:internalEmail,
+        data:{username:cleanUsername}
+      });
+      if(authError){
+        setUpdatingOwnLogin(false);
+        setMessage("아이디 변경에 실패했습니다: "+authError.message);
+        return;
+      }
+      if(authUpdate.user?.email && authUpdate.user.email.toLowerCase()!==internalEmail){
+        setUpdatingOwnLogin(false);
+        setMessage("아이디 변경에 이메일 확인이 필요한 설정입니다. Supabase Auth 설정을 확인해주세요.");
+        return;
+      }
+    }
+
+    if(nextPassword){
+      const {error:passwordError}=await supabase.auth.updateUser({password:nextPassword});
+      if(passwordError){
+        setUpdatingOwnLogin(false);
+        setMessage("비밀번호 변경에 실패했습니다: "+passwordError.message);
+        return;
+      }
+    }
+
+    const {error:profileUpdateError}=await supabase.from("user_profiles").update({
+      username:cleanUsername,
+      email:internalEmail,
+      updated_at:new Date().toISOString()
+    }).eq("user_id",profile.userId);
+
+    setUpdatingOwnLogin(false);
+    if(profileUpdateError){
+      setMessage("로그인 정보는 변경됐지만 프로필 저장에 실패했습니다: "+profileUpdateError.message);
+      return;
+    }
+
+    setOwnPassword("");
+    setProfile(prev=>prev?{...prev,username:cleanUsername,email:internalEmail}:prev);
+    setMessage("로그인 정보가 변경되었습니다. 다음 로그인부터 새 아이디와 비밀번호를 사용하세요.");
   }
 
   async function createManagedAccount() {
@@ -2195,6 +2266,23 @@ export default function Home() {
 
         {tab==="reports" && <section className="panel placeholderPanel"><h2>리포트</h2><p>에이전트별 정산 리포트와 다운로드 기능을 다음 단계에서 연결합니다.</p></section>}
         {tab==="settings" && profile?.role==="admin" && <section className="accountManagementPage">
+          <section className="panel ownLoginPanel">
+            <div className="sectionTitle">
+              <div><h2>내 로그인 정보</h2><p>관리자 로그인 아이디와 비밀번호를 변경합니다.</p></div>
+            </div>
+            <div className="ownLoginGrid">
+              <label>로그인 아이디
+                <input value={ownUsername} onChange={e=>setOwnUsername(e.target.value.toLowerCase())} placeholder="예: admin"/>
+              </label>
+              <label>새 비밀번호
+                <input type="password" value={ownPassword} onChange={e=>setOwnPassword(e.target.value)} placeholder="변경할 때만 입력 · 6자 이상"/>
+              </label>
+              <button className="primary ownLoginSaveButton" onClick={updateOwnLogin} disabled={updatingOwnLogin}>
+                {updatingOwnLogin?"변경 중...":"로그인 정보 저장"}
+              </button>
+            </div>
+          </section>
+
           <section className="panel accountCreatePanel">
             <div className="sectionTitle">
               <div><h2>직원·에이전트 계정 생성</h2><p>아이디와 임시 비밀번호를 입력해 새 로그인 계정을 만듭니다.</p></div>
