@@ -844,6 +844,39 @@ export default function Home() {
   const dailyAgentTotal = dailyAgentRows.reduce((sum,a)=>sum+a.amount,0);
   const dailyExpenseTotal = dailyFnbTotal + dailyAgentTotal;
   const dailyProfit = dailyGrossAmount - dailyExpenseTotal;
+  const reportEntries = entries.filter(e=>e.date>=reportStart && e.date<=reportEnd);
+  const reportFnbEntries = fnbEntries.filter(e=>e.date>=reportStart && e.date<=reportEnd);
+  const reportRevenue = reportEntries.reduce((sum,e)=>sum+revenuePerBuyIn(e.game)*e.buyIn,0);
+  const reportRakeback = reportEntries.reduce((sum,e)=>sum+e.rakeback,0);
+  const reportFnbTotal = reportFnbEntries.reduce((sum,e)=>sum+e.totalAmount,0);
+  const reportNet = reportRevenue-reportRakeback-reportFnbTotal;
+
+  const reportPanel = <section className="panel settlementExportPanel">
+    <div className="settlementExportHeader">
+      <div><strong>정산표 출력</strong><span>보고용 PNG 또는 시트용 CSV</span></div>
+    </div>
+    <div className="reportPresetButtons">
+      <button className={reportPreset==="today"?"active":""} onClick={()=>applyReportPreset("today")}>오늘</button>
+      <button className={reportPreset==="week"?"active":""} onClick={()=>applyReportPreset("week")}>이번주</button>
+      <button className={reportPreset==="custom"?"active":""} onClick={()=>setReportPreset("custom")}>기간 선택</button>
+    </div>
+    {reportPreset==="custom" && <div className="reportDateRange">
+      <input type="date" value={reportStart} onChange={e=>setReportStart(e.target.value)}/>
+      <span>~</span>
+      <input type="date" value={reportEnd} onChange={e=>setReportEnd(e.target.value)}/>
+    </div>}
+    <div className="reportMiniSummary">
+      <div><span>매출</span><b>{vnd(reportRevenue)}</b></div>
+      <div><span>레이크백</span><b>{vnd(reportRakeback)}</b></div>
+      <div><span>F&B</span><b>{vnd(reportFnbTotal)}</b></div>
+      <div><span>순수익</span><b>{vnd(reportNet)}</b></div>
+    </div>
+    <div className="reportExportActions">
+      <button onClick={exportSettlementPng}>PNG 저장</button>
+      <button onClick={exportSettlementCsv}>시트 CSV 저장</button>
+    </div>
+  </section>;
+
   const navItems = [
     {key:"dashboard",label:"대시보드",icon:"▦"},
     {key:"agencies",label:"에이전트 관리",icon:"♙"},
@@ -1568,6 +1601,7 @@ export default function Home() {
             <button className="active">일일정산</button>
             <button onClick={()=>setTab("weekly")}>주간정산</button>
           </div>
+          {reportPanel}
           <section className="panel compactDailyPanel">
             <div className="compactDailyHeader">
               <div>
@@ -1583,10 +1617,10 @@ export default function Home() {
                 <b>{vnd(dailyGrossAmount)}</b>
               </div>
 
-              <div className="dailyStatementLine expense">
-                <span>F&B</span>
+              <button className="dailyStatementLine expense clickableStatementLine" onClick={()=>setFnbDetailOpen(true)}>
+                <span>F&B <small>상세보기 ›</small></span>
                 <b>− {vnd(dailyFnbTotal)}</b>
-              </div>
+              </button>
 
               <div className="dailyStatementSectionLabel">에이전트별 레이크백</div>
 
@@ -1631,6 +1665,7 @@ export default function Home() {
             <button onClick={()=>setTab("daily")}>일일정산</button>
             <button className="active">주간정산</button>
           </div>
+          {reportPanel}
           <div className="sectionTitle"><div><h2>주간 정산</h2><p>기간별 에이전트·플레이어 정산 결과를 확인합니다.</p></div><div className="dateRange"><input className="datePicker" type="date" value={weekStart} onChange={e=>setWeekStart(e.target.value)}/><span>~</span><input className="datePicker" type="date" value={weekEnd} onChange={e=>setWeekEnd(e.target.value)}/></div></div>
           <div className="cards"><div className="metric"><span>주간 총 레이크</span><b>{vnd(total(weeklyEntries,"rake"))}</b></div><div className="metric"><span>주간 총 에이전트 정산액</span><b>{vnd(total(weeklyEntries,"rakeback"))}</b></div><div className="metric"><span>주간 정산 후 순액</span><b>{vnd(total(weeklyEntries,"rake")-total(weeklyEntries,"rakeback"))}</b></div></div>
           <div className="agencyGrid">{agencyTotals(weeklyEntries).map(a=><div className="agencyCard" key={a.id}><span>{a.code}</span><small>현재 정산 요율 {a.rate}%</small><b>{vnd(a.amount)}</b></div>)}</div>
@@ -1778,6 +1813,24 @@ export default function Home() {
         <button className="manageDeleteButton" onClick={async()=>{await removePlayerFromSession(managedEntry);setManageEntryId(null);setManagePlayerSearch("")}}>
           플레이어 삭제
         </button>
+      </section>
+    </div>}
+
+    {fnbDetailOpen && <div className="playerManageOverlay" onClick={()=>setFnbDetailOpen(false)}>
+      <section className="playerManageModal fnbDetailModal" onClick={e=>e.stopPropagation()}>
+        <div className="playerManageHeader">
+          <div><span>F&B 상세</span><strong>{summaryDate}</strong><small>총 {vnd(dailyFnbTotal)}</small></div>
+          <button onClick={()=>setFnbDetailOpen(false)}>×</button>
+        </div>
+        <div className="fnbDetailList">
+          {fnbEntries.filter(x=>x.date===summaryDate).length===0
+            ? <div className="agencyPlayerEmpty">해당 날짜의 F&B 내역이 없습니다.</div>
+            : fnbEntries.filter(x=>x.date===summaryDate).map(x=><div key={x.id}>
+                <span><strong>{x.itemName}</strong><small>{x.expenseGroup}{x.note?" · "+x.note:""}</small></span>
+                <span>{x.quantity}개</span>
+                <b>{vnd(x.totalAmount)}</b>
+              </div>)}
+        </div>
       </section>
     </div>}
 
