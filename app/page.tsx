@@ -142,6 +142,9 @@ export default function Home() {
   const [editingSessionId, setEditingSessionId] = useState<string | null>(null);
   const [editSessionTableNo, setEditSessionTableNo] = useState("");
   const [editSessionGame, setEditSessionGame] = useState("5M");
+  const [editSessionGameNo, setEditSessionGameNo] = useState("");
+  const [extraTableNos, setExtraTableNos] = useState<string[]>([]);
+  const [selectedSearchIndex, setSelectedSearchIndex] = useState(0);
   const [sessionSearch, setSessionSearch] = useState<Record<string,string>>({});
   const [manageEntryId, setManageEntryId] = useState<string | null>(null);
   const [managePlayerSearch, setManagePlayerSearch] = useState("");
@@ -227,6 +230,13 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    try{
+      const saved=JSON.parse(localStorage.getItem("dream-poker-extra-tables") || "[]");
+      if(Array.isArray(saved)) setExtraTableNos(saved.map(String).filter(Boolean));
+    }catch{}
+  }, []);
+
+    useEffect(() => {
     const onShortcut=(e:KeyboardEvent)=>{
       if((e.metaKey||e.ctrlKey) && e.key.toLowerCase()==="k"){
         e.preventDefault();
@@ -850,9 +860,20 @@ export default function Home() {
     setEntries(prev=>prev.filter(e=>e.id!==entry.id));
   }
 
-  async function updateActiveGameSession(gameSession:GameSession,patch:{tableNo?:string;game?:string}){
+  function addAvailableTable(){
+    const tableNo=newTableNo.trim().replace(/\D/g,"");
+    if(!tableNo)return;
+    const next=Array.from(new Set([...extraTableNos,tableNo]));
+    setExtraTableNos(next);
+    localStorage.setItem("dream-poker-extra-tables",JSON.stringify(next));
+    setSelectedTableNo(tableNo);
+    setNewTableNo("");
+  }
+
+  async function updateActiveGameSession(gameSession:GameSession,patch:{tableNo?:string;game?:string;gameNo?:string}){
     const nextTableNo=(patch.tableNo ?? gameSession.tableNo).trim();
     const nextGame=patch.game ?? gameSession.game;
+    const nextGameNo=(patch.gameNo ?? gameSession.gameNo).trim();
     if(!nextTableNo)return;
     if(nextTableNo!==gameSession.tableNo && gameSessions.some(s=>s.id!==gameSession.id && s.status==="active" && s.date===gameSession.date && s.tableNo===nextTableNo)){
       setMessage(`T${nextTableNo}는 이미 진행 중입니다.`);
@@ -863,6 +884,7 @@ export default function Home() {
       const payload:any={};
       if(patch.tableNo!==undefined)payload.table_no=nextTableNo;
       if(patch.game!==undefined)payload.game_name=nextGame;
+      if(patch.gameNo!==undefined)payload.game_no=nextGameNo || null;
       const {error}=await supabase.from("game_sessions").update(payload).eq("id",gameSession.id);
       if(error){setMessage(error.message);return;}
 
@@ -879,7 +901,7 @@ export default function Home() {
       }
     }
 
-    setGameSessions(prev=>prev.map(s=>s.id===gameSession.id?{...s,tableNo:nextTableNo,game:nextGame}:s));
+    setGameSessions(prev=>prev.map(s=>s.id===gameSession.id?{...s,tableNo:nextTableNo,game:nextGame,gameNo:nextGameNo}:s));
     if(patch.game!==undefined){
       setEntries(prev=>prev.map(e=>{
         if(e.sessionId!==gameSession.id)return e;
@@ -1105,6 +1127,7 @@ export default function Home() {
   const weekSettlement = total(thisWeekEntries,"rakeback");
   const recentEntries = [...entries].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,6);
   const activeGameSessions = gameSessions.filter(s=>s.status==="active" && s.date===today());
+  const availableTableNos = Array.from(new Set(["4","12","13","5","2",...extraTableNos,...gameSessions.map(s=>s.tableNo).filter(Boolean)]));
   const selectedGameSession = activeGameSessions.find(s=>s.tableNo===selectedTableNo) ?? null;
 
   const globalFeatureItems = [
@@ -1858,11 +1881,25 @@ export default function Home() {
           <section className="panel floorSelectorPanel">
             <div className="floorSelectorHeader">
               <div><h2>테이블 선택</h2></div>
-              <span className="liveTableCount">{activeGameSessions.length} TABLE LIVE</span>
+              <div className="floorSelectorActions">
+                <span className="liveTableCount">{activeGameSessions.length} TABLE LIVE</span>
+                <div className="tableAddControl">
+                  <span>Table</span>
+                  <input
+                    inputMode="numeric"
+                    value={newTableNo}
+                    onChange={e=>setNewTableNo(e.target.value.replace(/\D/g,""))}
+                    onKeyDown={e=>{if(e.key==="Enter")addAvailableTable();}}
+                    placeholder="No."
+                    aria-label="추가할 테이블 번호"
+                  />
+                  <button onClick={addAvailableTable}>추가</button>
+                </div>
+              </div>
             </div>
 
             <div className="pokerFloorMap">
-              {["4","12","13","5","2"].map(no=>{
+              {availableTableNos.map(no=>{
                 const liveSession=activeGameSessions.find(s=>s.tableNo===no);
                 const liveEntries=liveSession ? entries.filter(e=>e.sessionId===liveSession.id) : [];
                 return <button
@@ -1893,18 +1930,26 @@ export default function Home() {
                             onChange={e=>setEditSessionTableNo(e.target.value.replace(/\D/g,""))}
                           />
                         </label>
-                        <span className="simpleSessionNo">{selectedGameSession.gameNo ? `No.${selectedGameSession.gameNo}` : "No.-"}</span>
                         <select value={editSessionGame} onChange={e=>setEditSessionGame(e.target.value)}>
                           <option value="3M">3M</option>
                           <option value="5M">5M</option>
                           <option value="10M">10M</option>
                           <option value="15M">15M</option>
                         </select>
+                        <label className="sessionNoEdit">
+                          <span>No.</span>
+                          <input
+                            inputMode="numeric"
+                            value={editSessionGameNo}
+                            onChange={e=>setEditSessionGameNo(e.target.value.replace(/\D/g,""))}
+                            placeholder="-"
+                          />
+                        </label>
                       </div>
                     : <div className="sessionTitlePlain">
                         <strong>Table {selectedGameSession.tableNo}</strong>
-                        <span>{selectedGameSession.gameNo ? `No.${selectedGameSession.gameNo}` : "No.-"}</span>
                         <b>{selectedGameSession.game}</b>
+                        <span>{selectedGameSession.gameNo ? `No.${selectedGameSession.gameNo}` : "No.-"}</span>
                       </div>
                   : <strong>Table {selectedTableNo || "-"}</strong>}
               </div>
@@ -1934,7 +1979,7 @@ export default function Home() {
                             className="sessionSaveButton"
                             onClick={async()=>{
                               if(!editSessionTableNo.trim())return;
-                              await updateActiveGameSession(selectedGameSession,{tableNo:editSessionTableNo,game:editSessionGame});
+                              await updateActiveGameSession(selectedGameSession,{tableNo:editSessionTableNo,game:editSessionGame,gameNo:editSessionGameNo});
                               setEditingSessionId(null);
                             }}
                           >저장</button>
@@ -1944,6 +1989,7 @@ export default function Home() {
                           onClick={()=>{
                             setEditSessionTableNo(selectedGameSession.tableNo);
                             setEditSessionGame(selectedGameSession.game);
+                            setEditSessionGameNo(selectedGameSession.gameNo);
                             setEditingSessionId(selectedGameSession.id);
                           }}
                         >수정</button>}
@@ -1975,15 +2021,40 @@ export default function Home() {
                         <span>⌕</span>
                         <input
                           value={selectedTableSearch}
-                          onChange={e=>setSessionSearch(prev=>({...prev,[selectedGameSession.id]:e.target.value}))}
+                          onChange={e=>{
+                            setSessionSearch(prev=>({...prev,[selectedGameSession.id]:e.target.value}));
+                            setSelectedSearchIndex(0);
+                          }}
+                          onKeyDown={e=>{
+                            if(e.key==="ArrowDown"){
+                              e.preventDefault();
+                              setSelectedSearchIndex(i=>selectedTableMatches.length?Math.min(i+1,selectedTableMatches.length-1):0);
+                            }else if(e.key==="ArrowUp"){
+                              e.preventDefault();
+                              setSelectedSearchIndex(i=>Math.max(i-1,0));
+                            }else if(e.key==="Enter" && selectedTableMatches.length){
+                              e.preventDefault();
+                              const target=selectedTableMatches[Math.min(selectedSearchIndex,selectedTableMatches.length-1)];
+                              if(target)addPlayerToSession(selectedGameSession,target.id);
+                            }else if(e.key==="Escape"){
+                              setSessionSearch(prev=>({...prev,[selectedGameSession.id]:""}));
+                              setSelectedSearchIndex(0);
+                            }
+                          }}
                           placeholder="이름 · 한글명 · 회원번호 검색"
+                          autoComplete="off"
                         />
                       </div>
                       {selectedTableMatches.length>0 && <div className="selectedSearchResults">
-                        {selectedTableMatches.map(p=>{
+                        {selectedTableMatches.map((p,index)=>{
                           const already=selectedTableEntries.find(e=>e.playerId===p.id);
                           const agency=agencies.find(a=>a.id===p.agencyId);
-                          return <button key={p.id} onClick={()=>addPlayerToSession(selectedGameSession,p.id)}>
+                          return <button
+                            key={p.id}
+                            className={index===selectedSearchIndex?"active":""}
+                            onMouseEnter={()=>setSelectedSearchIndex(index)}
+                            onClick={()=>addPlayerToSession(selectedGameSession,p.id)}
+                          >
                             <span>
                               <strong>{p.name}</strong>
                               <small>{p.koreanName || p.cardNo || "회원번호 없음"}</small>
