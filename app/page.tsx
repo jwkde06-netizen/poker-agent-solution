@@ -90,7 +90,7 @@ const DEFAULT_AGENCIES: Agency[] = [
 ];
 
 const money = new Intl.NumberFormat("vi-VN", { maximumFractionDigits: 0 });
-const vnd = (value:number) => `${money.format(value)} ₫`;
+const vnd = (value:number) => money.format(value);
 const today = () => new Date().toISOString().slice(0, 10);
 const uid = (prefix: string) => `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
@@ -1165,7 +1165,7 @@ export default function Home() {
       ctx.fillStyle="#171717"; ctx.fillRect(x,y,500,115);
       ctx.fillStyle="#9a9a9a"; ctx.font="22px sans-serif"; ctx.fillText(item[0],x+24,y+36);
       ctx.fillStyle=i===3?"#e0ad49":"#ffffff"; ctx.font="700 34px sans-serif";
-      ctx.fillText(money.format(item[1])+" VND",x+24,y+82);
+      ctx.fillText(money.format(item[1]),x+24,y+82);
     });
 
     let y=510;
@@ -1177,7 +1177,7 @@ export default function Home() {
       const gs=gameSessions.find(s=>s.id===e.sessionId);
       ctx.fillStyle="#202020"; ctx.fillRect(70,y-24,1060,36);
       ctx.fillStyle="#e8e8e8"; ctx.font="19px sans-serif";
-      const label=e.date+"   "+(gs?.tableNo?"Table "+gs.tableNo:"-")+"   "+(gs?.gameNo?"No."+gs.gameNo+" ":"")+e.game+"   "+getPlayerName(e.playerId)+"   "+e.buyIn+"   "+money.format(revenuePerBuyIn(e.game)*e.buyIn)+" VND";
+      const label=e.date+"   "+(gs?.tableNo?"Table "+gs.tableNo:"-")+"   "+(gs?.gameNo?"No."+gs.gameNo+" ":"")+e.game+"   "+getPlayerName(e.playerId)+"   "+e.buyIn+"   "+money.format(revenuePerBuyIn(e.game)*e.buyIn);
       ctx.fillText(label.slice(0,95),82,y);
       y+=42;
     });
