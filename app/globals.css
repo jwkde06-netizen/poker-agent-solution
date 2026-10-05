@@ -11133,3 +11133,76 @@ html[data-theme="dark"] .tableAddControl button{
     font-size:15px!important
   }
 }
+
+
+/* Game input cleanup: plain session meta, consistent actions, lighter names */
+.sessionTitlePlain > span{
+  background:none!important;
+  background-color:transparent!important;
+  color:var(--text)!important;
+  border:0!important;
+  box-shadow:none!important;
+  border-radius:0!important;
+  padding:0!important
+}
+.sessionTitlePlain > strong{
+  font-weight:650!important
+}
+.sessionTitlePlain > b{
+  font-weight:650!important
+}
+.sessionTitlePlain > span{
+  font-weight:600!important
+}
+
+.sessionTopActions .sessionEditButton,
+.sessionTopActions .selectedCloseButton,
+.sessionTopActions .sessionSaveButton,
+.sessionTopActions .sessionCancelButton{
+  width:auto!important;
+  min-width:86px!important;
+  height:40px!important;
+  padding:0 14px!important;
+  border-radius:9px!important;
+  font-size:13px!important;
+  font-weight:700!important;
+  line-height:1!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  box-sizing:border-box!important
+}
+.sessionTopActions .selectedCloseButton{
+  border:1px solid var(--line-strong)!important;
+  background:var(--surface)!important;
+  color:#59616a!important
+}
+
+.quickBuyinRow .selectedPlayerIdentity strong,
+.playerOpenManage strong{
+  font-weight:600!important
+}
+
+.tableAddControl .tableDeleteButton{
+  border-color:#e2c3c3!important;
+  color:#a74b4b!important;
+  background:var(--surface)!important
+}
+.tableAddControl .tableDeleteButton:hover:not(:disabled){
+  background:#fff6f6!important
+}
+.tableAddControl .tableDeleteButton:disabled{
+  opacity:.38;
+  cursor:not-allowed
+}
+
+html[data-theme="dark"] .tableAddControl .tableDeleteButton{
+  background:#1d1f22!important;
+  border-color:#5a3438!important;
+  color:#d9888f!important
+}
+html[data-theme="dark"] .sessionTopActions .selectedCloseButton{
+  background:#1d1f22!important;
+  border-color:#34363b!important;
+  color:#d7d9dd!important
+}
