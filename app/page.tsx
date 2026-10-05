@@ -123,6 +123,8 @@ export default function Home() {
   const [newGameNo, setNewGameNo] = useState("");
   const [newSessionGame, setNewSessionGame] = useState("5M");
   const [sessionSearch, setSessionSearch] = useState<Record<string,string>>({});
+  const [manageEntryId, setManageEntryId] = useState<string | null>(null);
+  const [managePlayerSearch, setManagePlayerSearch] = useState("");
   const [fnbEntries, setFnbEntries] = useState<FnbEntry[]>([]);
   const [fnbDate, setFnbDate] = useState(today());
   const [fnbMenuName, setFnbMenuName] = useState("Americano");
@@ -516,6 +518,45 @@ export default function Home() {
     setEntries(prev=>prev.map(e=>e.id===entry.id?{...e,buyIn:nextBuyIn,rake:nextRake,rakeback:nextRakeback}:e));
   }
 
+  async function setSessionBuyInCount(entry:GameEntry,count:number){
+    const nextBuyIn=Math.max(1,Math.floor(count)||1);
+    const perBuyIn=rakePerBuyIn(entry.game);
+    const nextRake=perBuyIn*nextBuyIn;
+    const nextRakeback=Math.round(nextRake*(entry.rateSnapshot/100));
+
+    if(isSupabaseConfigured && supabase && session){
+      const {error}=await supabase.from("game_entries").update({
+        buy_in:nextBuyIn,rake:nextRake,rakeback:nextRakeback
+      }).eq("id",entry.id);
+      if(error){setMessage(error.message);return;}
+    }
+    setEntries(prev=>prev.map(e=>e.id===entry.id?{...e,buyIn:nextBuyIn,rake:nextRake,rakeback:nextRakeback}:e));
+  }
+
+  async function replaceSessionPlayer(entry:GameEntry,nextPlayerId:string){
+    const nextPlayer=players.find(p=>p.id===nextPlayerId);
+    if(!nextPlayer)return;
+    const agency=agencies.find(a=>a.id===nextPlayer.agencyId);
+    if(!agency)return;
+    const nextRakeback=Math.round(entry.rake*(agency.rate/100));
+
+    if(isSupabaseConfigured && supabase && session){
+      const {error}=await supabase.from("game_entries").update({
+        player_id:nextPlayer.id,
+        agency_id:agency.id,
+        agency_code_snapshot:agency.code,
+        rate_snapshot:agency.rate,
+        rakeback:nextRakeback
+      }).eq("id",entry.id);
+      if(error){setMessage(error.message);return;}
+    }
+    setEntries(prev=>prev.map(e=>e.id===entry.id?{
+      ...e,playerId:nextPlayer.id,agencyId:agency.id,agencyCodeSnapshot:agency.code,
+      rateSnapshot:agency.rate,rakeback:nextRakeback
+    }:e));
+    setManagePlayerSearch("");
+  }
+
   async function removePlayerFromSession(entry:GameEntry){
     if(!confirm("이 플레이어를 현재 게임에서 삭제할까요?")) return;
     if(isSupabaseConfigured && supabase && session){
@@ -642,6 +683,17 @@ export default function Home() {
         p.koreanName.includes(selectedTableSearch) ||
         p.cardNo.toUpperCase().includes(selectedTableQuery)
       ).slice(0,8)
+    : [];
+  const managedEntry = manageEntryId ? entries.find(e=>e.id===manageEntryId) ?? null : null;
+  const managedPlayer = managedEntry ? players.find(p=>p.id===managedEntry.playerId) ?? null : null;
+  const manageQuery = managePlayerSearch.trim().toUpperCase();
+  const managePlayerMatches = manageQuery
+    ? players.filter(p=>
+        p.id!==managedEntry?.playerId &&
+        (p.name.toUpperCase().includes(manageQuery) ||
+         p.koreanName.includes(managePlayerSearch) ||
+         p.cardNo.toUpperCase().includes(manageQuery))
+      ).slice(0,6)
     : [];
   const selectedFnbMenu = FNB_MENU.find(item=>item.name===fnbMenuName) ?? FNB_MENU[0];
   const fnbDayEntries = fnbEntries.filter(item=>item.date===fnbDate);
@@ -1131,7 +1183,7 @@ export default function Home() {
                           {[...selectedTableEntries].sort((a,b)=>b.buyIn-a.buyIn).map(entry=>{
                             const player=players.find(p=>p.id===entry.playerId);
                             const perEntryRevenue=revenuePerBuyIn(entry.game);
-                            return <div className="selectedPlayerRow compactPlayerRow" key={entry.id}>
+                            return <button className="selectedPlayerRow compactPlayerRow playerManageTrigger" key={entry.id} onClick={()=>setManageEntryId(entry.id)}>
                               <div className="selectedPlayerIdentity">
                                 <strong>{player?.name || "알 수 없음"}</strong>
                                 <span>{player?.koreanName && `${player.koreanName} · `}{entry.agencyCodeSnapshot}</span>
@@ -1152,12 +1204,8 @@ export default function Home() {
                                 </div>
                               </div>
 
-                              <div className="playerRowActions">
-                                <button className="compactMinus" onClick={()=>changeSessionBuyIn(entry,-1)} disabled={entry.buyIn<=1}>−</button>
-                                <button className="quickRebuyButton" onClick={()=>changeSessionBuyIn(entry,1)}>＋1</button>
-                                <button className="removePlayerButton" onClick={()=>removePlayerFromSession(entry)}>삭제</button>
-                              </div>
-                            </div>
+                              <span className="manageChevron">›</span>
+                            </button>
                           })}
                         </div>}
 
@@ -1351,6 +1399,58 @@ export default function Home() {
         {tab==="settings" && <section className="panel placeholderPanel"><h2>설정</h2><p>권한, 에이전트 계정, 시스템 설정을 이곳에서 관리하게 됩니다.</p></section>}
       </div>
     </section>
+
+    {managedEntry && <div className="playerManageOverlay" onClick={()=>{setManageEntryId(null);setManagePlayerSearch("")}}>
+      <section className="playerManageModal" onClick={e=>e.stopPropagation()}>
+        <div className="playerManageHeader">
+          <div>
+            <span>플레이어 관리</span>
+            <strong>{managedPlayer?.name || "알 수 없음"}</strong>
+            <small>{managedPlayer?.koreanName ? `${managedPlayer.koreanName} · `:""}{managedEntry.agencyCodeSnapshot}</small>
+          </div>
+          <button onClick={()=>{setManageEntryId(null);setManagePlayerSearch("")}} aria-label="닫기">×</button>
+        </div>
+
+        <div className="manageBuyinSection">
+          <span>바이인 수</span>
+          <div className="manageBuyinControl">
+            <button onClick={()=>setSessionBuyInCount(managedEntry,managedEntry.buyIn-1)} disabled={managedEntry.buyIn<=1}>−</button>
+            <strong>{managedEntry.buyIn}회</strong>
+            <button onClick={()=>setSessionBuyInCount(managedEntry,managedEntry.buyIn+1)}>＋</button>
+          </div>
+          <div className="manageFinancialSummary">
+            <div><small>금액</small><b>{vnd(revenuePerBuyIn(managedEntry.game)*managedEntry.buyIn)}</b></div>
+            <div><small>레이크백</small><b>{vnd(managedEntry.rakeback)}</b></div>
+          </div>
+        </div>
+
+        <div className="manageReplaceSection">
+          <label>플레이어 변경</label>
+          <div className="managePlayerSearchInput">
+            <span>⌕</span>
+            <input
+              value={managePlayerSearch}
+              onChange={e=>setManagePlayerSearch(e.target.value)}
+              placeholder="이름 · 한글명 · 회원번호 검색"
+            />
+          </div>
+          {managePlayerMatches.length>0 && <div className="managePlayerResults">
+            {managePlayerMatches.map(p=>{
+              const agency=agencies.find(a=>a.id===p.agencyId);
+              return <button key={p.id} onClick={()=>replaceSessionPlayer(managedEntry,p.id)}>
+                <span><strong>{p.name}</strong><small>{p.koreanName || p.cardNo || "회원번호 없음"}</small></span>
+                <em>{agency?.code || "-"}</em>
+                <b>변경</b>
+              </button>
+            })}
+          </div>}
+        </div>
+
+        <button className="manageDeleteButton" onClick={async()=>{await removePlayerFromSession(managedEntry);setManageEntryId(null);setManagePlayerSearch("")}}>
+          플레이어 삭제
+        </button>
+      </section>
+    </div>}
 
     <nav className="mobileBottomNav" aria-label="모바일 메뉴">
       {mobileNavItems.map(item=><button
