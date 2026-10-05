@@ -1062,9 +1062,10 @@ export default function Home() {
 
           <section className="panel selectedTablePanel">
             <div className="selectedTableTop">
-              <div>
-                <span>선택 테이블</span>
+              <div className="selectedTableHeadline">
                 <strong>T{selectedTableNo || "-"}</strong>
+                {selectedGameSession && <span>{selectedGameSession.gameNo ? `No.${selectedGameSession.gameNo}` : "No.-"}</span>}
+                {selectedGameSession && <b>{selectedGameSession.game}</b>}
               </div>
 
               {!selectedGameSession
@@ -1084,16 +1085,10 @@ export default function Home() {
                     </label>
                     <button className="primary startTableButton" onClick={startGameSession}>게임 시작</button>
                   </div>
-                : <div className="selectedLiveMeta">
-                    <span>{selectedGameSession.gameNo ? `No.${selectedGameSession.gameNo}` : "No.-"}</span>
-                    <b>{selectedGameSession.game}</b>
-                    <button className="closeTableButton selectedCloseButton" onClick={()=>closeGameSession(selectedGameSession.id)}>경기 종료</button>
-                  </div>}
+                : <button className="closeTableButton selectedCloseButton" onClick={()=>closeGameSession(selectedGameSession.id)}>경기 종료</button>}
             </div>
 
-            {selectedGameSession && <div className="selectedTableStats">
-              <div><span>게임 번호</span><b>{selectedGameSession.gameNo ? `No.${selectedGameSession.gameNo}` : "-"}</b></div>
-              <div><span>게임</span><b>{selectedGameSession.game}</b></div>
+            {selectedGameSession && <div className="selectedTableStats compactSelectedStats">
               <div><span>플레이어</span><b>{selectedTableEntries.length}명</b></div>
               <div><span>총 바이인</span><b>{selectedTableBuyIns}회</b></div>
               <div><span>현재 매출</span><b>{vnd(selectedTableRevenue)}</b></div>
