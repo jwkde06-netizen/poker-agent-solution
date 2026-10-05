@@ -13748,3 +13748,50 @@ html[data-theme="dark"] .staffQuickActions button:hover{
     font-size:17px!important;
   }
 }
+
+
+/* Player rows: show amount + rakeback together, no toggle */
+.dualPlayerValues{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(110px,1fr));
+  gap:10px!important;
+  text-align:right!important;
+}
+.dualPlayerValues>span{
+  display:grid;
+  gap:2px;
+  min-width:0;
+}
+.dualPlayerValues small{
+  display:block;
+  color:var(--muted);
+  font-size:10px!important;
+  font-weight:700;
+}
+.dualPlayerValues b{
+  display:block;
+  margin:0!important;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  color:var(--text);
+  font-size:15px!important;
+  font-weight:750!important;
+}
+@media(max-width:820px){
+  .dualPlayerValues{
+    grid-template-columns:1fr!important;
+    gap:3px!important;
+  }
+  .dualPlayerValues>span{
+    grid-template-columns:48px 1fr;
+    align-items:center;
+    gap:6px;
+  }
+  .dualPlayerValues small{
+    font-size:8px!important;
+  }
+  .dualPlayerValues b{
+    font-size:12px!important;
+  }
+}
