@@ -3497,10 +3497,11 @@ export default function Home() {
               <span>운영 경비 장부</span>
               <h2>지출 내역서</h2>
             </div>
-            <div className="expenseCompactSummary">
-              <div className={ledgerBalance<0?"primary negative":"primary positive"}><span>Balance</span><strong>{ledgerBalance>0?"+":""}{vnd(ledgerBalance)}</strong></div>
-              <div><span>Deposit</span><b>+ {vnd(totalDepositAmount)}</b></div>
-              <div><span>Withdrawal</span><b>− {vnd(totalExpenseAmount)}</b></div>
+            <div className="expenseCompactSummary singleBalanceSummary">
+              <div className={ledgerBalance<0?"primary negative":"primary positive"}>
+                <span>현재 장부 잔액</span>
+                <strong>{ledgerBalance>0?"+":""}{vnd(ledgerBalance)}</strong>
+              </div>
             </div>
           </section>
 
