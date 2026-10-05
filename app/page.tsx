@@ -2441,7 +2441,7 @@ export default function Home() {
           </div>}
         </section>}
 
-        {tab==="games" && <section className="buyinPage floorBuyinPage">
+        {tab==="games" && <section className={isStaff?"buyinPage floorBuyinPage staffMobileBuyinPage":"buyinPage floorBuyinPage"}>
           <div className="mobileSectionSwitcher buyinModeSwitcher">
             <button className={gamesView==="live"?"active":""} onClick={()=>setGamesView("live")}>진행 중</button>
             <button className={gamesView==="logs"?"active":""} onClick={()=>setGamesView("logs")}>게임 로그</button>
