@@ -234,6 +234,15 @@ export default function Home() {
   const [expensePrepaidBy,setExpensePrepaidBy]=useState("");
   const [expenseNote,setExpenseNote]=useState("");
   const [expenseFilter,setExpenseFilter]=useState<"all"|"pending"|"processed">("pending");
+  const [editingExpenseId,setEditingExpenseId]=useState<string | null>(null);
+  const [expenseEditDate,setExpenseEditDate]=useState("");
+  const [expenseEditCategory,setExpenseEditCategory]=useState("OTHER");
+  const [expenseEditDescription,setExpenseEditDescription]=useState("");
+  const [expenseEditPrepaidBy,setExpenseEditPrepaidBy]=useState("");
+  const [expenseEditAmount,setExpenseEditAmount]=useState("");
+  const [expenseEditProcessedAmount,setExpenseEditProcessedAmount]=useState("");
+  const [expenseEditNote,setExpenseEditNote]=useState("");
+  const [savingExpenseEdit,setSavingExpenseEdit]=useState(false);
   const [finalizingDistribution,setFinalizingDistribution]=useState(false);
   const [loaded, setLoaded] = useState(false);
   const [session, setSession] = useState<Session | null>(null);
@@ -1312,6 +1321,67 @@ export default function Home() {
     }).eq("id",item.id);
     if(error){setMessage(error.message);return;}
     setExpenseItems(prev=>prev.map(x=>x.id===item.id?{...x,prepaidBy}:x));
+  }
+
+  function openExpenseEditor(item:ExpenseItem){
+    setEditingExpenseId(item.id);
+    setExpenseEditDate(item.date);
+    setExpenseEditCategory(item.category);
+    setExpenseEditDescription(item.description);
+    setExpenseEditPrepaidBy(item.prepaidBy);
+    setExpenseEditAmount(String(item.amount));
+    setExpenseEditProcessedAmount(String(item.processedAmount));
+    setExpenseEditNote(item.note);
+  }
+
+  function closeExpenseEditor(){
+    setEditingExpenseId(null);
+  }
+
+  async function saveExpenseEditor(){
+    const item=expenseItems.find(x=>x.id===editingExpenseId);
+    if(!item || !supabase || !session)return;
+    const amount=Number(expenseEditAmount.replace(/,/g,""));
+    const processedAmount=Number(expenseEditProcessedAmount.replace(/,/g,""));
+    const description=expenseEditDescription.trim();
+    if(!description || !amount || amount<=0){
+      setMessage("경비 항목과 원래 금액을 확인해주세요.");
+      return;
+    }
+    if(Number.isNaN(processedAmount) || processedAmount<0 || processedAmount>amount){
+      setMessage("처리된 금액은 0 이상, 원래 금액 이하로 입력해주세요.");
+      return;
+    }
+    const status:ExpenseItem["status"]=
+      processedAmount>=amount ? "processed" :
+      processedAmount>0 ? "partial" : "pending";
+    setSavingExpenseEdit(true);
+    const {error}=await supabase.from("expense_items").update({
+      expense_date:expenseEditDate,
+      category:expenseEditCategory,
+      description,
+      prepaid_by:expenseEditPrepaidBy.trim() || null,
+      amount,
+      processed_amount:processedAmount,
+      status,
+      note:expenseEditNote.trim() || null,
+      updated_at:new Date().toISOString()
+    }).eq("id",item.id);
+    setSavingExpenseEdit(false);
+    if(error){setMessage(error.message);return;}
+    setExpenseItems(prev=>prev.map(x=>x.id===item.id?{
+      ...x,
+      date:expenseEditDate,
+      category:expenseEditCategory,
+      description,
+      prepaidBy:expenseEditPrepaidBy.trim(),
+      amount,
+      processedAmount,
+      status,
+      note:expenseEditNote.trim()
+    }:x));
+    setEditingExpenseId(null);
+    setMessage("지출 항목을 수정했습니다.");
   }
 
   async function updateShareholderRate(holder:Shareholder,rate:number){
