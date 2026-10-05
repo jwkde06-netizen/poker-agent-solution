@@ -31,7 +31,7 @@ type GameSession = {
 };
 
 type UserRole = "admin"|"staff"|"agent"|"pending";
-type UserProfile = { userId:string; email:string; displayName:string; role:UserRole; agencyId:string; active:boolean };
+type UserProfile = { userId:string; username:string; email:string; displayName:string; role:UserRole; agencyId:string; active:boolean };
 
 type FnbEntry = {
   id: string;
@@ -144,14 +144,14 @@ export default function Home() {
   const [mobileSideMenuOpen, setMobileSideMenuOpen] = useState(false);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [accountProfiles, setAccountProfiles] = useState<UserProfile[]>([]);
-  const [newAccountEmail, setNewAccountEmail] = useState("");
+  const [newAccountUsername, setNewAccountUsername] = useState("");
   const [newAccountName, setNewAccountName] = useState("");
   const [newAccountPassword, setNewAccountPassword] = useState("");
   const [newAccountRole, setNewAccountRole] = useState<UserRole>("staff");
   const [newAccountAgencyId, setNewAccountAgencyId] = useState("");
   const [creatingAccount, setCreatingAccount] = useState(false);
 
-  const [email, setEmail] = useState("");
+  const [loginId, setLoginId] = useState("");
   const [password, setPassword] = useState("");
 
   const [newAgencyCode, setNewAgencyCode] = useState("");
@@ -259,6 +259,7 @@ export default function Home() {
 
     const currentProfile:UserProfile = {
       userId:profileRow.user_id,
+      username:profileRow.username ?? "",
       email:profileRow.email ?? currentUser.email ?? "",
       displayName:profileRow.display_name ?? "",
       role:profileRow.role as UserRole,
@@ -306,7 +307,7 @@ export default function Home() {
     if (currentProfile.role==="admin") {
       const {data:profiles}=await supabase.from("user_profiles").select("*").order("created_at");
       setAccountProfiles((profiles ?? []).map((x:any)=>({
-        userId:x.user_id,email:x.email ?? "",displayName:x.display_name ?? "",
+        userId:x.user_id,username:x.username ?? "",email:x.email ?? "",displayName:x.display_name ?? "",
         role:x.role as UserRole,agencyId:x.agency_id ?? "",active:Boolean(x.active)
       })));
     } else {
@@ -440,45 +441,23 @@ export default function Home() {
 
   async function signIn() {
     if (!supabase) return;
-    const cleanEmail = email.trim();
-    if (!cleanEmail || !password) {
-      setMessage("이메일과 비밀번호를 입력해주세요.");
+    const cleanId = loginId.trim().toLowerCase();
+    if (!cleanId || !password) {
+      setMessage("아이디와 비밀번호를 입력해주세요.");
       return;
     }
     setMessage("");
-    const { error } = await supabase.auth.signInWithPassword({ email: cleanEmail, password });
-    if (error) setMessage(error.message);
+    const authEmail = cleanId.includes("@") ? cleanId : `${cleanId}@dream-poker.local`;
+    const { error } = await supabase.auth.signInWithPassword({ email: authEmail, password });
+    if (error) setMessage("아이디 또는 비밀번호가 올바르지 않습니다.");
   }
 
-  async function signUp() {
-    if (!supabase) return;
-    const cleanEmail = email.trim();
-    if (!cleanEmail) {
-      setMessage("관리자 이메일을 입력해주세요.");
-      return;
-    }
-    if (!password) {
-      setMessage("비밀번호를 입력해주세요.");
-      return;
-    }
-    if (password.length < 6) {
-      setMessage("비밀번호는 6자 이상으로 입력해주세요.");
-      return;
-    }
-    setMessage("");
-    const { error } = await supabase.auth.signUp({ email: cleanEmail, password });
-    if (error) {
-      setMessage(error.message);
-      return;
-    }
-    setMessage("관리자 계정 생성 요청이 완료되었습니다. 이메일 인증이 켜져 있으면 메일함을 확인해주세요.");
-  }
   async function createManagedAccount() {
     if (!supabase || profile?.role!=="admin") return;
-    const cleanEmail=newAccountEmail.trim().toLowerCase();
+    const cleanUsername=newAccountUsername.trim().toLowerCase().replace(/\s+/g,"");
     const cleanName=newAccountName.trim();
-    if(!cleanEmail || !newAccountPassword || !cleanName){
-      setMessage("이름, 이메일, 임시 비밀번호를 모두 입력해주세요.");
+    if(!cleanUsername || !newAccountPassword || !cleanName){
+      setMessage("이름, 아이디, 임시 비밀번호를 모두 입력해주세요.");
       return;
     }
     if(newAccountPassword.length<6){
@@ -498,10 +477,16 @@ export default function Home() {
 
     setCreatingAccount(true);
     setMessage("");
+    if(!/^[a-z0-9._-]+$/.test(cleanUsername)){
+      setCreatingAccount(false);
+      setMessage("아이디는 영문 소문자, 숫자, ., _, - 만 사용할 수 있습니다.");
+      return;
+    }
+    const internalEmail=`${cleanUsername}@dream-poker.local`;
     const {data,error}=await provisioning.auth.signUp({
-      email:cleanEmail,
+      email:internalEmail,
       password:newAccountPassword,
-      options:{data:{display_name:cleanName}}
+      options:{data:{display_name:cleanName,username:cleanUsername}}
     });
 
     if(error || !data.user){
@@ -512,6 +497,7 @@ export default function Home() {
 
     const {error:roleError}=await supabase.from("user_profiles").update({
       display_name:cleanName,
+      username:cleanUsername,
       role:newAccountRole,
       agency_id:newAccountRole==="agent"?newAccountAgencyId:null,
       active:true,
@@ -524,12 +510,12 @@ export default function Home() {
       return;
     }
 
-    setNewAccountEmail("");
+    setNewAccountUsername("");
     setNewAccountName("");
     setNewAccountPassword("");
     setNewAccountRole("staff");
     setNewAccountAgencyId("");
-    setMessage(`${cleanName} 계정을 생성했습니다. 이메일 인증이 켜져 있으면 최초 로그인 전에 인증이 필요합니다.`);
+    setMessage(`${cleanName} 계정을 생성했습니다. 로그인 아이디는 ${cleanUsername} 입니다.`);
     await loadFromDatabase();
   }
 
@@ -545,26 +531,6 @@ export default function Home() {
     const {error}=await supabase.from("user_profiles").update(payload).eq("user_id",userId);
     if(error){setMessage(error.message);return;}
     await loadFromDatabase();
-  }
-
-  async function resetPassword() {
-    if (!supabase) return;
-    const cleanEmail = email.trim();
-    if (!cleanEmail) {
-      setMessage("비밀번호를 재설정할 이메일을 입력해주세요.");
-      return;
-    }
-    setMessage("");
-    const redirectTo =
-      typeof window !== "undefined" ? window.location.origin : undefined;
-    const { error } = await supabase.auth.resetPasswordForEmail(cleanEmail, {
-      redirectTo,
-    });
-    setMessage(
-      error
-        ? error.message
-        : "비밀번호 재설정 메일을 보냈습니다. 이메일의 링크를 열어 새 비밀번호를 설정해주세요."
-    );
   }
 
   async function signOut() {
@@ -974,11 +940,10 @@ export default function Home() {
         <h1>Dream Poker 로그인</h1>
         <p className="sub">관리자 · 직원 · 에이전트 전용 계정으로 로그인합니다.</p>
         <div className="authForm">
-          <label>이메일<input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="admin@example.com"/></label>
+          <label>아이디<input value={loginId} onChange={e=>setLoginId(e.target.value.toLowerCase())} placeholder="아이디"/></label>
           <label>비밀번호<input type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="비밀번호"/></label>
           <div className="authButtons">
             <button className="primary" onClick={signIn}>로그인</button>
-            <button className="secondary" onClick={resetPassword}>비밀번호 재설정</button>
           </div>
           {message && <div className="note">{message}</div>}
         </div>
@@ -2237,7 +2202,7 @@ export default function Home() {
 
             <div className="accountCreateGrid">
               <label>이름<input value={newAccountName} onChange={e=>setNewAccountName(e.target.value)} placeholder="예: Dream Staff 1"/></label>
-              <label>이메일<input type="email" value={newAccountEmail} onChange={e=>setNewAccountEmail(e.target.value)} placeholder="staff@example.com"/></label>
+              <label>아이디<input value={newAccountUsername} onChange={e=>setNewAccountUsername(e.target.value.toLowerCase())} placeholder="예: staff01"/></label>
               <label>임시 비밀번호<input type="password" value={newAccountPassword} onChange={e=>setNewAccountPassword(e.target.value)} placeholder="6자 이상"/></label>
               <label>계정 유형
                 <select value={newAccountRole} onChange={e=>setNewAccountRole(e.target.value as UserRole)}>
@@ -2266,7 +2231,7 @@ export default function Home() {
               {accountProfiles.map(u=><div className="accountRow" key={u.userId}>
                 <div className="accountIdentity">
                   <span className="accountAvatar">{(u.displayName||u.email||"?").slice(0,1).toUpperCase()}</span>
-                  <div><strong>{u.displayName||"이름 없음"}</strong><small>{u.email}</small></div>
+                  <div><strong>{u.displayName||"이름 없음"}</strong><small>@{u.username || "아이디 없음"}</small></div>
                 </div>
                 <select value={u.role} onChange={e=>updateManagedAccount(u.userId,{role:e.target.value as UserRole})} disabled={u.userId===profile.userId}>
                   <option value="admin">관리자</option>
