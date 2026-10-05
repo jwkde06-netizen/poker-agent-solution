@@ -1428,14 +1428,14 @@ export default function Home() {
     const item=expenseItems.find(x=>x.id===editingExpenseId);
     if(!item || !supabase || !session)return;
     const amount=Number(expenseEditAmount.replace(/,/g,""));
-    const processedAmount=Number(expenseEditProcessedAmount.replace(/,/g,""));
+    const processedAmount=item.processedAmount;
     const description=expenseEditDescription.trim();
     if(!description || !amount || amount<=0){
-      setMessage("경비 항목과 원래 금액을 확인해주세요.");
+      setMessage("경비 항목과 Withdrawal 금액을 확인해주세요.");
       return;
     }
-    if(Number.isNaN(processedAmount) || processedAmount<0 || processedAmount>amount){
-      setMessage("처리된 금액은 0 이상, 원래 금액 이하로 입력해주세요.");
+    if(amount<processedAmount){
+      setMessage("이미 Deposit으로 상계된 금액보다 Withdrawal을 작게 변경할 수 없습니다.");
       return;
     }
     const status:ExpenseItem["status"]=
