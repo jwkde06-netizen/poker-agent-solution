@@ -6780,3 +6780,244 @@ html[data-theme="light"] .selectedPlayerRow:active,
 html[data-theme="light"] .dashboardLiveTableList>button:active{
   background:#f6f7f8!important;
 }
+
+
+/* Desktop refinement — mobile visual language scaled up */
+@media(min-width:821px){
+  .appShell{
+    grid-template-columns:252px minmax(0,1fr);
+    background:#f2f3f5
+  }
+  .sidebar{
+    width:auto;
+    box-sizing:border-box;
+    padding:20px 14px;
+    background:#f8f9fa;
+    border-right:1px solid #e5e7ea
+  }
+  .brand{
+    margin:0 4px 10px;
+    padding:2px 8px 20px
+  }
+  .sideNav{gap:6px}
+  .sideNav button{
+    min-height:46px;
+    padding:0 14px;
+    border-radius:12px;
+    font-size:13px
+  }
+  .sideNav button.active{
+    box-shadow:inset 0 0 0 1px rgba(201,149,46,.14)
+  }
+  .agentPreview{border-radius:16px}
+
+  .workspaceTopbar{
+    height:72px;
+    padding:0 30px;
+    border-bottom:1px solid #e6e8eb
+  }
+  .searchBox{
+    width:min(620px,48vw);
+    height:46px;
+    border-radius:13px;
+    padding:0 15px
+  }
+  .themeSwitch,.ghostButton{height:40px}
+  .avatar{width:36px;height:36px}
+
+  .contentArea{
+    width:min(1500px,100%);
+    box-sizing:border-box;
+    margin:0 auto;
+    padding:30px 34px 54px
+  }
+  .pageHeading{
+    align-items:center;
+    margin-bottom:24px
+  }
+  .pageHeading h1{
+    font-size:30px;
+    line-height:1.2
+  }
+  .sub{font-size:13px}
+  .headingActions{gap:10px}
+  .status,.outlineGold{min-height:40px;display:inline-flex;align-items:center}
+
+  .kpiGrid{gap:16px;margin-bottom:16px}
+  .kpiCard{
+    min-height:112px;
+    border-radius:18px;
+    padding:18px 20px;
+    box-shadow:0 8px 24px rgba(20,24,28,.045)
+  }
+  .kpiIcon{width:48px;height:48px;border-radius:14px}
+  .kpiCard b{font-size:24px}
+
+  .dashboardGrid{gap:16px;margin-bottom:16px}
+  .dashCard,.panel{
+    border-radius:18px;
+    padding:20px;
+    box-shadow:0 8px 28px rgba(20,24,28,.045)
+  }
+  .cardHeader,.sectionTitle{margin-bottom:16px}
+  .cardHeader h2,.sectionTitle h2{font-size:18px}
+
+  .tableWrap,.summaryTable{border-radius:13px}
+  th{height:42px;padding:0 14px;font-size:10px}
+  td{padding:13px 14px;font-size:12px}
+  tbody tr{transition:background .14s ease}
+
+  .formGrid{gap:14px}
+  .inlineForm input,.formGrid input,.formGrid select,.datePicker{
+    height:46px;
+    border-radius:11px
+  }
+  .primary,.secondary,.outlineGold,.ghostButton{
+    border-radius:11px
+  }
+  .formButton{height:46px}
+
+  .playerSectionActions{margin-bottom:16px}
+  .playerSearchInput{
+    height:48px;
+    border-radius:13px;
+    padding:0 14px
+  }
+  .playerListTable table{min-width:0}
+  .playerListTable th,.playerListTable td{padding:14px 15px}
+  .playerNameStack strong{font-size:13px}
+  .playerNameStack span{font-size:11px}
+  .agencyCodeText{min-height:32px;padding:5px 11px}
+
+  .playerModal{
+    width:min(560px,calc(100vw - 48px));
+    border-radius:22px
+  }
+  .playerDetailModal{
+    width:min(900px,calc(100vw - 48px));
+    border-radius:22px
+  }
+  .modalHeader{padding:20px 22px 16px}
+  .modalForm{padding:18px 22px}
+  .modalActions{padding:14px 22px 20px}
+  .playerAgencyEditor,.playerNoteBox{
+    border-radius:15px
+  }
+}
+
+/* Softer dark surfaces — prevent pure-black cards/inputs on mobile and desktop */
+html[data-theme="dark"]{
+  --bg:#0e0f11;
+  --surface:#17181b;
+  --surface-2:#1c1d20;
+  --line:#2a2c30;
+  --line-strong:#35383d;
+  --text:#f1f2f3;
+  --muted:#9a9fa7;
+  --muted-2:#777d86;
+}
+html[data-theme="dark"] body,
+html[data-theme="dark"] .appShell,
+html[data-theme="dark"] .contentArea{
+  background:#0e0f11
+}
+html[data-theme="dark"] .sidebar{
+  background:#121316;
+  border-color:#292b2f
+}
+html[data-theme="dark"] .workspaceTopbar{
+  background:rgba(18,19,22,.96);
+  border-color:#292b2f
+}
+html[data-theme="dark"] .kpiCard,
+html[data-theme="dark"] .dashCard,
+html[data-theme="dark"] .panel,
+html[data-theme="dark"] .tableWrap,
+html[data-theme="dark"] .summaryTable,
+html[data-theme="dark"] .metric,
+html[data-theme="dark"] .agencyCard,
+html[data-theme="dark"] .playerModal,
+html[data-theme="dark"] .playerDetailModal,
+html[data-theme="dark"] .playerAddCard,
+html[data-theme="dark"] .playerAgencyEditor,
+html[data-theme="dark"] .playerNoteBox{
+  background:#17181b;
+  border-color:#2b2d31;
+  box-shadow:0 10px 30px rgba(0,0,0,.20)
+}
+html[data-theme="dark"] .summaryHead,
+html[data-theme="dark"] th{
+  background:#1d1f22;
+  border-color:#2b2d31
+}
+html[data-theme="dark"] td,
+html[data-theme="dark"] .summaryRow{
+  border-color:#292b2f
+}
+html[data-theme="dark"] tbody tr:hover,
+html[data-theme="dark"] .clickablePlayerRow:hover{
+  background:#202126
+}
+html[data-theme="dark"] .searchBox,
+html[data-theme="dark"] .playerSearchInput,
+html[data-theme="dark"] .inlineForm input,
+html[data-theme="dark"] .formGrid input,
+html[data-theme="dark"] .formGrid select,
+html[data-theme="dark"] .datePicker,
+html[data-theme="dark"] .authForm input,
+html[data-theme="dark"] .playerModalForm input,
+html[data-theme="dark"] .playerModalForm select,
+html[data-theme="dark"] .playerModalForm textarea,
+html[data-theme="dark"] .playerAddFields input,
+html[data-theme="dark"] .playerAddFields select,
+html[data-theme="dark"] .playerAddFields textarea,
+html[data-theme="dark"] .playerAgencyControls select{
+  background:#202126;
+  border-color:#36383d;
+  color:#f0f1f2
+}
+html[data-theme="dark"] .agencyCodeText,
+html[data-theme="dark"] .miniSelect,
+html[data-theme="dark"] .secondary,
+html[data-theme="dark"] .ghostButton,
+html[data-theme="dark"] .themeSwitch,
+html[data-theme="dark"] .status,
+html[data-theme="dark"] .outlineGold{
+  background:#1d1f22;
+  border-color:#34363b;
+  color:#d7d9dd
+}
+html[data-theme="dark"] .playerNoteBox{
+  background:#211d15;
+  border-color:#4b3b21
+}
+html[data-theme="dark"] .playerAgencyEditor{
+  background:#1b1c1f
+}
+html[data-theme="dark"] .fakeChart{
+  background:repeating-linear-gradient(to bottom,transparent 0,transparent 48px,#25272b 49px);
+  border-color:#2b2d31
+}
+
+@media(max-width:820px){
+  html[data-theme="dark"] .workspaceTopbar,
+  html[data-theme="dark"] .mobileBottomNav{
+    background:rgba(18,19,22,.97)
+  }
+  html[data-theme="dark"] .panel,
+  html[data-theme="dark"] .dashCard,
+  html[data-theme="dark"] .kpiCard,
+  html[data-theme="dark"] .tableWrap,
+  html[data-theme="dark"] .metric,
+  html[data-theme="dark"] .agencyCard,
+  html[data-theme="dark"] .playerModal,
+  html[data-theme="dark"] .playerDetailModal{
+    background:#18191c!important
+  }
+  html[data-theme="dark"] .playerSearchInput,
+  html[data-theme="dark"] .modalForm input,
+  html[data-theme="dark"] .modalForm select,
+  html[data-theme="dark"] .playerModalForm textarea{
+    background:#212226!important
+  }
+}
