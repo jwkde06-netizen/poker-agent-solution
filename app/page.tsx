@@ -182,6 +182,7 @@ export default function Home() {
   const [reportPreset, setReportPreset] = useState<"today"|"week"|"custom">("today");
   const [reportStart, setReportStart] = useState(today());
   const [reportEnd, setReportEnd] = useState(today());
+  const [dashboardTrendMode, setDashboardTrendMode] = useState<"daily"|"weekly">("daily");
   const start = monday(today());
   const [weekStart, setWeekStart] = useState(start);
   const [weekEnd, setWeekEnd] = useState(plusDays(start, 6));
@@ -1145,6 +1146,37 @@ export default function Home() {
   const reportRakeback = reportEntries.reduce((sum,e)=>sum+e.rakeback,0);
   const reportFnbTotal = reportFnbEntries.reduce((sum,e)=>sum+e.totalAmount,0);
   const reportNet = reportRevenue-reportRakeback-reportFnbTotal;
+  const dashboardTodayProfit = todayRevenue - todaySettlement - fnbTodayTotal;
+  const dashboardDailyTrend = Array.from({length:7},(_,index)=>{
+    const date=plusDays(today(),index-6);
+    const dayEntries=entries.filter(e=>e.date===date);
+    const rake=dayEntries.reduce((sum,e)=>sum+e.rake,0);
+    const agentRakeback=dayEntries.reduce((sum,e)=>sum+e.rakeback,0);
+    const fnb=fnbEntries.filter(e=>e.date===date).reduce((sum,e)=>sum+e.totalAmount,0);
+    return {
+      label: date.slice(5).replace("-","/"),
+      rake,
+      profit: rake-agentRakeback-fnb
+    };
+  });
+  const thisMonday=monday(today());
+  const dashboardWeeklyTrend = Array.from({length:4},(_,index)=>{
+    const startDate=plusDays(thisMonday,(index-3)*7);
+    const endDate=plusDays(startDate,6);
+    const weekEntries=entries.filter(e=>e.date>=startDate && e.date<=endDate);
+    const rake=weekEntries.reduce((sum,e)=>sum+e.rake,0);
+    const agentRakeback=weekEntries.reduce((sum,e)=>sum+e.rakeback,0);
+    const fnb=fnbEntries.filter(e=>e.date>=startDate && e.date<=endDate).reduce((sum,e)=>sum+e.totalAmount,0);
+    return {
+      label: `${startDate.slice(5).replace("-","/")}`,
+      rake,
+      profit: rake-agentRakeback-fnb
+    };
+  });
+  const dashboardTrendData=dashboardTrendMode==="daily"?dashboardDailyTrend:dashboardWeeklyTrend;
+  const dashboardTrendMax=Math.max(1,...dashboardTrendData.flatMap(item=>[item.rake,Math.max(0,item.profit)]));
+  const dashboardTrendRake=dashboardTrendData.reduce((sum,item)=>sum+item.rake,0);
+  const dashboardTrendProfit=dashboardTrendData.reduce((sum,item)=>sum+item.profit,0);
 
   const reportPanel = <section className="panel settlementExportPanel">
     <div className="settlementExportHeader">
@@ -1201,7 +1233,7 @@ export default function Home() {
     <aside className="sidebar">
       <div className="brand">
         <img className="brandLogo" src="/dream-poker-logo.svg" alt="Dream Poker Da Nang"/>
-        <div><strong>드림포커 운영 시스템</strong><span>{profile?.role==="admin"?"관리자":profile?.role==="staff"?"직원":profile?.role==="agent"?"에이전트":"승인 대기"}</span></div>
+        <div><strong>Dream Poker Panel</strong><span>{profile?.role==="admin"?"관리자":profile?.role==="staff"?"직원":profile?.role==="agent"?"에이전트":"승인 대기"}</span></div>
       </div>
 
       <nav className="sideNav">
@@ -1220,7 +1252,7 @@ export default function Home() {
       <header className="workspaceTopbar">
         <div className="mobileTopTitle">
           <img src="/dream-poker-logo.svg" alt=""/>
-          <span className="mobileProductTitle"><strong>드림포커 운영 시스템 <em>· {profile?.role==="admin"?"관리자":profile?.role==="staff"?"직원":profile?.role==="agent"?"에이전트":"승인 대기"}</em></strong></span>
+          <span className="mobileProductTitle"><strong>Dream Poker Panel <em>· {profile?.role==="admin"?"관리자":profile?.role==="staff"?"직원":profile?.role==="agent"?"에이전트":"승인 대기"}</em></strong></span>
         </div>
         <button
           className="mobileSideMenuButton"
@@ -1401,159 +1433,110 @@ export default function Home() {
         {message && <div className="note globalNote">{message}</div>}
 
         {tab==="dashboard" && <>
-          <section className="dashboardCommandCenter">
-            <div className="dashboardCommandHeader">
+          <section className="dashboardFinanceStrip">
+            <div className="dashboardFinanceHeader">
               <div>
                 <span>오늘 운영 현황</span>
                 <strong>{today()}</strong>
               </div>
               <div className={activeGameSessions.length>0?"dashboardLiveStatus on":"dashboardLiveStatus"}>
                 <i/>
-                {activeGameSessions.length>0?`${activeGameSessions.length}개 테이블 진행 중`:"진행 중인 경기 없음"}
+                {activeGameSessions.length>0?`${activeGameSessions.length} LIVE`:"대기"}
               </div>
             </div>
 
-            <div className="dashboardBlockGrid">
-              <button className="dashboardBlock buyin" onClick={()=>setTab("daily")}>
-                <div className="dashboardBlockTop">
-                  <span>오늘 레이크백</span>
-                  <em>›</em>
-                </div>
-                <b>{vnd(todaySettlement)}</b>
-                <p>오늘 발생 정산액</p>
-                <footer>일일 정산 보기</footer>
+            <div className="dashboardFinanceGrid">
+              <button className="dashboardFinanceCard gross" onClick={()=>setTab("daily")}>
+                <span>오늘 레이크백</span>
+                <strong>{vnd(todayRevenue)}</strong>
+                <small>오늘 총 레이크</small>
               </button>
-
-              <button className="dashboardBlock live" onClick={()=>setTab("games")}>
-                <div className="dashboardBlockTop">
-                  <span>진행 경기</span>
-                  <em>›</em>
-                </div>
-                <b>{activeGameSessions.length}<small>테이블</small></b>
-                <p>{activeGameSessions.length>0?activeGameSessions.map(gs=>`T${gs.tableNo} · ${gs.game}`).join(" / "):"현재 대기 중"}</p>
-                <footer>테이블 현황 보기</footer>
+              <button className="dashboardFinanceCard agent" onClick={()=>setTab("daily")}>
+                <span>에이전트 레이크백</span>
+                <strong>{vnd(todaySettlement)}</strong>
+                <small>지급 예정</small>
               </button>
-
-              <button className="dashboardBlock players" onClick={()=>setTab("daily")}>
-                <div className="dashboardBlockTop">
-                  <span>오늘 총 레이크</span>
-                  <em>›</em>
-                </div>
-                <b>{vnd(todayRevenue)}</b>
-                <p>{todayGameCount}건 기록 기준</p>
-                <footer>정산 상세 보기</footer>
+              <button className="dashboardFinanceCard fnb" onClick={()=>setTab("fnb")}>
+                <span>F&B</span>
+                <strong>{vnd(fnbTodayTotal)}</strong>
+                <small>오늘 비용</small>
               </button>
-
-              <button className="dashboardBlock settlement" onClick={()=>setTab("daily")}>
-                <div className="dashboardBlockTop">
-                  <span>오늘 수익</span>
-                  <em>›</em>
-                </div>
-                <b>{vnd(todayOperatingNet)}</b>
-                <p>F&B {vnd(fnbTodayTotal)} · 정산 {vnd(todaySettlement)}</p>
-                <footer>일일 정산 바로가기</footer>
+              <button className="dashboardFinanceCard profit" onClick={()=>setTab("daily")}>
+                <span>오늘 수익</span>
+                <strong>{vnd(dashboardTodayProfit)}</strong>
+                <small>레이크 - 레이크백 - F&B</small>
               </button>
             </div>
           </section>
 
-          <section className="dashboardStatusGrid">
-            <section className="dashCard dashboardLiveTables dashboardSectionCard">
-              <div className="cardHeader compactCardHeader">
+          <section className="dashboardMainSplit">
+            <section className="dashboardLivePanel">
+              <div className="dashboardPanelHeader">
                 <div>
-                  <h2>현재 테이블 현황</h2>
-                  <p>테이블을 누르면 해당 게임으로 바로 이동합니다.</p>
+                  <h2>테이블 실시간 현황</h2>
+                  <span>{activeGameSessions.length} LIVE</span>
                 </div>
-                <span className="headerCount">{activeGameSessions.length} LIVE</span>
+                <button onClick={()=>setTab("games")}>게임 입력 ›</button>
               </div>
 
               {activeGameSessions.length===0
-                ? <button className="dashboardEmpty dashboardEmptyAction" onClick={()=>setTab("games")}>
+                ? <button className="dashboardNoLive" onClick={()=>setTab("games")}>
                     <strong>진행 중인 테이블이 없습니다.</strong>
-                    <span>게임을 시작하려면 탭하세요 ›</span>
+                    <span>테이블을 오픈하려면 클릭하세요.</span>
                   </button>
-                : <div className="dashboardLiveTableList">
+                : <div className="dashboardLiveCardGrid">
                     {activeGameSessions.map(gs=>{
                       const tableEntries=entries.filter(e=>e.sessionId===gs.id);
                       const buyins=tableEntries.reduce((sum,e)=>sum+e.buyIn,0);
-                      const revenue=buyins*revenuePerBuyIn(gs.game);
-                      return <button key={gs.id} onClick={()=>{setSelectedTableNo(gs.tableNo);setTab("games")}}>
-                        <div className="dashTableMain">
-                          <span className="dashLiveDot"/>
+                      const rake=tableEntries.reduce((sum,e)=>sum+e.rake,0);
+                      return <button className="dashboardLiveCard" key={gs.id} onClick={()=>{setSelectedTableNo(gs.tableNo);setTab("games")}}>
+                        <div className="dashboardLiveCardTop">
                           <strong>T{gs.tableNo}</strong>
-                          <em>{gs.gameNo?`No.${gs.gameNo}`:"No.-"}</em>
-                          <b>{gs.game}</b>
+                          <span><i/>LIVE</span>
                         </div>
-                        <div className="dashTableStats">
-                          <span>{tableEntries.length}명</span>
-                          <span>{buyins} BUY-IN</span>
-                          <strong>{vnd(revenue)}</strong>
-                          <i>›</i>
+                        <p>{gs.gameNo?`No.${gs.gameNo}`:"No.-"} · {gs.game}</p>
+                        <div className="dashboardLiveMetrics">
+                          <div><small>플레이어</small><b>{tableEntries.length}명</b></div>
+                          <div><small>BUY-IN</small><b>{buyins}</b></div>
+                          <div className="rake"><small>레이크</small><b>{vnd(rake)}</b></div>
                         </div>
                       </button>
                     })}
                   </div>}
             </section>
 
-            <section className="dashCard dashboardQuickStatus dashboardSectionCard">
-              <div className="cardHeader compactCardHeader">
+            <section className="dashboardTrendPanel">
+              <div className="dashboardPanelHeader trendHeader">
                 <div>
-                  <h2>운영 요약</h2>
-                  <p>중복 없이 운영에 필요한 핵심 수치만 표시합니다.</p>
+                  <h2>운영 추이</h2>
+                  <span>{dashboardTrendMode==="daily"?"최근 7일":"최근 4주"}</span>
+                </div>
+                <div className="dashboardTrendToggle">
+                  <button className={dashboardTrendMode==="daily"?"active":""} onClick={()=>setDashboardTrendMode("daily")}>일간</button>
+                  <button className={dashboardTrendMode==="weekly"?"active":""} onClick={()=>setDashboardTrendMode("weekly")}>주간</button>
                 </div>
               </div>
 
-              <div className="dashboardQuickList">
-                <button onClick={()=>setTab("fnb")}>
-                  <span>F&B 비용</span>
-                  <b>{vnd(fnbTodayTotal)}</b>
-                  <em>›</em>
-                </button>
-                <button onClick={()=>setTab("agencies")}>
-                  <span>활성 에이전트</span>
-                  <b>{activeAgentCount}개</b>
-                  <em>›</em>
-                </button>
-                <button onClick={()=>setTab("daily")}>
-                  <span>오늘 기록</span>
-                  <b>{todayGameCount}건</b>
-                  <em>›</em>
-                </button>
-                <button onClick={()=>setTab("daily")}>
-                  <span>레이크백 비율</span>
-                  <b>{todayRevenue>0?Math.round((todaySettlement/todayRevenue)*100):0}%</b>
-                  <em>›</em>
-                </button>
+              <div className="dashboardTrendSummary">
+                <div><span>총 레이크</span><strong>{vnd(dashboardTrendRake)}</strong></div>
+                <div><span>순수익</span><strong>{vnd(dashboardTrendProfit)}</strong></div>
+              </div>
+
+              <div className="dashboardTrendChart" aria-label="운영 추이 그래프">
+                {dashboardTrendData.map((item,index)=><div className="dashboardTrendColumn" key={item.label+"-"+index}>
+                  <div className="dashboardTrendBars">
+                    <span className="rakeBar" style={{height:`${Math.max(item.rake>0?8:2,(item.rake/dashboardTrendMax)*100)}%`}} title={`레이크 ${vnd(item.rake)}`}/>
+                    <span className="profitBar" style={{height:`${Math.max(item.profit>0?8:2,(Math.max(0,item.profit)/dashboardTrendMax)*100)}%`}} title={`순수익 ${vnd(item.profit)}`}/>
+                  </div>
+                  <small>{item.label}</small>
+                </div>)}
+              </div>
+
+              <div className="dashboardTrendLegend">
+                <span><i className="rakeLegend"/>총 레이크</span>
+                <span><i className="profitLegend"/>순수익</span>
               </div>
             </section>
-          </section>
-
-          <section className="dashCard recentCard dashboardRecent dashboardSectionCard">
-            <div className="cardHeader compactCardHeader">
-              <div>
-                <h2>최근 바이인</h2>
-                <p>최근 입력된 게임 기록입니다.</p>
-              </div>
-              <button className="dashboardHeaderLink" onClick={()=>setTab("games")}>전체 보기 ›</button>
-            </div>
-            {recentEntries.length===0
-              ? <div className="dashboardEmpty">아직 입력된 기록이 없습니다.</div>
-              : <div className="dashboardRecentList">
-                  {recentEntries.slice(0,4).map(e=><button key={e.id} onClick={()=>{
-                    const gs=gameSessions.find(gs=>gs.id===e.sessionId);
-                    if(gs)setSelectedTableNo(gs.tableNo);
-                    setTab("games");
-                  }}>
-                    <div>
-                      <strong>{getPlayerName(e.playerId)}</strong>
-                      <span>{e.agencyCodeSnapshot} · {e.game}</span>
-                    </div>
-                    <div>
-                      <small>{e.buyIn} BUY-IN</small>
-                      <b>{vnd(revenuePerBuyIn(e.game)*e.buyIn)}</b>
-                    </div>
-                    <em>›</em>
-                  </button>)}
-                </div>}
           </section>
         </>}
 
