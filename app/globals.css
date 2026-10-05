@@ -7730,7 +7730,11 @@ html[data-theme="dark"] .accountStatus.active{
   .accountRow{grid-template-columns:minmax(220px,1fr) 130px 145px 80px}
 }
 @media(max-width:820px){
-  .accountCreateGrid{grid-template-columns:1fr}
+  .accountManagementPage{gap:12px}
+  .accountCreatePanel,.accountListPanel{padding:14px}
+  .accountCreateGrid{grid-template-columns:1fr;gap:10px}
+  .accountCreateGrid input,.accountCreateGrid select{height:48px;font-size:16px}
+  .accountCreateButton{width:100%;min-height:50px;font-size:14px}
   .accountRow{
     grid-template-columns:1fr 1fr;
     gap:9px;
