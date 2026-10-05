@@ -15370,3 +15370,107 @@ html[data-theme="dark"] .expenseLedgerRow>em.deposit{
     min-width:900px!important
   }
 }
+
+
+/* Expense ledger v7 — fewer columns, larger type */
+.compactExpensePage .expenseLedgerTable{
+  min-width:820px!important
+}
+.compactExpensePage .expenseLedgerHead,
+.compactExpensePage .expenseLedgerRow{
+  grid-template-columns:
+    92px
+    minmax(270px,1.8fr)
+    145px
+    145px
+    150px
+    160px!important;
+  gap:8px!important;
+  padding-left:12px!important;
+  padding-right:12px!important
+}
+.compactExpensePage .expenseLedgerHead{
+  font-size:12px!important
+}
+.compactExpensePage .expenseLedgerRow{
+  min-height:54px!important;
+  font-size:14px!important
+}
+.compactExpensePage .expenseItemName strong{
+  font-size:15px!important
+}
+.compactExpensePage .expensePayerInput{
+  font-size:14px!important;
+  height:30px!important
+}
+.compactExpensePage .depositValue,
+.compactExpensePage .withdrawalValue,
+.compactExpensePage .ledgerBalance{
+  font-size:14px!important
+}
+.compactExpensePage .expenseCompactSummary span{
+  font-size:11px!important
+}
+.compactExpensePage .expenseCompactSummary b,
+.compactExpensePage .expenseCompactSummary strong{
+  font-size:16px!important
+}
+.compactExpensePage .expenseCompactSummary .primary strong{
+  font-size:22px!important
+}
+.compactExpensePage .expenseLedgerHeader h2{
+  font-size:18px!important
+}
+.compactExpensePage .expenseLedgerHeader p{
+  font-size:11px!important
+}
+.compactExpensePage .expenseQuickAdd input,
+.compactExpensePage .expenseQuickAdd select,
+.compactExpensePage .depositAutoLabel,
+.compactExpensePage .expenseQuickAdd button{
+  font-size:12px!important
+}
+.expenseEditFooter{
+  justify-content:space-between!important
+}
+.expenseEditFooterActions{
+  display:flex;
+  gap:7px
+}
+.expenseDetailDelete{
+  min-width:82px;
+  height:38px;
+  border:1px solid #e4b7b7;
+  border-radius:9px;
+  background:#fff5f5;
+  color:#b34b4b;
+  font-size:11px;
+  font-weight:800;
+  cursor:pointer
+}
+html[data-theme="dark"] .expenseDetailDelete{
+  border-color:#633d3d;
+  background:#2a1919;
+  color:#e58e8e
+}
+@media(max-width:1000px){
+  .compactExpensePage .expenseLedgerTable{
+    min-width:760px!important
+  }
+  .compactExpensePage .expenseLedgerHead,
+  .compactExpensePage .expenseLedgerRow{
+    grid-template-columns:
+      86px
+      minmax(230px,1.7fr)
+      130px
+      130px
+      135px
+      145px!important;
+    gap:6px!important
+  }
+}
+@media(max-width:820px){
+  .compactExpensePage .expenseLedgerTable{
+    min-width:740px!important
+  }
+}
