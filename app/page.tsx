@@ -25,6 +25,7 @@ type GameSession = {
   id: string;
   date: string;
   tableNo: string;
+  gameNo: string;
   game: string;
   status: "active"|"closed";
 };
@@ -119,6 +120,7 @@ export default function Home() {
   const [gameSessions, setGameSessions] = useState<GameSession[]>([]);
   const [newTableNo, setNewTableNo] = useState("");
   const [selectedTableNo, setSelectedTableNo] = useState("5");
+  const [newGameNo, setNewGameNo] = useState("");
   const [newSessionGame, setNewSessionGame] = useState("5M");
   const [sessionSearch, setSessionSearch] = useState<Record<string,string>>({});
   const [fnbEntries, setFnbEntries] = useState<FnbEntry[]>([]);
@@ -223,7 +225,7 @@ export default function Home() {
       rateSnapshot:Number(x.rate_snapshot),rakeback:Number(x.rakeback),sessionId:x.session_id ?? undefined
     })));
     setGameSessions((gs.data ?? []).map((x:any)=>({
-      id:x.id,date:x.played_on,tableNo:x.table_no,game:x.game_name,status:x.status
+      id:x.id,date:x.played_on,tableNo:x.table_no,gameNo:x.game_no ?? "",game:x.game_name,status:x.status
     })));
     setFnbEntries((fnb.data ?? []).map((x:any)=>({
       id:x.id,date:x.spent_on,itemName:x.item_name,quantity:Number(x.quantity),
@@ -446,15 +448,16 @@ export default function Home() {
     }
 
     if(isSupabaseConfigured && supabase && session){
-      const payload={played_on:today(),table_no:tableNo,game_name:newSessionGame,status:"active"};
+      const payload={played_on:today(),table_no:tableNo,game_no:newGameNo.trim() || null,game_name:newSessionGame,status:"active"};
       const {data,error}=await supabase.from("game_sessions").insert(payload).select().single();
       if(error){setMessage(error.message);return;}
-      setGameSessions(prev=>[...prev,{id:data.id,date:data.played_on,tableNo:data.table_no,game:data.game_name,status:data.status}]);
+      setGameSessions(prev=>[...prev,{id:data.id,date:data.played_on,tableNo:data.table_no,gameNo:data.game_no ?? "",game:data.game_name,status:data.status}]);
     }else{
-      setGameSessions(prev=>[...prev,{id:uid("session"),date:today(),tableNo,game:newSessionGame,status:"active"}]);
+      setGameSessions(prev=>[...prev,{id:uid("session"),date:today(),tableNo,gameNo:newGameNo.trim(),game:newSessionGame,status:"active"}]);
     }
     setSelectedTableNo(tableNo);
     setNewTableNo("");
+    setNewGameNo("");
     setMessage(`T${tableNo} · ${newSessionGame} 게임 시작`);
   }
 
@@ -1066,6 +1069,10 @@ export default function Home() {
 
               {!selectedGameSession
                 ? <div className="selectedGameStart">
+                    <label className="gameNoField">
+                      <span>게임 번호</span>
+                      <input inputMode="numeric" value={newGameNo} onChange={e=>setNewGameNo(e.target.value.replace(/\D/g,""))} placeholder="No."/>
+                    </label>
                     <label>
                       <span>게임</span>
                       <select value={newSessionGame} onChange={e=>setNewSessionGame(e.target.value)}>
@@ -1077,10 +1084,15 @@ export default function Home() {
                     </label>
                     <button className="primary startTableButton" onClick={startGameSession}>게임 시작</button>
                   </div>
-                : <button className="closeTableButton selectedCloseButton" onClick={()=>closeGameSession(selectedGameSession.id)}>경기 종료</button>}
+                : <div className="selectedLiveMeta">
+                    <span>{selectedGameSession.gameNo ? `No.${selectedGameSession.gameNo}` : "No.-"}</span>
+                    <b>{selectedGameSession.game}</b>
+                    <button className="closeTableButton selectedCloseButton" onClick={()=>closeGameSession(selectedGameSession.id)}>경기 종료</button>
+                  </div>}
             </div>
 
             {selectedGameSession && <div className="selectedTableStats">
+              <div><span>게임 번호</span><b>{selectedGameSession.gameNo ? `No.${selectedGameSession.gameNo}` : "-"}</b></div>
               <div><span>게임</span><b>{selectedGameSession.game}</b></div>
               <div><span>플레이어</span><b>{selectedTableEntries.length}명</b></div>
               <div><span>총 바이인</span><b>{selectedTableBuyIns}회</b></div>
