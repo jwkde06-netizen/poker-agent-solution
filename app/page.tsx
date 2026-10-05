@@ -1481,10 +1481,10 @@ export default function Home() {
   async function finalizeSelectedWeek(){
     if(!supabase || !session || profile?.role!=="admin")return;
     if(weeklyDistributions.some(x=>x.weekStart===weekStart)){
-      setMessage("이 주차는 이미 지출 처리와 배당 계산이 확정되었습니다.");
+      setMessage("이 주차 정산금은 이미 Deposit으로 반영되었습니다.");
       return;
     }
-    if(!confirm(`${weekStart} ~ ${weekEnd} 주간 수익에서 미처리 경비를 먼저 차감하고 배당을 확정할까요?`))return;
+    if(!confirm(`${weekStart} ~ ${weekEnd} 주간 수익 ${vnd(weeklyProfit)}을 지출 장부 Deposit으로 반영할까요?`))return;
     setFinalizingDistribution(true);
     const {error}=await supabase.rpc("finalize_weekly_distribution",{
       p_week_start:weekStart,
@@ -1494,7 +1494,7 @@ export default function Home() {
     setFinalizingDistribution(false);
     if(error){setMessage(error.message);return;}
     await loadFromDatabase();
-    setMessage("주간 지출 처리와 지분 배당을 확정했습니다.");
+    setMessage("주간 정산금을 지출 장부 Deposit으로 반영했습니다.");
   }
 
   async function markShareholderPayoutPaid(payout:ShareholderPayout){
@@ -1822,7 +1822,7 @@ export default function Home() {
 
     line(80,height-105,width-80,height-105);
     text("Dream Poker",80,height-72,14,700,"#9aa1a8");
-    text("주주·운영 보고용 주간 정산 자료",width-80,height-72,12,500,"#9aa1a8","right");
+    text("Dream Poker 주간 운영 정산 자료",width-80,height-72,12,500,"#9aa1a8","right");
     return canvas;
   }
 
@@ -2014,7 +2014,7 @@ export default function Home() {
     {key:"games",label:"게임 입력",description:"테이블 현황 · 바이인 입력",keywords:"게임 바이인 테이블 현황 좌석"},
     {key:"daily",label:"일일 정산",description:"오늘 정산 · 지난 게임 로그 수정",keywords:"일일 정산 로그 수정 매출 수익"},
     {key:"weekly",label:"주간 정산",description:"주간 정산 내역",keywords:"주간 정산"},
-    {key:"expenses",label:"지출 내역서",description:"미처리 경비 · 지분 배당",keywords:"지출 경비 비용 배당 지분"},
+    {key:"expenses",label:"지출 내역서",description:"팀 내부 입출금 장부",keywords:"지출 경비 비용 deposit withdrawal balance"},
     {key:"fnb",label:"F&B",description:"F&B 비용 입력 · 내역",keywords:"f&b fnb 음식 음료 비용"},
     {key:"reports",label:"리포트",description:"정산 리포트 · 내보내기",keywords:"리포트 보고서 csv png"},
     {key:"settings",label:"설정",description:"계정 · 시스템 설정",keywords:"설정 계정 다크모드"}
@@ -3348,60 +3348,8 @@ export default function Home() {
               <div><span>총 엔트리피</span><b>{vnd(weeklyEntryFee)}</b><small>{weeklyEntries.reduce((sum,e)=>sum+e.buyIn,0)} BUY-IN</small></div>
               <div className="expense"><span>레이크백</span><b>− {vnd(weeklyRakeback)}</b><small>{weeklyAgentRows.length}개 에이전트</small></div>
               <div className="expense"><span>F&B 경비</span><b>− {vnd(weeklyFnbTotal)}</b><small>2FLOOR 반영 · 전체 {vnd(weeklyFnbAllTotal)}</small></div>
-              <div className="profit"><span>상계 전 잉여금</span><b>{vnd(weeklyProfit)}</b><small>이 금액으로 미처리 경비를 먼저 상계</small></div>
+              <div className="profit"><span>주간 수익</span><b>{vnd(weeklyProfit)}</b><small>총 엔트리피 − 레이크백 − F&B</small></div>
             </div>
-
-            {profile?.role==="admin" && <section className="weeklyDistributionFlow">
-              <div className="weeklyDistributionHead">
-                <div>
-                  <h3>지출 처리 → 지분 배당</h3>
-                  <p>주간 수익에서 미처리 경비를 먼저 상계한 뒤 남은 금액만 지분율로 배당합니다.</p>
-                </div>
-                <button className="expenseLinkButton" onClick={()=>navigateTab("expenses")}>지출 내역서 ›</button>
-              </div>
-
-              <div className="distributionFlowGrid">
-                <div>
-                  <span>상계 전 잉여금</span>
-                  <b>{vnd(weeklyProfit)}</b>
-                  <small>아직 실제 수익으로 확정되지 않은 금액</small>
-                </div>
-                <i>→</i>
-                <div className="expenseStep">
-                  <span>경비 우선 처리</span>
-                  <b>− {vnd(previewExpenseApplied)}</b>
-                  <small>미처리 경비 {vnd(pendingExpenseTotal)}</small>
-                </div>
-                <i>→</i>
-                <div className="profitStep">
-                  <span>상계 후 실제 수익</span>
-                  <b>{vnd(previewDistributableProfit)}</b>
-                  <small>{selectedWeekDistribution?"확정 완료":"확정 전 예상"}</small>
-                </div>
-              </div>
-
-              {profile?.role==="admin" && <div className="distributionActionRow">
-                <div>
-                  {selectedWeekDistribution
-                    ? <><strong>이 주차는 확정되었습니다.</strong><span>경비 {vnd(selectedWeekDistribution.expenseApplied)} 처리 · 배당기준 {vnd(selectedWeekDistribution.distributableProfit)}</span></>
-                    : <><strong>주간 마감 시 한 번 확정하세요.</strong><span>오래된 미처리 경비부터 FIFO로 자동 처리됩니다.</span></>}
-                </div>
-                {!selectedWeekDistribution && <button className="primary" onClick={finalizeSelectedWeek} disabled={finalizingDistribution}>
-                  {finalizingDistribution?"처리 중...":"주간 지출·배당 확정"}
-                </button>}
-              </div>}
-
-              <div className="sharePreviewRows">
-                {(selectedWeekDistribution
-                  ? selectedWeekPayouts.map(x=>({id:x.id,name:x.name,rate:x.rate,amount:x.amount,status:x.status}))
-                  : shareholders.filter(x=>x.active).map(x=>({id:x.id,name:x.name,rate:x.rate,amount:Math.round(previewDistributableProfit*x.rate/100),status:"preview" as const}))
-                ).map(row=><div key={row.id}>
-                  <span><strong>{row.name}</strong><small>{row.rate}%</small></span>
-                  <b>{vnd(row.amount)}</b>
-                  {row.status!=="preview" && <em className={row.status==="paid"?"paid":""}>{row.status==="paid"?"지급완료":"지급대기"}</em>}
-                </div>)}
-              </div>
-            </section>}
 
             <div className="weeklyReportGrid">
               <section className="weeklyAgentSection">
@@ -3423,7 +3371,7 @@ export default function Home() {
                 <div><span>총 엔트리피</span><b>{vnd(weeklyEntryFee)}</b></div>
                 <div><span>레이크백</span><b>− {vnd(weeklyRakeback)}</b></div>
                 <div><span>F&B 경비 (2FLOOR)</span><b>− {vnd(weeklyFnbTotal)}</b></div>
-                <div className="profit"><span>상계 전 잉여금</span><b>{vnd(weeklyProfit)}</b></div>
+                <div className="profit"><span>주간 수익</span><b>{vnd(weeklyProfit)}</b></div>
               </aside>
             </div>
 
@@ -3511,6 +3459,13 @@ export default function Home() {
                 <h2>입출금 장부</h2>
                 <p>Deposit은 들어온 돈, Withdrawal은 나간 돈이며 Balance는 누적 잔액입니다.</p>
               </div>
+              {profile?.role==="admin" && (
+                selectedWeekDistribution
+                  ? <span className="weeklyDepositApplied">{weekStart} ~ {weekEnd} 정산금 반영 완료</span>
+                  : <button className="weeklyDepositButton" onClick={finalizeSelectedWeek} disabled={finalizingDistribution}>
+                      {finalizingDistribution?"반영 중...":"이번 주 정산금 Deposit 반영"}
+                    </button>
+              )}
             </div>
 
             <div className={expenseEntryType==="deposit"?"expenseQuickAdd depositMode":"expenseQuickAdd"}>
