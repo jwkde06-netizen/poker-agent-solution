@@ -4908,3 +4908,255 @@ html[data-theme="dark"] .dashboardQuickMenu button>span{
     height:32px!important;
   }
 }
+
+/* KPI-first dashboard inspired by compact analytics apps */
+.dashboardOverview{
+  display:grid;
+  gap:10px;
+}
+.dashboardOverviewHeader{
+  display:flex;
+  align-items:end;
+  justify-content:space-between;
+  gap:12px;
+}
+.dashboardOverviewHeader>div{
+  display:grid;
+  gap:2px;
+}
+.dashboardOverviewHeader span{
+  color:#8a9198;
+  font-size:10px;
+  font-weight:800;
+}
+.dashboardOverviewHeader strong{
+  color:#f2f2f2;
+  font-size:18px;
+  letter-spacing:-.03em;
+}
+.dashboardOverviewHeader small{
+  padding:6px 9px;
+  border:1px solid #4d3b18;
+  border-radius:999px;
+  background:#1c160b;
+  color:#e0ad49;
+  font-size:8px;
+  font-weight:900;
+}
+
+.dashboardMetricGrid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:9px;
+}
+.dashboardMetricCard{
+  position:relative;
+  min-width:0;
+  min-height:112px;
+  display:grid;
+  align-content:center;
+  gap:5px;
+  padding:15px 16px;
+  border:1px solid #2b2b2b;
+  border-radius:16px;
+  background:#111;
+  color:#eee;
+  text-align:left;
+  box-shadow:0 7px 20px rgba(0,0,0,.12);
+  cursor:pointer;
+}
+.dashboardMetricCard span{
+  color:#8f969d;
+  font-size:10px;
+  font-weight:800;
+}
+.dashboardMetricCard b{
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  color:#f4f4f4;
+  font-size:21px;
+  letter-spacing:-.04em;
+}
+.dashboardMetricCard small{
+  color:#747b82;
+  font-size:8px;
+}
+.dashboardMetricCard em{
+  position:absolute;
+  top:12px;
+  right:13px;
+  color:#5f666d;
+  font-size:20px;
+  font-style:normal;
+}
+.dashboardMetricCard.revenue{
+  border-color:#3f331e;
+  background:linear-gradient(145deg,#17140e,#101010);
+}
+.dashboardMetricCard.revenue b{
+  color:#e0ad49;
+}
+.dashboardMetricCard.profit{
+  border-color:#2d4335;
+  background:linear-gradient(145deg,#101912,#101010);
+}
+.dashboardMetricCard.profit b{
+  color:#76c88a;
+}
+.dashboardMetricCard.live b{
+  color:#f0f0f0;
+}
+.dashboardMetricCard.fnb b{
+  color:#d5a65b;
+}
+
+.dashboardSummaryRows{
+  border:1px solid #282828;
+  border-radius:12px;
+  overflow:hidden;
+}
+.dashboardSummaryRows>button{
+  width:100%;
+  min-height:46px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:0 12px;
+  border:0;
+  border-bottom:1px solid #282828;
+  background:#111;
+  color:#eee;
+  text-align:left;
+  cursor:pointer;
+}
+.dashboardSummaryRows>button:last-child{
+  border-bottom:0;
+}
+.dashboardSummaryRows>button span{
+  color:#969ca2;
+  font-size:10px;
+}
+.dashboardSummaryRows>button b{
+  color:#eee;
+  font-size:12px;
+}
+.dashboardSummaryRows>button.netRow{
+  background:#17140e;
+}
+.dashboardSummaryRows>button.netRow span,
+.dashboardSummaryRows>button.netRow b{
+  color:#e0ad49;
+  font-weight:900;
+}
+
+/* Light mode readability */
+html[data-theme="light"] body,
+html[data-theme="light"] .workspace,
+html[data-theme="light"] .contentArea{
+  color:#111!important;
+  background:#f6f7f8!important;
+}
+html[data-theme="light"] .panel,
+html[data-theme="light"] .dashCard,
+html[data-theme="light"] .dashboardMetricCard,
+html[data-theme="light"] .dashboardLiveTableList>button,
+html[data-theme="light"] .dashboardSummaryRows,
+html[data-theme="light"] .dashboardSummaryRows>button,
+html[data-theme="light"] .selectedTablePanel,
+html[data-theme="light"] .floorSelectorPanel{
+  background:#fff!important;
+  border-color:#dedfe2!important;
+  color:#111!important;
+}
+html[data-theme="light"] .dashboardOverviewHeader strong,
+html[data-theme="light"] .dashboardMetricCard b,
+html[data-theme="light"] .dashboardMetricCard.live b,
+html[data-theme="light"] .dashboardSummaryRows>button b,
+html[data-theme="light"] .cardHeader h2,
+html[data-theme="light"] .dashboardRecentList strong,
+html[data-theme="light"] .dashTableMain strong,
+html[data-theme="light"] .selectedPlayerIdentity strong,
+html[data-theme="light"] .selectedTableHeadline b,
+html[data-theme="light"] .selectedTableStats b{
+  color:#111!important;
+}
+html[data-theme="light"] .dashboardMetricCard span,
+html[data-theme="light"] .dashboardMetricCard small,
+html[data-theme="light"] .dashboardOverviewHeader span,
+html[data-theme="light"] .cardHeader p,
+html[data-theme="light"] .dashboardRecentList span,
+html[data-theme="light"] .dashTableStats span,
+html[data-theme="light"] .selectedPlayerIdentity span,
+html[data-theme="light"] .selectedTableStats span{
+  color:#666d75!important;
+}
+html[data-theme="light"] .dashboardMetricCard.revenue{
+  background:#fffaf0!important;
+}
+html[data-theme="light"] .dashboardMetricCard.revenue b{
+  color:#8b6110!important;
+}
+html[data-theme="light"] .dashboardMetricCard.profit{
+  background:#f3faf5!important;
+}
+html[data-theme="light"] .dashboardMetricCard.profit b{
+  color:#28763b!important;
+}
+html[data-theme="light"] .dashboardMetricCard.fnb{
+  background:#fff8ef!important;
+}
+html[data-theme="light"] .dashboardMetricCard.fnb b{
+  color:#8a5a1b!important;
+}
+html[data-theme="light"] .dashboardSummaryRows>button.netRow{
+  background:#fff9eb!important;
+}
+html[data-theme="light"] .dashboardSummaryRows>button.netRow span,
+html[data-theme="light"] .dashboardSummaryRows>button.netRow b{
+  color:#8d6310!important;
+}
+html[data-theme="light"] .dashboardLiveTableList>button,
+html[data-theme="light"] .dashboardRecentList>div,
+html[data-theme="light"] .dashboardSummaryRows>button{
+  border-color:#e3e4e6!important;
+}
+html[data-theme="light"] .linkButton{
+  color:#8b6110!important;
+}
+
+@media(max-width:820px){
+  .dashboardOverview{
+    gap:8px;
+  }
+  .dashboardOverviewHeader strong{
+    font-size:16px;
+  }
+  .dashboardMetricGrid{
+    gap:8px;
+  }
+  .dashboardMetricCard{
+    min-height:104px;
+    padding:13px 14px;
+    border-radius:14px;
+  }
+  .dashboardMetricCard span{
+    font-size:11px;
+  }
+  .dashboardMetricCard b{
+    font-size:20px;
+  }
+  .dashboardMetricCard small{
+    font-size:8px;
+  }
+  .dashboardSummaryRows>button{
+    min-height:48px;
+  }
+  .dashboardSummaryRows>button span{
+    font-size:11px;
+  }
+  .dashboardSummaryRows>button b{
+    font-size:13px;
+  }
+}
