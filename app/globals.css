@@ -9559,3 +9559,557 @@ td{
     font-size:20px!important
   }
 }
+
+
+/* Dashboard V3 — finance overview + live table cards + trend chart */
+.brand strong,
+.mobileProductTitle strong{
+  white-space:nowrap
+}
+
+.dashboardFinanceStrip{
+  padding:14px;
+  border:1px solid var(--line);
+  border-radius:16px;
+  background:var(--surface);
+  box-shadow:0 8px 24px rgba(20,24,28,.045)
+}
+.dashboardFinanceHeader{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  margin-bottom:10px
+}
+.dashboardFinanceHeader>div:first-child{
+  display:flex;
+  align-items:baseline;
+  gap:9px
+}
+.dashboardFinanceHeader span{
+  color:var(--muted);
+  font-size:13px;
+  font-weight:800
+}
+.dashboardFinanceHeader strong{
+  color:var(--text);
+  font-size:21px;
+  letter-spacing:-.035em
+}
+.dashboardFinanceGrid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:9px
+}
+.dashboardFinanceCard{
+  min-width:0;
+  min-height:108px;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  padding:14px 15px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:var(--surface-2);
+  color:var(--text);
+  cursor:pointer;
+  text-align:left;
+  transition:transform .14s ease,border-color .14s ease,box-shadow .14s ease
+}
+.dashboardFinanceCard:hover{
+  transform:translateY(-1px);
+  border-color:#d5bd86;
+  box-shadow:0 8px 20px rgba(20,24,28,.055)
+}
+.dashboardFinanceCard span{
+  color:var(--muted);
+  font-size:13px;
+  font-weight:800
+}
+.dashboardFinanceCard strong{
+  display:block;
+  margin-top:10px;
+  max-width:100%;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  color:var(--text);
+  font-size:24px;
+  line-height:1.15;
+  letter-spacing:-.045em
+}
+.dashboardFinanceCard small{
+  margin-top:auto;
+  padding-top:8px;
+  color:var(--muted-2);
+  font-size:11px
+}
+.dashboardFinanceCard.gross{
+  background:linear-gradient(145deg,#fffaf0,#fff);
+  border-color:#ead9b7
+}
+.dashboardFinanceCard.gross strong{
+  color:#95670d
+}
+.dashboardFinanceCard.agent{
+  background:linear-gradient(145deg,#f8f8fb,#fff)
+}
+.dashboardFinanceCard.fnb{
+  background:linear-gradient(145deg,#fff8f3,#fff)
+}
+.dashboardFinanceCard.profit{
+  background:linear-gradient(145deg,#f1faf4,#fff);
+  border-color:#cbe3d3
+}
+.dashboardFinanceCard.profit strong{
+  color:#2f7c49
+}
+
+.dashboardMainSplit{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  gap:10px;
+  margin-top:10px
+}
+.dashboardLivePanel,
+.dashboardTrendPanel{
+  min-width:0;
+  min-height:350px;
+  padding:14px;
+  border:1px solid var(--line);
+  border-radius:16px;
+  background:var(--surface);
+  box-shadow:0 8px 24px rgba(20,24,28,.045)
+}
+.dashboardPanelHeader{
+  min-height:36px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:10px
+}
+.dashboardPanelHeader>div:first-child{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  min-width:0
+}
+.dashboardPanelHeader h2{
+  margin:0;
+  color:var(--text);
+  font-size:18px;
+  letter-spacing:-.03em
+}
+.dashboardPanelHeader>div:first-child>span{
+  display:inline-flex;
+  align-items:center;
+  min-height:24px;
+  padding:0 8px;
+  border-radius:999px;
+  background:#f0f2f4;
+  color:#59616a;
+  font-size:10px;
+  font-weight:850;
+  white-space:nowrap
+}
+.dashboardPanelHeader>button{
+  border:0;
+  background:transparent;
+  color:#8b6722;
+  font-size:11px;
+  font-weight:800;
+  cursor:pointer;
+  white-space:nowrap
+}
+
+.dashboardLiveCardGrid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px
+}
+.dashboardLiveCard{
+  min-width:0;
+  min-height:126px;
+  display:block;
+  padding:12px;
+  border:1px solid var(--line);
+  border-radius:13px;
+  background:var(--surface-2);
+  color:var(--text);
+  text-align:left;
+  cursor:pointer;
+  transition:transform .14s ease,border-color .14s ease,background .14s ease
+}
+.dashboardLiveCard:hover{
+  transform:translateY(-1px);
+  border-color:#c8ddcf;
+  background:#fbfdfb
+}
+.dashboardLiveCardTop{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px
+}
+.dashboardLiveCardTop strong{
+  font-size:18px;
+  letter-spacing:-.035em
+}
+.dashboardLiveCardTop span{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  padding:4px 7px;
+  border-radius:999px;
+  background:#edf8f0;
+  color:#39764a;
+  font-size:9px;
+  font-weight:900
+}
+.dashboardLiveCardTop span i{
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  background:#62cb80;
+  box-shadow:0 0 0 4px rgba(98,203,128,.12)
+}
+.dashboardLiveCard>p{
+  margin:5px 0 10px;
+  color:var(--muted);
+  font-size:11px;
+  font-weight:750
+}
+.dashboardLiveMetrics{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:6px
+}
+.dashboardLiveMetrics>div{
+  min-width:0;
+  padding:7px 8px;
+  border-radius:9px;
+  background:rgba(0,0,0,.025)
+}
+.dashboardLiveMetrics .rake{
+  grid-column:1/-1
+}
+.dashboardLiveMetrics small{
+  display:block;
+  color:var(--muted-2);
+  font-size:9px
+}
+.dashboardLiveMetrics b{
+  display:block;
+  margin-top:2px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  color:var(--text);
+  font-size:12px
+}
+.dashboardLiveMetrics .rake b{
+  color:#9b6b10
+}
+.dashboardNoLive{
+  width:100%;
+  min-height:250px;
+  display:grid;
+  place-content:center;
+  gap:5px;
+  border:1px dashed var(--line-strong);
+  border-radius:13px;
+  background:var(--surface-2);
+  color:var(--text);
+  cursor:pointer;
+  text-align:center
+}
+.dashboardNoLive strong{
+  font-size:15px
+}
+.dashboardNoLive span{
+  color:var(--muted);
+  font-size:11px
+}
+
+.dashboardTrendPanel{
+  display:flex;
+  flex-direction:column
+}
+.trendHeader{
+  margin-bottom:8px
+}
+.dashboardTrendToggle{
+  display:flex;
+  gap:4px;
+  padding:3px;
+  border:1px solid var(--line);
+  border-radius:9px;
+  background:var(--surface-2)
+}
+.dashboardTrendToggle button{
+  min-width:50px;
+  height:28px;
+  border:0;
+  border-radius:6px;
+  background:transparent;
+  color:var(--muted);
+  font-size:10px;
+  font-weight:850;
+  cursor:pointer
+}
+.dashboardTrendToggle button.active{
+  background:var(--surface);
+  color:#8b6417;
+  box-shadow:0 1px 4px rgba(0,0,0,.07)
+}
+.dashboardTrendSummary{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin-bottom:8px
+}
+.dashboardTrendSummary>div{
+  padding:9px 10px;
+  border:1px solid var(--line);
+  border-radius:10px;
+  background:var(--surface-2)
+}
+.dashboardTrendSummary span{
+  display:block;
+  color:var(--muted);
+  font-size:10px;
+  font-weight:750
+}
+.dashboardTrendSummary strong{
+  display:block;
+  margin-top:3px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font-size:14px
+}
+.dashboardTrendSummary>div:last-child strong{
+  color:#2f7c49
+}
+.dashboardTrendChart{
+  flex:1;
+  min-height:190px;
+  display:grid;
+  grid-template-columns:repeat(7,minmax(0,1fr));
+  align-items:end;
+  gap:7px;
+  padding:14px 8px 4px;
+  border-bottom:1px solid var(--line);
+  background:
+    linear-gradient(to bottom,transparent 24%,rgba(0,0,0,.045) 25%,transparent 26%),
+    linear-gradient(to bottom,transparent 49%,rgba(0,0,0,.045) 50%,transparent 51%),
+    linear-gradient(to bottom,transparent 74%,rgba(0,0,0,.045) 75%,transparent 76%)
+}
+.dashboardTrendColumn{
+  min-width:0;
+  height:100%;
+  display:grid;
+  grid-template-rows:minmax(0,1fr) 22px;
+  align-items:end;
+  gap:4px
+}
+.dashboardTrendBars{
+  height:100%;
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+  gap:3px
+}
+.dashboardTrendBars span{
+  width:min(14px,38%);
+  min-height:2px;
+  border-radius:4px 4px 1px 1px;
+  transition:height .2s ease
+}
+.dashboardTrendBars .rakeBar{
+  background:linear-gradient(180deg,#d9ad55,#b9821e)
+}
+.dashboardTrendBars .profitBar{
+  background:linear-gradient(180deg,#67bd80,#2f7c49)
+}
+.dashboardTrendColumn small{
+  display:block;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  text-align:center;
+  color:var(--muted);
+  font-size:9px
+}
+.dashboardTrendLegend{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:14px;
+  padding-top:8px
+}
+.dashboardTrendLegend span{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  color:var(--muted);
+  font-size:9px;
+  font-weight:750
+}
+.dashboardTrendLegend i{
+  width:8px;
+  height:8px;
+  border-radius:2px
+}
+.rakeLegend{
+  background:#c7932d
+}
+.profitLegend{
+  background:#3f9960
+}
+
+/* Dashboard V3 dark */
+html[data-theme="dark"] .dashboardFinanceStrip,
+html[data-theme="dark"] .dashboardLivePanel,
+html[data-theme="dark"] .dashboardTrendPanel{
+  background:#17181b;
+  border-color:#2b2d31;
+  box-shadow:0 10px 30px rgba(0,0,0,.18)
+}
+html[data-theme="dark"] .dashboardFinanceCard,
+html[data-theme="dark"] .dashboardLiveCard,
+html[data-theme="dark"] .dashboardTrendSummary>div,
+html[data-theme="dark"] .dashboardTrendToggle,
+html[data-theme="dark"] .dashboardNoLive{
+  background:#1d1f22;
+  border-color:#303238
+}
+html[data-theme="dark"] .dashboardFinanceCard.gross{
+  background:#211b0f
+}
+html[data-theme="dark"] .dashboardFinanceCard.profit{
+  background:#18231c
+}
+html[data-theme="dark"] .dashboardLiveMetrics>div{
+  background:rgba(255,255,255,.035)
+}
+html[data-theme="dark"] .dashboardPanelHeader>div:first-child>span{
+  background:#25272b;
+  color:#a8afb6
+}
+html[data-theme="dark"] .dashboardTrendToggle button.active{
+  background:#2a2c30;
+  color:#e0ad49
+}
+html[data-theme="dark"] .dashboardTrendChart{
+  background:
+    linear-gradient(to bottom,transparent 24%,rgba(255,255,255,.055) 25%,transparent 26%),
+    linear-gradient(to bottom,transparent 49%,rgba(255,255,255,.055) 50%,transparent 51%),
+    linear-gradient(to bottom,transparent 74%,rgba(255,255,255,.055) 75%,transparent 76%);
+  border-color:#303238
+}
+
+@media(max-width:1100px){
+  .dashboardFinanceGrid{
+    grid-template-columns:repeat(2,minmax(0,1fr))
+  }
+  .dashboardMainSplit{
+    grid-template-columns:1fr
+  }
+  .dashboardLivePanel,
+  .dashboardTrendPanel{
+    min-height:auto
+  }
+  .dashboardTrendPanel{
+    min-height:340px
+  }
+}
+@media(max-width:820px){
+  .dashboardFinanceStrip{
+    padding:11px;
+    border-radius:14px
+  }
+  .dashboardFinanceHeader{
+    margin-bottom:8px
+  }
+  .dashboardFinanceHeader>div:first-child{
+    display:block
+  }
+  .dashboardFinanceHeader span{
+    display:block;
+    font-size:11px!important
+  }
+  .dashboardFinanceHeader strong{
+    display:block;
+    margin-top:2px;
+    font-size:18px
+  }
+  .dashboardFinanceGrid{
+    gap:7px
+  }
+  .dashboardFinanceCard{
+    min-height:96px;
+    padding:11px
+  }
+  .dashboardFinanceCard span{
+    font-size:11px
+  }
+  .dashboardFinanceCard strong{
+    margin-top:8px;
+    font-size:18px
+  }
+  .dashboardFinanceCard small{
+    font-size:9px
+  }
+  .dashboardMainSplit{
+    gap:8px;
+    margin-top:8px
+  }
+  .dashboardLivePanel,
+  .dashboardTrendPanel{
+    padding:11px;
+    border-radius:14px
+  }
+  .dashboardPanelHeader h2{
+    font-size:16px
+  }
+  .dashboardLiveCardGrid{
+    grid-template-columns:1fr 1fr;
+    gap:7px
+  }
+  .dashboardLiveCard{
+    min-height:118px;
+    padding:10px
+  }
+  .dashboardLiveMetrics{
+    gap:5px
+  }
+  .dashboardLiveMetrics>div{
+    padding:6px
+  }
+  .dashboardTrendPanel{
+    min-height:320px
+  }
+  .dashboardTrendChart{
+    min-height:170px;
+    gap:5px
+  }
+}
+@media(max-width:520px){
+  .dashboardFinanceGrid{
+    grid-template-columns:1fr 1fr
+  }
+  .dashboardFinanceCard{
+    min-height:90px
+  }
+  .dashboardFinanceCard strong{
+    font-size:16px
+  }
+  .dashboardLiveCardGrid{
+    grid-template-columns:1fr
+  }
+  .dashboardTrendSummary strong{
+    font-size:12px
+  }
+}
