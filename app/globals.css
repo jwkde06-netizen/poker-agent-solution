@@ -14954,3 +14954,80 @@ html[data-theme="dark"] .expenseEditSummary>em.processed{
     grid-column:auto
   }
 }
+
+
+/* Deposit + expense combined ledger */
+.expenseCompactSummary .primary.negative strong{color:#b35c4d}
+.expenseCompactSummary .primary.positive strong{color:#4d875c}
+
+.expenseQuickAdd{
+  grid-template-columns:105px 120px 125px minmax(190px,1.2fr) 125px 145px minmax(145px,.8fr) 82px!important
+}
+.expenseQuickAdd .ledgerTypeSelect{
+  font-weight:850;
+}
+.depositAutoLabel{
+  height:36px;
+  display:flex;
+  align-items:center;
+  padding:0 9px;
+  border:1px dashed var(--line-strong);
+  border-radius:8px;
+  background:var(--surface);
+  color:var(--muted);
+  font-size:9px;
+  font-weight:750;
+  box-sizing:border-box
+}
+.expenseLedgerTable{
+  min-width:1360px
+}
+.expenseLedgerHead,
+.expenseLedgerRow{
+  grid-template-columns:88px minmax(240px,1.55fr) 125px 125px 125px 125px 130px 135px 85px minmax(145px,.8fr) 32px!important
+}
+.depositLedgerRow{
+  background:rgba(67,131,84,.035)
+}
+.depositLedgerRow .depositValue{
+  color:#4d875c;
+  font-weight:850
+}
+.expenseLedgerRow>em.deposit{
+  background:#eff8f1;
+  color:#4d875c
+}
+.ledgerBalance{
+  font-size:11px;
+  font-weight:850
+}
+.ledgerBalance.negative{color:#b35c4d}
+.ledgerBalance.positive{color:#4d875c}
+
+html[data-theme="dark"] .depositAutoLabel{
+  background:#202226;
+  border-color:#383b40
+}
+html[data-theme="dark"] .depositLedgerRow{
+  background:rgba(67,131,84,.06)
+}
+html[data-theme="dark"] .expenseLedgerRow>em.deposit{
+  background:#17251b
+}
+
+@media(max-width:820px){
+  .expenseQuickAdd{
+    grid-template-columns:1fr 1fr!important
+  }
+  .expenseQuickAdd>*{
+    min-width:0
+  }
+  .expenseQuickAdd input[aria-label="항목"],
+  .expenseQuickAdd input[aria-label="선지급자"],
+  .expenseQuickAdd input[aria-label="메모"]{
+    grid-column:1/-1
+  }
+  .expenseQuickAdd button{
+    grid-column:1/-1
+  }
+}
