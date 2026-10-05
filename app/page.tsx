@@ -1848,31 +1848,32 @@ export default function Home() {
 
           <section className="panel selectedTablePanel">
             <div className="selectedTableTop">
-              <div className={selectedGameSession?"selectedTableHeadline editableSessionMeta unifiedSessionHeader":"selectedTableHeadline"}>
+              <div className={selectedGameSession?"selectedTableHeadline sessionHeaderClean":"selectedTableHeadline"}>
                 {selectedGameSession
                   ? <>
-                      <label className="inlineSessionEdit tableEdit">
-                        <span>TABLE</span>
-                        <input
-                          defaultValue={selectedGameSession.tableNo}
-                          onInput={e=>{e.currentTarget.value=e.currentTarget.value.replace(/\D/g,"");}}
-                          onBlur={e=>updateActiveGameSession(selectedGameSession,{tableNo:e.target.value})}
-                          onKeyDown={e=>{if(e.key==="Enter")(e.currentTarget as HTMLInputElement).blur();}}
-                          aria-label="테이블 번호 수정"
-                        />
-                      </label>
-                      <span>{selectedGameSession.gameNo ? `No.${selectedGameSession.gameNo}` : "No.-"}</span>
-                      <label className="inlineSessionEdit gameEdit">
-                        <span>BUY-IN</span>
-                        <select value={selectedGameSession.game} onChange={e=>updateActiveGameSession(selectedGameSession,{game:e.target.value})} aria-label="게임 바이인 금액 수정">
-                          <option value="3M">3M</option>
-                          <option value="5M">5M</option>
-                          <option value="10M">10M</option>
-                          <option value="15M">15M</option>
-                        </select>
-                      </label>
+                      <div className="sessionTitleGroup">
+                        <label className="sessionTableEdit">
+                          <span>Table</span>
+                          <input
+                            defaultValue={selectedGameSession.tableNo}
+                            onInput={e=>{e.currentTarget.value=e.currentTarget.value.replace(/\D/g,"");}}
+                            onBlur={e=>updateActiveGameSession(selectedGameSession,{tableNo:e.target.value})}
+                            onKeyDown={e=>{if(e.key==="Enter")(e.currentTarget as HTMLInputElement).blur();}}
+                            aria-label="테이블 번호 수정"
+                          />
+                        </label>
+                        <span className="sessionMetaBadge">{selectedGameSession.gameNo ? `No.${selectedGameSession.gameNo}` : "No.-"}</span>
+                        <label className="sessionGameEdit">
+                          <select value={selectedGameSession.game} onChange={e=>updateActiveGameSession(selectedGameSession,{game:e.target.value})} aria-label="게임 바이인 금액 수정">
+                            <option value="3M">3M</option>
+                            <option value="5M">5M</option>
+                            <option value="10M">10M</option>
+                            <option value="15M">15M</option>
+                          </select>
+                        </label>
+                      </div>
                     </>
-                  : <strong>T{selectedTableNo || "-"}</strong>}
+                  : <strong>Table {selectedTableNo || "-"}</strong>}
               </div>
 
               {!selectedGameSession
