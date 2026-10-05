@@ -5392,3 +5392,344 @@ html[data-theme="light"] .agencyStatusToggle.active{
     padding:10px 10px calc(90px + env(safe-area-inset-bottom));
   }
 }
+
+/* Studio-style dashboard */
+.studioDashboardHead{
+  display:flex;
+  align-items:end;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:10px;
+}
+.studioDashboardHead>div{
+  display:grid;
+  gap:2px;
+}
+.studioDashboardHead span{
+  color:#8b9299;
+  font-size:10px;
+  font-weight:800;
+}
+.studioDashboardHead strong{
+  color:#f2f2f2;
+  font-size:18px;
+}
+.studioDashboardHead>button{
+  border:0;
+  background:transparent;
+  color:#d8a94b;
+  font-size:10px;
+  font-weight:850;
+  cursor:pointer;
+}
+
+.studioMetricGrid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:9px;
+}
+.studioMetricCard{
+  position:relative;
+  min-height:104px;
+  display:grid;
+  align-content:center;
+  gap:5px;
+  padding:14px 15px;
+  border:1px solid #2b2b2b;
+  border-radius:15px;
+  background:#111;
+  color:#eee;
+  text-align:left;
+  box-shadow:0 6px 18px rgba(0,0,0,.12);
+  cursor:pointer;
+}
+.studioMetricCard span{
+  color:#8f969d;
+  font-size:10px;
+  font-weight:800;
+}
+.studioMetricCard b{
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  color:#f3f3f3;
+  font-size:20px;
+  letter-spacing:-.04em;
+}
+.studioMetricCard small{
+  color:#747b82;
+  font-size:8px;
+}
+.studioMetricCard em{
+  position:absolute;
+  top:12px;
+  right:12px;
+  color:#626970;
+  font-size:18px;
+  font-style:normal;
+}
+.studioMetricCard.profitCard b{
+  color:#72c987;
+}
+
+.studioSectionCard{
+  margin-top:10px;
+  padding:14px;
+  border:1px solid #2b2b2b;
+  border-radius:15px;
+  background:#111;
+}
+.studioSectionHeader{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:10px;
+}
+.studioSectionHeader h2{
+  margin:0;
+  color:#f0f0f0;
+  font-size:15px;
+}
+.studioSectionHeader p{
+  margin:3px 0 0;
+  color:#838a91;
+  font-size:9px;
+}
+.studioSectionHeader>button{
+  border:0;
+  background:transparent;
+  color:#d8a94b;
+  font-size:9px;
+  font-weight:850;
+}
+.studioEmpty{
+  padding:24px 10px;
+  color:#777e85;
+  font-size:10px;
+  text-align:center;
+}
+
+.studioLiveList{
+  display:grid;
+}
+.studioLiveList>button{
+  width:100%;
+  min-height:58px;
+  display:grid;
+  grid-template-columns:42px minmax(0,1fr) auto;
+  align-items:center;
+  gap:10px;
+  padding:8px 0;
+  border:0;
+  border-bottom:1px solid #272727;
+  background:transparent;
+  color:#eee;
+  text-align:left;
+  cursor:pointer;
+}
+.studioLiveList>button:last-child{
+  border-bottom:0;
+}
+.studioTableBadge{
+  display:grid;
+  place-items:center;
+  width:38px;
+  height:38px;
+  border-radius:11px;
+  background:#1b160d;
+  color:#e0ad49;
+  font-size:12px;
+  font-weight:900;
+}
+.studioTableCopy{
+  min-width:0;
+}
+.studioTableCopy strong{
+  display:block;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  color:#efefef;
+  font-size:11px;
+}
+.studioTableCopy span{
+  display:block;
+  margin-top:3px;
+  color:#7f858b;
+  font-size:8px;
+}
+.studioTableAmount{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  white-space:nowrap;
+}
+.studioTableAmount b{
+  color:#e0ad49;
+  font-size:10px;
+}
+.studioTableAmount span{
+  color:#666c72;
+  font-size:18px;
+}
+
+.studioSettlementRows{
+  display:grid;
+}
+.studioSettlementRows>button{
+  width:100%;
+  min-height:46px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:0;
+  border:0;
+  border-bottom:1px solid #282828;
+  background:transparent;
+  color:#eee;
+  text-align:left;
+}
+.studioSettlementRows>button:last-child{
+  border-bottom:0;
+}
+.studioSettlementRows span{
+  color:#949ba1;
+  font-size:10px;
+}
+.studioSettlementRows b{
+  color:#eee;
+  font-size:12px;
+}
+.studioSettlementRows .studioNetRow{
+  margin-top:4px;
+  padding:0 10px;
+  border-radius:10px;
+  background:#1a160e;
+}
+.studioSettlementRows .studioNetRow span,
+.studioSettlementRows .studioNetRow b{
+  color:#e0ad49;
+  font-weight:900;
+}
+
+.studioRecentList{
+  display:grid;
+}
+.studioRecentList>div{
+  min-height:50px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:8px 0;
+  border-bottom:1px solid #272727;
+}
+.studioRecentList>div:last-child{border-bottom:0}
+.studioRecentList>div>div{
+  min-width:0;
+}
+.studioRecentList strong{
+  display:block;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  color:#eee;
+  font-size:11px;
+}
+.studioRecentList span{
+  display:block;
+  margin-top:2px;
+  color:#7e858b;
+  font-size:8px;
+}
+.studioRecentList b{
+  color:#d5a443;
+  font-size:10px;
+  white-space:nowrap;
+}
+
+/* Light theme for Studio dashboard */
+html[data-theme="light"] .studioDashboardHead strong,
+html[data-theme="light"] .studioMetricCard b,
+html[data-theme="light"] .studioSectionHeader h2,
+html[data-theme="light"] .studioTableCopy strong,
+html[data-theme="light"] .studioSettlementRows b,
+html[data-theme="light"] .studioRecentList strong{
+  color:#111!important;
+}
+html[data-theme="light"] .studioDashboardHead span,
+html[data-theme="light"] .studioMetricCard span,
+html[data-theme="light"] .studioMetricCard small,
+html[data-theme="light"] .studioSectionHeader p,
+html[data-theme="light"] .studioTableCopy span,
+html[data-theme="light"] .studioSettlementRows span,
+html[data-theme="light"] .studioRecentList span{
+  color:#666d75!important;
+}
+html[data-theme="light"] .studioMetricCard,
+html[data-theme="light"] .studioSectionCard{
+  background:#fff!important;
+  border-color:#e0e1e3!important;
+  box-shadow:0 6px 18px rgba(23,29,35,.06)!important;
+}
+html[data-theme="light"] .studioTableBadge{
+  background:#fff4d8!important;
+  color:#8b6110!important;
+}
+html[data-theme="light"] .studioLiveList>button,
+html[data-theme="light"] .studioSettlementRows>button,
+html[data-theme="light"] .studioRecentList>div{
+  border-color:#e6e7e9!important;
+}
+html[data-theme="light"] .studioMetricCard.profitCard b{
+  color:#28763b!important;
+}
+html[data-theme="light"] .studioSettlementRows .studioNetRow{
+  background:#fff8e8!important;
+}
+html[data-theme="light"] .studioSettlementRows .studioNetRow span,
+html[data-theme="light"] .studioSettlementRows .studioNetRow b{
+  color:#8b6110!important;
+}
+
+@media(max-width:820px){
+  .studioDashboardHead{
+    margin-bottom:8px;
+  }
+  .studioDashboardHead strong{
+    font-size:16px;
+  }
+  .studioMetricGrid{
+    gap:8px;
+  }
+  .studioMetricCard{
+    min-height:98px;
+    padding:12px 13px;
+    border-radius:13px;
+  }
+  .studioMetricCard span{
+    font-size:11px;
+  }
+  .studioMetricCard b{
+    font-size:19px;
+  }
+  .studioMetricCard small{
+    font-size:8px;
+  }
+  .studioSectionCard{
+    margin-top:8px;
+    padding:12px;
+    border-radius:13px;
+  }
+  .studioSectionHeader h2{
+    font-size:14px;
+  }
+  .studioLiveList>button{
+    min-height:56px;
+  }
+  .studioSettlementRows>button{
+    min-height:45px;
+  }
+}
