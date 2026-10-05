@@ -15518,3 +15518,44 @@ html[data-theme="dark"] .expenseDetailDelete{
     font-size:23px!important
   }
 }
+
+
+/* Keep company weekly report separate from internal expense handling */
+.weeklyDepositButton{
+  height:34px;
+  padding:0 11px;
+  border:1px solid #d9bd78;
+  border-radius:8px;
+  background:#fff9ec;
+  color:#8b6210;
+  font-size:10px;
+  font-weight:800;
+  cursor:pointer;
+  white-space:nowrap
+}
+.weeklyDepositButton:disabled{
+  opacity:.55;
+  cursor:default
+}
+.weeklyDepositApplied{
+  color:#5c8264;
+  font-size:10px;
+  font-weight:750;
+  white-space:nowrap
+}
+html[data-theme="dark"] .weeklyDepositButton{
+  background:#241d10;
+  border-color:#675325;
+  color:#dfb65f
+}
+@media(max-width:820px){
+  .simpleLedgerHeader{
+    align-items:stretch!important
+  }
+  .weeklyDepositButton{
+    width:100%
+  }
+  .weeklyDepositApplied{
+    white-space:normal
+  }
+}
