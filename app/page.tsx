@@ -1764,6 +1764,25 @@ export default function Home() {
   const reportFnbAllTotal = reportFnbEntries.reduce((sum,e)=>sum+e.totalAmount,0);
   const reportFnbTotal = reportFnbEntries.filter(isOperatingFnbExpense).reduce((sum,e)=>sum+e.totalAmount,0);
   const reportNet = reportRevenue-reportRakeback-reportFnbTotal;
+  const reportTrendData = (() => {
+    const rows:{date:string;entryFee:number;rakeback:number;fnb:number;profit:number}[]=[];
+    let cursor=reportStart;
+    let guard=0;
+    while(cursor<=reportEnd && guard<62){
+      const dayEntries=entries.filter(e=>e.date===cursor);
+      const entryFee=dayEntries.reduce((sum,e)=>sum+e.rake,0);
+      const rakeback=dayEntries.reduce((sum,e)=>sum+e.rakeback,0);
+      const fnb=fnbEntries.filter(e=>e.date===cursor && e.expenseGroup==="2FLOOR").reduce((sum,e)=>sum+e.totalAmount,0);
+      rows.push({date:cursor,entryFee,rakeback,fnb,profit:entryFee-rakeback-fnb});
+      cursor=plusDays(cursor,1);
+      guard++;
+    }
+    return rows;
+  })();
+  const reportTrendMax=Math.max(1,...reportTrendData.flatMap(x=>[x.entryFee,Math.max(0,x.profit)]));
+  const reportPlayerCount=new Set(reportEntries.map(e=>e.playerId)).size;
+  const reportBuyInCount=reportEntries.reduce((sum,e)=>sum+e.buyIn,0);
+  const reportAgencyRanking=agencyTotals(reportEntries).filter(a=>a.amount>0).sort((a,b)=>b.amount-a.amount).slice(0,8);
   const dashboardTodayProfit = todayRevenue - todaySettlement - fnbTodayTotal;
   const dashboardDailyTrend = Array.from({length:7},(_,index)=>{
     const date=plusDays(today(),index-6);
@@ -2052,9 +2071,9 @@ export default function Home() {
 
             <div className="dashboardFinanceGrid">
               <button className="dashboardFinanceCard gross" onClick={()=>navigateTab("daily")}>
-                <span>오늘 레이크백</span>
+                <span>오늘 엔트리피</span>
                 <strong>{vnd(todayRevenue)}</strong>
-                <small>오늘 총 엔트리피</small>
+                <small>오늘 발생 금액</small>
               </button>
               <button className="dashboardFinanceCard agent" onClick={()=>navigateTab("daily")}>
                 <span>에이전트 레이크백</span>
@@ -2096,10 +2115,10 @@ export default function Home() {
                       const rake=tableEntries.reduce((sum,e)=>sum+e.rake,0);
                       return <button className="dashboardLiveCard" key={gs.id} onClick={()=>{setSelectedTableNo(gs.tableNo);navigateTab("games")}}>
                         <div className="dashboardLiveCardTop">
-                          <strong>T{gs.tableNo}</strong>
+                          <strong>Table {gs.tableNo}</strong>
                           <span><i/>LIVE</span>
                         </div>
-                        <p>{gs.gameNo?`No.${gs.gameNo}`:"No.-"} · {gs.game}</p>
+                        <p>{gs.game} <span>{gs.gameNo?`No.${gs.gameNo}`:"No.-"}</span></p>
                         <div className="dashboardLiveMetrics">
                           <div><small>플레이어</small><b>{tableEntries.length}명</b></div>
                           <div><small>BUY-IN</small><b>{buyins}</b></div>
@@ -2145,108 +2164,107 @@ export default function Home() {
           </section>
         </>}
 
-        {tab==="agencies" && <section className="panel agencyManagePanel">
-          <div className="mobileSectionSwitcher playerAccessSwitcher">
-            <button onClick={()=>navigateTab("players")}>플레이어 명단</button>
-            <button className="active">에이전트 코드</button>
-          </div>
-
-          <div className="agencyManageHeader">
-            <div>
-              <h2>에이전트 코드</h2>
-              <p>코드를 탭하면 이름과 정산 요율을 수정할 수 있습니다.</p>
+        {tab==="agencies" && <section className="agencyPage">
+          {!editingAgencyId ? <section className="panel agencyManagePanel">
+            <div className="mobileSectionSwitcher playerAccessSwitcher">
+              <button onClick={()=>navigateTab("players")}>플레이어 명단</button>
+              <button className="active">에이전트 코드</button>
             </div>
-          </div>
 
-          <div className="agencyAddRow">
-            <input
-              placeholder="새 코드명"
-              value={newAgencyCode}
-              onChange={e=>setNewAgencyCode(e.target.value.toUpperCase())}
-            />
-            <select value={newAgencyRate} onChange={e=>setNewAgencyRate(e.target.value)}>
-              {Array.from({length:21},(_,i)=>i*5).map(rate=><option key={rate} value={rate}>{rate}%</option>)}
-            </select>
-            <button className="primary" onClick={addAgency}>＋ 추가</button>
-          </div>
-
-          <div className="agencySimpleList">
-            {agencies.map(a=><button key={a.id} className="agencySimpleRow" onClick={()=>setEditingAgencyId(a.id)}>
+            <div className="agencyManageHeader">
               <div>
-                <strong>{a.code}</strong>
-                <small>{a.active?"사용 중":"사용 중지"}</small>
+                <h2>에이전트 관리</h2>
+                <p>에이전트를 선택하면 상세 정보와 소속 플레이어를 확인할 수 있습니다.</p>
               </div>
-              <div className="agencyRateDisplay">
-                <b>{a.rate}%</b>
-                <span>›</span>
-              </div>
-            </button>)}
-          </div>
+            </div>
 
-          {editingAgencyId && (()=> {
+            <div className="agencyAddRow">
+              <input placeholder="새 코드명" value={newAgencyCode} onChange={e=>setNewAgencyCode(e.target.value.toUpperCase())}/>
+              <select value={newAgencyRate} onChange={e=>setNewAgencyRate(e.target.value)}>
+                {Array.from({length:21},(_,i)=>i*5).map(rate=><option key={rate} value={rate}>{rate}%</option>)}
+              </select>
+              <button className="primary" onClick={addAgency}>＋ 추가</button>
+            </div>
+
+            <div className="agencySimpleList">
+              {agencies.map(a=>{
+                const memberCount=players.filter(p=>p.agencyId===a.id).length;
+                const agencyRakeback=entries.filter(e=>e.agencyId===a.id).reduce((sum,e)=>sum+e.rakeback,0);
+                return <button key={a.id} className="agencySimpleRow" onClick={()=>setEditingAgencyId(a.id)}>
+                  <div>
+                    <strong>{a.code}</strong>
+                    <small>{memberCount}명 · {a.active?"사용 중":"사용 중지"}</small>
+                  </div>
+                  <div className="agencyRateDisplay">
+                    <small>{vnd(agencyRakeback)}</small>
+                    <b>{a.rate}%</b>
+                    <span>›</span>
+                  </div>
+                </button>
+              })}
+            </div>
+          </section> : (()=> {
             const agency=agencies.find(a=>a.id===editingAgencyId);
             if(!agency)return null;
-            return <div className="agencyEditBackdrop" onClick={()=>setEditingAgencyId(null)}>
-              <section className="agencyEditModal" onClick={e=>e.stopPropagation()}>
-                <div className="agencyEditHeader">
-                  <div><span>에이전트 수정</span><strong>{agency.code}</strong></div>
-                  <button onClick={()=>setEditingAgencyId(null)}>×</button>
+            const agencyPlayers=players.filter(p=>p.agencyId===agency.id);
+            const agencyEntries=entries.filter(e=>e.agencyId===agency.id);
+            const agencyTotalRakeback=agencyEntries.reduce((sum,e)=>sum+e.rakeback,0);
+            const agencyTotalBuyIn=agencyEntries.reduce((sum,e)=>sum+e.buyIn,0);
+            return <section className="panel agencyDetailPage">
+              <div className="agencyDetailTop">
+                <button className="agencyBackButton" onClick={()=>setEditingAgencyId(null)}>‹ 에이전트 목록</button>
+                <div className="agencyDetailTitle">
+                  <div><span>에이전트</span><h2>{agency.code}</h2></div>
+                  <button
+                    className={`agencyStatusToggle ${agency.active?"active":""}`}
+                    onClick={()=>updateAgency(agency.id,{active:!agency.active})}
+                  >{agency.active?"사용 중":"사용 중지"}</button>
                 </div>
+              </div>
 
-                <label>
-                  <span>에이전트 코드</span>
-                  <input value={agency.code} onChange={e=>updateAgency(agency.id,{code:e.target.value.toUpperCase()})}/>
-                </label>
+              <div className="agencyDetailKpis">
+                <div><span>정산 요율</span><b>{agency.rate}%</b></div>
+                <div><span>소속 플레이어</span><b>{agencyPlayers.length}명</b></div>
+                <div><span>누적 BUY-IN</span><b>{agencyTotalBuyIn}</b></div>
+                <div><span>누적 레이크백</span><b>{vnd(agencyTotalRakeback)}</b></div>
+              </div>
 
-                <label>
-                  <span>정산 요율</span>
-                  <select value={agency.rate} onChange={e=>updateAgency(agency.id,{rate:Number(e.target.value)})}>
-                    {Array.from({length:21},(_,i)=>i*5).map(rate=><option key={rate} value={rate}>{rate}%</option>)}
-                  </select>
-                </label>
+              <div className="agencyDetailSettings">
+                <label><span>에이전트 코드</span><input value={agency.code} onChange={e=>updateAgency(agency.id,{code:e.target.value.toUpperCase()})}/></label>
+                <label><span>정산 요율</span><select value={agency.rate} onChange={e=>updateAgency(agency.id,{rate:Number(e.target.value)})}>
+                  {Array.from({length:21},(_,i)=>i*5).map(rate=><option key={rate} value={rate}>{rate}%</option>)}
+                </select></label>
+              </div>
 
-                <button
-                  className={`agencyStatusToggle ${agency.active?"active":""}`}
-                  onClick={()=>updateAgency(agency.id,{active:!agency.active})}
-                >
-                  <span>{agency.active?"●":"○"}</span>
-                  {agency.active?"사용 중":"사용 중지"}
-                </button>
-
-                <div className="agencyPlayerSection">
-                  <div className="agencyPlayerSectionTitle">
-                    <strong>소속 플레이어</strong>
-                    <span>{players.filter(p=>p.agencyId===agency.id).length}명</span>
-                  </div>
-                  <div className="agencyPlayerList">
-                    {players.filter(p=>p.agencyId===agency.id).length===0
-                      ? <div className="agencyPlayerEmpty">등록된 플레이어가 없습니다.</div>
-                      : players.filter(p=>p.agencyId===agency.id).slice(0,50).map(p=>{
-                          const lastEntry=entries.filter(e=>e.playerId===p.id).sort((a,b)=>b.date.localeCompare(a.date))[0];
-                          return <button key={p.id} onClick={()=>{setEditingAgencyId(null);openPlayerDetail(p.id);navigateTab("players")}}>
-                            <div>
-                              <strong>{p.name}</strong>
-                              <small>{p.koreanName || p.cardNo || "회원번호 없음"}</small>
-                            </div>
-                            <div>
-                              <span>등록 {p.createdAt?p.createdAt.slice(0,10):"-"}</span>
-                              <em>최근 {lastEntry?.date || "-"}</em>
-                            </div>
-                          </button>
-                        })}
-                  </div>
+              <section className="agencyMembersPanel">
+                <div className="agencyPlayerSectionTitle">
+                  <div><strong>소속 플레이어</strong><small>등록된 플레이어와 최근 플레이 기록</small></div>
+                  <span>{agencyPlayers.length}명</span>
                 </div>
-
-                <button
-                  className="agencyDeleteButton"
-                  onClick={()=>deleteAgency(agency.id)}
-                >
-                  에이전트 삭제
-                </button>
-
-                <button className="primary agencyEditDone" onClick={()=>setEditingAgencyId(null)}>완료</button>
+                {agencyPlayers.length===0
+                  ? <div className="agencyPlayerEmpty">등록된 플레이어가 없습니다.</div>
+                  : <div className="agencyMembersTable">
+                      <div className="agencyMembersHead"><span>플레이어</span><span>등록일</span><span>최근 플레이</span><span>BUY-IN</span><span>레이크백</span></div>
+                      {agencyPlayers.map(p=>{
+                        const pEntries=entries.filter(e=>e.playerId===p.id && e.agencyId===agency.id);
+                        const last=pEntries.slice().sort((a,b)=>b.date.localeCompare(a.date))[0];
+                        const buyins=pEntries.reduce((sum,e)=>sum+e.buyIn,0);
+                        const rb=pEntries.reduce((sum,e)=>sum+e.rakeback,0);
+                        return <button className="agencyMemberRow" key={p.id} onClick={()=>{openPlayerDetail(p.id);navigateTab("players")}}>
+                          <span><strong>{p.name}</strong><small>{p.koreanName || p.cardNo || ""}</small></span>
+                          <span>{p.createdAt?p.createdAt.slice(0,10):"-"}</span>
+                          <span>{last?.date || "-"}</span>
+                          <span>{buyins}</span>
+                          <b>{vnd(rb)}</b>
+                        </button>
+                      })}
+                    </div>}
               </section>
-            </div>
+
+              <div className="agencyDetailDanger">
+                <button className="agencyDeleteButton" onClick={()=>deleteAgency(agency.id)}>에이전트 삭제</button>
+              </div>
+            </section>
           })()}
         </section>}
 
@@ -2700,17 +2718,18 @@ export default function Home() {
               </div>
 
               <div className="dailyTopActions compactExportActions">
-                <div className="dailyDownloadMenu">
-                  <button className="dailyDownloadTrigger" onClick={()=>setDailyExportOpen(v=>!v)}>
-                    정산서 다운로드
-                    <span>{dailyExportOpen?"⌃":"⌄"}</span>
-                  </button>
-                  {dailyExportOpen && <div className="dailyDownloadDropdown">
-                    <button onClick={()=>exportSettlementPdf(summaryDate,summaryDate)}><strong>PDF</strong><small>인쇄·공유용 문서</small></button>
-                    <button onClick={()=>exportSettlementPng(summaryDate,summaryDate)}><strong>PNG</strong><small>이미지 파일</small></button>
-                    <button onClick={()=>exportSettlementCsv(summaryDate,summaryDate)}><strong>스프레드시트</strong><small>CSV 파일</small></button>
-                  </div>}
-                </div>
+                <button
+                  className="dailyIconDownload"
+                  onClick={()=>exportSettlementPng(summaryDate,summaryDate)}
+                  title="일일 정산서 PNG 다운로드"
+                  aria-label="일일 정산서 PNG 다운로드"
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M12 3v11"/>
+                    <path d="m7.5 10 4.5 4.5 4.5-4.5"/>
+                    <path d="M5 20h14"/>
+                  </svg>
+                </button>
               </div>
             </div>
 
@@ -3116,7 +3135,56 @@ export default function Home() {
           </section>
         </section>}
 
-        {tab==="reports" && <section className="panel placeholderPanel"><h2>리포트</h2><p>에이전트별 정산 리포트와 다운로드 기능을 다음 단계에서 연결합니다.</p></section>}
+        {tab==="reports" && <section className="reportAnalyticsPage">
+          <section className="panel reportAnalyticsPanel">
+            <div className="reportAnalyticsTop">
+              <div><h2>리포트</h2><p>기간별 운영 통계와 수익 추이를 확인합니다.</p></div>
+              <div className="reportPresetButtons">
+                <button className={reportPreset==="today"?"active":""} onClick={()=>applyReportPreset("today")}>오늘</button>
+                <button className={reportPreset==="week"?"active":""} onClick={()=>applyReportPreset("week")}>이번 주</button>
+                <button className={reportPreset==="custom"?"active":""} onClick={()=>setReportPreset("custom")}>기간 선택</button>
+              </div>
+            </div>
+            {reportPreset==="custom" && <div className="reportDateRange analyticsRange">
+              <input type="date" value={reportStart} onChange={e=>setReportStart(e.target.value)}/>
+              <span>~</span>
+              <input type="date" value={reportEnd} onChange={e=>setReportEnd(e.target.value)}/>
+            </div>}
+
+            <div className="reportKpiGrid">
+              <div><span>총 엔트리피</span><b>{vnd(reportRevenue)}</b><small>{reportBuyInCount} BUY-IN</small></div>
+              <div><span>레이크백</span><b>{vnd(reportRakeback)}</b><small>{reportAgencyRanking.length}개 지급 코드</small></div>
+              <div><span>플레이어</span><b>{reportPlayerCount}명</b><small>{reportStart} ~ {reportEnd}</small></div>
+              <div className="profit"><span>순수익</span><b>{vnd(reportNet)}</b><small>2FLOOR F&B 반영</small></div>
+            </div>
+
+            <div className="reportAnalyticsGrid">
+              <section className="reportTrendCard">
+                <div className="reportSectionHead"><div><h3>수익 추이</h3><p>엔트리피와 순수익 비교</p></div></div>
+                <div className="reportTrendChart">
+                  {reportTrendData.map(item=><div className="reportTrendCol" key={item.date}>
+                    <div className="reportTrendBars">
+                      <i className="entry" style={{height:`${Math.max(item.entryFee>0?6:2,item.entryFee/reportTrendMax*100)}%`}}/>
+                      <i className="profit" style={{height:`${Math.max(item.profit>0?6:2,Math.max(0,item.profit)/reportTrendMax*100)}%`}}/>
+                    </div>
+                    <span>{item.date.slice(5).replace("-","/")}</span>
+                  </div>)}
+                </div>
+                <div className="reportLegend"><span><i className="entry"/>엔트리피</span><span><i className="profit"/>순수익</span></div>
+              </section>
+
+              <section className="reportAgencyRank">
+                <div className="reportSectionHead"><div><h3>에이전트 레이크백</h3><p>선택 기간 지급액 순</p></div></div>
+                {reportAgencyRanking.length===0
+                  ? <div className="weeklyEmpty">레이크백 지급 내역이 없습니다.</div>
+                  : reportAgencyRanking.map((a,index)=><div className="reportAgencyRankRow" key={a.id}>
+                      <span><em>{index+1}</em><strong>{a.code}</strong></span>
+                      <b>{vnd(a.amount)}</b>
+                    </div>)}
+              </section>
+            </div>
+          </section>
+        </section>}
         {tab==="settings" && profile?.role==="admin" && <section className="accountManagementPage">
           <section className="panel ownLoginPanel">
             <div className="sectionTitle">
