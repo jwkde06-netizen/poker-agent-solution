@@ -2827,3 +2827,537 @@ html[data-theme="dark"] .accountDropdown>button:hover{
     font-size:7px!important;
   }
 }
+
+/* Poker floor map buy-in workflow */
+.floorBuyinPage{
+  display:grid;
+  gap:12px;
+}
+.floorSelectorPanel,
+.selectedTablePanel{
+  padding:14px;
+}
+.floorSelectorHeader,
+.selectedTableTop{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+}
+.floorSelectorHeader h2{
+  margin:0;
+  font-size:16px;
+}
+.floorSelectorHeader p{
+  margin:4px 0 0;
+  color:#8e959c;
+  font-size:9px;
+}
+.pokerFloorMap{
+  position:relative;
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  grid-template-rows:64px 76px;
+  gap:9px;
+  margin-top:12px;
+  padding:12px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:
+    radial-gradient(circle at 50% 0%,rgba(201,150,49,.08),transparent 38%),
+    #0f0f0f;
+}
+.finalTableLandmark{
+  grid-column:2/4;
+  grid-row:1;
+  align-self:start;
+  justify-self:center;
+  min-width:120px;
+  padding:7px 14px;
+  border:1px solid #3a2f1b;
+  border-radius:999px;
+  background:#18130b;
+  color:#d8a94b;
+  text-align:center;
+}
+.finalTableLandmark span{
+  display:block;
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:.08em;
+}
+.finalTableLandmark small{
+  display:block;
+  margin-top:1px;
+  color:#7f6b43;
+  font-size:6px;
+}
+.floorTableButton{
+  min-width:0;
+  border:1px solid #303030;
+  border-radius:18px;
+  background:linear-gradient(180deg,#171717,#101010);
+  color:#aaa;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.02);
+  cursor:pointer;
+}
+.floorTableButton strong{
+  display:block;
+  font-size:16px;
+  color:#d6d6d6;
+}
+.floorTableButton small{
+  display:block;
+  margin-top:3px;
+  font-size:7px;
+  color:#777;
+}
+.floorTableButton.live{
+  border-color:#3f623f;
+  background:linear-gradient(180deg,#102016,#0d1510);
+}
+.floorTableButton.live strong{color:#dfeee0}
+.floorTableButton.live small{color:#62bd73}
+.floorTableButton.selected{
+  border-color:#c99631;
+  background:linear-gradient(180deg,#2b220f,#18130b);
+  box-shadow:
+    0 0 0 2px rgba(201,150,49,.12),
+    0 8px 18px rgba(0,0,0,.22);
+}
+.floorTableButton.selected strong{color:#efbd55}
+.floorTableButton.selected small{color:#b58b3e}
+
+.table4{
+  grid-column:3;
+  grid-row:1;
+  align-self:end;
+}
+.table12{grid-column:1;grid-row:2}
+.table13{grid-column:2;grid-row:2}
+.table5{grid-column:3;grid-row:2}
+.table2{grid-column:4;grid-row:2}
+
+.otherTablePicker{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  margin-top:9px;
+}
+.otherTablePicker>span{
+  margin-right:auto;
+  color:#8d949b;
+  font-size:8px;
+  font-weight:800;
+}
+.otherTablePicker input{
+  width:68px;
+  height:34px;
+  padding:0 8px;
+  border:1px solid var(--line-strong);
+  border-radius:9px;
+  background:#111;
+  color:#eee;
+  font-size:16px;
+  text-align:center;
+}
+.otherTablePicker button{
+  height:34px;
+  padding:0 11px;
+  border:1px solid #3a3a3a;
+  border-radius:9px;
+  background:#191919;
+  color:#ccc;
+  font-size:9px;
+  font-weight:800;
+}
+.selectedTableTop{
+  padding-bottom:12px;
+  border-bottom:1px solid var(--line);
+}
+.selectedTableTop>div:first-child>span{
+  display:block;
+  color:#8d949b;
+  font-size:8px;
+  font-weight:800;
+}
+.selectedTableTop>div:first-child>strong{
+  display:block;
+  margin-top:3px;
+  color:#e0ad49;
+  font-size:24px;
+  line-height:1;
+}
+.selectedGameStart{
+  display:flex;
+  align-items:end;
+  gap:7px;
+}
+.selectedGameStart label{
+  display:grid;
+  gap:4px;
+}
+.selectedGameStart label span{
+  color:#8d949b;
+  font-size:7px;
+  font-weight:800;
+}
+.selectedGameStart select{
+  height:38px;
+  min-width:76px;
+  padding:0 9px;
+  border:1px solid var(--line-strong);
+  border-radius:9px;
+  background:#111;
+  color:#eee;
+  font-size:15px;
+  font-weight:800;
+}
+.selectedGameStart .startTableButton{
+  height:38px;
+  padding:0 13px;
+}
+.selectedCloseButton{
+  height:36px!important;
+  padding:0 12px!important;
+}
+.selectedTableStats{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  margin:0 -14px;
+  border-bottom:1px solid var(--line);
+}
+.selectedTableStats>div{
+  min-width:0;
+  padding:10px 12px;
+  border-right:1px solid var(--line);
+}
+.selectedTableStats>div:last-child{border-right:0}
+.selectedTableStats span{
+  display:block;
+  color:#858c93;
+  font-size:7px;
+  font-weight:800;
+}
+.selectedTableStats b{
+  display:block;
+  margin-top:4px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  color:#eee;
+  font-size:11px;
+}
+.selectedTableEmpty{
+  display:grid;
+  justify-items:center;
+  gap:5px;
+  padding:28px 12px;
+  text-align:center;
+}
+.emptyPlayersIcon{
+  display:grid;
+  place-items:center;
+  width:42px;
+  height:42px;
+  border-radius:50%;
+  background:#151515;
+  color:#7f858b;
+  font-size:22px;
+}
+.selectedTableEmpty strong{
+  color:#ddd;
+  font-size:12px;
+}
+.selectedTableEmpty span{
+  color:#777e85;
+  font-size:9px;
+}
+.selectedPlayerSection{
+  display:grid;
+}
+.selectedPlayerSectionTitle{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:9px;
+  padding:11px 2px;
+}
+.selectedPlayerSectionTitle>div{
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.selectedPlayerSectionTitle strong{
+  color:#eee;
+  font-size:11px;
+}
+.selectedPlayerSectionTitle span{
+  padding:2px 6px;
+  border-radius:999px;
+  background:#1c1c1c;
+  color:#858c93;
+  font-size:7px;
+}
+.selectedPlayerSectionTitle>b{
+  color:#d2a348;
+  font-size:9px;
+}
+.selectedPlayerList{
+  display:grid;
+  border:1px solid #282828;
+  border-radius:12px;
+  overflow:hidden;
+}
+.selectedPlayerRow{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 76px 28px 82px;
+  align-items:center;
+  gap:6px;
+  min-width:0;
+  padding:9px 10px;
+  border-bottom:1px solid #282828;
+}
+.selectedPlayerRow:last-child{border-bottom:0}
+.selectedPlayerIdentity{
+  min-width:0;
+}
+.selectedPlayerIdentity strong{
+  display:block;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  color:#f0f0f0;
+  font-size:10px;
+}
+.selectedPlayerIdentity span{
+  display:block;
+  margin-top:2px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  color:#7f858b;
+  font-size:7px;
+}
+.selectedPlayerBuyin{
+  text-align:right;
+}
+.selectedPlayerBuyin small{
+  display:block;
+  color:#777e85;
+  font-size:6px;
+}
+.selectedPlayerBuyin b{
+  display:block;
+  margin-top:1px;
+  color:#eee;
+  font-size:10px;
+}
+.selectedPlayerBuyin em{
+  display:block;
+  margin-top:1px;
+  color:#c99631;
+  font-size:7px;
+  font-style:normal;
+}
+.compactMinus,
+.quickRebuyButton{
+  height:32px;
+  border-radius:8px;
+  font-weight:900;
+}
+.compactMinus{
+  border:1px solid #303030;
+  background:#171717;
+  color:#888;
+}
+.compactMinus:disabled{opacity:.25}
+.quickRebuyButton{
+  border:1px solid #c99631;
+  background:#c99631;
+  color:#111;
+  font-size:9px;
+}
+.selectedPlayerSearch{
+  position:relative;
+  margin-top:10px;
+  padding:10px;
+  border:1px solid #282828;
+  border-radius:12px;
+  background:#101010;
+}
+.selectedSearchLabel{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  margin-bottom:7px;
+}
+.selectedSearchLabel strong{
+  color:#eee;
+  font-size:10px;
+}
+.selectedSearchLabel small{
+  color:#777e85;
+  font-size:7px;
+}
+.selectedSearchInput{
+  width:100%;
+  max-width:100%;
+  box-sizing:border-box;
+}
+.selectedSearchInput input{
+  font-size:16px!important;
+}
+.selectedSearchResults{
+  position:absolute;
+  left:10px;
+  right:10px;
+  top:70px;
+  z-index:40;
+  max-height:280px;
+  overflow:auto;
+  border:1px solid #303030;
+  border-radius:11px;
+  background:#111;
+  box-shadow:0 16px 35px rgba(0,0,0,.4);
+}
+.selectedSearchResults button{
+  width:100%;
+  min-height:46px;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto auto;
+  align-items:center;
+  gap:8px;
+  padding:8px 10px;
+  border:0;
+  border-bottom:1px solid #262626;
+  background:#111;
+  color:#eee;
+  text-align:left;
+}
+.selectedSearchResults button:last-child{border-bottom:0}
+.selectedSearchResults button>span{min-width:0}
+.selectedSearchResults button strong{
+  display:block;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font-size:10px;
+}
+.selectedSearchResults button small{
+  display:block;
+  margin-top:2px;
+  color:#777e85;
+  font-size:7px;
+}
+.selectedSearchResults button em{
+  color:#898f95;
+  font-size:7px;
+  font-style:normal;
+}
+.selectedSearchResults button b{
+  padding:5px 7px;
+  border-radius:7px;
+  background:#211a0d;
+  color:#e0ad49;
+  font-size:7px;
+  white-space:nowrap;
+}
+.playerEmpty{
+  padding:20px 10px;
+}
+
+@media(max-width:820px){
+  .floorBuyinPage{gap:9px}
+  .floorSelectorPanel,
+  .selectedTablePanel{
+    padding:10px!important;
+    border-radius:13px!important;
+  }
+  .floorSelectorHeader h2{font-size:13px}
+  .floorSelectorHeader p{display:none}
+  .pokerFloorMap{
+    grid-template-rows:54px 66px;
+    gap:6px;
+    margin-top:9px;
+    padding:8px;
+    border-radius:12px;
+  }
+  .finalTableLandmark{
+    min-width:96px;
+    padding:5px 10px;
+  }
+  .finalTableLandmark span{font-size:8px}
+  .floorTableButton{
+    border-radius:14px;
+    padding:3px;
+  }
+  .floorTableButton strong{font-size:13px}
+  .floorTableButton small{font-size:6px}
+  .otherTablePicker{margin-top:7px}
+  .selectedTableTop{padding-bottom:9px}
+  .selectedTableTop>div:first-child>strong{font-size:21px}
+  .selectedGameStart select{
+    height:36px;
+    font-size:16px;
+  }
+  .selectedGameStart .startTableButton{
+    height:36px!important;
+    padding:0 10px!important;
+    font-size:9px!important;
+  }
+  .selectedTableStats{
+    margin:0 -10px;
+  }
+  .selectedTableStats>div{
+    padding:8px 7px;
+  }
+  .selectedTableStats b{font-size:10px}
+  .selectedTableEmpty{
+    padding:22px 8px;
+  }
+  .selectedPlayerSectionTitle{
+    padding:9px 0;
+  }
+  .selectedPlayerRow{
+    grid-template-columns:minmax(0,1fr) 64px 24px 72px;
+    gap:4px;
+    padding:7px 7px;
+  }
+  .selectedPlayerIdentity strong{font-size:9px}
+  .selectedPlayerBuyin b{font-size:9px}
+  .selectedPlayerBuyin em{font-size:6px}
+  .compactMinus,
+  .quickRebuyButton{
+    height:30px;
+    padding:0;
+  }
+  .quickRebuyButton{font-size:8px}
+  .selectedPlayerSearch{
+    margin-top:8px;
+    padding:8px;
+  }
+  .selectedSearchLabel{
+    margin-bottom:6px;
+  }
+  .selectedSearchLabel small{
+    display:none;
+  }
+  .selectedSearchResults{
+    left:8px;
+    right:8px;
+    top:59px;
+  }
+}
+
+@media(max-width:390px){
+  .pokerFloorMap{
+    gap:5px;
+    padding:7px;
+  }
+  .floorTableButton strong{font-size:12px}
+  .selectedPlayerRow{
+    grid-template-columns:minmax(0,1fr) 58px 22px 66px;
+  }
+}
