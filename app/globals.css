@@ -11401,3 +11401,213 @@ html[data-theme="dark"] .inlineAgencyCode{
 .selectedTablePanel>.selectedTableStats{
   margin-top:0!important
 }
+
+
+/* Daily settlement V4 — stable widths, calmer cards, unified download menu */
+.redesignedDailyPanel{
+  overflow:visible!important
+}
+.dailyTopBar{
+  position:relative;
+  align-items:center!important
+}
+.dailyTitleBlock{
+  gap:10px!important
+}
+.dailySummaryGridCompact{
+  gap:10px!important
+}
+.dailySummaryCard{
+  border-radius:14px!important;
+  box-shadow:none!important;
+  background:var(--surface)!important
+}
+.dailySummaryCard.profit{
+  background:#fffaf0!important
+}
+.dailyWorkspaceGrid{
+  grid-template-columns:minmax(0,1.8fr) minmax(300px,.72fr)!important;
+  align-items:start!important;
+  gap:12px!important
+}
+.dailyMainDetail{
+  width:100%!important;
+  min-width:0!important
+}
+.dailyGameGroups,
+.dailyGameGroup,
+.dailyGameRows{
+  width:100%!important;
+  min-width:0!important
+}
+.dailyGameGroup{
+  border-radius:14px!important;
+  box-shadow:none!important
+}
+.dailyGameGroupHeader{
+  min-height:54px!important;
+  padding:10px 14px!important;
+  background:var(--surface-2)!important
+}
+.dailyGameGroupIdentity{
+  min-width:0!important
+}
+.dailyGameGroupIdentity strong{
+  background:transparent!important;
+  color:var(--text)!important;
+  border-radius:0!important;
+  min-width:0!important;
+  min-height:auto!important;
+  padding:0!important;
+  font-size:16px!important;
+  font-weight:700!important
+}
+.dailyGameGroupIdentity span,
+.dailyGameGroupIdentity b{
+  color:var(--text)!important;
+  font-size:13px!important;
+  font-weight:650!important
+}
+.dailyGameGroupSummary{
+  gap:10px!important
+}
+.dailyGameGroupSummary span,
+.dailyGameGroupSummary strong,
+.dailyGameGroupSummary em{
+  font-size:11px!important
+}
+.dailyGameRows{
+  display:block!important
+}
+.dailyGameRow{
+  width:100%!important;
+  grid-template-columns:minmax(230px,1.45fr) minmax(90px,.55fr) 150px minmax(110px,.65fr) minmax(110px,.65fr) 42px!important
+}
+.dailyGameEmptyRow{
+  width:100%;
+  min-height:58px;
+  display:flex;
+  align-items:center;
+  padding:0 14px;
+  border-top:1px solid var(--line);
+  color:var(--muted);
+  font-size:12px;
+  background:var(--surface)
+}
+.dailySideSummary{
+  width:100%!important;
+  min-width:0!important
+}
+.dailySideCard{
+  border-radius:14px!important;
+  box-shadow:none!important
+}
+
+.dailyDownloadMenu{
+  position:relative
+}
+.dailyDownloadTrigger{
+  height:42px;
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:0 14px;
+  border:1px solid #b98421;
+  border-radius:10px;
+  background:#d4a140;
+  color:#19140a;
+  font-size:13px;
+  font-weight:800;
+  cursor:pointer
+}
+.dailyDownloadTrigger span{
+  font-size:11px
+}
+.dailyDownloadDropdown{
+  position:absolute;
+  top:calc(100% + 7px);
+  right:0;
+  z-index:90;
+  width:220px;
+  padding:6px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:var(--surface);
+  box-shadow:0 18px 45px rgba(20,24,28,.14)
+}
+.dailyDownloadDropdown button{
+  width:100%;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  min-height:48px;
+  padding:8px 10px;
+  border:0;
+  border-radius:8px;
+  background:transparent;
+  color:var(--text);
+  cursor:pointer;
+  text-align:left
+}
+.dailyDownloadDropdown button:hover{
+  background:var(--surface-2);
+  transform:none
+}
+.dailyDownloadDropdown strong{
+  font-size:13px
+}
+.dailyDownloadDropdown small{
+  color:var(--muted);
+  font-size:10px;
+  white-space:nowrap
+}
+
+html[data-theme="dark"] .dailySummaryCard.profit{
+  background:#211b0f!important
+}
+html[data-theme="dark"] .dailyGameGroupHeader{
+  background:#1d1f22!important
+}
+html[data-theme="dark"] .dailyGameEmptyRow{
+  background:#18191c;
+  border-color:#2d2f34
+}
+html[data-theme="dark"] .dailyDownloadDropdown{
+  background:#18191c;
+  border-color:#303238;
+  box-shadow:0 18px 45px rgba(0,0,0,.35)
+}
+html[data-theme="dark"] .dailyDownloadDropdown button:hover{
+  background:#222328
+}
+
+@media(max-width:1100px){
+  .dailyWorkspaceGrid{
+    grid-template-columns:1fr!important
+  }
+}
+@media(max-width:900px){
+  .dailyGameGroup{
+    overflow-x:auto!important
+  }
+  .dailyGameRows{
+    min-width:880px!important
+  }
+  .dailyGameGroupHeader{
+    min-width:880px!important
+  }
+}
+@media(max-width:820px){
+  .dailyTopBar{
+    gap:10px!important
+  }
+  .dailyDownloadTrigger{
+    height:38px;
+    padding:0 11px;
+    font-size:12px
+  }
+  .dailyDownloadDropdown{
+    width:205px
+  }
+}
