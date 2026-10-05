@@ -15474,3 +15474,47 @@ html[data-theme="dark"] .expenseDetailDelete{
     min-width:740px!important
   }
 }
+
+
+/* Expense ledger v8 — single primary balance KPI */
+.singleBalanceSummary{
+  margin-left:auto;
+  display:flex!important;
+  align-items:center;
+  justify-content:flex-end;
+  gap:0!important
+}
+.singleBalanceSummary>div{
+  min-width:210px!important;
+  padding:0!important;
+  border:0!important;
+  text-align:right!important
+}
+.singleBalanceSummary .primary{
+  padding-right:0!important;
+  border-right:0!important
+}
+.singleBalanceSummary .primary span{
+  font-size:11px!important;
+  font-weight:800
+}
+.singleBalanceSummary .primary strong{
+  margin-top:3px;
+  font-size:28px!important;
+  line-height:1!important
+}
+@media(max-width:820px){
+  .singleBalanceSummary{
+    display:block!important;
+    width:auto!important
+  }
+  .singleBalanceSummary>div{
+    min-width:0!important;
+    padding:0!important;
+    border:0!important;
+    text-align:left!important
+  }
+  .singleBalanceSummary .primary strong{
+    font-size:23px!important
+  }
+}
