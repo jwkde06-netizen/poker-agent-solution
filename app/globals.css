@@ -10190,3 +10190,200 @@ html[data-theme="dark"] .dashboardTrendChart{
     font-size:7px!important
   }
 }
+
+
+/* Live game editing UX: top search, one-tap buy-ins, hover-edit session meta */
+.topPlayerSearch{
+  margin:0 0 10px!important;
+  position:relative
+}
+.quickBuyinRow{
+  display:grid!important;
+  grid-template-columns:minmax(180px,1.1fr) auto minmax(250px,1fr) 28px!important;
+  align-items:center!important;
+  gap:10px!important;
+  min-height:64px!important;
+  padding:8px 10px!important
+}
+.playerOpenManage{
+  min-width:0;
+  border:0;
+  background:transparent;
+  color:inherit;
+  text-align:left;
+  padding:0;
+  cursor:pointer
+}
+.playerOpenManage:hover{
+  transform:none
+}
+.quickBuyinControl{
+  display:grid;
+  grid-template-columns:34px 38px 34px;
+  align-items:center;
+  gap:4px
+}
+.quickBuyinControl button{
+  width:34px;
+  height:34px;
+  border:1px solid var(--line-strong);
+  border-radius:9px;
+  background:var(--surface);
+  color:var(--text);
+  font-size:18px;
+  font-weight:850;
+  cursor:pointer
+}
+.quickBuyinControl button:disabled{
+  opacity:.35;
+  cursor:not-allowed
+}
+.quickBuyinControl b{
+  display:grid;
+  place-items:center;
+  min-width:38px;
+  height:34px;
+  border-radius:9px;
+  background:var(--surface-2);
+  color:var(--text);
+  font-size:14px
+}
+.quickBuyinRow .playerFinancialGrid{
+  grid-template-columns:1fr 1fr!important;
+  gap:8px!important
+}
+.playerManageButton{
+  width:28px;
+  height:34px;
+  display:grid;
+  place-items:center;
+  border:0;
+  background:transparent;
+  color:var(--muted-2);
+  cursor:pointer
+}
+.playerManageButton:hover{
+  transform:none;
+  color:var(--text)
+}
+
+.editableSessionMeta{
+  display:flex;
+  align-items:center;
+  gap:7px
+}
+.inlineSessionEdit{
+  position:relative;
+  display:inline-flex;
+  align-items:center
+}
+.inlineSessionEdit>span{
+  position:absolute;
+  opacity:0;
+  pointer-events:none
+}
+.inlineSessionEdit input,
+.inlineSessionEdit select{
+  height:38px;
+  border:1px solid transparent;
+  border-radius:9px;
+  background:transparent;
+  color:var(--text);
+  font-weight:850;
+  outline:none;
+  transition:border-color .14s ease,background .14s ease,box-shadow .14s ease
+}
+.inlineSessionEdit input{
+  width:58px;
+  padding:0 8px;
+  font-size:22px
+}
+.inlineSessionEdit input::before{
+  content:"T"
+}
+.inlineSessionEdit select{
+  min-width:72px;
+  padding:0 28px 0 8px;
+  font-size:15px;
+  appearance:none;
+  background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);
+  background-position:calc(100% - 12px) 16px,calc(100% - 8px) 16px;
+  background-size:4px 4px,4px 4px;
+  background-repeat:no-repeat
+}
+.editableSessionMeta:hover .inlineSessionEdit input,
+.editableSessionMeta:hover .inlineSessionEdit select,
+.inlineSessionEdit input:focus,
+.inlineSessionEdit select:focus{
+  border-color:#d7bd83;
+  background:var(--surface);
+  box-shadow:0 0 0 3px rgba(199,155,67,.09)
+}
+.editableSessionMeta::after{
+  content:"마우스를 올려 수정";
+  margin-left:2px;
+  color:var(--muted-2);
+  font-size:9px;
+  opacity:0;
+  transition:opacity .14s ease
+}
+.editableSessionMeta:hover::after{
+  opacity:1
+}
+.tableEdit::before{
+  content:"T";
+  margin-right:-5px;
+  color:var(--text);
+  font-size:22px;
+  font-weight:850;
+  pointer-events:none;
+  z-index:1
+}
+
+html[data-theme="dark"] .quickBuyinControl button,
+html[data-theme="dark"] .inlineSessionEdit input:focus,
+html[data-theme="dark"] .inlineSessionEdit select:focus,
+html[data-theme="dark"] .editableSessionMeta:hover .inlineSessionEdit input,
+html[data-theme="dark"] .editableSessionMeta:hover .inlineSessionEdit select{
+  background:#202126;
+  border-color:#44474d;
+  color:#f1f2f3
+}
+html[data-theme="dark"] .quickBuyinControl b{
+  background:#24262a
+}
+
+@media(max-width:900px){
+  .quickBuyinRow{
+    grid-template-columns:minmax(130px,1fr) auto minmax(180px,.9fr) 26px!important;
+    gap:7px!important
+  }
+}
+@media(max-width:820px){
+  .quickBuyinRow{
+    grid-template-columns:minmax(0,1fr) auto 24px!important;
+    min-height:62px!important
+  }
+  .quickBuyinRow .playerFinancialGrid{
+    display:none!important
+  }
+  .quickBuyinControl{
+    grid-template-columns:32px 34px 32px
+  }
+  .quickBuyinControl button{
+    width:32px;
+    height:32px
+  }
+  .quickBuyinControl b{
+    min-width:34px;
+    height:32px
+  }
+  .editableSessionMeta::after{
+    display:none
+  }
+  .inlineSessionEdit input,
+  .inlineSessionEdit select{
+    border-color:var(--line)!important;
+    background:var(--surface)!important
+  }
+}
