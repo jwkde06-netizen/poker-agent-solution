@@ -15031,3 +15031,158 @@ html[data-theme="dark"] .expenseLedgerRow>em.deposit{
     grid-column:1/-1
   }
 }
+
+
+/* Expense ledger v4 — larger type, tighter columns, no clipped right edge */
+.compactExpensePage .expenseCompactTitle>span{
+  font-size:9px
+}
+.compactExpensePage .expenseCompactTitle h2{
+  font-size:21px
+}
+.compactExpensePage .expenseCompactSummary{
+  gap:12px
+}
+.compactExpensePage .expenseCompactSummary>div{
+  min-width:104px
+}
+.compactExpensePage .expenseCompactSummary span{
+  font-size:9px
+}
+.compactExpensePage .expenseCompactSummary b,
+.compactExpensePage .expenseCompactSummary strong{
+  font-size:14px
+}
+.compactExpensePage .expenseCompactSummary .primary{
+  padding-right:12px
+}
+.compactExpensePage .expenseCompactSummary .primary strong{
+  font-size:19px
+}
+
+.compactExpensePage .expenseLedgerHeader h2{
+  font-size:15px
+}
+.compactExpensePage .expenseLedgerHeader p{
+  font-size:9px
+}
+.compactExpensePage .expenseFilterTabs{
+  gap:2px
+}
+.compactExpensePage .expenseFilterTabs button{
+  padding:0 8px;
+  font-size:9px
+}
+
+/* Input row: reduce horizontal waste while increasing readability */
+.compactExpensePage .expenseQuickAdd{
+  grid-template-columns:92px 112px 110px minmax(170px,1.25fr) 112px 132px minmax(130px,.75fr) 72px!important;
+  gap:5px!important;
+  padding:7px 8px!important
+}
+.compactExpensePage .expenseQuickAdd input,
+.compactExpensePage .expenseQuickAdd select{
+  padding:0 7px;
+  font-size:10px!important
+}
+.compactExpensePage .depositAutoLabel{
+  padding:0 7px;
+  font-size:10px
+}
+.compactExpensePage .expenseQuickAdd button{
+  padding:0 7px!important;
+  font-size:10px!important
+}
+
+/* Ledger: fit desktop viewport without sacrificing text size */
+.compactExpensePage .expenseLedgerTable{
+  min-width:1160px!important
+}
+.compactExpensePage .expenseLedgerHead,
+.compactExpensePage .expenseLedgerRow{
+  grid-template-columns:
+    78px
+    minmax(190px,1.45fr)
+    106px
+    108px
+    108px
+    108px
+    112px
+    116px
+    78px
+    minmax(115px,.72fr)
+    26px!important;
+  gap:5px!important;
+  padding-left:8px!important;
+  padding-right:8px!important
+}
+.compactExpensePage .expenseLedgerHead{
+  font-size:9px!important
+}
+.compactExpensePage .expenseLedgerRow{
+  font-size:11px!important
+}
+.compactExpensePage .expenseItemName{
+  gap:2px
+}
+.compactExpensePage .expenseItemName strong{
+  font-size:12px!important
+}
+.compactExpensePage .expenseItemName small{
+  font-size:8px!important
+}
+.compactExpensePage .expensePayerInput{
+  padding:0 5px;
+  font-size:11px!important
+}
+.compactExpensePage .expenseLedgerRow>b,
+.compactExpensePage .ledgerBalance{
+  font-size:11px!important
+}
+.compactExpensePage .expenseLedgerRow>em{
+  padding:4px 6px;
+  font-size:9px!important
+}
+.compactExpensePage .expenseNoteCell{
+  font-size:10px
+}
+.compactExpensePage .expenseLedgerRow>button{
+  width:24px;
+  height:26px
+}
+
+@media(max-width:1280px){
+  .compactExpensePage .expenseLedgerTable{
+    min-width:1090px!important
+  }
+  .compactExpensePage .expenseLedgerHead,
+  .compactExpensePage .expenseLedgerRow{
+    grid-template-columns:
+      74px
+      minmax(170px,1.35fr)
+      96px
+      100px
+      100px
+      100px
+      104px
+      108px
+      74px
+      minmax(105px,.68fr)
+      24px!important;
+    gap:4px!important;
+    padding-left:6px!important;
+    padding-right:6px!important
+  }
+  .compactExpensePage .expenseCompactSummary{
+    gap:8px
+  }
+  .compactExpensePage .expenseCompactSummary>div{
+    min-width:92px
+  }
+}
+
+@media(max-width:820px){
+  .compactExpensePage .expenseLedgerTable{
+    min-width:1030px!important
+  }
+}
