@@ -3665,3 +3665,112 @@ html[data-theme="dark"] .accountDropdown>button:hover{
     font-size:10px!important;
   }
 }
+
+/* Final mobile fixes: table map consistency + non-clipping player search */
+@media(max-width:820px){
+  .pokerFloorMap{
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+    grid-template-rows:34px 42px 42px!important;
+    gap:5px!important;
+    padding:7px!important;
+    align-items:center!important;
+  }
+
+  .finalTableLandmark{
+    grid-column:2/4!important;
+    grid-row:1!important;
+    align-self:center!important;
+    justify-self:center!important;
+    min-width:92px!important;
+    max-width:120px!important;
+    padding:4px 9px!important;
+  }
+
+  .table4{
+    grid-column:3!important;
+    grid-row:2!important;
+  }
+  .table12{
+    grid-column:1!important;
+    grid-row:3!important;
+  }
+  .table13{
+    grid-column:2!important;
+    grid-row:3!important;
+  }
+  .table5{
+    grid-column:3!important;
+    grid-row:3!important;
+  }
+  .table2{
+    grid-column:4!important;
+    grid-row:3!important;
+  }
+
+  .floorTableButton{
+    width:100%!important;
+    height:42px!important;
+    min-height:42px!important;
+    max-height:42px!important;
+    margin:0!important;
+    padding:4px 5px!important;
+    align-self:center!important;
+    justify-self:stretch!important;
+    border-radius:9px!important;
+    box-sizing:border-box!important;
+  }
+
+  .floorTableButton strong{
+    font-size:14px!important;
+    line-height:1!important;
+  }
+
+  .floorTableButton small{
+    margin-top:3px!important;
+    font-size:7px!important;
+    line-height:1!important;
+  }
+
+  /* Search results become normal document flow so iOS keyboard cannot cover/crop them */
+  .selectedPlayerSearch{
+    overflow:visible!important;
+  }
+
+  .selectedSearchResults{
+    position:static!important;
+    inset:auto!important;
+    width:100%!important;
+    max-width:100%!important;
+    max-height:260px!important;
+    margin-top:7px!important;
+    overflow-y:auto!important;
+    border-radius:11px!important;
+    box-sizing:border-box!important;
+    z-index:auto!important;
+    box-shadow:none!important;
+  }
+
+  .selectedSearchResults button{
+    min-height:56px!important;
+    padding:9px 10px!important;
+  }
+
+  .selectedSearchResults button strong{
+    font-size:13px!important;
+  }
+
+  .selectedSearchResults button small,
+  .selectedSearchResults button em{
+    font-size:9px!important;
+  }
+
+  .selectedSearchResults button b{
+    font-size:9px!important;
+    padding:6px 8px!important;
+  }
+
+  /* Remove legacy extra-table UI if stale CSS/markup ever appears */
+  .otherTablePicker{
+    display:none!important;
+  }
+}
