@@ -3593,3 +3593,75 @@ html[data-theme="dark"] .accountDropdown>button:hover{
     right:8px!important;
   }
 }
+
+/* Game number field for live table sessions */
+.selectedGameStart .gameNoField input{
+  width:72px;
+  height:38px;
+  padding:0 9px;
+  border:1px solid var(--line-strong);
+  border-radius:9px;
+  background:#111;
+  color:#eee;
+  font-size:16px;
+  font-weight:850;
+  text-align:center;
+  box-sizing:border-box;
+}
+.selectedLiveMeta{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  min-width:0;
+}
+.selectedLiveMeta>span{
+  padding:5px 7px;
+  border-radius:8px;
+  background:#211a0d;
+  color:#e0ad49;
+  font-size:9px;
+  font-weight:900;
+  white-space:nowrap;
+}
+.selectedLiveMeta>b{
+  color:#ddd;
+  font-size:10px;
+  white-space:nowrap;
+}
+.selectedTableStats{
+  grid-template-columns:repeat(5,minmax(0,1fr))!important;
+}
+
+@media(max-width:820px){
+  .selectedGameStart{
+    gap:5px!important;
+  }
+  .selectedGameStart .gameNoField input{
+    width:66px;
+    height:36px;
+    font-size:16px;
+  }
+  .selectedLiveMeta{
+    gap:5px;
+  }
+  .selectedLiveMeta>span{
+    font-size:8px;
+    padding:4px 6px;
+  }
+  .selectedLiveMeta>b{
+    font-size:9px;
+  }
+  .selectedTableStats{
+    grid-template-columns:repeat(5,minmax(0,1fr))!important;
+  }
+  .selectedTableStats>div{
+    padding-left:5px!important;
+    padding-right:5px!important;
+  }
+  .selectedTableStats span{
+    font-size:8px!important;
+  }
+  .selectedTableStats b{
+    font-size:10px!important;
+  }
+}
