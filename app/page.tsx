@@ -1197,7 +1197,7 @@ export default function Home() {
     {key:"settlement",label:"정산"},
   ] as const;
 
-  return <main className="appShell">
+  return <main className={`appShell theme-${theme}`}>
     <aside className="sidebar">
       <div className="brand">
         <img className="brandLogo" src="/dream-poker-logo.svg" alt="Dream Poker Da Nang"/>
