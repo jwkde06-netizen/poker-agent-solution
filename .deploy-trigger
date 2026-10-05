@@ -47,3 +47,4 @@ deploy compact player rows value filter
 deploy unified pregame live table ui
 deploy daily settlement v4 export menu
 deploy daily inline edit undo
+deploy remove vnd suffixes
