@@ -1778,6 +1778,7 @@ export default function Home() {
     {key:"players",label:"플레이어 관리",icon:"♟"},
     {key:"agencies",label:"에이전트 관리",icon:"♙"},
     {key:"games",label:"게임 입력",icon:"▣"},
+    {key:"fnb",label:"F&B",icon:"☕"},
     {key:"daily",label:"일일 정산",icon:"▤"},
     {key:"weekly",label:"주간 정산",icon:"▥"},
     {key:"reports",label:"리포트",icon:"▧"},
@@ -2836,11 +2837,11 @@ export default function Home() {
 
               <div className="weeklyTopControls">
                 <div className="weeklyQuickWeeks">
-                  {[0,-1,-2,-3].map((offset,index)=>{
+                  {[0,-1].map((offset,index)=>{
                     const base=monday(today());
                     const start=plusDays(base,offset*7);
                     const end=plusDays(start,6);
-                    const labels=["이번 주","지난 주","2주 전","3주 전"];
+                    const labels=["이번 주","지난 주"];
                     const active=weekStart===start && weekEnd===end;
                     return <button
                       key={offset}
@@ -2856,10 +2857,18 @@ export default function Home() {
                     setWeekStart(start); setWeekEnd(plusDays(start,6));
                   }}>‹</button>
                   <strong>{weekStart} ~ {weekEnd}</strong>
-                  <button aria-label="다음 주" onClick={()=>{
-                    const start=plusDays(weekStart,7);
-                    setWeekStart(start); setWeekEnd(plusDays(start,6));
-                  }}>›</button>
+                  <button
+                    aria-label="다음 주"
+                    disabled={weekStart>=monday(today())}
+                    onClick={()=>{
+                      const current=monday(today());
+                      if(weekStart>=current)return;
+                      const start=plusDays(weekStart,7);
+                      const next=start>current?current:start;
+                      setWeekStart(next);
+                      setWeekEnd(plusDays(next,6));
+                    }}
+                  >›</button>
                 </div>
 
                 <button
