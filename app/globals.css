@@ -12826,3 +12826,32 @@ html[data-theme="dark"] .weeklyQuickWeeks button.active{
     height:36px
   }
 }
+
+
+/* Weekly header layout fix — keep controls on the right on desktop/tablet */
+@media(min-width:821px){
+  .compactWeeklyTop{
+    display:flex!important;
+    align-items:center!important;
+    justify-content:space-between!important;
+    gap:16px!important
+  }
+  .weeklyTitleOnly{
+    flex:0 0 auto!important
+  }
+  .weeklyTopControls{
+    width:auto!important;
+    flex:1 1 auto!important;
+    justify-content:flex-end!important;
+    flex-wrap:nowrap!important
+  }
+  .weeklyQuickWeeks{
+    flex-wrap:nowrap!important
+  }
+  .weeklyPeriodControl.compact{
+    flex:0 0 auto!important
+  }
+  .weeklyPeriodControl.compact>strong{
+    min-width:176px!important
+  }
+}
