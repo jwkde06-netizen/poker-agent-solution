@@ -11969,3 +11969,420 @@ html[data-theme="dark"] .dailyAccountingRows .profit{
 .restoredDailySummary .dailySummaryCard small{
   font-size:10px!important
 }
+
+
+/* Weekly shareholder report */
+.weeklyReportPage{
+  display:block
+}
+.weeklyReportPanel{
+  padding:16px!important;
+  overflow:visible!important
+}
+.weeklyReportTop{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:18px;
+  margin-bottom:14px
+}
+.weeklyReportEyebrow{
+  display:block;
+  margin-bottom:4px;
+  color:#9a7121;
+  font-size:11px;
+  font-weight:800
+}
+.weeklyReportTop h2{
+  margin:0;
+  color:var(--text);
+  font-size:25px;
+  letter-spacing:-.04em
+}
+.weeklyPeriodControl{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  margin-top:9px
+}
+.weeklyPeriodControl>button{
+  height:34px;
+  min-width:34px;
+  padding:0 9px;
+  border:1px solid var(--line-strong);
+  border-radius:8px;
+  background:var(--surface);
+  color:var(--text);
+  font-size:13px;
+  font-weight:750;
+  cursor:pointer
+}
+.weeklyPeriodControl>strong{
+  color:#4f5760;
+  font-size:13px;
+  font-weight:700;
+  white-space:nowrap
+}
+.weeklyPeriodControl .weeklyThisWeekButton{
+  margin-left:3px;
+  padding:0 11px
+}
+.weeklyDownloadMenu{
+  position:relative
+}
+.weeklyDownloadTrigger{
+  height:42px;
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:0 14px;
+  border:1px solid #b98524;
+  border-radius:10px;
+  background:#d4a140;
+  color:#19140a;
+  font-size:13px;
+  font-weight:800;
+  cursor:pointer
+}
+.weeklyDownloadDropdown{
+  position:absolute;
+  top:calc(100% + 7px);
+  right:0;
+  z-index:90;
+  width:220px;
+  padding:6px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:var(--surface);
+  box-shadow:0 18px 45px rgba(20,24,28,.14)
+}
+.weeklyDownloadDropdown button{
+  width:100%;
+  min-height:48px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:8px 10px;
+  border:0;
+  border-radius:8px;
+  background:transparent;
+  color:var(--text);
+  text-align:left;
+  cursor:pointer
+}
+.weeklyDownloadDropdown button:hover{
+  background:var(--surface-2);
+  transform:none
+}
+.weeklyDownloadDropdown strong{
+  font-size:13px
+}
+.weeklyDownloadDropdown small{
+  color:var(--muted);
+  font-size:10px
+}
+
+.weeklyKpiGrid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:10px;
+  margin-bottom:12px
+}
+.weeklyKpiGrid>div{
+  min-height:102px;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  padding:14px 15px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:var(--surface)
+}
+.weeklyKpiGrid span{
+  color:var(--muted);
+  font-size:12px;
+  font-weight:750
+}
+.weeklyKpiGrid b{
+  margin-top:8px;
+  color:var(--text);
+  font-size:22px;
+  font-weight:800;
+  letter-spacing:-.035em
+}
+.weeklyKpiGrid small{
+  margin-top:auto;
+  color:var(--muted-2);
+  font-size:10px
+}
+.weeklyKpiGrid .expense b{
+  color:#a95f31
+}
+.weeklyKpiGrid .profit{
+  background:#fff9eb;
+  border-color:#e5c77f
+}
+.weeklyKpiGrid .profit span,
+.weeklyKpiGrid .profit b{
+  color:#98680d
+}
+
+.weeklyReportGrid{
+  display:grid;
+  grid-template-columns:minmax(0,1.55fr) minmax(280px,.65fr);
+  gap:12px;
+  margin-bottom:12px
+}
+.weeklyAgentSection,
+.weeklyPlayersSection,
+.weeklyAccountingAside{
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:var(--surface);
+  overflow:hidden
+}
+.weeklySectionHeader{
+  min-height:58px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:10px 14px;
+  border-bottom:1px solid var(--line);
+  background:var(--surface-2)
+}
+.weeklySectionHeader h3{
+  margin:0;
+  color:var(--text);
+  font-size:16px
+}
+.weeklySectionHeader p{
+  margin:3px 0 0;
+  color:var(--muted);
+  font-size:10px
+}
+.weeklySectionHeader>span{
+  color:var(--muted);
+  font-size:10px;
+  font-weight:800
+}
+.weeklyAgentReportRows>div{
+  min-height:52px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:0 14px;
+  border-bottom:1px solid var(--line)
+}
+.weeklyAgentReportRows>div:last-child{
+  border-bottom:0
+}
+.weeklyAgentReportRows span{
+  display:flex;
+  align-items:center;
+  gap:8px
+}
+.weeklyAgentReportRows strong{
+  color:var(--text);
+  font-size:14px
+}
+.weeklyAgentReportRows small{
+  color:var(--muted);
+  font-size:10px
+}
+.weeklyAgentReportRows b{
+  color:#9b6810;
+  font-size:15px
+}
+.weeklyAccountingAside{
+  align-self:start
+}
+.weeklyAccountingAside>div{
+  min-height:58px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:0 14px;
+  border-bottom:1px solid var(--line)
+}
+.weeklyAccountingAside>div:last-child{
+  border-bottom:0
+}
+.weeklyAccountingAside span{
+  color:#626a73;
+  font-size:12px;
+  font-weight:650
+}
+.weeklyAccountingAside b{
+  color:var(--text);
+  font-size:15px;
+  font-weight:750
+}
+.weeklyAccountingAside .profit{
+  min-height:72px;
+  background:#fff9eb
+}
+.weeklyAccountingAside .profit span,
+.weeklyAccountingAside .profit b{
+  color:#98680d;
+  font-weight:800
+}
+.weeklyAccountingAside .profit b{
+  font-size:20px
+}
+
+.weeklyPlayersSection{
+  overflow:visible
+}
+.weeklyPlayerGroups{
+  display:grid;
+  gap:10px;
+  padding:10px
+}
+.weeklyPlayerGroup{
+  overflow:hidden;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:var(--surface)
+}
+.weeklyPlayerGroup>header{
+  min-height:50px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:0 13px;
+  background:#fafbfc;
+  border-bottom:1px solid var(--line)
+}
+.weeklyPlayerGroup>header>div{
+  display:flex;
+  align-items:center;
+  gap:8px
+}
+.weeklyPlayerGroup>header strong{
+  color:var(--text);
+  font-size:14px
+}
+.weeklyPlayerGroup>header span{
+  color:var(--muted);
+  font-size:10px
+}
+.weeklyPlayerGroup>header>b{
+  color:#9b6810;
+  font-size:14px
+}
+.weeklyPlayerHead,
+.weeklyPlayerRow{
+  display:grid;
+  grid-template-columns:minmax(220px,1.4fr) 100px 150px 150px;
+  align-items:center;
+  gap:12px;
+  min-height:42px;
+  padding:0 13px
+}
+.weeklyPlayerHead{
+  min-height:36px;
+  color:var(--muted);
+  font-size:10px;
+  font-weight:750;
+  background:var(--surface-2);
+  border-bottom:1px solid var(--line)
+}
+.weeklyPlayerRow{
+  border-bottom:1px solid var(--line)
+}
+.weeklyPlayerRow:last-child{
+  border-bottom:0
+}
+.weeklyPlayerRow strong{
+  color:var(--text);
+  font-size:13px;
+  font-weight:650
+}
+.weeklyPlayerRow span{
+  color:#59616a;
+  font-size:12px
+}
+.weeklyPlayerRow b{
+  color:#9b6810;
+  font-size:13px
+}
+.weeklyEmpty{
+  min-height:92px;
+  display:grid;
+  place-items:center;
+  padding:16px;
+  color:var(--muted);
+  font-size:12px
+}
+
+html[data-theme="dark"] .weeklyDownloadDropdown,
+html[data-theme="dark"] .weeklyKpiGrid>div,
+html[data-theme="dark"] .weeklyAgentSection,
+html[data-theme="dark"] .weeklyPlayersSection,
+html[data-theme="dark"] .weeklyAccountingAside,
+html[data-theme="dark"] .weeklyPlayerGroup{
+  background:#18191c;
+  border-color:#303238
+}
+html[data-theme="dark"] .weeklySectionHeader,
+html[data-theme="dark"] .weeklyPlayerHead,
+html[data-theme="dark"] .weeklyPlayerGroup>header{
+  background:#1d1f22;
+  border-color:#303238
+}
+html[data-theme="dark"] .weeklyKpiGrid .profit,
+html[data-theme="dark"] .weeklyAccountingAside .profit{
+  background:#211b0f
+}
+
+@media(max-width:1100px){
+  .weeklyReportGrid{
+    grid-template-columns:1fr
+  }
+  .weeklyAccountingAside{
+    display:grid;
+    grid-template-columns:repeat(4,minmax(0,1fr))
+  }
+  .weeklyAccountingAside>div{
+    border-bottom:0;
+    border-right:1px solid var(--line)
+  }
+  .weeklyAccountingAside>div:last-child{
+    border-right:0
+  }
+}
+@media(max-width:820px){
+  .weeklyReportTop{
+    display:block
+  }
+  .weeklyDownloadMenu{
+    margin-top:12px
+  }
+  .weeklyDownloadTrigger{
+    width:100%;
+    justify-content:center
+  }
+  .weeklyDownloadDropdown{
+    left:0;
+    right:auto;
+    width:100%
+  }
+  .weeklyKpiGrid{
+    grid-template-columns:repeat(2,minmax(0,1fr))
+  }
+  .weeklyAccountingAside{
+    grid-template-columns:repeat(2,minmax(0,1fr))
+  }
+  .weeklyPlayerGroup{
+    overflow-x:auto
+  }
+  .weeklyPlayerHead,
+  .weeklyPlayerRow{
+    min-width:660px
+  }
+}
