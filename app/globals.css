@@ -9274,3 +9274,288 @@ td{
     min-height:88px!important
   }
 }
+
+
+/* Readability pass 2: slightly larger typography without increasing layout size */
+html,body{
+  font-size:16px!important
+}
+.sideNav button{
+  font-size:15px!important
+}
+.brand strong{
+  font-size:19px!important
+}
+.brand span{
+  font-size:13px!important
+}
+.searchBox input,
+.globalSearchInput{
+  font-size:15px!important
+}
+.accountMenuText strong{
+  font-size:14px!important
+}
+.accountMenuText small{
+  font-size:12px!important
+}
+
+.pageHeading h1{
+  font-size:33px!important
+}
+.eyebrow{
+  font-size:14px!important
+}
+.sub{
+  font-size:16px!important
+}
+.cardHeader h2,.sectionTitle h2,.placeholderPanel h2{
+  font-size:21px!important
+}
+.cardHeader p,.sectionTitle p,.placeholderPanel p{
+  font-size:14px!important
+}
+
+th{
+  font-size:12px!important
+}
+td{
+  font-size:14px!important
+}
+.playerNameStack strong{
+  font-size:15px!important
+}
+.playerNameStack span{
+  font-size:13px!important
+}
+.agencyCodeText{
+  font-size:12px!important
+}
+.searchCount{
+  font-size:14px!important
+}
+
+.primary,.secondary,.outlineGold,.ghostButton{
+  font-size:14px!important
+}
+.formGrid label,
+.accountCreateGrid label,
+.ownLoginGrid label{
+  font-size:12px!important
+}
+.formGrid input,.formGrid select,
+.accountCreateGrid input,.accountCreateGrid select,
+.ownLoginGrid input,.datePicker{
+  font-size:15px!important
+}
+
+/* Dashboard */
+.dashboardCommandHeader span{
+  font-size:13px!important
+}
+.dashboardCommandHeader strong{
+  font-size:23px!important
+}
+.dashboardLiveStatus{
+  font-size:12px!important
+}
+.dashboardBlockTop span{
+  font-size:13px!important
+}
+.dashboardBlock>b{
+  font-size:26px!important
+}
+.dashboardBlock>b small{
+  font-size:13px!important
+}
+.dashboardBlock>p{
+  font-size:12px!important
+}
+.dashboardBlock>footer{
+  font-size:11px!important
+}
+.dashboardSectionCard .cardHeader h2{
+  font-size:18px!important
+}
+.dashboardSectionCard .headerCount{
+  font-size:11px!important
+}
+.dashTableMain strong{
+  font-size:17px!important
+}
+.dashTableMain em{
+  font-size:11px!important
+}
+.dashTableMain b{
+  font-size:12px!important
+}
+.dashTableStats span{
+  font-size:11px!important
+}
+.dashTableStats strong{
+  font-size:13px!important
+}
+.dashboardQuickList span{
+  font-size:12px!important
+}
+.dashboardQuickList b{
+  font-size:13px!important
+}
+.dashboardRecentList strong{
+  font-size:13px!important
+}
+.dashboardRecentList span{
+  font-size:11px!important
+}
+.dashboardRecentList small{
+  font-size:10px!important
+}
+.dashboardRecentList b{
+  font-size:12px!important
+}
+
+/* Buy-in / players / agencies */
+.playerSectionActions h3{
+  font-size:19px!important
+}
+.floorSelectorHeader h2{
+  font-size:21px!important
+}
+.floorTableButton strong{
+  font-size:16px!important
+}
+.floorTableButton small{
+  font-size:11px!important
+}
+.selectedTableHeadline strong,
+.selectedTableHeadline b{
+  font-size:22px!important
+}
+.selectedTableStats span{
+  font-size:12px!important
+}
+.selectedTableStats b{
+  font-size:15px!important
+}
+.selectedPlayerSectionTitle strong{
+  font-size:17px!important
+}
+.selectedPlayerSectionTitle b{
+  font-size:13px!important
+}
+.selectedPlayerIdentity strong{
+  font-size:15px!important
+}
+.selectedPlayerIdentity span{
+  font-size:12px!important
+}
+.selectedSearchLabel strong{
+  font-size:16px!important
+}
+.selectedSearchLabel small{
+  font-size:12px!important
+}
+
+/* Daily / weekly */
+.dailyTitleBlock>strong{
+  font-size:21px!important
+}
+.dailySummaryCard span{
+  font-size:12px!important
+}
+.dailySummaryCard b{
+  font-size:22px!important
+}
+.dailySummaryCard small{
+  font-size:11px!important
+}
+.dailyGameLogHeader h3{
+  font-size:19px!important
+}
+.dailyLogCount{
+  font-size:12px!important
+}
+.dailyGameGroupIdentity strong{
+  font-size:15px!important
+}
+.dailyGameGroupIdentity span{
+  font-size:12px!important
+}
+.dailyGameGroupIdentity b{
+  font-size:15px!important
+}
+.dailyGameGroupSummary span,
+.dailyGameGroupSummary em{
+  font-size:12px!important
+}
+.dailyGameGroupSummary strong{
+  font-size:14px!important
+}
+.dailyGameRowHead{
+  font-size:11px!important
+}
+.dailyMoneyCell{
+  font-size:13px!important
+}
+.dailySideCardHeader strong{
+  font-size:13px!important
+}
+.dailyAgentRow strong,
+.dailyAgentRow b,
+.dailyExpenseRows b{
+  font-size:13px!important
+}
+.dailyAgentRow small,
+.dailyExpenseRows span,
+.dailySideTotal span{
+  font-size:11px!important
+}
+.dailySideTotal b{
+  font-size:14px!important
+}
+
+/* F&B / account */
+.fnbQuickMenu button span{
+  font-size:13px!important
+}
+.fnbQuickMenu button small{
+  font-size:11px!important
+}
+.fnbEntryMain strong{
+  font-size:14px!important
+}
+.fnbEntryMain span,
+.fnbEntryAmount small{
+  font-size:11px!important
+}
+.fnbEntryAmount b{
+  font-size:13px!important
+}
+.accountIdentity strong{
+  font-size:14px!important
+}
+.accountIdentity small{
+  font-size:12px!important
+}
+
+@media(max-width:820px){
+  html,body{
+    font-size:17px!important
+  }
+  .dashboardBlockTop span{
+    font-size:12px!important
+  }
+  .dashboardBlock>b{
+    font-size:21px!important
+  }
+  .dashboardBlock>p{
+    font-size:10px!important
+  }
+  .floorTableButton strong{
+    font-size:15px!important
+  }
+  .selectedTableHeadline strong,
+  .selectedTableHeadline b{
+    font-size:20px!important
+  }
+}
