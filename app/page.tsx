@@ -1109,7 +1109,7 @@ export default function Home() {
     {key:"daily",label:"일일 정산",icon:"▤"},
     {key:"weekly",label:"주간 정산",icon:"▥"},
     {key:"reports",label:"리포트",icon:"▧"},
-    {key:"settings",label:"설정",icon:"⚙"},
+    {key:"settings",label:"계정 관리",icon:"⚙"},
   ] as const;
   const navItems = allNavItems.filter(item=>{
     if(profile?.role==="admin") return true;
@@ -1252,7 +1252,7 @@ export default function Home() {
             </div>
 
             <button onClick={()=>{setTab("settings");setAccountMenuOpen(false)}}>
-              <span>⚙</span><div><strong>설정</strong></div>
+              <span>⚙</span><div><strong>계정 관리</strong></div>
             </button>
 
             <button onClick={()=>{applyTheme(theme==="dark"?"light":"dark");setAccountMenuOpen(false)}}>
@@ -2197,7 +2197,7 @@ export default function Home() {
         {tab==="settings" && profile?.role==="admin" && <section className="accountManagementPage">
           <section className="panel accountCreatePanel">
             <div className="sectionTitle">
-              <div><h2>계정 관리</h2><p>관리자가 직원 및 에이전트 계정을 직접 생성하고 권한을 지정합니다.</p></div>
+              <div><h2>직원·에이전트 계정 생성</h2><p>아이디와 임시 비밀번호를 입력해 새 로그인 계정을 만듭니다.</p></div>
             </div>
 
             <div className="accountCreateGrid">
