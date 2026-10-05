@@ -1414,14 +1414,14 @@ export default function Home() {
             </div>
 
             <div className="dashboardBlockGrid">
-              <button className="dashboardBlock buyin" onClick={()=>setTab("games")}>
+              <button className="dashboardBlock buyin" onClick={()=>setTab("daily")}>
                 <div className="dashboardBlockTop">
-                  <span>오늘 바이인</span>
+                  <span>오늘 레이크백</span>
                   <em>›</em>
                 </div>
-                <b>{activeTableBuyins}<small>회</small></b>
-                <p>{vnd(todayBuyinRevenue)}</p>
-                <footer>게임 입력 바로가기</footer>
+                <b>{vnd(todaySettlement)}</b>
+                <p>오늘 발생 정산액</p>
+                <footer>일일 정산 보기</footer>
               </button>
 
               <button className="dashboardBlock live" onClick={()=>setTab("games")}>
@@ -1434,19 +1434,19 @@ export default function Home() {
                 <footer>테이블 현황 보기</footer>
               </button>
 
-              <button className="dashboardBlock players" onClick={()=>setTab("players")}>
+              <button className="dashboardBlock players" onClick={()=>setTab("daily")}>
                 <div className="dashboardBlockTop">
-                  <span>오늘 참여 플레이어</span>
+                  <span>오늘 총 레이크</span>
                   <em>›</em>
                 </div>
-                <b>{todayPlayerCount}<small>명</small></b>
-                <p>오늘 기록 {todayGameCount}건</p>
-                <footer>플레이어 관리 바로가기</footer>
+                <b>{vnd(todayRevenue)}</b>
+                <p>{todayGameCount}건 기록 기준</p>
+                <footer>정산 상세 보기</footer>
               </button>
 
               <button className="dashboardBlock settlement" onClick={()=>setTab("daily")}>
                 <div className="dashboardBlockTop">
-                  <span>오늘 일일 수익</span>
+                  <span>오늘 수익</span>
                   <em>›</em>
                 </div>
                 <b>{vnd(todayOperatingNet)}</b>
@@ -1497,30 +1497,30 @@ export default function Home() {
             <section className="dashCard dashboardQuickStatus dashboardSectionCard">
               <div className="cardHeader compactCardHeader">
                 <div>
-                  <h2>오늘 한눈에 보기</h2>
-                  <p>자주 확인하는 항목을 바로 열 수 있습니다.</p>
+                  <h2>운영 요약</h2>
+                  <p>중복 없이 운영에 필요한 핵심 수치만 표시합니다.</p>
                 </div>
               </div>
 
               <div className="dashboardQuickList">
-                <button onClick={()=>setTab("daily")}>
-                  <span>총 레이크백</span>
-                  <b>{vnd(todaySettlement)}</b>
-                  <em>›</em>
-                </button>
                 <button onClick={()=>setTab("fnb")}>
                   <span>F&B 비용</span>
                   <b>{vnd(fnbTodayTotal)}</b>
                   <em>›</em>
                 </button>
-                <button onClick={()=>setTab("players")}>
-                  <span>오늘 참여 인원</span>
-                  <b>{todayPlayerCount}명</b>
+                <button onClick={()=>setTab("agencies")}>
+                  <span>활성 에이전트</span>
+                  <b>{activeAgentCount}개</b>
                   <em>›</em>
                 </button>
-                <button onClick={()=>setTab("games")}>
-                  <span>총 바이인</span>
-                  <b>{activeTableBuyins}회</b>
+                <button onClick={()=>setTab("daily")}>
+                  <span>오늘 기록</span>
+                  <b>{todayGameCount}건</b>
+                  <em>›</em>
+                </button>
+                <button onClick={()=>setTab("daily")}>
+                  <span>레이크백 비율</span>
+                  <b>{todayRevenue>0?Math.round((todaySettlement/todayRevenue)*100):0}%</b>
                   <em>›</em>
                 </button>
               </div>
