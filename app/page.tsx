@@ -1031,11 +1031,6 @@ export default function Home() {
             </div>
 
             <div className="pokerFloorMap">
-              <div className="finalTableLandmark">
-                <span>FINAL</span>
-                <small>기준점</small>
-              </div>
-
               <button
                 className={`floorTableButton table4 ${selectedTableNo==="4"?"selected":""} ${activeGameSessions.some(s=>s.tableNo==="4")?"live":""}`}
                 onClick={()=>setSelectedTableNo("4")}
@@ -1128,7 +1123,8 @@ export default function Home() {
                               <div className="selectedPlayerBuyin">
                                 <small>BUY-IN</small>
                                 <b>{entry.buyIn}회</b>
-                                <em>{vnd(perEntryRevenue*entry.buyIn)}</em>
+                                <em>매출 {vnd(perEntryRevenue*entry.buyIn)}</em>
+                                <span>레이크백 {vnd(entry.rakeback)}</span>
                               </div>
                               <button className="compactMinus" onClick={()=>changeSessionBuyIn(entry,-1)} disabled={entry.buyIn<=1}>−</button>
                               <button className="quickRebuyButton" onClick={()=>changeSessionBuyIn(entry,1)}>＋1 리바인</button>
