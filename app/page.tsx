@@ -1049,7 +1049,7 @@ export default function Home() {
 
   const globalSearchResults = useMemo(()=>{
     const q=globalSearch.trim().toLowerCase();
-    if(!q)return {players:[] as Player[],features:[] as typeof globalFeatureItems,tables:[] as GameSession[],agencies:[] as Agency[]};
+    if(!q)return {players:[] as Player[],features:[] as Array<(typeof globalFeatureItems)[number]>,tables:[] as GameSession[],agencies:[] as Agency[]};
 
     const playerResults=players.filter(p=>[
       p.name,p.koreanName,p.cardNo,agencies.find(a=>a.id===p.agencyId)?.code ?? ""
