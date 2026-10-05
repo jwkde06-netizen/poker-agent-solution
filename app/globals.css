@@ -12979,3 +12979,459 @@ html[data-theme="dark"] .sideNav button:hover .navIcon{
 html[data-theme="dark"] .sideNav button.active .navIcon{
   color:#ddb35d!important
 }
+
+
+/* Dashboard live table readability */
+.dashboardLiveCardTop strong{
+  font-size:22px!important;
+  font-weight:700!important
+}
+.dashboardLiveCard>p{
+  display:flex!important;
+  align-items:center!important;
+  gap:8px!important;
+  margin-top:6px!important;
+  font-size:16px!important;
+  font-weight:700!important;
+  color:var(--text)!important
+}
+.dashboardLiveCard>p span{
+  color:var(--muted)!important;
+  font-size:14px!important;
+  font-weight:650!important
+}
+.dashboardLiveMetrics small{
+  font-size:11px!important
+}
+.dashboardLiveMetrics b{
+  font-size:17px!important
+}
+
+/* Daily icon-only download */
+.dailyIconDownload{
+  width:42px;
+  height:42px;
+  display:inline-grid;
+  place-items:center;
+  padding:0;
+  border:1px solid var(--line-strong);
+  border-radius:10px;
+  background:var(--surface);
+  color:var(--text);
+  cursor:pointer
+}
+.dailyIconDownload:hover{
+  background:var(--surface-2);
+  transform:none
+}
+.dailyIconDownload svg{
+  width:20px;
+  height:20px;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:1.9;
+  stroke-linecap:round;
+  stroke-linejoin:round
+}
+
+/* Agency dedicated detail page */
+.agencyPage{
+  display:block
+}
+.agencyDetailPage{
+  padding:16px!important
+}
+.agencyDetailTop{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:16px;
+  margin-bottom:12px
+}
+.agencyBackButton{
+  height:36px;
+  padding:0 10px;
+  border:1px solid var(--line-strong);
+  border-radius:9px;
+  background:var(--surface);
+  color:var(--text);
+  font-size:11px;
+  font-weight:750;
+  cursor:pointer
+}
+.agencyDetailTitle{
+  flex:1;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px
+}
+.agencyDetailTitle span{
+  display:block;
+  color:var(--muted);
+  font-size:10px;
+  font-weight:750
+}
+.agencyDetailTitle h2{
+  margin:2px 0 0;
+  font-size:26px;
+  letter-spacing:-.04em
+}
+.agencyDetailKpis{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:10px;
+  margin-bottom:12px
+}
+.agencyDetailKpis>div{
+  min-height:92px;
+  padding:14px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:var(--surface)
+}
+.agencyDetailKpis span{
+  color:var(--muted);
+  font-size:11px;
+  font-weight:700
+}
+.agencyDetailKpis b{
+  display:block;
+  margin-top:9px;
+  color:var(--text);
+  font-size:21px;
+  font-weight:800
+}
+.agencyDetailSettings{
+  display:grid;
+  grid-template-columns:1fr 220px;
+  gap:10px;
+  margin-bottom:12px
+}
+.agencyDetailSettings label{
+  display:grid;
+  gap:6px;
+  color:var(--muted);
+  font-size:10px;
+  font-weight:700
+}
+.agencyDetailSettings input,
+.agencyDetailSettings select{
+  height:40px;
+  border:1px solid var(--line-strong);
+  border-radius:9px;
+  background:var(--surface);
+  color:var(--text);
+  padding:0 10px;
+  font-size:13px;
+  font-weight:700
+}
+.agencyMembersPanel{
+  overflow:hidden;
+  border:1px solid var(--line);
+  border-radius:13px;
+  background:var(--surface)
+}
+.agencyPlayerSectionTitle{
+  min-height:56px;
+  padding:10px 13px;
+  border-bottom:1px solid var(--line);
+  background:var(--surface-2)
+}
+.agencyPlayerSectionTitle>div{
+  display:flex;
+  flex-direction:column;
+  gap:2px
+}
+.agencyPlayerSectionTitle small{
+  color:var(--muted);
+  font-size:10px
+}
+.agencyMembersHead,
+.agencyMemberRow{
+  display:grid;
+  grid-template-columns:minmax(220px,1.4fr) 130px 130px 90px 130px;
+  gap:12px;
+  align-items:center;
+  min-height:46px;
+  padding:0 13px
+}
+.agencyMembersHead{
+  color:var(--muted);
+  font-size:10px;
+  font-weight:750;
+  border-bottom:1px solid var(--line)
+}
+.agencyMemberRow{
+  width:100%;
+  border:0;
+  border-bottom:1px solid var(--line);
+  background:transparent;
+  color:var(--text);
+  text-align:left;
+  cursor:pointer
+}
+.agencyMemberRow:last-child{border-bottom:0}
+.agencyMemberRow:hover{
+  background:var(--surface-2);
+  transform:none
+}
+.agencyMemberRow>span:first-child{
+  display:flex;
+  flex-direction:column;
+  gap:2px
+}
+.agencyMemberRow strong{
+  font-size:13px;
+  font-weight:650
+}
+.agencyMemberRow small,
+.agencyMemberRow span{
+  font-size:11px;
+  color:#626b74
+}
+.agencyMemberRow b{
+  font-size:12px;
+  color:#9b6810
+}
+.agencyDetailDanger{
+  display:flex;
+  justify-content:flex-end;
+  margin-top:12px
+}
+.agencyRateDisplay small{
+  color:var(--muted);
+  font-size:10px
+}
+
+/* Reports analytics */
+.reportAnalyticsPage{
+  display:block
+}
+.reportAnalyticsPanel{
+  padding:16px!important
+}
+.reportAnalyticsTop{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  margin-bottom:12px
+}
+.reportAnalyticsTop h2{
+  margin:0;
+  font-size:24px
+}
+.reportAnalyticsTop p{
+  margin:3px 0 0;
+  color:var(--muted);
+  font-size:11px
+}
+.analyticsRange{
+  margin-bottom:12px
+}
+.reportKpiGrid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:10px;
+  margin-bottom:12px
+}
+.reportKpiGrid>div{
+  min-height:96px;
+  padding:14px;
+  border:1px solid var(--line);
+  border-radius:13px;
+  background:var(--surface)
+}
+.reportKpiGrid span{
+  color:var(--muted);
+  font-size:11px;
+  font-weight:700
+}
+.reportKpiGrid b{
+  display:block;
+  margin-top:8px;
+  font-size:21px;
+  font-weight:800;
+  color:var(--text)
+}
+.reportKpiGrid small{
+  display:block;
+  margin-top:7px;
+  color:var(--muted-2);
+  font-size:9px
+}
+.reportKpiGrid .profit{
+  background:#fff9eb;
+  border-color:#e5c77f
+}
+.reportKpiGrid .profit b{
+  color:#98680d
+}
+.reportAnalyticsGrid{
+  display:grid;
+  grid-template-columns:minmax(0,1.5fr) minmax(280px,.6fr);
+  gap:12px
+}
+.reportTrendCard,
+.reportAgencyRank{
+  border:1px solid var(--line);
+  border-radius:13px;
+  background:var(--surface);
+  overflow:hidden
+}
+.reportSectionHead{
+  min-height:56px;
+  display:flex;
+  align-items:center;
+  padding:10px 13px;
+  border-bottom:1px solid var(--line);
+  background:var(--surface-2)
+}
+.reportSectionHead h3{
+  margin:0;
+  font-size:15px
+}
+.reportSectionHead p{
+  margin:3px 0 0;
+  color:var(--muted);
+  font-size:10px
+}
+.reportTrendChart{
+  height:250px;
+  display:flex;
+  align-items:flex-end;
+  gap:8px;
+  padding:20px 16px 26px;
+  overflow-x:auto
+}
+.reportTrendCol{
+  min-width:28px;
+  flex:1 0 28px;
+  height:100%;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-end;
+  gap:6px
+}
+.reportTrendBars{
+  height:190px;
+  width:100%;
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+  gap:3px
+}
+.reportTrendBars i{
+  width:8px;
+  min-height:2px;
+  border-radius:5px 5px 1px 1px
+}
+.reportTrendBars .entry{background:#b8bdc4}
+.reportTrendBars .profit{background:#d1a13f}
+.reportTrendCol>span{
+  color:var(--muted);
+  font-size:9px;
+  white-space:nowrap
+}
+.reportLegend{
+  display:flex;
+  gap:12px;
+  padding:0 16px 14px;
+  color:var(--muted);
+  font-size:10px
+}
+.reportLegend span{
+  display:flex;
+  align-items:center;
+  gap:5px
+}
+.reportLegend i{
+  width:9px;height:9px;border-radius:2px
+}
+.reportLegend .entry{background:#b8bdc4}
+.reportLegend .profit{background:#d1a13f}
+.reportAgencyRankRow{
+  min-height:48px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:0 13px;
+  border-bottom:1px solid var(--line)
+}
+.reportAgencyRankRow:last-child{border-bottom:0}
+.reportAgencyRankRow>span{
+  display:flex;
+  align-items:center;
+  gap:8px
+}
+.reportAgencyRankRow em{
+  width:22px;
+  height:22px;
+  display:grid;
+  place-items:center;
+  border-radius:7px;
+  background:var(--surface-2);
+  color:var(--muted);
+  font-size:10px;
+  font-style:normal;
+  font-weight:800
+}
+.reportAgencyRankRow strong{
+  font-size:12px
+}
+.reportAgencyRankRow b{
+  font-size:13px;
+  color:#9b6810
+}
+
+html[data-theme="dark"] .agencyDetailKpis>div,
+html[data-theme="dark"] .agencyMembersPanel,
+html[data-theme="dark"] .reportKpiGrid>div,
+html[data-theme="dark"] .reportTrendCard,
+html[data-theme="dark"] .reportAgencyRank{
+  background:#18191c;
+  border-color:#303238
+}
+html[data-theme="dark"] .agencyPlayerSectionTitle,
+html[data-theme="dark"] .reportSectionHead{
+  background:#1d1f22;
+  border-color:#303238
+}
+html[data-theme="dark"] .reportKpiGrid .profit{
+  background:#211b0f
+}
+html[data-theme="dark"] .agencyMemberRow small,
+html[data-theme="dark"] .agencyMemberRow span{
+  color:#a0a5ad
+}
+
+@media(max-width:1000px){
+  .agencyDetailKpis,
+  .reportKpiGrid{
+    grid-template-columns:repeat(2,minmax(0,1fr))
+  }
+  .reportAnalyticsGrid{
+    grid-template-columns:1fr
+  }
+}
+@media(max-width:820px){
+  .agencyDetailSettings{
+    grid-template-columns:1fr
+  }
+  .agencyMembersPanel{
+    overflow-x:auto
+  }
+  .agencyMembersHead,
+  .agencyMemberRow{
+    min-width:720px
+  }
+  .reportAnalyticsTop{
+    display:block
+  }
+  .reportAnalyticsTop .reportPresetButtons{
+    margin-top:10px
+  }
+}
