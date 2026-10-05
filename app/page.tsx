@@ -201,6 +201,7 @@ export default function Home() {
   const [summaryDate, setSummaryDate] = useState(today());
   const [dailyLogSearch, setDailyLogSearch] = useState("");
   const [dailyExportOpen, setDailyExportOpen] = useState(false);
+  const [weeklyExportOpen, setWeeklyExportOpen] = useState(false);
   const [dailyEditingCell, setDailyEditingCell] = useState<{entryId:string;field:"agency"|"buyin"} | null>(null);
   const [dailyEditBuyInValue, setDailyEditBuyInValue] = useState("");
   const [lastDeletedEntry, setLastDeletedEntry] = useState<GameEntry | null>(null);
@@ -488,11 +489,18 @@ export default function Home() {
     return [...groups.values()];
   },[filteredDailyEntries,gameSessions,dailyLogSearch,summaryDate]);
   const weeklyEntries = useMemo(()=>entries.filter(e=>e.date>=weekStart && e.date<=weekEnd),[entries,weekStart,weekEnd]);
+  const weeklyFnbEntries = useMemo(()=>fnbEntries.filter(e=>e.date>=weekStart && e.date<=weekEnd),[fnbEntries,weekStart,weekEnd]);
 
   const total = (items: GameEntry[], key: "rake"|"rakeback") => items.reduce((s,e)=>s+e[key],0);
   const agencyTotals = (items: GameEntry[]) => agencies.map(a=>({
     ...a, amount: items.filter(e=>e.agencyId===a.id).reduce((s,e)=>s+e.rakeback,0)
   }));
+
+  const weeklyEntryFee = total(weeklyEntries,"rake");
+  const weeklyRakeback = total(weeklyEntries,"rakeback");
+  const weeklyFnbTotal = weeklyFnbEntries.reduce((sum,e)=>sum+e.totalAmount,0);
+  const weeklyProfit = weeklyEntryFee-weeklyRakeback-weeklyFnbTotal;
+  const weeklyAgentRows = agencyTotals(weeklyEntries).filter(a=>a.amount>0).sort((a,b)=>b.amount-a.amount);
 
   const weeklyPlayerRows = useMemo(()=>{
     const map = new Map<string,{playerId:string;playerName:string;agency:string;buyIn:number;rake:number;rakeback:number}>();
@@ -502,8 +510,23 @@ export default function Home() {
       if(old){old.buyIn+=e.buyIn;old.rake+=e.rake;old.rakeback+=e.rakeback;}
       else map.set(key,{playerId:e.playerId,playerName:getPlayerName(e.playerId),agency:e.agencyCodeSnapshot,buyIn:e.buyIn,rake:e.rake,rakeback:e.rakeback});
     });
-    return [...map.values()];
+    return [...map.values()].filter(row=>row.rakeback>0).sort((a,b)=>b.rakeback-a.rakeback);
   },[weeklyEntries,players]);
+
+  const weeklyPlayerGroups = useMemo(()=>{
+    const groups=new Map<string,typeof weeklyPlayerRows>();
+    weeklyPlayerRows.forEach(row=>{
+      const list=groups.get(row.agency) ?? [];
+      list.push(row);
+      groups.set(row.agency,list);
+    });
+    return [...groups.entries()].map(([agency,rows])=>({
+      agency,
+      rows,
+      totalRakeback:rows.reduce((sum,row)=>sum+row.rakeback,0),
+      totalBuyIn:rows.reduce((sum,row)=>sum+row.buyIn,0)
+    })).sort((a,b)=>b.totalRakeback-a.totalRakeback);
+  },[weeklyPlayerRows]);
 
   function getPlayerName(id:string){ return players.find(p=>p.id===id)?.name ?? "알 수 없음"; }
 
@@ -1298,6 +1321,140 @@ export default function Home() {
     pdf.addImage(image,"JPEG",(pageWidth-width)/2,(pageHeight-height)/2,width,height);
     pdf.save("드림포커_정산서_"+startDate+(startDate!==endDate?"_"+endDate:"")+".pdf");
     setDailyExportOpen(false);
+  }
+
+  function buildWeeklySettlementCanvas(){
+    const width=1400;
+    const playerRows=weeklyPlayerRows.length;
+    const agentRows=weeklyAgentRows.length;
+    const height=Math.max(980,500 + agentRows*48 + playerRows*48 + weeklyPlayerGroups.length*58);
+    const canvas=document.createElement("canvas");
+    canvas.width=width; canvas.height=height;
+    const ctx=canvas.getContext("2d");
+    if(!ctx)return null;
+
+    const text=(value:string,x:number,y:number,size:number,weight=500,color="#202328",align:"left"|"right"="left")=>{
+      ctx.fillStyle=color;
+      ctx.font=`${weight} ${size}px Arial, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif`;
+      ctx.textAlign=align;
+      ctx.textBaseline="middle";
+      ctx.fillText(value,x,y);
+    };
+    const line=(x1:number,y1:number,x2:number,y2:number,color="#e2e5e9")=>{
+      ctx.strokeStyle=color; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+    };
+    const roundRect=(x:number,y:number,w:number,h:number,r:number,fill:string,stroke="#e1e4e8")=>{
+      ctx.beginPath(); ctx.roundRect(x,y,w,h,r); ctx.fillStyle=fill; ctx.fill(); ctx.strokeStyle=stroke; ctx.lineWidth=1; ctx.stroke();
+    };
+
+    ctx.fillStyle="#f4f5f7"; ctx.fillRect(0,0,width,height);
+    roundRect(45,35,width-90,height-70,22,"#fff","#dde1e5");
+    text("드림포커 주간 정산 보고서",80,90,34,800,"#17191c");
+    text(`${weekStart} ~ ${weekEnd} · 월요일–일요일`,width-80,90,17,600,"#727a83","right");
+    line(80,132,width-80,132);
+
+    const cards:[string,number,boolean][]=[
+      ["총 엔트리피",weeklyEntryFee,false],
+      ["레이크백",-weeklyRakeback,false],
+      ["F&B",-weeklyFnbTotal,false],
+      ["주간 수익",weeklyProfit,true]
+    ];
+    const gap=14, cardW=(width-160-gap*3)/4;
+    cards.forEach(([label,value,profit],i)=>{
+      const x=80+i*(cardW+gap);
+      roundRect(x,158,cardW,112,14,profit?"#fff9eb":"#fafbfc",profit?"#e4c77e":"#e2e5e8");
+      text(label,x+18,188,15,700,profit?"#8b6518":"#68717a");
+      text((value<0?"− ":"")+money.format(Math.abs(value)),x+18,232,26,800,profit?"#9d6a09":"#17191c");
+    });
+
+    let y=318;
+    text("에이전트별 레이크백",80,y,22,800,"#17191c");
+    y+=30;
+    if(weeklyAgentRows.length===0){
+      text("이번 주 레이크백 지급 내역이 없습니다.",80,y+24,15,600,"#8a929a");
+      y+=60;
+    }else{
+      weeklyAgentRows.forEach(agent=>{
+        line(80,y,width-80,y);
+        text(agent.code,92,y+24,15,700,"#262a2e");
+        text(`${agent.rate}%`,320,y+24,13,600,"#818890");
+        text(money.format(agent.amount),width-92,y+24,16,750,"#9a6410","right");
+        y+=48;
+      });
+      line(80,y,width-80,y);
+      y+=34;
+    }
+
+    text("레이크백 지급 플레이어",80,y,22,800,"#17191c");
+    y+=32;
+    if(weeklyPlayerGroups.length===0){
+      text("레이크백이 발생한 플레이어가 없습니다.",80,y+24,15,600,"#8a929a");
+      y+=60;
+    }else{
+      weeklyPlayerGroups.forEach(group=>{
+        roundRect(80,y,width-160,46,9,"#f7f8fa","#e1e4e8");
+        text(group.agency,96,y+23,15,800,"#24282c");
+        text(`${group.rows.length}명 · ${group.totalBuyIn} BUY-IN · ${money.format(group.totalRakeback)}`,width-96,y+23,14,700,"#6d747c","right");
+        y+=46;
+        group.rows.forEach(row=>{
+          text(row.playerName,100,y+23,15,600,"#25292d");
+          text(`${row.buyIn}회`,760,y+23,14,600,"#59616a");
+          text(money.format(row.rake),930,y+23,14,600,"#59616a");
+          text(money.format(row.rakeback),width-100,y+23,15,750,"#9a6410","right");
+          line(80,y+46,width-80,y+46);
+          y+=46;
+        });
+        y+=16;
+      });
+    }
+
+    line(80,height-105,width-80,height-105);
+    text("Dream Poker",80,height-72,14,700,"#9aa1a8");
+    text("주주·운영 보고용 주간 정산 자료",width-80,height-72,12,500,"#9aa1a8","right");
+    return canvas;
+  }
+
+  function exportWeeklyPng(){
+    const canvas=buildWeeklySettlementCanvas();
+    if(!canvas)return;
+    canvas.toBlob(blob=>{if(blob)downloadBlob(`드림포커_주간정산_${weekStart}_${weekEnd}.png`,blob)},"image/png");
+    setWeeklyExportOpen(false);
+  }
+
+  function exportWeeklyPdf(){
+    const canvas=buildWeeklySettlementCanvas();
+    if(!canvas)return;
+    const image=canvas.toDataURL("image/jpeg",0.94);
+    const pdf=new jsPDF({orientation:"landscape",unit:"pt",format:"a4"});
+    const pageWidth=pdf.internal.pageSize.getWidth();
+    const pageHeight=pdf.internal.pageSize.getHeight();
+    const ratio=Math.min((pageWidth-24)/canvas.width,(pageHeight-24)/canvas.height);
+    const width=canvas.width*ratio, height=canvas.height*ratio;
+    pdf.addImage(image,"JPEG",(pageWidth-width)/2,(pageHeight-height)/2,width,height);
+    pdf.save(`드림포커_주간정산_${weekStart}_${weekEnd}.pdf`);
+    setWeeklyExportOpen(false);
+  }
+
+  function exportWeeklyCsv(){
+    const rows:string[][]=[
+      ["드림포커 주간 정산 보고서"],
+      ["기간",weekStart,weekEnd],
+      ["총 엔트리피",String(weeklyEntryFee)],
+      ["레이크백",String(weeklyRakeback)],
+      ["F&B",String(weeklyFnbTotal)],
+      ["주간 수익",String(weeklyProfit)],
+      [],
+      ["에이전트별 레이크백"],
+      ["에이전트","요율","레이크백"]
+    ];
+    weeklyAgentRows.forEach(a=>rows.push([a.code,`${a.rate}%`,String(a.amount)]));
+    rows.push([],["레이크백 지급 플레이어"],["에이전트","플레이어","바이인","엔트리피","레이크백"]);
+    weeklyPlayerGroups.forEach(group=>group.rows.forEach(row=>{
+      rows.push([group.agency,row.playerName,String(row.buyIn),String(row.rake),String(row.rakeback)]);
+    }));
+    const csv="\uFEFF"+rows.map(r=>r.map(v=>'"'+String(v??"").replace(/"/g,'""')+'"').join(",")).join("\n");
+    downloadBlob(`드림포커_주간정산_${weekStart}_${weekEnd}.csv`,new Blob([csv],{type:"text/csv;charset=utf-8"}));
+    setWeeklyExportOpen(false);
   }
 
   if (isSupabaseConfigured && !session) {
@@ -2566,16 +2723,107 @@ export default function Home() {
           </section>
         </section>}
 
-        {tab==="weekly" && <section className="panel weeklyPanel">
+        {tab==="weekly" && <section className="weeklyReportPage">
           <div className="mobileSectionSwitcher settlementSwitcher">
             <button onClick={()=>navigateTab("daily")}>일일정산</button>
             <button className="active">주간정산</button>
           </div>
-          <div className="sectionTitle"><div><h2>주간 정산</h2></div><div className="dateRange"><input className="datePicker" type="date" value={weekStart} onChange={e=>setWeekStart(e.target.value)}/><span>~</span><input className="datePicker" type="date" value={weekEnd} onChange={e=>setWeekEnd(e.target.value)}/></div></div>
-          <div className="cards"><div className="metric"><span>주간 총 엔트리피</span><b>{vnd(total(weeklyEntries,"rake"))}</b></div><div className="metric"><span>주간 총 에이전트 정산액</span><b>{vnd(total(weeklyEntries,"rakeback"))}</b></div><div className="metric"><span>주간 정산 후 순액</span><b>{vnd(total(weeklyEntries,"rake")-total(weeklyEntries,"rakeback"))}</b></div></div>
-          <div className="agencyGrid">{agencyTotals(weeklyEntries).map(a=><div className="agencyCard" key={a.id}><span>{a.code}</span><small>현재 정산 요율 {a.rate}%</small><b>{vnd(a.amount)}</b></div>)}</div>
-          <div className="sectionTitle compact"><div><h2>플레이어별 주간 정산</h2><p>각 게임 입력 당시 저장된 정산 요율을 기준으로 계산합니다.</p></div></div>
-          <div className="tableWrap"><table><thead><tr><th>플레이어</th><th>에이전트</th><th>바이인</th><th>총 엔트리피</th><th>레이크백</th></tr></thead><tbody>{weeklyPlayerRows.length===0?<tr><td colSpan={5} className="empty">해당 기간의 정산 기록이 없습니다.</td></tr>:weeklyPlayerRows.map(r=><tr key={`${r.playerId}-${r.agency}`}><td>{r.playerName}</td><td>{r.agency}</td><td>{vnd(r.buyIn)}</td><td>{vnd(r.rake)}</td><td className="strong">{vnd(r.rakeback)}</td></tr>)}</tbody></table></div>
+
+          <section className="panel weeklyReportPanel">
+            <div className="weeklyReportTop">
+              <div>
+                <span className="weeklyReportEyebrow">주주 · 운영 보고</span>
+                <h2>주간 정산</h2>
+                <div className="weeklyPeriodControl">
+                  <button onClick={()=>{
+                    const start=plusDays(weekStart,-7);
+                    setWeekStart(start); setWeekEnd(plusDays(start,6));
+                  }}>‹</button>
+                  <strong>{weekStart} ~ {weekEnd}</strong>
+                  <button onClick={()=>{
+                    const start=plusDays(weekStart,7);
+                    setWeekStart(start); setWeekEnd(plusDays(start,6));
+                  }}>›</button>
+                  <button className="weeklyThisWeekButton" onClick={()=>{
+                    const start=monday(today());
+                    setWeekStart(start); setWeekEnd(plusDays(start,6));
+                  }}>이번 주</button>
+                </div>
+              </div>
+
+              <div className="weeklyDownloadMenu">
+                <button className="weeklyDownloadTrigger" onClick={()=>setWeeklyExportOpen(v=>!v)}>
+                  주간 정산서 다운로드 <span>{weeklyExportOpen?"⌃":"⌄"}</span>
+                </button>
+                {weeklyExportOpen && <div className="weeklyDownloadDropdown">
+                  <button onClick={exportWeeklyPdf}><strong>PDF</strong><small>보고·인쇄용</small></button>
+                  <button onClick={exportWeeklyPng}><strong>PNG</strong><small>이미지 파일</small></button>
+                  <button onClick={exportWeeklyCsv}><strong>스프레드시트</strong><small>CSV 파일</small></button>
+                </div>}
+              </div>
+            </div>
+
+            <div className="weeklyKpiGrid">
+              <div><span>총 엔트리피</span><b>{vnd(weeklyEntryFee)}</b><small>{weeklyEntries.reduce((sum,e)=>sum+e.buyIn,0)} BUY-IN</small></div>
+              <div className="expense"><span>레이크백</span><b>− {vnd(weeklyRakeback)}</b><small>{weeklyAgentRows.length}개 에이전트</small></div>
+              <div className="expense"><span>F&B</span><b>− {vnd(weeklyFnbTotal)}</b><small>{weeklyFnbEntries.length}건</small></div>
+              <div className="profit"><span>주간 수익</span><b>{vnd(weeklyProfit)}</b><small>엔트리피 − 레이크백 − F&B</small></div>
+            </div>
+
+            <div className="weeklyReportGrid">
+              <section className="weeklyAgentSection">
+                <div className="weeklySectionHeader">
+                  <div><h3>에이전트별 레이크백</h3><p>이번 주 실제 지급 예정 금액</p></div>
+                  <span>{weeklyAgentRows.length} AGENT</span>
+                </div>
+                {weeklyAgentRows.length===0
+                  ? <div className="weeklyEmpty">이번 주 레이크백 지급 내역이 없습니다.</div>
+                  : <div className="weeklyAgentReportRows">
+                      {weeklyAgentRows.map(a=><div key={a.id}>
+                        <span><strong>{a.code}</strong><small>{a.rate}%</small></span>
+                        <b>{vnd(a.amount)}</b>
+                      </div>)}
+                    </div>}
+              </section>
+
+              <aside className="weeklyAccountingAside">
+                <div><span>총 엔트리피</span><b>{vnd(weeklyEntryFee)}</b></div>
+                <div><span>레이크백</span><b>− {vnd(weeklyRakeback)}</b></div>
+                <div><span>F&B</span><b>− {vnd(weeklyFnbTotal)}</b></div>
+                <div className="profit"><span>주간 수익</span><b>{vnd(weeklyProfit)}</b></div>
+              </aside>
+            </div>
+
+            <section className="weeklyPlayersSection">
+              <div className="weeklySectionHeader">
+                <div>
+                  <h3>레이크백 지급 플레이어</h3>
+                  <p>레이크백이 발생한 플레이어만 에이전트 코드별로 표시합니다.</p>
+                </div>
+                <span>{weeklyPlayerRows.length}명</span>
+              </div>
+
+              {weeklyPlayerGroups.length===0
+                ? <div className="weeklyEmpty">이번 주 레이크백 지급 대상 플레이어가 없습니다.</div>
+                : <div className="weeklyPlayerGroups">
+                    {weeklyPlayerGroups.map(group=><section className="weeklyPlayerGroup" key={group.agency}>
+                      <header>
+                        <div><strong>{group.agency}</strong><span>{group.rows.length}명</span></div>
+                        <b>{vnd(group.totalRakeback)}</b>
+                      </header>
+                      <div className="weeklyPlayerHead">
+                        <span>플레이어</span><span>바이인</span><span>엔트리피</span><span>레이크백</span>
+                      </div>
+                      {group.rows.map(row=><div className="weeklyPlayerRow" key={`${row.playerId}-${row.agency}`}>
+                        <strong>{row.playerName}</strong>
+                        <span>{row.buyIn}회</span>
+                        <span>{vnd(row.rake)}</span>
+                        <b>{vnd(row.rakeback)}</b>
+                      </div>)}
+                    </section>)}
+                  </div>}
+            </section>
+          </section>
         </section>}
 
         {tab==="fnb" && <section className="fnbPage">
