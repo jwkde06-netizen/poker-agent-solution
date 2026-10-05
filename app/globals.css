@@ -10113,3 +10113,80 @@ html[data-theme="dark"] .dashboardTrendChart{
     font-size:12px
   }
 }
+
+
+/* Compact tab layout + uniform poker table row */
+.contentArea{
+  padding-top:16px!important
+}
+.globalNote{
+  margin-bottom:10px!important
+}
+.pokerFloorMap{
+  display:grid!important;
+  grid-template-columns:repeat(5,minmax(0,1fr))!important;
+  grid-template-rows:54px!important;
+  gap:7px!important;
+  margin-top:10px!important;
+  padding:8px!important
+}
+.table4,
+.table12,
+.table13,
+.table5,
+.table2{
+  grid-column:auto!important;
+  grid-row:auto!important;
+  align-self:stretch!important
+}
+.floorTableButton{
+  height:54px!important;
+  min-height:54px!important;
+  align-self:stretch!important
+}
+.floorSelectorPanel{
+  padding:12px!important
+}
+.floorSelectorHeader{
+  margin-bottom:0!important
+}
+
+@media(max-width:820px){
+  .contentArea{
+    padding-top:10px!important
+  }
+  .pokerFloorMap{
+    grid-template-columns:repeat(5,minmax(0,1fr))!important;
+    grid-template-rows:48px!important;
+    gap:5px!important;
+    padding:6px!important
+  }
+  .floorTableButton{
+    height:48px!important;
+    min-height:48px!important;
+    padding:3px 4px!important
+  }
+  .floorTableButton strong{
+    font-size:14px!important
+  }
+  .floorTableButton small{
+    font-size:8px!important
+  }
+}
+
+@media(max-width:440px){
+  .pokerFloorMap{
+    gap:4px!important;
+    padding:5px!important
+  }
+  .floorTableButton{
+    height:46px!important;
+    min-height:46px!important
+  }
+  .floorTableButton strong{
+    font-size:13px!important
+  }
+  .floorTableButton small{
+    font-size:7px!important
+  }
+}
