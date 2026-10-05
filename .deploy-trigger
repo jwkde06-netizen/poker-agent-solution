@@ -2,3 +2,4 @@ deploy latest production changes
 deploy retry after buy-in UI verification
 deploy mobile width fix
 deploy top account menu
+deploy after vercel plan upgrade
