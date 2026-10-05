@@ -1765,21 +1765,48 @@ export default function Home() {
     text(`${weekStart} ~ ${weekEnd} · 월요일–일요일`,width-80,90,17,600,"#727a83","right");
     line(80,132,width-80,132);
 
-    const cards:[string,number,boolean][]=[
-      ["총 엔트리피",weeklyEntryFee,false],
-      ["레이크백",-weeklyRakeback,false],
-      ["F&B",-weeklyFnbTotal,false],
-      ["주간 수익",weeklyProfit,true]
-    ];
-    const gap=14, cardW=(width-160-gap*3)/4;
-    cards.forEach(([label,value,profit],i)=>{
-      const x=80+i*(cardW+gap);
-      roundRect(x,158,cardW,112,14,profit?"#fff9eb":"#fafbfc",profit?"#e4c77e":"#e2e5e8");
-      text(label,x+18,188,15,700,profit?"#8b6518":"#68717a");
-      text((value<0?"− ":"")+money.format(Math.abs(value)),x+18,232,26,800,profit?"#9d6a09":"#17191c");
+    // Reporting-style weekly statement
+    const tableX=80;
+    const tableY=154;
+    const tableW=760;
+    const labelW=500;
+    const rowH=46;
+    const statementRows=[
+      ["TOTAL RAKE BACK",weeklyEntryFee,"normal"],
+      ["F&B",weeklyFnbTotal,"normal"],
+      ...agencies.map(agent=>[
+        agent.code+" RAKE BACK",
+        weeklyAgentRows.find(row=>row.id===agent.id)?.amount ?? 0,
+        "normal"
+      ] as [string,number,string]),
+      ["TOTAL EXPENSE",weeklyRakeback+weeklyFnbTotal,"expense"],
+      ["NET PROFIT / LOSS",weeklyProfit,"profit"]
+    ] as [string,number,string][];
+
+    roundRect(tableX,tableY,tableW,42,8,"#3d3d3d","#3d3d3d");
+    text("항목",tableX+18,tableY+21,14,800,"#ffffff");
+    text("금액",tableX+tableW-18,tableY+21,14,800,"#ffffff","right");
+
+    let tableRowY=tableY+42;
+    statementRows.forEach(([label,value,type])=>{
+      const fill=type==="expense"?"#7a1b06":type==="profit"?"#3d3d3d":"#ffffff";
+      const color=type==="normal"?"#202328":"#ffffff";
+      ctx.fillStyle=fill;
+      ctx.fillRect(tableX,tableRowY,tableW,rowH);
+      ctx.strokeStyle="#c9ccd0";
+      ctx.strokeRect(tableX,tableRowY,tableW,rowH);
+      text(label,tableX+18,tableRowY+rowH/2,14,type==="normal"?650:800,color);
+      text(money.format(value),tableX+tableW-18,tableRowY+rowH/2,15,type==="normal"?700:850,color,"right");
+      tableRowY+=rowH;
     });
 
-    let y=318;
+    roundRect(880,154,440,94,12,"#fafbfc","#e1e4e8");
+    text("주 시작일 (월요일)",900,182,13,700,"#6d747c");
+    text(weekStart,1300,182,15,750,"#202328","right");
+    text("주 종료일",900,220,13,700,"#6d747c");
+    text(weekEnd,1300,220,15,750,"#202328","right");
+
+    let y=Math.max(318,tableRowY+38);
     text("에이전트별 레이크백",80,y,22,800,"#17191c");
     y+=30;
     if(weeklyAgentRows.length===0){
