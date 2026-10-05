@@ -1287,10 +1287,10 @@ export default function Home() {
           </div>
 
           <nav className="mobileSideMenuNav">
-            <button onClick={()=>{setTab("settings");setMobileSideMenuOpen(false)}}>
+            {profile?.role==="admin" && <button onClick={()=>{setTab("settings");setMobileSideMenuOpen(false)}}>
               <span className="sideMenuIcon">⚙</span>
-              <div><strong>설정</strong></div>
-            </button>
+              <div><strong>계정 관리</strong><small>직원 · 에이전트 계정 생성</small></div>
+            </button>}
 
             <button onClick={()=>applyTheme(theme==="dark"?"light":"dark")}>
               <span className="sideMenuIcon">{theme==="dark"?"☀":"☾"}</span>
