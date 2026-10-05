@@ -92,19 +92,27 @@ const DEFAULT_AGENCIES: Agency[] = [
 const money = new Intl.NumberFormat("ko-KR", { maximumFractionDigits: 0 });
 const vnd = (value:number) => money.format(value);
 const isOperatingFnbExpense = (item:FnbEntry) => item.expenseGroup==="2FLOOR";
-const today = () => new Date().toISOString().slice(0, 10);
+const formatLocalDate = (date:Date) => {
+  const year=date.getFullYear();
+  const month=String(date.getMonth()+1).padStart(2,"0");
+  const day=String(date.getDate()).padStart(2,"0");
+  return `${year}-${month}-${day}`;
+};
+const today = () => formatLocalDate(new Date());
 const uid = (prefix: string) => `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
 function monday(dateString: string) {
-  const d = new Date(`${dateString}T00:00:00`);
-  const day = d.getDay();
-  d.setDate(d.getDate() + (day === 0 ? -6 : 1 - day));
-  return d.toISOString().slice(0, 10);
+  const [year,month,dayOfMonth]=dateString.split("-").map(Number);
+  const d = new Date(year,month-1,dayOfMonth);
+  const weekday = d.getDay();
+  d.setDate(d.getDate() + (weekday === 0 ? -6 : 1 - weekday));
+  return formatLocalDate(d);
 }
 function plusDays(dateString: string, days: number) {
-  const d = new Date(`${dateString}T00:00:00`);
+  const [year,month,dayOfMonth]=dateString.split("-").map(Number);
+  const d = new Date(year,month-1,dayOfMonth);
   d.setDate(d.getDate() + days);
-  return d.toISOString().slice(0, 10);
+  return formatLocalDate(d);
 }
 
 function MobileBottomIcon({type}:{type:"dashboard"|"players"|"games"|"fnb"|"settlement"}) {
