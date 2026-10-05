@@ -202,6 +202,7 @@ export default function Home() {
   const [dailyLogSearch, setDailyLogSearch] = useState("");
   const [dailyExportOpen, setDailyExportOpen] = useState(false);
   const [weeklyExportOpen, setWeeklyExportOpen] = useState(false);
+  const [weeklyAgentExportOpen, setWeeklyAgentExportOpen] = useState<string | null>(null);
   const [dailyEditingCell, setDailyEditingCell] = useState<{entryId:string;field:"agency"|"buyin"} | null>(null);
   const [dailyEditBuyInValue, setDailyEditBuyInValue] = useState("");
   const [lastDeletedEntry, setLastDeletedEntry] = useState<GameEntry | null>(null);
@@ -1455,6 +1456,112 @@ export default function Home() {
     const csv="\uFEFF"+rows.map(r=>r.map(v=>'"'+String(v??"").replace(/"/g,'""')+'"').join(",")).join("\n");
     downloadBlob(`드림포커_주간정산_${weekStart}_${weekEnd}.csv`,new Blob([csv],{type:"text/csv;charset=utf-8"}));
     setWeeklyExportOpen(false);
+  }
+
+  function buildWeeklyAgentCanvas(agencyCode:string){
+    const group=weeklyPlayerGroups.find(g=>g.agency===agencyCode);
+    if(!group)return null;
+    const width=1200;
+    const height=Math.max(720,390+group.rows.length*58);
+    const canvas=document.createElement("canvas");
+    canvas.width=width; canvas.height=height;
+    const ctx=canvas.getContext("2d");
+    if(!ctx)return null;
+
+    const text=(value:string,x:number,y:number,size:number,weight=500,color="#202328",align:"left"|"right"="left")=>{
+      ctx.fillStyle=color;
+      ctx.font=`${weight} ${size}px Arial, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif`;
+      ctx.textAlign=align;
+      ctx.textBaseline="middle";
+      ctx.fillText(value,x,y);
+    };
+    const line=(x1:number,y1:number,x2:number,y2:number,color="#e2e5e9")=>{
+      ctx.strokeStyle=color; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+    };
+    const roundRect=(x:number,y:number,w:number,h:number,r:number,fill:string,stroke="#e1e4e8")=>{
+      ctx.beginPath(); ctx.roundRect(x,y,w,h,r); ctx.fillStyle=fill; ctx.fill(); ctx.strokeStyle=stroke; ctx.lineWidth=1; ctx.stroke();
+    };
+
+    ctx.fillStyle="#f4f5f7"; ctx.fillRect(0,0,width,height);
+    roundRect(40,32,width-80,height-64,20,"#fff","#dde1e5");
+    text("드림포커 에이전트 주간 정산서",72,82,30,800,"#17191c");
+    text(`${weekStart} ~ ${weekEnd}`,width-72,82,16,600,"#727a83","right");
+    line(72,122,width-72,122);
+
+    text(agencyCode,72,168,24,800,"#8f6411");
+    text(`${group.rows.length}명 · ${group.totalBuyIn} BUY-IN`,72,202,14,600,"#747c84");
+
+    roundRect(72,232,500,96,14,"#fafbfc","#e1e4e8");
+    text("지급 레이크백",92,261,14,700,"#6a727b");
+    text(money.format(group.totalRakeback),92,301,27,800,"#9a6410");
+
+    const groupEntryFee=group.rows.reduce((sum,row)=>sum+row.rake,0);
+    roundRect(590,232,538,96,14,"#fafbfc","#e1e4e8");
+    text("총 엔트리피",610,261,14,700,"#6a727b");
+    text(money.format(groupEntryFee),610,301,27,800,"#17191c");
+
+    let y=365;
+    text("플레이어",82,y,13,700,"#777f88");
+    text("바이인",610,y,13,700,"#777f88");
+    text("엔트리피",760,y,13,700,"#777f88");
+    text("레이크백",width-82,y,13,700,"#777f88","right");
+    y+=22; line(72,y,width-72,y);
+    y+=8;
+
+    group.rows.forEach(row=>{
+      const rowH=56;
+      text(row.playerName,82,y+rowH/2,16,600,"#202328");
+      text(`${row.buyIn}회`,610,y+rowH/2,14,600,"#59616a");
+      text(money.format(row.rake),760,y+rowH/2,14,600,"#59616a");
+      text(money.format(row.rakeback),width-82,y+rowH/2,15,750,"#9a6410","right");
+      line(72,y+rowH,width-72,y+rowH);
+      y+=rowH;
+    });
+
+    line(72,height-96,width-72,height-96);
+    text("Dream Poker",72,height-64,13,700,"#9aa1a8");
+    text(`${agencyCode} 주간 레이크백 정산`,width-72,height-64,12,500,"#9aa1a8","right");
+    return canvas;
+  }
+
+  function exportWeeklyAgentPng(agencyCode:string){
+    const canvas=buildWeeklyAgentCanvas(agencyCode);
+    if(!canvas)return;
+    canvas.toBlob(blob=>{if(blob)downloadBlob(`드림포커_${agencyCode}_주간정산_${weekStart}_${weekEnd}.png`,blob)},"image/png");
+    setWeeklyAgentExportOpen(null);
+  }
+
+  function exportWeeklyAgentPdf(agencyCode:string){
+    const canvas=buildWeeklyAgentCanvas(agencyCode);
+    if(!canvas)return;
+    const image=canvas.toDataURL("image/jpeg",0.94);
+    const pdf=new jsPDF({orientation:"landscape",unit:"pt",format:"a4"});
+    const pageWidth=pdf.internal.pageSize.getWidth();
+    const pageHeight=pdf.internal.pageSize.getHeight();
+    const ratio=Math.min((pageWidth-24)/canvas.width,(pageHeight-24)/canvas.height);
+    const width=canvas.width*ratio, height=canvas.height*ratio;
+    pdf.addImage(image,"JPEG",(pageWidth-width)/2,(pageHeight-height)/2,width,height);
+    pdf.save(`드림포커_${agencyCode}_주간정산_${weekStart}_${weekEnd}.pdf`);
+    setWeeklyAgentExportOpen(null);
+  }
+
+  function exportWeeklyAgentCsv(agencyCode:string){
+    const group=weeklyPlayerGroups.find(g=>g.agency===agencyCode);
+    if(!group)return;
+    const rows:string[][]=[
+      ["드림포커 에이전트 주간 정산서"],
+      ["에이전트",agencyCode],
+      ["기간",weekStart,weekEnd],
+      ["총 바이인",String(group.totalBuyIn)],
+      ["총 엔트리피",String(group.rows.reduce((sum,row)=>sum+row.rake,0))],
+      ["지급 레이크백",String(group.totalRakeback)],
+      [],
+      ["플레이어","바이인","엔트리피","레이크백"]
+    ];
+    group.rows.forEach(row=>rows.push([row.playerName,String(row.buyIn),String(row.rake),String(row.rakeback)]));
+    const csv="\uFEFF"+rows.map(r=>r.map(v=>'"'+String(v??"").replace(/"/g,'""')+'"').join(",")).join("\n");
+    downloadBlob(`드림포커_${agencyCode}_주간정산_${weekStart}_${weekEnd}.csv`,new Blob([csv],{type:"text/csv;charset=utf-8"}));
+    setWeeklyAgentExportOpen(null);
   }
 
   if (isSupabaseConfigured && !session) {
@@ -2809,7 +2916,20 @@ export default function Home() {
                     {weeklyPlayerGroups.map(group=><section className="weeklyPlayerGroup" key={group.agency}>
                       <header>
                         <div><strong>{group.agency}</strong><span>{group.rows.length}명</span></div>
-                        <b>{vnd(group.totalRakeback)}</b>
+                        <div className="weeklyAgentGroupActions">
+                          <b>{vnd(group.totalRakeback)}</b>
+                          <div className="weeklyAgentDownloadMenu">
+                            <button
+                              className="weeklyAgentDownloadTrigger"
+                              onClick={()=>setWeeklyAgentExportOpen(v=>v===group.agency?null:group.agency)}
+                            >정산서 다운로드</button>
+                            {weeklyAgentExportOpen===group.agency && <div className="weeklyAgentDownloadDropdown">
+                              <button onClick={()=>exportWeeklyAgentPdf(group.agency)}><strong>PDF</strong><small>공유·인쇄용</small></button>
+                              <button onClick={()=>exportWeeklyAgentPng(group.agency)}><strong>PNG</strong><small>이미지 파일</small></button>
+                              <button onClick={()=>exportWeeklyAgentCsv(group.agency)}><strong>스프레드시트</strong><small>CSV 파일</small></button>
+                            </div>}
+                          </div>
+                        </div>
                       </header>
                       <div className="weeklyPlayerHead">
                         <span>플레이어</span><span>바이인</span><span>엔트리피</span><span>레이크백</span>
