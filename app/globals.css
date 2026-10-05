@@ -4526,3 +4526,331 @@ html[data-theme="dark"] .dashboardQuickMenu button>span{
     border-radius:18px;
   }
 }
+
+/* Operations-first dashboard redesign */
+.dashboardHero{
+  padding:18px;
+  border-radius:18px;
+  background:
+    radial-gradient(circle at 85% 0%,rgba(201,150,49,.14),transparent 30%),
+    linear-gradient(135deg,#151515,#0e0e0e);
+  border:1px solid #2a2a2a;
+}
+.dashboardHeroTop{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:14px;
+}
+.dashboardHeroTop>div:first-child>span{
+  display:block;
+  color:#9b8460;
+  font-size:10px;
+  font-weight:850;
+}
+.dashboardHeroTop>div:first-child>strong{
+  display:block;
+  margin-top:5px;
+  color:#f2f2f2;
+  font-size:23px;
+  letter-spacing:-.03em;
+}
+.dashboardHeroTop>div:first-child>small{
+  display:block;
+  margin-top:5px;
+  color:#8b9197;
+  font-size:10px;
+}
+.dashboardLiveBadge{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  padding:7px 9px;
+  border:1px solid #294d35;
+  border-radius:999px;
+  background:#102016;
+  color:#69c47b;
+  font-size:9px;
+  font-weight:900;
+}
+.dashboardLiveBadge i{
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:#48c96a;
+  box-shadow:0 0 0 4px rgba(72,201,106,.1);
+}
+.dashboardHeroMetrics{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:8px;
+  margin-top:16px;
+}
+.dashboardHeroMetrics button{
+  min-width:0;
+  padding:12px;
+  border:1px solid #282828;
+  border-radius:13px;
+  background:#111;
+  text-align:left;
+  cursor:pointer;
+}
+.dashboardHeroMetrics span{
+  display:block;
+  color:#8b9197;
+  font-size:8px;
+  font-weight:800;
+}
+.dashboardHeroMetrics b{
+  display:block;
+  margin-top:5px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  color:#f0f0f0;
+  font-size:16px;
+}
+.dashboardHeroMetrics small{
+  display:block;
+  margin-top:3px;
+  color:#6f757b;
+  font-size:7px;
+}
+.dashboardLiveTables,
+.dashboardTodaySummary,
+.dashboardRecent{
+  margin-top:10px;
+}
+.dashboardLiveTableList{
+  display:grid;
+  gap:7px;
+}
+.dashboardLiveTableList>button{
+  width:100%;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  min-height:58px;
+  padding:10px 12px;
+  border:1px solid #292929;
+  border-radius:12px;
+  background:#111;
+  color:#eee;
+  cursor:pointer;
+}
+.dashTableMain{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  min-width:0;
+}
+.dashLiveDot{
+  width:7px;
+  height:7px;
+  flex:0 0 7px;
+  border-radius:50%;
+  background:#48c96a;
+}
+.dashTableMain strong{
+  font-size:14px;
+}
+.dashTableMain em{
+  padding:3px 5px;
+  border-radius:7px;
+  background:#211a0d;
+  color:#e0ad49;
+  font-size:8px;
+  font-style:normal;
+  font-weight:900;
+}
+.dashTableMain b{
+  color:#aaa;
+  font-size:9px;
+}
+.dashTableStats{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  white-space:nowrap;
+}
+.dashTableStats span{
+  color:#898f95;
+  font-size:8px;
+}
+.dashTableStats strong{
+  color:#d9aa4a;
+  font-size:11px;
+}
+.liveEmpty{
+  padding:22px!important;
+}
+.dashboardSummaryRows{
+  display:grid;
+  border:1px solid #282828;
+  border-radius:12px;
+  overflow:hidden;
+}
+.dashboardSummaryRows>div{
+  min-height:46px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:0 12px;
+  border-bottom:1px solid #282828;
+}
+.dashboardSummaryRows>div:last-child{
+  border-bottom:0;
+}
+.dashboardSummaryRows span{
+  color:#969ca2;
+  font-size:10px;
+}
+.dashboardSummaryRows b{
+  color:#eee;
+  font-size:12px;
+}
+.dashboardRecentList{
+  display:grid;
+}
+.dashboardRecentList>div{
+  min-height:52px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:9px 2px;
+  border-bottom:1px solid #262626;
+}
+.dashboardRecentList>div:last-child{
+  border-bottom:0;
+}
+.dashboardRecentList>div>div:first-child{
+  min-width:0;
+}
+.dashboardRecentList strong{
+  display:block;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  color:#eee;
+  font-size:11px;
+}
+.dashboardRecentList span{
+  display:block;
+  margin-top:2px;
+  color:#80868c;
+  font-size:8px;
+}
+.dashboardRecentList>div>div:last-child{
+  text-align:right;
+}
+.dashboardRecentList small{
+  display:block;
+  color:#7d8389;
+  font-size:7px;
+}
+.dashboardRecentList b{
+  display:block;
+  margin-top:2px;
+  color:#d5a443;
+  font-size:10px;
+}
+
+/* Retire the old duplicated dashboard quick menu and legacy visual blocks */
+.dashboardQuickMenu,
+.redesignedDashboardGrid,
+.fakeChart,
+.chartLegend{
+  display:none!important;
+}
+
+@media(max-width:820px){
+  .dashboardHero{
+    padding:14px!important;
+    border-radius:15px!important;
+  }
+  .dashboardHeroTop>div:first-child>span{
+    font-size:11px!important;
+  }
+  .dashboardHeroTop>div:first-child>strong{
+    font-size:21px!important;
+  }
+  .dashboardHeroTop>div:first-child>small{
+    font-size:10px!important;
+  }
+  .dashboardLiveBadge{
+    padding:6px 8px!important;
+    font-size:9px!important;
+  }
+  .dashboardHeroMetrics{
+    gap:6px!important;
+    margin-top:13px!important;
+  }
+  .dashboardHeroMetrics button{
+    padding:10px 8px!important;
+    border-radius:11px!important;
+  }
+  .dashboardHeroMetrics span{
+    font-size:9px!important;
+  }
+  .dashboardHeroMetrics b{
+    font-size:14px!important;
+  }
+  .dashboardHeroMetrics small{
+    font-size:7px!important;
+  }
+  .dashboardLiveTables,
+  .dashboardTodaySummary,
+  .dashboardRecent{
+    padding:14px!important;
+  }
+  .dashboardLiveTables .cardHeader h2,
+  .dashboardTodaySummary .cardHeader h2,
+  .dashboardRecent .cardHeader h2{
+    font-size:15px!important;
+  }
+  .dashboardLiveTables .cardHeader p,
+  .dashboardTodaySummary .cardHeader p,
+  .dashboardRecent .cardHeader p{
+    font-size:9px!important;
+  }
+  .dashboardLiveTableList>button{
+    min-height:56px!important;
+    padding:9px 10px!important;
+  }
+  .dashTableMain strong{
+    font-size:13px!important;
+  }
+  .dashTableMain em{
+    font-size:8px!important;
+  }
+  .dashTableStats{
+    gap:7px!important;
+  }
+  .dashTableStats span{
+    font-size:8px!important;
+  }
+  .dashTableStats strong{
+    font-size:10px!important;
+  }
+  .dashboardSummaryRows>div{
+    min-height:48px!important;
+  }
+  .dashboardSummaryRows span{
+    font-size:11px!important;
+  }
+  .dashboardSummaryRows b{
+    font-size:13px!important;
+  }
+  .dashboardRecentList strong{
+    font-size:12px!important;
+  }
+  .dashboardRecentList span{
+    font-size:9px!important;
+  }
+  .dashboardRecentList b{
+    font-size:11px!important;
+  }
+}
