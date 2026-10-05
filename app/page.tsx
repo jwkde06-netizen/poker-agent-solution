@@ -236,6 +236,16 @@ export default function Home() {
   const [weekEnd, setWeekEnd] = useState(plusDays(start, 6));
 
   useEffect(() => {
+    if(!message)return;
+    const autoDismiss=/저장 완료|게임 시작|계정을 생성했습니다|변경되었습니다|복원했습니다/.test(message);
+    if(!autoDismiss)return;
+    const timer=window.setTimeout(()=>{
+      setMessage(current=>current===message?"":current);
+    },2500);
+    return ()=>window.clearTimeout(timer);
+  },[message]);
+
+  useEffect(() => {
     const saved = localStorage.getItem("dream-poker-theme");
     const nextTheme = saved === "dark" ? "dark" : "light";
     setTheme(nextTheme);
