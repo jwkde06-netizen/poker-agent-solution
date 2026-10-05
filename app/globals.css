@@ -15271,3 +15271,102 @@ html[data-theme="dark"] .expenseLedgerRow>em.deposit{
 .expenseEditFooter button{
   font-size:11px!important
 }
+
+
+/* Expense ledger v6 — simple cash ledger */
+.compactExpensePage .expenseCompactSummary{
+  gap:10px!important
+}
+.compactExpensePage .expenseCompactSummary>div{
+  min-width:118px!important
+}
+.compactExpensePage .expenseLedgerHeader{
+  min-height:48px!important
+}
+.compactExpensePage .simpleLedgerHeader{
+  justify-content:flex-start!important
+}
+.compactExpensePage .expenseQuickAdd{
+  grid-template-columns:100px 118px 118px minmax(210px,1.4fr) 125px 145px minmax(150px,.85fr) 76px!important;
+  gap:6px!important
+}
+.compactExpensePage .expenseLedgerTable{
+  min-width:980px!important
+}
+.compactExpensePage .expenseLedgerHead,
+.compactExpensePage .expenseLedgerRow{
+  grid-template-columns:
+    86px
+    minmax(240px,1.65fr)
+    125px
+    125px
+    130px
+    135px
+    minmax(170px,.9fr)
+    28px!important;
+  gap:7px!important;
+  padding-left:10px!important;
+  padding-right:10px!important
+}
+.compactExpensePage .expenseLedgerHead{
+  font-size:11px!important
+}
+.compactExpensePage .expenseLedgerRow{
+  min-height:52px!important;
+  font-size:13px!important
+}
+.compactExpensePage .expenseItemName strong{
+  font-size:14px!important
+}
+.compactExpensePage .expensePayerInput{
+  font-size:13px!important
+}
+.compactExpensePage .depositValue,
+.compactExpensePage .withdrawalValue,
+.compactExpensePage .ledgerBalance{
+  font-size:13px!important;
+  white-space:nowrap
+}
+.compactExpensePage .withdrawalValue{
+  color:#b35c4d
+}
+.compactExpensePage .expenseNoteCell{
+  font-size:12px!important
+}
+.simpleExpenseEditSummary{
+  grid-template-columns:1fr!important
+}
+.simpleExpenseEditSummary>div{
+  display:flex!important;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px
+}
+.simpleExpenseEditSummary b{
+  color:#b35c4d
+}
+@media(max-width:1150px){
+  .compactExpensePage .expenseLedgerTable{
+    min-width:920px!important
+  }
+  .compactExpensePage .expenseLedgerHead,
+  .compactExpensePage .expenseLedgerRow{
+    grid-template-columns:
+      80px
+      minmax(205px,1.5fr)
+      112px
+      115px
+      120px
+      124px
+      minmax(145px,.8fr)
+      26px!important;
+    gap:5px!important;
+    padding-left:7px!important;
+    padding-right:7px!important
+  }
+}
+@media(max-width:820px){
+  .compactExpensePage .expenseLedgerTable{
+    min-width:900px!important
+  }
+}
