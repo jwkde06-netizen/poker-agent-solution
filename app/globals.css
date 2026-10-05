@@ -15186,3 +15186,88 @@ html[data-theme="dark"] .expenseLedgerRow>em.deposit{
     min-width:1030px!important
   }
 }
+
+
+/* Expense ledger v5 — cleaner rows and larger type */
+.compactExpensePage .expenseCompactTitle>span{
+  font-size:10px!important
+}
+.compactExpensePage .expenseCompactTitle h2{
+  font-size:23px!important
+}
+.compactExpensePage .expenseCompactSummary span{
+  font-size:10px!important
+}
+.compactExpensePage .expenseCompactSummary b,
+.compactExpensePage .expenseCompactSummary strong{
+  font-size:15px!important
+}
+.compactExpensePage .expenseCompactSummary .primary strong{
+  font-size:21px!important
+}
+.compactExpensePage .expenseLedgerHeader h2{
+  font-size:17px!important
+}
+.compactExpensePage .expenseLedgerHeader p{
+  font-size:10px!important
+}
+.compactExpensePage .expenseFilterTabs button{
+  font-size:10px!important
+}
+.compactExpensePage .expenseQuickAdd input,
+.compactExpensePage .expenseQuickAdd select,
+.compactExpensePage .depositAutoLabel,
+.compactExpensePage .expenseQuickAdd button{
+  font-size:11px!important
+}
+.compactExpensePage .expenseLedgerHead{
+  font-size:10px!important
+}
+.compactExpensePage .expenseLedgerRow{
+  font-size:12px!important
+}
+.compactExpensePage .expenseItemName strong{
+  font-size:13px!important;
+  line-height:1.2
+}
+.compactExpensePage .expenseItemName small{
+  display:none!important
+}
+.compactExpensePage .expensePayerInput{
+  font-size:12px!important
+}
+.compactExpensePage .expenseLedgerRow>b,
+.compactExpensePage .ledgerBalance{
+  font-size:12px!important
+}
+.compactExpensePage .expenseLedgerRow>em{
+  font-size:10px!important
+}
+.compactExpensePage .expenseNoteCell{
+  font-size:11px!important
+}
+.expenseEditHeader span{
+  font-size:10px!important
+}
+.expenseEditHeader strong{
+  font-size:18px!important
+}
+.expenseEditHeader small{
+  font-size:10px!important
+}
+.expenseEditSummary span{
+  font-size:9px!important
+}
+.expenseEditSummary b{
+  font-size:15px!important
+}
+.expenseEditGrid label{
+  font-size:10px!important
+}
+.expenseEditGrid input,
+.expenseEditGrid select{
+  font-size:12px!important
+}
+.expenseEditFooter button{
+  font-size:11px!important
+}
