@@ -10840,3 +10840,118 @@ html[data-theme="dark"] .sessionSaveButton{
     font-size:15px
   }
 }
+
+
+/* Game input readability refinement */
+.sessionTitlePlain span{
+  color:var(--text)!important;
+  background:transparent!important;
+  border:0!important;
+  border-radius:0!important;
+}
+.sessionTitlePlain strong,
+.sessionTitlePlain span,
+.sessionTitlePlain b{
+  font-size:24px!important;
+  font-weight:850!important;
+}
+.sessionTitlePlain span{
+  font-size:18px!important;
+}
+.sessionTitlePlain b{
+  font-size:24px!important;
+}
+
+.compactSelectedStats.fourStats span{
+  font-size:13px!important;
+}
+.compactSelectedStats.fourStats b{
+  font-size:20px!important;
+}
+
+.topPlayerSearch .selectedSearchLabel strong{
+  font-size:17px!important;
+}
+.topPlayerSearch .selectedSearchLabel small{
+  font-size:12px!important;
+}
+.topPlayerSearch .selectedSearchInput input{
+  font-size:17px!important;
+}
+
+.quickBuyinRow .selectedPlayerIdentity strong{
+  font-size:17px!important;
+}
+.quickBuyinRow .selectedPlayerIdentity span{
+  font-size:13px!important;
+}
+.quickBuyinControl b{
+  font-size:18px!important;
+  font-weight:850!important;
+}
+.quickBuyinControl button{
+  font-size:21px!important;
+}
+.quickBuyinRow .playerFinancialGrid small{
+  font-size:11px!important;
+}
+.quickBuyinRow .playerFinancialGrid b{
+  font-size:16px!important;
+  font-weight:850!important;
+}
+.playerManageButton{
+  font-size:24px!important;
+}
+
+.floorSelectorHeader h2{
+  font-size:20px!important;
+}
+.liveTableCount{
+  font-size:12px!important;
+}
+.floorTableButton strong{
+  font-size:16px!important;
+}
+.floorTableButton small{
+  font-size:9px!important;
+}
+
+.selectedTablePanel{
+  font-size:15px!important;
+}
+.selectedPlayerSection{
+  padding-top:10px!important;
+}
+.topPlayerSearch{
+  margin-top:0!important;
+}
+
+html:not([data-theme="dark"]) .sessionTitlePlain strong,
+html:not([data-theme="dark"]) .sessionTitlePlain span,
+html:not([data-theme="dark"]) .sessionTitlePlain b,
+html:not([data-theme="dark"]) .quickBuyinControl b,
+html:not([data-theme="dark"]) .quickBuyinRow .playerFinancialGrid b{
+  color:#14171a!important;
+}
+
+@media(max-width:820px){
+  .sessionTitlePlain strong,
+  .sessionTitlePlain b{
+    font-size:21px!important;
+  }
+  .sessionTitlePlain span{
+    font-size:15px!important;
+  }
+  .compactSelectedStats.fourStats span{
+    font-size:12px!important;
+  }
+  .compactSelectedStats.fourStats b{
+    font-size:18px!important;
+  }
+  .quickBuyinRow .selectedPlayerIdentity strong{
+    font-size:16px!important;
+  }
+  .quickBuyinControl b{
+    font-size:17px!important;
+  }
+}
