@@ -1229,6 +1229,92 @@ export default function Home() {
     setFnbEntries(prev=>prev.filter(item=>item.id!==id));
   }
 
+
+  async function addExpenseItem(){
+    const amount=Number(expenseAmount.replace(/,/g,""));
+    const description=expenseDescription.trim();
+    if(!description || !amount || amount<=0){
+      setMessage("지출 항목과 금액을 입력해주세요.");
+      return;
+    }
+    if(!supabase || !session){
+      setMessage("지출 내역은 서버 연결 상태에서만 저장할 수 있습니다.");
+      return;
+    }
+    const payload={
+      expense_date:expenseDate,
+      category:expenseCategory,
+      description,
+      amount,
+      processed_amount:0,
+      status:"pending",
+      source_ref:"Dream Poker Solution",
+      note:expenseNote.trim() || null
+    };
+    const {data,error}=await supabase.from("expense_items").insert(payload).select().single();
+    if(error){setMessage(error.message);return;}
+    setExpenseItems(prev=>[...prev,{
+      id:data.id,date:data.expense_date,category:data.category,description:data.description,
+      amount:Number(data.amount),processedAmount:Number(data.processed_amount),status:data.status,
+      sourceRef:data.source_ref ?? "",note:data.note ?? ""
+    }].sort((a,b)=>(a.date+a.id).localeCompare(b.date+b.id)));
+    setExpenseDescription("");
+    setExpenseAmount("");
+    setExpenseNote("");
+    setMessage("지출 항목을 등록했습니다.");
+  }
+
+  async function deleteExpenseItem(item:ExpenseItem){
+    if(item.processedAmount>0){
+      setMessage("이미 일부 또는 전액 처리된 지출은 삭제할 수 없습니다.");
+      return;
+    }
+    if(!confirm(`"${item.description}" 지출 항목을 삭제할까요?`))return;
+    if(supabase && session){
+      const {error}=await supabase.from("expense_items").delete().eq("id",item.id);
+      if(error){setMessage(error.message);return;}
+    }
+    setExpenseItems(prev=>prev.filter(x=>x.id!==item.id));
+  }
+
+  async function updateShareholderRate(holder:Shareholder,rate:number){
+    const next=Math.max(0,Math.min(100,Number(rate)||0));
+    if(!supabase || !session)return;
+    const {error}=await supabase.from("shareholders").update({ownership_rate:next,updated_at:new Date().toISOString()}).eq("id",holder.id);
+    if(error){setMessage(error.message);return;}
+    setShareholders(prev=>prev.map(x=>x.id===holder.id?{...x,rate:next}:x));
+  }
+
+  async function finalizeSelectedWeek(){
+    if(!supabase || !session || profile?.role!=="admin")return;
+    if(weeklyDistributions.some(x=>x.weekStart===weekStart)){
+      setMessage("이 주차는 이미 지출 처리와 배당 계산이 확정되었습니다.");
+      return;
+    }
+    if(!confirm(`${weekStart} ~ ${weekEnd} 주간 수익에서 미처리 경비를 먼저 차감하고 배당을 확정할까요?`))return;
+    setFinalizingDistribution(true);
+    const {error}=await supabase.rpc("finalize_weekly_distribution",{
+      p_week_start:weekStart,
+      p_week_end:weekEnd,
+      p_operating_profit:weeklyProfit
+    });
+    setFinalizingDistribution(false);
+    if(error){setMessage(error.message);return;}
+    await loadFromDatabase();
+    setMessage("주간 지출 처리와 지분 배당을 확정했습니다.");
+  }
+
+  async function markShareholderPayoutPaid(payout:ShareholderPayout){
+    if(!supabase || !session)return;
+    const nextStatus=payout.status==="paid"?"pending":"paid";
+    const {error}=await supabase.from("shareholder_payouts").update({
+      status:nextStatus,
+      paid_at:nextStatus==="paid"?new Date().toISOString():null
+    }).eq("id",payout.id);
+    if(error){setMessage(error.message);return;}
+    setShareholderPayouts(prev=>prev.map(x=>x.id===payout.id?{...x,status:nextStatus,paidAt:nextStatus==="paid"?new Date().toISOString():""}:x));
+  }
+
   function applyReportPreset(preset:"today"|"week"|"custom"){
     setReportPreset(preset);
     if(preset==="today"){
