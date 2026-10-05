@@ -12386,3 +12386,220 @@ html[data-theme="dark"] .weeklyAccountingAside .profit{
     min-width:660px
   }
 }
+
+
+/* Theme normalization — final source of truth for form/readability states */
+html[data-theme="light"],
+.appShell.theme-light{
+  color-scheme:light
+}
+html[data-theme="dark"],
+.appShell.theme-dark{
+  color-scheme:dark
+}
+
+/* Text and caret must always follow the active theme, regardless of component overrides */
+html[data-theme="light"] input,
+html[data-theme="light"] select,
+html[data-theme="light"] textarea,
+.appShell.theme-light input,
+.appShell.theme-light select,
+.appShell.theme-light textarea{
+  color:#17191c!important;
+  caret-color:#17191c!important
+}
+html[data-theme="dark"] input,
+html[data-theme="dark"] select,
+html[data-theme="dark"] textarea,
+.appShell.theme-dark input,
+.appShell.theme-dark select,
+.appShell.theme-dark textarea{
+  color:#f1f2f3!important;
+  caret-color:#f1f2f3!important
+}
+
+html[data-theme="light"] input::placeholder,
+html[data-theme="light"] textarea::placeholder,
+.appShell.theme-light input::placeholder,
+.appShell.theme-light textarea::placeholder{
+  color:#9299a2!important;
+  opacity:1!important
+}
+html[data-theme="dark"] input::placeholder,
+html[data-theme="dark"] textarea::placeholder,
+.appShell.theme-dark input::placeholder,
+.appShell.theme-dark textarea::placeholder{
+  color:#737982!important;
+  opacity:1!important
+}
+
+/* Normalize ordinary controls. Intentionally exclude transparent inline title editors. */
+html[data-theme="light"] :is(
+  .searchBox,
+  .selectedSearchInput,
+  .dailyLogSearch,
+  .managePlayerSearchInput,
+  .tableSearchInput,
+  .globalSearchInput,
+  .inlineForm input,
+  .formGrid input,
+  .formGrid select,
+  .datePicker,
+  .authForm input,
+  .playerModalForm input,
+  .playerModalForm select,
+  .playerModalForm textarea,
+  .playerAddFields input,
+  .playerAddFields select,
+  .playerAddFields textarea,
+  .playerAgencyControls select,
+  .accountCreateGrid input,
+  .accountCreateGrid select,
+  .accountRow select,
+  .ownLoginGrid input,
+  .agencyAddRow input,
+  .agencyAddRow select,
+  .agencyEditModal input,
+  .agencyEditModal select,
+  .dailyInlineSelect,
+  .dailyInlineBuyIn,
+  .tableAddControl input
+),
+.appShell.theme-light :is(
+  .searchBox,
+  .selectedSearchInput,
+  .dailyLogSearch,
+  .managePlayerSearchInput,
+  .tableSearchInput,
+  .globalSearchInput
+){
+  background:#ffffff!important;
+  border-color:#d7dbe0!important;
+  color:#17191c!important
+}
+
+html[data-theme="dark"] :is(
+  .searchBox,
+  .selectedSearchInput,
+  .dailyLogSearch,
+  .managePlayerSearchInput,
+  .tableSearchInput,
+  .globalSearchInput,
+  .inlineForm input,
+  .formGrid input,
+  .formGrid select,
+  .datePicker,
+  .authForm input,
+  .playerModalForm input,
+  .playerModalForm select,
+  .playerModalForm textarea,
+  .playerAddFields input,
+  .playerAddFields select,
+  .playerAddFields textarea,
+  .playerAgencyControls select,
+  .accountCreateGrid input,
+  .accountCreateGrid select,
+  .accountRow select,
+  .ownLoginGrid input,
+  .agencyAddRow input,
+  .agencyAddRow select,
+  .agencyEditModal input,
+  .agencyEditModal select,
+  .dailyInlineSelect,
+  .dailyInlineBuyIn,
+  .tableAddControl input
+),
+.appShell.theme-dark :is(
+  .searchBox,
+  .selectedSearchInput,
+  .dailyLogSearch,
+  .managePlayerSearchInput,
+  .tableSearchInput,
+  .globalSearchInput
+){
+  background:#1b1d20!important;
+  border-color:#35383d!important;
+  color:#f1f2f3!important
+}
+
+/* Inputs nested inside search shells inherit the shell instead of falling back to black. */
+html[data-theme="light"] :is(.searchBox,.selectedSearchInput,.dailyLogSearch,.managePlayerSearchInput,.tableSearchInput) input,
+.appShell.theme-light :is(.searchBox,.selectedSearchInput,.dailyLogSearch,.managePlayerSearchInput,.tableSearchInput) input{
+  background:transparent!important;
+  color:#17191c!important
+}
+html[data-theme="dark"] :is(.searchBox,.selectedSearchInput,.dailyLogSearch,.managePlayerSearchInput,.tableSearchInput) input,
+.appShell.theme-dark :is(.searchBox,.selectedSearchInput,.dailyLogSearch,.managePlayerSearchInput,.tableSearchInput) input{
+  background:transparent!important;
+  color:#f1f2f3!important
+}
+
+/* Native select dropdowns and browser autofill */
+html[data-theme="light"] select option{
+  background:#ffffff;
+  color:#17191c
+}
+html[data-theme="dark"] select option{
+  background:#1b1d20;
+  color:#f1f2f3
+}
+html[data-theme="light"] input:-webkit-autofill,
+html[data-theme="light"] input:-webkit-autofill:hover,
+html[data-theme="light"] input:-webkit-autofill:focus{
+  -webkit-text-fill-color:#17191c!important;
+  box-shadow:0 0 0 1000px #ffffff inset!important
+}
+html[data-theme="dark"] input:-webkit-autofill,
+html[data-theme="dark"] input:-webkit-autofill:hover,
+html[data-theme="dark"] input:-webkit-autofill:focus{
+  -webkit-text-fill-color:#f1f2f3!important;
+  box-shadow:0 0 0 1000px #1b1d20 inset!important
+}
+
+/* Search result surfaces */
+html[data-theme="light"] :is(.selectedSearchResults,.globalSearchResults,.managePlayerSearchResults){
+  background:#ffffff!important;
+  border-color:#dfe3e7!important;
+  color:#17191c!important
+}
+html[data-theme="dark"] :is(.selectedSearchResults,.globalSearchResults,.managePlayerSearchResults){
+  background:#17181b!important;
+  border-color:#303238!important;
+  color:#f1f2f3!important
+}
+html[data-theme="light"] :is(.selectedSearchResults,.globalSearchResults,.managePlayerSearchResults) button{
+  color:#17191c!important
+}
+html[data-theme="dark"] :is(.selectedSearchResults,.globalSearchResults,.managePlayerSearchResults) button{
+  background:#17181b!important;
+  color:#f1f2f3!important
+}
+html[data-theme="dark"] :is(.selectedSearchResults,.globalSearchResults,.managePlayerSearchResults) button:hover,
+html[data-theme="dark"] :is(.selectedSearchResults,.globalSearchResults,.managePlayerSearchResults) button.active{
+  background:#222429!important
+}
+
+/* Keep common text readable when older hard-coded light colors are present. */
+html[data-theme="dark"] :is(
+  .selectedSearchLabel strong,
+  .selectedPlayerIdentity strong,
+  .dailyInlineValue,
+  .dailyInlineValue strong,
+  .weeklyPlayerRow strong,
+  .weeklyPlayerRow span,
+  .weeklySectionHeader h3,
+  .dailyGameGroupIdentity strong,
+  .dailyGameGroupIdentity span,
+  .dailyGameGroupIdentity b
+){
+  color:#f1f2f3!important
+}
+html[data-theme="dark"] :is(
+  .selectedSearchLabel small,
+  .selectedPlayerIdentity span,
+  .dailyInlineValue span,
+  .dailyGameRowHead,
+  .weeklySectionHeader p
+){
+  color:#9a9fa7!important
+}
