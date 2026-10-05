@@ -3,7 +3,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
-import { isSupabaseConfigured, supabase } from "../lib/supabase";
+import { createProvisioningClient, isSupabaseConfigured, supabase } from "../lib/supabase";
 
 type Agency = { id: string; code: string; rate: number; active: boolean };
 type Player = { id: string; name: string; koreanName: string; cardNo: string; agencyId: string; note: string; createdAt: string };
@@ -29,6 +29,9 @@ type GameSession = {
   game: string;
   status: "active"|"closed";
 };
+
+type UserRole = "admin"|"staff"|"agent"|"pending";
+type UserProfile = { userId:string; email:string; displayName:string; role:UserRole; agencyId:string; active:boolean };
 
 type FnbEntry = {
   id: string;
@@ -139,6 +142,14 @@ export default function Home() {
   const [theme, setTheme] = useState<"light"|"dark">("light");
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const [mobileSideMenuOpen, setMobileSideMenuOpen] = useState(false);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [accountProfiles, setAccountProfiles] = useState<UserProfile[]>([]);
+  const [newAccountEmail, setNewAccountEmail] = useState("");
+  const [newAccountName, setNewAccountName] = useState("");
+  const [newAccountPassword, setNewAccountPassword] = useState("");
+  const [newAccountRole, setNewAccountRole] = useState<UserRole>("staff");
+  const [newAccountAgencyId, setNewAccountAgencyId] = useState("");
+  const [creatingAccount, setCreatingAccount] = useState(false);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -227,6 +238,41 @@ export default function Home() {
     setSyncing(true);
     setMessage("");
 
+    const { data: authData } = await supabase.auth.getUser();
+    const currentUser = authData.user;
+    if (!currentUser) {
+      setSyncing(false);
+      return;
+    }
+
+    const { data: profileRow, error: profileError } = await supabase
+      .from("user_profiles")
+      .select("*")
+      .eq("user_id", currentUser.id)
+      .single();
+
+    if (profileError || !profileRow) {
+      setMessage(profileError?.message || "계정 권한 정보를 불러오지 못했습니다.");
+      setSyncing(false);
+      return;
+    }
+
+    const currentProfile:UserProfile = {
+      userId:profileRow.user_id,
+      email:profileRow.email ?? currentUser.email ?? "",
+      displayName:profileRow.display_name ?? "",
+      role:profileRow.role as UserRole,
+      agencyId:profileRow.agency_id ?? "",
+      active:Boolean(profileRow.active)
+    };
+    setProfile(currentProfile);
+
+    if (!currentProfile.active || currentProfile.role==="pending") {
+      setMessage(!currentProfile.active ? "비활성화된 계정입니다. 관리자에게 문의해주세요." : "관리자 승인 대기 중인 계정입니다.");
+      setSyncing(false);
+      return;
+    }
+
     const [a, p, g, gs, fnb] = await Promise.all([
       supabase.from("agencies").select("*").order("created_at"),
       loadAllPlayers(),
@@ -256,6 +302,16 @@ export default function Home() {
       unitPrice:Number(x.unit_price),totalAmount:Number(x.total_amount),
       expenseGroup:x.expense_group ?? "",note:x.note ?? ""
     })));
+
+    if (currentProfile.role==="admin") {
+      const {data:profiles}=await supabase.from("user_profiles").select("*").order("created_at");
+      setAccountProfiles((profiles ?? []).map((x:any)=>({
+        userId:x.user_id,email:x.email ?? "",displayName:x.display_name ?? "",
+        role:x.role as UserRole,agencyId:x.agency_id ?? "",active:Boolean(x.active)
+      })));
+    } else {
+      setAccountProfiles([currentProfile]);
+    }
     setSyncing(false);
   }
 
@@ -417,6 +473,80 @@ export default function Home() {
     }
     setMessage("관리자 계정 생성 요청이 완료되었습니다. 이메일 인증이 켜져 있으면 메일함을 확인해주세요.");
   }
+  async function createManagedAccount() {
+    if (!supabase || profile?.role!=="admin") return;
+    const cleanEmail=newAccountEmail.trim().toLowerCase();
+    const cleanName=newAccountName.trim();
+    if(!cleanEmail || !newAccountPassword || !cleanName){
+      setMessage("이름, 이메일, 임시 비밀번호를 모두 입력해주세요.");
+      return;
+    }
+    if(newAccountPassword.length<6){
+      setMessage("임시 비밀번호는 6자 이상이어야 합니다.");
+      return;
+    }
+    if(newAccountRole==="agent" && !newAccountAgencyId){
+      setMessage("에이전트 계정은 연결할 Agency를 선택해주세요.");
+      return;
+    }
+
+    const provisioning=createProvisioningClient();
+    if(!provisioning){
+      setMessage("계정 생성 클라이언트를 초기화하지 못했습니다.");
+      return;
+    }
+
+    setCreatingAccount(true);
+    setMessage("");
+    const {data,error}=await provisioning.auth.signUp({
+      email:cleanEmail,
+      password:newAccountPassword,
+      options:{data:{display_name:cleanName}}
+    });
+
+    if(error || !data.user){
+      setCreatingAccount(false);
+      setMessage(error?.message || "계정을 생성하지 못했습니다.");
+      return;
+    }
+
+    const {error:roleError}=await supabase.from("user_profiles").update({
+      display_name:cleanName,
+      role:newAccountRole,
+      agency_id:newAccountRole==="agent"?newAccountAgencyId:null,
+      active:true,
+      updated_at:new Date().toISOString()
+    }).eq("user_id",data.user.id);
+
+    setCreatingAccount(false);
+    if(roleError){
+      setMessage("Auth 계정은 생성됐지만 권한 연결에 실패했습니다: "+roleError.message);
+      return;
+    }
+
+    setNewAccountEmail("");
+    setNewAccountName("");
+    setNewAccountPassword("");
+    setNewAccountRole("staff");
+    setNewAccountAgencyId("");
+    setMessage(`${cleanName} 계정을 생성했습니다. 이메일 인증이 켜져 있으면 최초 로그인 전에 인증이 필요합니다.`);
+    await loadFromDatabase();
+  }
+
+  async function updateManagedAccount(userId:string,patch:Partial<Pick<UserProfile,"role"|"agencyId"|"active">>) {
+    if(!supabase || profile?.role!=="admin")return;
+    const nextRole=patch.role;
+    const payload:any={updated_at:new Date().toISOString()};
+    if(patch.role!==undefined) payload.role=patch.role;
+    if(patch.active!==undefined) payload.active=patch.active;
+    if(patch.agencyId!==undefined) payload.agency_id=patch.agencyId || null;
+    if(nextRole && nextRole!=="agent") payload.agency_id=null;
+
+    const {error}=await supabase.from("user_profiles").update(payload).eq("user_id",userId);
+    if(error){setMessage(error.message);return;}
+    await loadFromDatabase();
+  }
+
   async function resetPassword() {
     if (!supabase) return;
     const cleanEmail = email.trim();
@@ -841,14 +971,13 @@ export default function Home() {
         </button>
         <img className="authLogo" src="/dream-poker-logo.svg" alt="Dream Poker Da Nang"/>
         <p className="eyebrow">포커 에이전트 통합 정산</p>
-        <h1>관리자 로그인</h1>
-        <p className="sub">로그인하면 모든 기기에서 같은 데이터를 사용할 수 있습니다.</p>
+        <h1>Dream Poker 로그인</h1>
+        <p className="sub">관리자 · 직원 · 에이전트 전용 계정으로 로그인합니다.</p>
         <div className="authForm">
           <label>이메일<input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="admin@example.com"/></label>
           <label>비밀번호<input type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="비밀번호"/></label>
           <div className="authButtons">
             <button className="primary" onClick={signIn}>로그인</button>
-            <button className="secondary" onClick={signUp}>관리자 계정 만들기</button>
             <button className="secondary" onClick={resetPassword}>비밀번호 재설정</button>
           </div>
           {message && <div className="note">{message}</div>}
@@ -1007,7 +1136,7 @@ export default function Home() {
     </div>
   </section>;
 
-  const navItems = [
+  const allNavItems = [
     {key:"dashboard",label:"대시보드",icon:"▦"},
     {key:"players",label:"플레이어 관리",icon:"♟"},
     {key:"agencies",label:"에이전트 관리",icon:"♙"},
@@ -1017,6 +1146,12 @@ export default function Home() {
     {key:"reports",label:"리포트",icon:"▧"},
     {key:"settings",label:"설정",icon:"⚙"},
   ] as const;
+  const navItems = allNavItems.filter(item=>{
+    if(profile?.role==="admin") return true;
+    if(profile?.role==="staff") return item.key!=="settings" && item.key!=="agencies";
+    if(profile?.role==="agent") return ["dashboard","players","daily","weekly","reports"].includes(item.key);
+    return item.key==="dashboard";
+  });
 
   const mobileNavItems = [
     {key:"dashboard",label:"대시보드"},
@@ -1030,7 +1165,7 @@ export default function Home() {
     <aside className="sidebar">
       <div className="brand">
         <img className="brandLogo" src="/dream-poker-logo.svg" alt="Dream Poker Da Nang"/>
-        <div><strong>드림포커 운영 시스템</strong><span>관리자</span></div>
+        <div><strong>드림포커 운영 시스템</strong><span>{profile?.role==="admin"?"관리자":profile?.role==="staff"?"직원":profile?.role==="agent"?"에이전트":"승인 대기"}</span></div>
       </div>
 
       <nav className="sideNav">
@@ -2094,7 +2229,68 @@ export default function Home() {
         </section>}
 
         {tab==="reports" && <section className="panel placeholderPanel"><h2>리포트</h2><p>에이전트별 정산 리포트와 다운로드 기능을 다음 단계에서 연결합니다.</p></section>}
-        {tab==="settings" && <section className="panel placeholderPanel"><h2>설정</h2><p>권한, 에이전트 계정, 시스템 설정을 이곳에서 관리하게 됩니다.</p></section>}
+        {tab==="settings" && profile?.role==="admin" && <section className="accountManagementPage">
+          <section className="panel accountCreatePanel">
+            <div className="sectionTitle">
+              <div><h2>계정 관리</h2><p>관리자가 직원 및 에이전트 계정을 직접 생성하고 권한을 지정합니다.</p></div>
+            </div>
+
+            <div className="accountCreateGrid">
+              <label>이름<input value={newAccountName} onChange={e=>setNewAccountName(e.target.value)} placeholder="예: Dream Staff 1"/></label>
+              <label>이메일<input type="email" value={newAccountEmail} onChange={e=>setNewAccountEmail(e.target.value)} placeholder="staff@example.com"/></label>
+              <label>임시 비밀번호<input type="password" value={newAccountPassword} onChange={e=>setNewAccountPassword(e.target.value)} placeholder="6자 이상"/></label>
+              <label>계정 유형
+                <select value={newAccountRole} onChange={e=>setNewAccountRole(e.target.value as UserRole)}>
+                  <option value="staff">직원 계정</option>
+                  <option value="agent">에이전트 계정</option>
+                  <option value="admin">관리자 계정</option>
+                </select>
+              </label>
+              {newAccountRole==="agent" && <label>연결 Agency
+                <select value={newAccountAgencyId} onChange={e=>setNewAccountAgencyId(e.target.value)}>
+                  <option value="">Agency 선택</option>
+                  {agencies.map(a=><option key={a.id} value={a.id}>{a.code} · {a.rate}%</option>)}
+                </select>
+              </label>}
+              <button className="primary accountCreateButton" onClick={createManagedAccount} disabled={creatingAccount}>
+                {creatingAccount?"계정 생성 중...":"＋ 계정 생성"}
+              </button>
+            </div>
+          </section>
+
+          <section className="panel accountListPanel">
+            <div className="sectionTitle">
+              <div><h2>등록 계정</h2><p>{accountProfiles.length}개 계정</p></div>
+            </div>
+            <div className="accountList">
+              {accountProfiles.map(u=><div className="accountRow" key={u.userId}>
+                <div className="accountIdentity">
+                  <span className="accountAvatar">{(u.displayName||u.email||"?").slice(0,1).toUpperCase()}</span>
+                  <div><strong>{u.displayName||"이름 없음"}</strong><small>{u.email}</small></div>
+                </div>
+                <select value={u.role} onChange={e=>updateManagedAccount(u.userId,{role:e.target.value as UserRole})} disabled={u.userId===profile.userId}>
+                  <option value="admin">관리자</option>
+                  <option value="staff">직원</option>
+                  <option value="agent">에이전트</option>
+                  <option value="pending">승인 대기</option>
+                </select>
+                <select
+                  value={u.agencyId}
+                  onChange={e=>updateManagedAccount(u.userId,{agencyId:e.target.value})}
+                  disabled={u.role!=="agent"}
+                >
+                  <option value="">Agency 없음</option>
+                  {agencies.map(a=><option key={a.id} value={a.id}>{a.code}</option>)}
+                </select>
+                <button
+                  className={u.active?"accountStatus active":"accountStatus"}
+                  onClick={()=>updateManagedAccount(u.userId,{active:!u.active})}
+                  disabled={u.userId===profile.userId}
+                >{u.active?"활성":"정지"}</button>
+              </div>)}
+            </div>
+          </section>
+        </section>}
       </div>
     </section>
 
