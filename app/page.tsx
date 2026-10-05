@@ -442,8 +442,8 @@ export default function Home() {
   async function startGameSession(){
     const tableNo=(selectedTableNo || newTableNo).trim();
     if(!tableNo){setMessage("테이블 번호를 입력해주세요.");return;}
-    if(gameSessions.some(s=>s.status==="active" && s.tableNo===tableNo)){
-      setMessage("이미 진행 중인 테이블 번호입니다.");
+    if(gameSessions.some(s=>s.status==="active" && s.tableNo===tableNo && s.date===today())){
+      setMessage("오늘 이미 진행 중인 테이블입니다.");
       return;
     }
 
