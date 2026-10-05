@@ -1302,6 +1302,18 @@ export default function Home() {
     setExpenseItems(prev=>prev.filter(x=>x.id!==item.id));
   }
 
+  async function updateExpensePrepaidBy(item:ExpenseItem,value:string){
+    const prepaidBy=value.trim();
+    if(prepaidBy===item.prepaidBy)return;
+    if(!supabase || !session)return;
+    const {error}=await supabase.from("expense_items").update({
+      prepaid_by:prepaidBy || null,
+      updated_at:new Date().toISOString()
+    }).eq("id",item.id);
+    if(error){setMessage(error.message);return;}
+    setExpenseItems(prev=>prev.map(x=>x.id===item.id?{...x,prepaidBy}:x));
+  }
+
   async function updateShareholderRate(holder:Shareholder,rate:number){
     const next=Math.max(0,Math.min(100,Number(rate)||0));
     if(!supabase || !session)return;
