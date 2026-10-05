@@ -132,6 +132,7 @@ export default function Home() {
   const [message, setMessage] = useState("");
   const [theme, setTheme] = useState<"light"|"dark">("light");
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
+  const [mobileSideMenuOpen, setMobileSideMenuOpen] = useState(false);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -669,6 +670,13 @@ export default function Home() {
           <img src="/dream-poker-logo.svg" alt=""/>
           <span>드림포커 에이전트 정산</span>
         </div>
+        <button
+          className="mobileSideMenuButton"
+          onClick={()=>setMobileSideMenuOpen(true)}
+          aria-label="메뉴 열기"
+        >
+          <span></span><span></span><span></span>
+        </button>
         <div className="searchBox">⌕ <input placeholder="에이전트 코드, 플레이어명, 이메일을 검색하세요..."/><kbd>⌘ K</kbd></div>
         <div className="accountArea accountMenuArea">
           <button
@@ -714,6 +722,46 @@ export default function Home() {
           </div>}
         </div>
       </header>
+
+      {mobileSideMenuOpen && <>
+        <button className="mobileSideMenuBackdrop" aria-label="메뉴 닫기" onClick={()=>setMobileSideMenuOpen(false)}/>
+        <aside className="mobileSideMenu" aria-label="계정 메뉴">
+          <div className="mobileSideMenuHeader">
+            <div>
+              <span className="avatar largeAvatar">{session?.user.email?.slice(0,1).toUpperCase() || "A"}</span>
+              <div>
+                <strong>관리자</strong>
+                <small>{session?.user.email}</small>
+              </div>
+            </div>
+            <button className="mobileSideMenuClose" onClick={()=>setMobileSideMenuOpen(false)} aria-label="메뉴 닫기">×</button>
+          </div>
+
+          <nav className="mobileSideMenuNav">
+            <button onClick={()=>{setTab("settings");setMobileSideMenuOpen(false)}}>
+              <span className="sideMenuIcon">⚙</span>
+              <div><strong>설정</strong><small>계정 및 운영 설정</small></div>
+            </button>
+
+            <button onClick={()=>applyTheme(theme==="dark"?"light":"dark")}>
+              <span className="sideMenuIcon">{theme==="dark"?"☀":"☾"}</span>
+              <div><strong>{theme==="dark"?"라이트 모드":"다크 모드"}</strong><small>화면 테마 변경</small></div>
+              <span className={`sideThemeSwitch ${theme==="dark"?"on":""}`}><i/></span>
+            </button>
+
+            <button onClick={()=>setMobileSideMenuOpen(false)}>
+              <span className="sideMenuIcon">⇄</span>
+              <div><strong>에이전트 보기</strong><small>에이전트 권한 화면</small></div>
+            </button>
+          </nav>
+
+          <div className="mobileSideMenuFooter">
+            <button onClick={signOut}>
+              <span>↪</span><strong>로그아웃</strong>
+            </button>
+          </div>
+        </aside>
+      </>}
 
       <div className="contentArea">
         <div className="pageHeading">
