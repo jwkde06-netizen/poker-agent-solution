@@ -6,7 +6,7 @@ import type { Session } from "@supabase/supabase-js";
 import { isSupabaseConfigured, supabase } from "../lib/supabase";
 
 type Agency = { id: string; code: string; rate: number; active: boolean };
-type Player = { id: string; name: string; koreanName: string; cardNo: string; agencyId: string; note: string };
+type Player = { id: string; name: string; koreanName: string; cardNo: string; agencyId: string; note: string; createdAt: string };
 type GameEntry = {
   id: string;
   date: string;
@@ -221,7 +221,7 @@ export default function Home() {
     }
 
     setAgencies((a.data ?? []).map((x:any)=>({id:x.id,code:x.code,rate:Number(x.rate),active:x.active})));
-    setPlayers((p.data ?? []).map((x:any)=>({id:x.id,name:x.name,koreanName:x.korean_name ?? "",cardNo:x.card_no ?? "",agencyId:x.agency_id,note:x.note ?? ""})));
+    setPlayers((p.data ?? []).map((x:any)=>({id:x.id,name:x.name,koreanName:x.korean_name ?? "",cardNo:x.card_no ?? "",agencyId:x.agency_id,note:x.note ?? "",createdAt:x.created_at ?? ""})));
     setEntries((g.data ?? []).map((x:any)=>({
       id:x.id,date:x.played_on,game:x.game_name,playerId:x.player_id,buyIn:Number(x.buy_in),
       rake:Number(x.rake),agencyId:x.agency_id,agencyCodeSnapshot:x.agency_code_snapshot,
@@ -404,16 +404,34 @@ export default function Home() {
     }
   }
 
+  async function deleteAgency(id:string){
+    const agency=agencies.find(a=>a.id===id);
+    if(!agency)return;
+    const assignedPlayers=players.filter(p=>p.agencyId===id);
+    if(assignedPlayers.length>0){
+      alert(`${agency.code} 소속 플레이어가 ${assignedPlayers.length}명 있어 삭제할 수 없습니다. 먼저 플레이어의 에이전트 코드를 변경해주세요.`);
+      return;
+    }
+    if(!confirm(`${agency.code} 에이전트 코드를 삭제할까요?`))return;
+
+    if(isSupabaseConfigured && supabase && session && !id.startsWith("agency-")){
+      const {error}=await supabase.from("agencies").delete().eq("id",id);
+      if(error){setMessage(error.message);return;}
+    }
+    setAgencies(prev=>prev.filter(a=>a.id!==id));
+    setEditingAgencyId(null);
+  }
+
   async function addPlayer() {
     const name=playerName.trim().toUpperCase();
     if(!name || !playerAgencyId) return;
     if(isSupabaseConfigured && supabase && session){
       const { data,error }=await supabase.from("players").insert({name,korean_name:playerKoreanName.trim()||null,card_no:playerCard.trim()||null,agency_id:playerAgencyId,note:playerNote.trim()||null}).select().single();
       if(error){setMessage(error.message);return;}
-      const p={id:data.id,name:data.name,koreanName:data.korean_name??"",cardNo:data.card_no??"",agencyId:data.agency_id,note:data.note??""};
+      const p={id:data.id,name:data.name,koreanName:data.korean_name??"",cardNo:data.card_no??"",agencyId:data.agency_id,note:data.note??"",createdAt:data.created_at??new Date().toISOString()};
       setPlayers(prev=>[...prev,p]); setGamePlayerId(p.id);
     } else {
-      const p={id:uid("player"),name,koreanName:playerKoreanName.trim(),cardNo:playerCard.trim(),agencyId:playerAgencyId,note:playerNote.trim()};
+      const p={id:uid("player"),name,koreanName:playerKoreanName.trim(),cardNo:playerCard.trim(),agencyId:playerAgencyId,note:playerNote.trim(),createdAt:new Date().toISOString()};
       setPlayers(prev=>[...prev,p]); setGamePlayerId(p.id);
     }
     setPlayerName(""); setPlayerKoreanName(""); setPlayerCard(""); setPlayerNote("");
@@ -1043,6 +1061,37 @@ export default function Home() {
                   {agency.active?"사용 중":"사용 중지"}
                 </button>
 
+                <div className="agencyPlayerSection">
+                  <div className="agencyPlayerSectionTitle">
+                    <strong>소속 플레이어</strong>
+                    <span>{players.filter(p=>p.agencyId===agency.id).length}명</span>
+                  </div>
+                  <div className="agencyPlayerList">
+                    {players.filter(p=>p.agencyId===agency.id).length===0
+                      ? <div className="agencyPlayerEmpty">등록된 플레이어가 없습니다.</div>
+                      : players.filter(p=>p.agencyId===agency.id).slice(0,50).map(p=>{
+                          const lastEntry=entries.filter(e=>e.playerId===p.id).sort((a,b)=>b.date.localeCompare(a.date))[0];
+                          return <button key={p.id} onClick={()=>{setEditingAgencyId(null);openPlayerDetail(p.id);setTab("players")}}>
+                            <div>
+                              <strong>{p.name}</strong>
+                              <small>{p.koreanName || p.cardNo || "회원번호 없음"}</small>
+                            </div>
+                            <div>
+                              <span>등록 {p.createdAt?p.createdAt.slice(0,10):"-"}</span>
+                              <em>최근 {lastEntry?.date || "-"}</em>
+                            </div>
+                          </button>
+                        })}
+                  </div>
+                </div>
+
+                <button
+                  className="agencyDeleteButton"
+                  onClick={()=>deleteAgency(agency.id)}
+                >
+                  에이전트 삭제
+                </button>
+
                 <button className="primary agencyEditDone" onClick={()=>setEditingAgencyId(null)}>완료</button>
               </section>
             </div>
@@ -1077,7 +1126,7 @@ export default function Home() {
 
 
 
-          <div className="tableWrap playerListTable"><table><thead><tr><th>플레이어</th><th>회원번호</th><th>에이전트</th></tr></thead><tbody>{filteredPlayers.length===0?<tr><td colSpan={3} className="empty">{playerSearch?"검색 결과가 없습니다.":"등록된 플레이어가 없습니다."}</td></tr>:filteredPlayers.map(p=>{return <tr key={p.id} className="clickablePlayerRow" onClick={()=>openPlayerDetail(p.id)} tabIndex={0} role="button" onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();openPlayerDetail(p.id);}}}><td><div className="playerNameButton playerNameStack"><strong>{p.name}</strong>{p.koreanName && <span>{p.koreanName}</span>}</div></td><td>{p.cardNo||"-"}</td><td><span className="agencyCodeText">{agencies.find(x=>x.id===p.agencyId)?.code || "-"}</span></td></tr>})}</tbody></table></div>
+          <div className="tableWrap playerListTable"><table><thead><tr><th>플레이어</th><th>등록일</th><th>에이전트</th></tr></thead><tbody>{filteredPlayers.length===0?<tr><td colSpan={3} className="empty">{playerSearch?"검색 결과가 없습니다.":"등록된 플레이어가 없습니다."}</td></tr>:filteredPlayers.map(p=>{return <tr key={p.id} className="clickablePlayerRow" onClick={()=>openPlayerDetail(p.id)} tabIndex={0} role="button" onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();openPlayerDetail(p.id);}}}><td><div className="playerNameButton playerNameStack"><strong>{p.name}</strong>{p.koreanName && <span>{p.koreanName}</span>}</div></td><td>{p.createdAt?p.createdAt.slice(0,10):"-"}</td><td><span className="agencyCodeText">{agencies.find(x=>x.id===p.agencyId)?.code || "-"}</span></td></tr>})}</tbody></table></div>
 
 
 
