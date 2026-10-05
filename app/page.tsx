@@ -3459,8 +3459,8 @@ export default function Home() {
                   <span>경비 항목</span>
                   <span>구분</span>
                   <span>선지급자</span>
-                  <span>총 금액</span>
-                  <span>처리 금액</span>
+                  <span>원래 금액</span>
+                  <span>처리된 금액</span>
                   <span>미처리 잔액</span>
                   <span>상태</span>
                   <span>메모</span>
@@ -3472,7 +3472,7 @@ export default function Home() {
                   : visibleExpenseRows.map(item=>{
                       const remaining=Math.max(0,item.amount-item.processedAmount);
                       const state=item.processedAmount>=item.amount?"processed":item.processedAmount>0?"partial":"pending";
-                      return <div className="expenseLedgerRow" key={item.id}>
+                      return <div className="expenseLedgerRow editableExpenseRow" key={item.id} onClick={()=>openExpenseEditor(item)} role="button" tabIndex={0} onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();openExpenseEditor(item);}}}>
                         <span>{item.date}</span>
                         <span className="expenseItemName"><strong>{item.description}</strong><small>{item.sourceRef || "직접 입력"}</small></span>
                         <span>{item.category}</span>
@@ -3481,6 +3481,8 @@ export default function Home() {
                             className="expensePayerInput"
                             defaultValue={item.prepaidBy}
                             placeholder="미입력"
+                            onClick={e=>e.stopPropagation()}
+                            onKeyDown={e=>e.stopPropagation()}
                             onBlur={e=>updateExpensePrepaidBy(item,e.target.value)}
                           />
                         </span>
@@ -3489,7 +3491,7 @@ export default function Home() {
                         <b>{vnd(remaining)}</b>
                         <em className={state}>{state==="processed"?"처리완료":state==="partial"?"일부처리":"미처리"}</em>
                         <span className="expenseNoteCell">{item.note || "-"}</span>
-                        <button onClick={()=>deleteExpenseItem(item)} disabled={item.processedAmount>0} aria-label="지출 삭제">×</button>
+                        <button onClick={e=>{e.stopPropagation();deleteExpenseItem(item);}} disabled={item.processedAmount>0} aria-label="지출 삭제">×</button>
                       </div>;
                     })}
               </div>
@@ -3738,6 +3740,61 @@ export default function Home() {
         </section>}
       </div>
     </section>
+
+    {editingExpenseId && (()=> {
+      const item=expenseItems.find(x=>x.id===editingExpenseId);
+      if(!item)return null;
+      const originalAmount=Number(expenseEditAmount.replace(/,/g,"")) || 0;
+      const processedAmount=Number(expenseEditProcessedAmount.replace(/,/g,"")) || 0;
+      const remaining=Math.max(0,originalAmount-processedAmount);
+      const editState=processedAmount>=originalAmount && originalAmount>0?"processed":processedAmount>0?"partial":"pending";
+      return <div className="playerManageOverlay expenseEditOverlay" onClick={closeExpenseEditor}>
+        <section className="expenseEditModal" onClick={e=>e.stopPropagation()}>
+          <div className="expenseEditHeader">
+            <div>
+              <span>지출 항목 수정</span>
+              <strong>{item.description}</strong>
+              <small>{item.date} · {item.prepaidBy || "선지급자 미입력"}</small>
+            </div>
+            <button onClick={closeExpenseEditor} aria-label="닫기">×</button>
+          </div>
+
+          <div className="expenseEditSummary">
+            <div><span>원래 금액</span><b>{vnd(originalAmount)}</b></div>
+            <div><span>처리된 금액</span><b>{vnd(processedAmount)}</b></div>
+            <div className="remaining"><span>미처리 잔액</span><b>{vnd(remaining)}</b></div>
+            <em className={editState}>{editState==="processed"?"처리완료":editState==="partial"?"일부처리":"미처리"}</em>
+          </div>
+
+          <div className="expenseEditGrid">
+            <label>날짜<input type="date" value={expenseEditDate} onChange={e=>setExpenseEditDate(e.target.value)}/></label>
+            <label>구분
+              <select value={expenseEditCategory} onChange={e=>setExpenseEditCategory(e.target.value)}>
+                <option value="OTHER">기타</option>
+                <option value="HOUSING">숙소 / 임대</option>
+                <option value="LODGING">호텔</option>
+                <option value="MEAL">식대</option>
+                <option value="ENTERTAINMENT">접대비</option>
+                <option value="SUPPLIES">비품</option>
+                <option value="INCIDENT">사고비</option>
+                <option value="SALARY">급여</option>
+                <option value="TRANSPORT">교통</option>
+              </select>
+            </label>
+            <label className="wide">경비 항목<input value={expenseEditDescription} onChange={e=>setExpenseEditDescription(e.target.value)}/></label>
+            <label>선지급자<input value={expenseEditPrepaidBy} onChange={e=>setExpenseEditPrepaidBy(e.target.value)} placeholder="예: 김지원"/></label>
+            <label>원래 금액<input inputMode="numeric" value={expenseEditAmount} onChange={e=>setExpenseEditAmount(e.target.value.replace(/[^0-9]/g,""))}/></label>
+            <label>처리된 일부 금액<input inputMode="numeric" value={expenseEditProcessedAmount} onChange={e=>setExpenseEditProcessedAmount(e.target.value.replace(/[^0-9]/g,""))}/></label>
+            <label className="wide">메모<input value={expenseEditNote} onChange={e=>setExpenseEditNote(e.target.value)}/></label>
+          </div>
+
+          <div className="expenseEditFooter">
+            <button className="secondary" onClick={closeExpenseEditor}>취소</button>
+            <button className="primary" onClick={saveExpenseEditor} disabled={savingExpenseEdit}>{savingExpenseEdit?"저장 중...":"수정 저장"}</button>
+          </div>
+        </section>
+      </div>;
+    })()}
 
     {lastDeletedEntry && <div className="undoToast">
       <span><strong>{getPlayerName(lastDeletedEntry.playerId)}</strong> 기록을 삭제했습니다.</span>
