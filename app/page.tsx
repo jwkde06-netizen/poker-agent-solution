@@ -144,6 +144,7 @@ export default function Home() {
   const [editSessionGame, setEditSessionGame] = useState("5M");
   const [editSessionGameNo, setEditSessionGameNo] = useState("");
   const [extraTableNos, setExtraTableNos] = useState<string[]>([]);
+  const [removedTableNos, setRemovedTableNos] = useState<string[]>([]);
   const [selectedSearchIndex, setSelectedSearchIndex] = useState(0);
   const [sessionSearch, setSessionSearch] = useState<Record<string,string>>({});
   const [manageEntryId, setManageEntryId] = useState<string | null>(null);
@@ -232,7 +233,9 @@ export default function Home() {
   useEffect(() => {
     try{
       const saved=JSON.parse(localStorage.getItem("dream-poker-extra-tables") || "[]");
+      const removed=JSON.parse(localStorage.getItem("dream-poker-removed-tables") || "[]");
       if(Array.isArray(saved)) setExtraTableNos(saved.map(String).filter(Boolean));
+      if(Array.isArray(removed)) setRemovedTableNos(removed.map(String).filter(Boolean));
     }catch{}
   }, []);
 
@@ -865,10 +868,30 @@ export default function Home() {
     const tableNo=newTableNo.trim().replace(/\D/g,"");
     if(!tableNo)return;
     const next=Array.from(new Set([...extraTableNos,tableNo]));
+    const nextRemoved=removedTableNos.filter(no=>no!==tableNo);
     setExtraTableNos(next);
+    setRemovedTableNos(nextRemoved);
     localStorage.setItem("dream-poker-extra-tables",JSON.stringify(next));
+    localStorage.setItem("dream-poker-removed-tables",JSON.stringify(nextRemoved));
     setSelectedTableNo(tableNo);
     setNewTableNo("");
+  }
+
+  function deleteSelectedTable(){
+    const tableNo=selectedTableNo.trim();
+    if(!tableNo)return;
+    if(activeGameSessions.some(s=>s.tableNo===tableNo)){
+      setMessage(`Table ${tableNo}는 진행 중이라 삭제할 수 없습니다. 먼저 경기를 종료해주세요.`);
+      return;
+    }
+    const nextRemoved=Array.from(new Set([...removedTableNos,tableNo]));
+    const nextExtra=extraTableNos.filter(no=>no!==tableNo);
+    setRemovedTableNos(nextRemoved);
+    setExtraTableNos(nextExtra);
+    localStorage.setItem("dream-poker-removed-tables",JSON.stringify(nextRemoved));
+    localStorage.setItem("dream-poker-extra-tables",JSON.stringify(nextExtra));
+    const nextTable=availableTableNos.find(no=>no!==tableNo) || "";
+    setSelectedTableNo(nextTable);
   }
 
   async function updateActiveGameSession(gameSession:GameSession,patch:{tableNo?:string;game?:string;gameNo?:string}){
@@ -1128,7 +1151,8 @@ export default function Home() {
   const weekSettlement = total(thisWeekEntries,"rakeback");
   const recentEntries = [...entries].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,6);
   const activeGameSessions = gameSessions.filter(s=>s.status==="active" && s.date===today());
-  const availableTableNos = Array.from(new Set(["4","12","13","5","2",...extraTableNos,...gameSessions.map(s=>s.tableNo).filter(Boolean)]));
+  const availableTableNos = Array.from(new Set(["4","12","13","5","2",...extraTableNos,...gameSessions.map(s=>s.tableNo).filter(Boolean)]))
+    .filter(no=>!removedTableNos.includes(no) || activeGameSessions.some(s=>s.tableNo===no));
   const selectedGameSession = activeGameSessions.find(s=>s.tableNo===selectedTableNo) ?? null;
 
   const globalFeatureItems = [
@@ -1905,6 +1929,12 @@ export default function Home() {
                     aria-label="추가할 테이블 번호"
                   />
                   <button onClick={addAvailableTable}>추가</button>
+                  <button
+                    className="tableDeleteButton"
+                    onClick={deleteSelectedTable}
+                    disabled={!selectedTableNo || activeGameSessions.some(s=>s.tableNo===selectedTableNo)}
+                    title={activeGameSessions.some(s=>s.tableNo===selectedTableNo)?"진행 중인 테이블은 삭제할 수 없습니다.":"현재 선택한 테이블 삭제"}
+                  >삭제</button>
                 </div>
               </div>
             </div>
