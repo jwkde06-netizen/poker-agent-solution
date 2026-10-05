@@ -3335,25 +3335,19 @@ export default function Home() {
           </section>
         </section>}
 
-        {tab==="expenses" && profile?.role==="admin" && <section className="expenseWorkflowPage">
-          <section className="expenseHero">
-            <div>
+        {tab==="expenses" && profile?.role==="admin" && <section className="expenseWorkflowPage compactExpensePage">
+          <section className="expenseCompactTop">
+            <div className="expenseCompactTitle">
               <span>운영 경비 장부</span>
               <h2>지출 내역서</h2>
-              <p>선지급된 경비를 기록하고, 미처리 잔액이 모두 상계된 뒤에만 실제 수익이 발생합니다.</p>
             </div>
-            <div className="expenseHeroAmount">
-              <small>현재 미처리 잔액</small>
-              <strong>{vnd(pendingExpenseTotal)}</strong>
+            <div className="expenseCompactSummary">
+              <div className="primary"><span>미처리 잔액</span><strong>{vnd(pendingExpenseTotal)}</strong></div>
+              <div><span>전체 경비</span><b>{vnd(expenseItems.reduce((sum,x)=>sum+x.amount,0))}</b></div>
+              <div><span>처리 완료</span><b>{vnd(expenseProcessedTotal)}</b></div>
+              <div><span>상계 후 수익</span><b>{vnd(previewDistributableProfit)}</b></div>
             </div>
           </section>
-
-          <div className="expenseKpiGrid">
-            <div><span>전체 경비</span><b>{vnd(expenseItems.reduce((sum,x)=>sum+x.amount,0))}</b><small>{expenseItems.length}건 등록</small></div>
-            <div><span>처리 완료 금액</span><b>{vnd(expenseProcessedTotal)}</b><small>{processedExpenseRows.length}건 완전 처리</small></div>
-            <div className="expense"><span>미처리 잔액</span><b>{vnd(pendingExpenseTotal)}</b><small>{pendingExpenseRows.length}건 남음</small></div>
-            <div className="profit"><span>이번 주 상계 후 수익</span><b>{vnd(previewDistributableProfit)}</b><small>상계 전 잉여금 {vnd(weeklyProfit)}</small></div>
-          </div>
 
           <section className="panel expenseLedgerPanel">
             <div className="expenseLedgerHeader">
