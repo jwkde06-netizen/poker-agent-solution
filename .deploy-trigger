@@ -32,3 +32,4 @@ deploy readability density pass
 deploy readability pass 2
 deploy dashboard metric refocus
 deploy full dashboard v3
+deploy compact tabs and uniform table row
