@@ -12603,3 +12603,91 @@ html[data-theme="dark"] :is(
 ){
   color:#9a9fa7!important
 }
+
+
+/* Per-agent weekly settlement download */
+.weeklyAgentGroupActions{
+  display:flex;
+  align-items:center;
+  gap:10px
+}
+.weeklyAgentDownloadMenu{
+  position:relative
+}
+.weeklyAgentDownloadTrigger{
+  height:32px;
+  padding:0 10px;
+  border:1px solid var(--line-strong);
+  border-radius:8px;
+  background:var(--surface);
+  color:var(--text);
+  font-size:10px;
+  font-weight:750;
+  cursor:pointer
+}
+.weeklyAgentDownloadTrigger:hover{
+  background:var(--surface-2);
+  transform:none
+}
+.weeklyAgentDownloadDropdown{
+  position:absolute;
+  top:calc(100% + 6px);
+  right:0;
+  z-index:100;
+  width:190px;
+  padding:5px;
+  border:1px solid var(--line);
+  border-radius:10px;
+  background:var(--surface);
+  box-shadow:0 14px 34px rgba(20,24,28,.14)
+}
+.weeklyAgentDownloadDropdown button{
+  width:100%;
+  min-height:42px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  padding:7px 8px;
+  border:0;
+  border-radius:7px;
+  background:transparent;
+  color:var(--text);
+  cursor:pointer;
+  text-align:left
+}
+.weeklyAgentDownloadDropdown button:hover{
+  background:var(--surface-2);
+  transform:none
+}
+.weeklyAgentDownloadDropdown strong{
+  font-size:12px
+}
+.weeklyAgentDownloadDropdown small{
+  color:var(--muted);
+  font-size:9px
+}
+html[data-theme="dark"] .weeklyAgentDownloadTrigger,
+html[data-theme="dark"] .weeklyAgentDownloadDropdown{
+  background:#1b1d20;
+  border-color:#34363b;
+  color:#f1f2f3
+}
+html[data-theme="dark"] .weeklyAgentDownloadDropdown{
+  box-shadow:0 14px 34px rgba(0,0,0,.35)
+}
+@media(max-width:820px){
+  .weeklyPlayerGroup>header{
+    align-items:flex-start;
+    padding:9px 11px
+  }
+  .weeklyAgentGroupActions{
+    align-items:flex-end;
+    flex-direction:column;
+    gap:5px
+  }
+  .weeklyAgentDownloadTrigger{
+    height:30px;
+    font-size:9px
+  }
+}
