@@ -867,106 +867,109 @@ export default function Home() {
         {message && <div className="note globalNote">{message}</div>}
 
         {tab==="dashboard" && <>
-          <section className="dashboardOverview">
-            <div className="dashboardOverviewHeader">
-              <div>
-                <span>오늘 현황</span>
-                <strong>{today()}</strong>
-              </div>
-              <small>{activeGameSessions.length} TABLE LIVE</small>
+          <section className="studioDashboardHead">
+            <div>
+              <span>오늘 대시보드</span>
+              <strong>{today()}</strong>
             </div>
-
-            <div className="dashboardMetricGrid">
-              <button className="dashboardMetricCard revenue" onClick={()=>setTab("games")}>
-                <span>오늘 매출</span>
-                <b>{vnd(todayBuyinRevenue)}</b>
-                <small>{activeTableBuyins} BUY-IN</small>
-                <em>›</em>
-              </button>
-
-              <button className="dashboardMetricCard profit" onClick={()=>setTab("daily")}>
-                <span>오늘 순수익</span>
-                <b>{vnd(todayOperatingNet)}</b>
-                <small>레이크백 · F&B 차감</small>
-                <em>›</em>
-              </button>
-
-              <button className="dashboardMetricCard live" onClick={()=>setTab("games")}>
-                <span>진행 테이블</span>
-                <b>{activeGameSessions.length}개</b>
-                <small>{activeTablePlayers}명 플레이 중</small>
-                <em>›</em>
-              </button>
-
-              <button className="dashboardMetricCard fnb" onClick={()=>setTab("fnb")}>
-                <span>오늘 F&B</span>
-                <b>{vnd(fnbTodayTotal)}</b>
-                <small>오늘 입력 비용</small>
-                <em>›</em>
-              </button>
-            </div>
+            <button onClick={()=>setTab("daily")}>정산 보기 ›</button>
           </section>
 
-          <section className="dashCard dashboardLiveTables">
-            <div className="cardHeader">
-              <div><h2>현재 진행 테이블</h2><p>실시간 바이인 현황</p></div>
-              <button className="linkButton" onClick={()=>setTab("games")}>전체보기 ›</button>
+          <section className="studioMetricGrid">
+            <button className="studioMetricCard" onClick={()=>setTab("games")}>
+              <span>오늘 매출</span>
+              <b>{vnd(todayBuyinRevenue)}</b>
+              <small>{activeTableBuyins} BUY-IN</small>
+              <em>›</em>
+            </button>
+
+            <button className="studioMetricCard" onClick={()=>setTab("games")}>
+              <span>진행 중 테이블</span>
+              <b>{activeGameSessions.length}개</b>
+              <small>{activeTablePlayers}명 플레이 중</small>
+              <em>›</em>
+            </button>
+
+            <button className="studioMetricCard" onClick={()=>setTab("fnb")}>
+              <span>오늘 F&B</span>
+              <b>{vnd(fnbTodayTotal)}</b>
+              <small>오늘 입력 비용</small>
+              <em>›</em>
+            </button>
+
+            <button className="studioMetricCard profitCard" onClick={()=>setTab("daily")}>
+              <span>오늘 순수익</span>
+              <b>{vnd(todayOperatingNet)}</b>
+              <small>레이크백 · F&B 차감</small>
+              <em>›</em>
+            </button>
+          </section>
+
+          <section className="studioSectionCard">
+            <div className="studioSectionHeader">
+              <div>
+                <h2>현재 진행 게임</h2>
+                <p>실시간 테이블 현황</p>
+              </div>
+              <button onClick={()=>setTab("games")}>전체보기 ›</button>
             </div>
 
             {activeGameSessions.length===0
-              ? <div className="dashboardEmpty liveEmpty">현재 진행 중인 테이블이 없습니다.</div>
-              : <div className="dashboardLiveTableList">
-                  {activeGameSessions.map(gs=>{
+              ? <div className="studioEmpty">현재 진행 중인 테이블이 없습니다.</div>
+              : <div className="studioLiveList">
+                  {activeGameSessions.slice(0,5).map(gs=>{
                     const tableEntries=entries.filter(e=>e.sessionId===gs.id);
                     const buyins=tableEntries.reduce((sum,e)=>sum+e.buyIn,0);
                     const revenue=buyins*revenuePerBuyIn(gs.game);
                     return <button key={gs.id} onClick={()=>{setSelectedTableNo(gs.tableNo);setTab("games")}}>
-                      <div className="dashTableMain">
-                        <span className="dashLiveDot"/>
-                        <strong>T{gs.tableNo}</strong>
-                        <em>{gs.gameNo?`No.${gs.gameNo}`:"No.-"}</em>
-                        <b>{gs.game}</b>
+                      <div className="studioTableBadge">T{gs.tableNo}</div>
+                      <div className="studioTableCopy">
+                        <strong>T{gs.tableNo} {gs.gameNo?`· No.${gs.gameNo}`:""} · {gs.game}</strong>
+                        <span>{tableEntries.length}명 · {buyins} BUY-IN</span>
                       </div>
-                      <div className="dashTableStats">
-                        <span>{tableEntries.length}명</span>
-                        <span>{buyins} BUY-IN</span>
-                        <strong>{vnd(revenue)}</strong>
+                      <div className="studioTableAmount">
+                        <b>{vnd(revenue)}</b>
+                        <span>›</span>
                       </div>
                     </button>
                   })}
                 </div>}
           </section>
 
-          <section className="dashCard dashboardTodaySummary">
-            <div className="cardHeader">
-              <div><h2>오늘 정산 요약</h2><p>오늘 입력 기준</p></div>
-              <button className="linkButton" onClick={()=>setTab("daily")}>정산 보기 ›</button>
+          <section className="studioSectionCard settlementCard">
+            <div className="studioSectionHeader">
+              <div>
+                <h2>오늘 정산</h2>
+                <p>실제 입력 데이터 기준</p>
+              </div>
+              <button onClick={()=>setTab("daily")}>상세보기 ›</button>
             </div>
-            <div className="dashboardSummaryRows">
+
+            <div className="studioSettlementRows">
               <button onClick={()=>setTab("games")}><span>바이인 매출</span><b>{vnd(todayBuyinRevenue)}</b></button>
               <button onClick={()=>setTab("daily")}><span>에이전트 레이크백</span><b>− {vnd(todaySettlement)}</b></button>
               <button onClick={()=>setTab("fnb")}><span>F&B</span><b>− {vnd(fnbTodayTotal)}</b></button>
-              <button className="netRow" onClick={()=>setTab("daily")}><span>순수익</span><b>{vnd(todayOperatingNet)}</b></button>
+              <button className="studioNetRow" onClick={()=>setTab("daily")}><span>순수익</span><b>{vnd(todayOperatingNet)}</b></button>
             </div>
           </section>
 
-          <section className="dashCard recentCard dashboardRecent">
-            <div className="cardHeader">
-              <div><h2>최근 입력</h2><p>가장 최근 바이인 기록</p></div>
-              <button className="linkButton" onClick={()=>setTab("daily")}>전체보기 ›</button>
+          <section className="studioSectionCard recentInputCard">
+            <div className="studioSectionHeader">
+              <div>
+                <h2>최근 바이인</h2>
+                <p>최근 입력 내역</p>
+              </div>
             </div>
+
             {recentEntries.length===0
-              ? <div className="dashboardEmpty">아직 입력된 기록이 없습니다.</div>
-              : <div className="dashboardRecentList">
-                  {recentEntries.slice(0,4).map(e=><div key={e.id}>
+              ? <div className="studioEmpty">아직 입력된 기록이 없습니다.</div>
+              : <div className="studioRecentList">
+                  {recentEntries.slice(0,3).map(e=><div key={e.id}>
                     <div>
                       <strong>{getPlayerName(e.playerId)}</strong>
-                      <span>{e.agencyCodeSnapshot} · {e.game}</span>
+                      <span>{e.agencyCodeSnapshot} · {e.game} · {e.buyIn} BUY-IN</span>
                     </div>
-                    <div>
-                      <small>{e.buyIn} BUY-IN</small>
-                      <b>{vnd(revenuePerBuyIn(e.game)*e.buyIn)}</b>
-                    </div>
+                    <b>{vnd(revenuePerBuyIn(e.game)*e.buyIn)}</b>
                   </div>)}
                 </div>}
           </section>
