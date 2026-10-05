@@ -2645,10 +2645,6 @@ export default function Home() {
 
                     {!isStaff && <div className="playerValueToolbar">
                       <span>플레이어 {selectedTableEntries.length}명</span>
-                      <div className="playerValueToggle">
-                        <button className={playerValueView==="amount"?"active":""} onClick={()=>setPlayerValueView("amount")}>금액</button>
-                        <button className={playerValueView==="rakeback"?"active":""} onClick={()=>setPlayerValueView("rakeback")}>레이크백</button>
-                      </div>
                     </div>}
 
                     {selectedTableEntries.length===0
@@ -2674,9 +2670,15 @@ export default function Home() {
                                 <button onClick={()=>changeSessionBuyIn(entry,1)}>＋</button>
                               </div>
 
-                              {!isStaff && <div className="playerSingleValue">
-                                <small>{playerValueView==="amount"?"금액":"레이크백"}</small>
-                                <b>{playerValueView==="amount"?vnd(perEntryRevenue*entry.buyIn):vnd(entry.rakeback)}</b>
+                              {!isStaff && <div className="playerSingleValue dualPlayerValues">
+                                <span>
+                                  <small>금액</small>
+                                  <b>{vnd(perEntryRevenue*entry.buyIn)}</b>
+                                </span>
+                                <span>
+                                  <small>레이크백</small>
+                                  <b>{vnd(entry.rakeback)}</b>
+                                </span>
                               </div>}
 
                               <button className="manageChevron playerManageButton" onClick={()=>setManageEntryId(entry.id)} aria-label="플레이어 관리">›</button>
