@@ -54,6 +54,7 @@ type ExpenseItem = {
   processedAmount:number;
   status:"pending"|"partial"|"processed";
   sourceRef:string;
+  prepaidBy:string;
   note:string;
 };
 
@@ -230,7 +231,9 @@ export default function Home() {
   const [expenseCategory,setExpenseCategory]=useState("OTHER");
   const [expenseDescription,setExpenseDescription]=useState("");
   const [expenseAmount,setExpenseAmount]=useState("");
+  const [expensePrepaidBy,setExpensePrepaidBy]=useState("");
   const [expenseNote,setExpenseNote]=useState("");
+  const [expenseFilter,setExpenseFilter]=useState<"all"|"pending"|"processed">("pending");
   const [finalizingDistribution,setFinalizingDistribution]=useState(false);
   const [loaded, setLoaded] = useState(false);
   const [session, setSession] = useState<Session | null>(null);
@@ -474,7 +477,7 @@ export default function Home() {
       setExpenseItems((expenseResult.data ?? []).map((x:any)=>({
         id:x.id,date:x.expense_date,category:x.category ?? "OTHER",description:x.description,
         amount:Number(x.amount),processedAmount:Number(x.processed_amount),status:x.status,
-        sourceRef:x.source_ref ?? "",note:x.note ?? ""
+        sourceRef:x.source_ref ?? "",prepaidBy:x.prepaid_by ?? "",note:x.note ?? ""
       })));
       setShareholders((shareholderResult.data ?? []).map((x:any)=>({
         id:x.id,name:x.name,rate:Number(x.ownership_rate),active:Boolean(x.active),sortOrder:Number(x.sort_order)
@@ -625,6 +628,13 @@ export default function Home() {
   const weeklyProfit = weeklyEntryFee-weeklyRakeback-weeklyFnbTotal;
   const pendingExpenseRows=expenseItems.filter(x=>x.processedAmount<x.amount);
   const pendingExpenseTotal=pendingExpenseRows.reduce((sum,x)=>sum+(x.amount-x.processedAmount),0);
+  const processedExpenseRows=expenseItems.filter(x=>x.processedAmount>=x.amount);
+  const expenseProcessedTotal=expenseItems.reduce((sum,x)=>sum+x.processedAmount,0);
+  const visibleExpenseRows=expenseItems.filter(x=>
+    expenseFilter==="all" ? true :
+    expenseFilter==="pending" ? x.processedAmount<x.amount :
+    x.processedAmount>=x.amount
+  );
   const selectedWeekDistribution=weeklyDistributions.find(x=>x.weekStart===weekStart) ?? null;
   const selectedWeekPayouts=selectedWeekDistribution
     ? shareholderPayouts.filter(x=>x.distributionId===selectedWeekDistribution.id)
@@ -1262,6 +1272,7 @@ export default function Home() {
       processed_amount:0,
       status:"pending",
       source_ref:"Dream Poker Solution",
+      prepaid_by:expensePrepaidBy.trim() || null,
       note:expenseNote.trim() || null
     };
     const {data,error}=await supabase.from("expense_items").insert(payload).select().single();
@@ -1269,10 +1280,11 @@ export default function Home() {
     setExpenseItems(prev=>[...prev,{
       id:data.id,date:data.expense_date,category:data.category,description:data.description,
       amount:Number(data.amount),processedAmount:Number(data.processed_amount),status:data.status,
-      sourceRef:data.source_ref ?? "",note:data.note ?? ""
+      sourceRef:data.source_ref ?? "",prepaidBy:data.prepaid_by ?? "",note:data.note ?? ""
     }].sort((a,b)=>(a.date+a.id).localeCompare(b.date+b.id)));
     setExpenseDescription("");
     setExpenseAmount("");
+    setExpensePrepaidBy("");
     setExpenseNote("");
     setMessage("지출 항목을 등록했습니다.");
   }
