@@ -3498,70 +3498,94 @@ export default function Home() {
               <h2>지출 내역서</h2>
             </div>
             <div className="expenseCompactSummary">
-              <div className="primary"><span>미처리 잔액</span><strong>{vnd(pendingExpenseTotal)}</strong></div>
-              <div><span>전체 경비</span><b>{vnd(expenseItems.reduce((sum,x)=>sum+x.amount,0))}</b></div>
-              <div><span>처리 완료</span><b>{vnd(expenseProcessedTotal)}</b></div>
-              <div><span>상계 후 수익</span><b>{vnd(previewDistributableProfit)}</b></div>
+              <div className={ledgerBalance<0?"primary negative":"primary positive"}><span>현재 장부 잔액</span><strong>{ledgerBalance>0?"+":""}{vnd(ledgerBalance)}</strong></div>
+              <div><span>Deposit</span><b>+ {vnd(totalDepositAmount)}</b></div>
+              <div><span>전체 경비</span><b>− {vnd(totalExpenseAmount)}</b></div>
+              <div><span>미처리 경비</span><b>{vnd(pendingExpenseTotal)}</b></div>
             </div>
           </section>
 
           <section className="panel expenseLedgerPanel">
             <div className="expenseLedgerHeader">
               <div>
-                <h2>경비 장부</h2>
-                <p>Google Sheet처럼 새 경비를 바로 추가하고 처리 상태를 한눈에 확인합니다.</p>
+                <h2>입출금 장부</h2>
+                <p>Deposit은 주간 정산금(+), Expense는 경비(−)로 누적되어 장부 잔액이 계산됩니다.</p>
               </div>
               <div className="expenseFilterTabs">
                 <button className={expenseFilter==="pending"?"active":""} onClick={()=>setExpenseFilter("pending")}>미처리 {pendingExpenseRows.length}</button>
-                <button className={expenseFilter==="all"?"active":""} onClick={()=>setExpenseFilter("all")}>전체 {expenseItems.length}</button>
+                <button className={expenseFilter==="all"?"active":""} onClick={()=>setExpenseFilter("all")}>전체 {expenseItems.length+expenseDeposits.length}</button>
                 <button className={expenseFilter==="processed"?"active":""} onClick={()=>setExpenseFilter("processed")}>처리완료 {processedExpenseRows.length}</button>
               </div>
             </div>
 
-            <div className="expenseQuickAdd">
-              <input type="date" value={expenseDate} onChange={e=>setExpenseDate(e.target.value)} aria-label="지출 날짜"/>
-              <select value={expenseCategory} onChange={e=>setExpenseCategory(e.target.value)} aria-label="지출 구분">
-                <option value="OTHER">기타</option>
-                <option value="HOUSING">숙소 / 임대</option>
-                <option value="LODGING">호텔</option>
-                <option value="MEAL">식대</option>
-                <option value="ENTERTAINMENT">접대비</option>
-                <option value="SUPPLIES">비품</option>
-                <option value="INCIDENT">사고비</option>
-                <option value="SALARY">급여</option>
-                <option value="TRANSPORT">교통</option>
+            <div className={expenseEntryType==="deposit"?"expenseQuickAdd depositMode":"expenseQuickAdd"}>
+              <select className="ledgerTypeSelect" value={expenseEntryType} onChange={e=>setExpenseEntryType(e.target.value as "expense"|"deposit")} aria-label="장부 유형">
+                <option value="expense">Expense</option>
+                <option value="deposit">Deposit</option>
               </select>
-              <input value={expenseDescription} onChange={e=>setExpenseDescription(e.target.value)} placeholder="경비 항목" aria-label="경비 항목"/>
-              <input value={expensePrepaidBy} onChange={e=>setExpensePrepaidBy(e.target.value)} placeholder="선지급자" aria-label="선지급자"/>
-              <input inputMode="numeric" value={expenseAmount} onChange={e=>setExpenseAmount(e.target.value.replace(/[^0-9]/g,""))} placeholder="금액(VND)" aria-label="경비 금액"/>
+              <input type="date" value={expenseDate} onChange={e=>setExpenseDate(e.target.value)} aria-label="날짜"/>
+              {expenseEntryType==="expense"
+                ? <select value={expenseCategory} onChange={e=>setExpenseCategory(e.target.value)} aria-label="지출 구분">
+                    <option value="OTHER">기타</option>
+                    <option value="HOUSING">숙소 / 임대</option>
+                    <option value="LODGING">호텔</option>
+                    <option value="MEAL">식대</option>
+                    <option value="ENTERTAINMENT">접대비</option>
+                    <option value="SUPPLIES">비품</option>
+                    <option value="INCIDENT">사고비</option>
+                    <option value="SALARY">급여</option>
+                    <option value="TRANSPORT">교통</option>
+                  </select>
+                : <div className="depositAutoLabel">주간 정산금</div>}
+              <input value={expenseDescription} onChange={e=>setExpenseDescription(e.target.value)} placeholder={expenseEntryType==="deposit"?"예: 9/28~10/4 정산금":"경비 항목"} aria-label="항목"/>
+              {expenseEntryType==="expense"
+                ? <input value={expensePrepaidBy} onChange={e=>setExpensePrepaidBy(e.target.value)} placeholder="선지급자" aria-label="선지급자"/>
+                : <div className="depositAutoLabel">＋ 입금</div>}
+              <input inputMode="numeric" value={expenseAmount} onChange={e=>setExpenseAmount(e.target.value.replace(/[^0-9]/g,""))} placeholder="금액(VND)" aria-label="금액"/>
               <input value={expenseNote} onChange={e=>setExpenseNote(e.target.value)} placeholder="메모" aria-label="메모"/>
-              <button className="primary" onClick={addExpenseItem}>＋ 추가</button>
+              <button className="primary" onClick={addLedgerItem}>＋ 추가</button>
             </div>
 
             <div className="expenseLedgerScroll">
               <div className="expenseLedgerTable">
                 <div className="expenseLedgerHead">
                   <span>날짜</span>
-                  <span>경비 항목</span>
-                  <span>구분</span>
+                  <span>유형 / 항목</span>
                   <span>선지급자</span>
+                  <span>Deposit</span>
                   <span>원래 금액</span>
                   <span>처리된 금액</span>
                   <span>미처리 잔액</span>
+                  <span>Balance</span>
                   <span>상태</span>
                   <span>메모</span>
                   <span></span>
                 </div>
 
-                {visibleExpenseRows.length===0
-                  ? <div className="expenseLedgerEmpty">표시할 경비 항목이 없습니다.</div>
-                  : visibleExpenseRows.map(item=>{
+                {visibleLedgerRows.length===0
+                  ? <div className="expenseLedgerEmpty">표시할 장부 항목이 없습니다.</div>
+                  : visibleLedgerRows.map(row=>{
+                      if(row.kind==="deposit"){
+                        return <div className="expenseLedgerRow depositLedgerRow" key={"deposit-"+row.id}>
+                          <span>{row.date}</span>
+                          <span className="expenseItemName"><strong>{row.description}</strong><small>DEPOSIT · {row.sourceRef || "직접 입력"}</small></span>
+                          <span>-</span>
+                          <b className="depositValue">+ {vnd(row.amount)}</b>
+                          <span>-</span>
+                          <span>-</span>
+                          <span>-</span>
+                          <b className={row.balance<0?"ledgerBalance negative":"ledgerBalance positive"}>{row.balance>0?"+":""}{vnd(row.balance)}</b>
+                          <em className="deposit">입금</em>
+                          <span className="expenseNoteCell">{row.note || "-"}</span>
+                          <span></span>
+                        </div>;
+                      }
+                      const item=row.expense!;
                       const remaining=Math.max(0,item.amount-item.processedAmount);
                       const state=item.processedAmount>=item.amount?"processed":item.processedAmount>0?"partial":"pending";
-                      return <div className="expenseLedgerRow editableExpenseRow" key={item.id} onClick={()=>openExpenseEditor(item)} role="button" tabIndex={0} onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();openExpenseEditor(item);}}}>
+                      return <div className="expenseLedgerRow editableExpenseRow" key={"expense-"+item.id} onClick={()=>openExpenseEditor(item)} role="button" tabIndex={0} onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();openExpenseEditor(item);}}}>
                         <span>{item.date}</span>
-                        <span className="expenseItemName"><strong>{item.description}</strong><small>{item.sourceRef || "직접 입력"}</small></span>
-                        <span>{item.category}</span>
+                        <span className="expenseItemName"><strong>{item.description}</strong><small>EXPENSE · {item.category} · {item.sourceRef || "직접 입력"}</small></span>
                         <span>
                           <input
                             className="expensePayerInput"
@@ -3572,9 +3596,11 @@ export default function Home() {
                             onBlur={e=>updateExpensePrepaidBy(item,e.target.value)}
                           />
                         </span>
+                        <span>-</span>
                         <span>{vnd(item.amount)}</span>
                         <span>{vnd(item.processedAmount)}</span>
                         <b>{vnd(remaining)}</b>
+                        <b className={row.balance<0?"ledgerBalance negative":"ledgerBalance positive"}>{row.balance>0?"+":""}{vnd(row.balance)}</b>
                         <em className={state}>{state==="processed"?"처리완료":state==="partial"?"일부처리":"미처리"}</em>
                         <span className="expenseNoteCell">{item.note || "-"}</span>
                         <button onClick={e=>{e.stopPropagation();deleteExpenseItem(item);}} disabled={item.processedAmount>0} aria-label="지출 삭제">×</button>
