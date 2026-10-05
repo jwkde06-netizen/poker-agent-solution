@@ -8,3 +8,4 @@ deploy floor-map buy-in workflow
 deploy all accumulated UI and game number updates
 deploy stale session duplicate fix
 deploy final mobile table/search fixes
+deploy compact selected table header and mobile heading removal
