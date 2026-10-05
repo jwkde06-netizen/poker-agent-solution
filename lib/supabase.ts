@@ -22,3 +22,14 @@ export const supabase = isSupabaseConfigured
       },
     })
   : null;
+
+export function createProvisioningClient() {
+  if (!isSupabaseConfigured || !supabaseAnonKey) return null;
+  return createClient(supabaseUrl, supabaseAnonKey, {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+      detectSessionInUrl: false,
+    },
+  });
+}
