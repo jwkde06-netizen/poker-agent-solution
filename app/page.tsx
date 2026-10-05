@@ -117,6 +117,19 @@ function MobileBottomIcon({type}:{type:"dashboard"|"players"|"games"|"fnb"|"sett
 
 export default function Home() {
   const [tab, setTab] = useState<"dashboard"|"agencies"|"players"|"games"|"daily"|"weekly"|"reports"|"settings"|"fnb">("dashboard");
+  const validTabs = ["dashboard","agencies","players","games","daily","weekly","reports","settings","fnb"] as const;
+  type TabKey = (typeof validTabs)[number];
+
+  function navigateTab(next:TabKey){
+    setTab(next);
+    if(typeof window==="undefined") return;
+    const url=new URL(window.location.href);
+    const current=url.searchParams.get("tab");
+    if(current===next)return;
+    url.searchParams.set("tab",next);
+    window.history.pushState({tab:next},"",url.toString());
+  }
+
   const [agencies, setAgencies] = useState<Agency[]>(DEFAULT_AGENCIES);
   const [players, setPlayers] = useState<Player[]>([]);
   const [entries, setEntries] = useState<GameEntry[]>([]);
@@ -195,6 +208,22 @@ export default function Home() {
     const nextTheme = saved === "dark" ? "dark" : "light";
     setTheme(nextTheme);
     document.documentElement.dataset.theme = nextTheme;
+  }, []);
+
+  useEffect(() => {
+    const readTabFromUrl=()=>{
+      const value=new URLSearchParams(window.location.search).get("tab");
+      const next=(validTabs as readonly string[]).includes(value||"") ? value as TabKey : "dashboard";
+      setTab(next);
+      if(!value){
+        const url=new URL(window.location.href);
+        url.searchParams.set("tab",next);
+        window.history.replaceState({tab:next},"",url.toString());
+      }
+    };
+    readTabFromUrl();
+    window.addEventListener("popstate",readTabFromUrl);
+    return ()=>window.removeEventListener("popstate",readTabFromUrl);
   }, []);
 
   useEffect(() => {
@@ -1130,19 +1159,19 @@ export default function Home() {
   }
 
   function goToPlayerFromSearch(playerId:string){
-    setTab("players");
+    navigateTab("players");
     openPlayerDetail(playerId);
     closeGlobalSearch();
   }
 
   function goToFeatureFromSearch(key:string){
-    setTab(key as any);
+    navigateTab(key as TabKey);
     closeGlobalSearch();
   }
 
   function goToTableFromSearch(tableNo:string){
     setSelectedTableNo(tableNo);
-    setTab("games");
+    navigateTab("games");
     closeGlobalSearch();
   }
   const selectedTableEntries = selectedGameSession ? entries.filter(e=>e.sessionId===selectedGameSession.id) : [];
@@ -1280,7 +1309,7 @@ export default function Home() {
       </div>
 
       <nav className="sideNav">
-        {navItems.map(item=><button key={item.key} className={tab===item.key?"active":""} onClick={()=>setTab(item.key as any)}>
+        {navItems.map(item=><button key={item.key} className={tab===item.key?"active":""} onClick={()=>navigateTab(item.key as TabKey)}>
           <span className="navIcon">{item.icon}</span><span>{item.label}</span>
         </button>)}
       </nav>
@@ -1397,7 +1426,7 @@ export default function Home() {
               </div>
             </div>
 
-            <button onClick={()=>{setTab("settings");setAccountMenuOpen(false)}}>
+            <button onClick={()=>{navigateTab("settings");setAccountMenuOpen(false)}}>
               <span>⚙</span><div><strong>계정 관리</strong></div>
             </button>
 
@@ -1433,7 +1462,7 @@ export default function Home() {
           </div>
 
           <nav className="mobileSideMenuNav">
-            {profile?.role==="admin" && <button onClick={()=>{setTab("settings");setMobileSideMenuOpen(false)}}>
+            {profile?.role==="admin" && <button onClick={()=>{navigateTab("settings");setMobileSideMenuOpen(false)}}>
               <span className="sideMenuIcon">⚙</span>
               <div><strong>계정 관리</strong><small>직원 · 에이전트 계정 생성</small></div>
             </button>}
@@ -1475,22 +1504,22 @@ export default function Home() {
             </div>
 
             <div className="dashboardFinanceGrid">
-              <button className="dashboardFinanceCard gross" onClick={()=>setTab("daily")}>
+              <button className="dashboardFinanceCard gross" onClick={()=>navigateTab("daily")}>
                 <span>오늘 레이크백</span>
                 <strong>{vnd(todayRevenue)}</strong>
                 <small>오늘 총 레이크</small>
               </button>
-              <button className="dashboardFinanceCard agent" onClick={()=>setTab("daily")}>
+              <button className="dashboardFinanceCard agent" onClick={()=>navigateTab("daily")}>
                 <span>에이전트 레이크백</span>
                 <strong>{vnd(todaySettlement)}</strong>
                 <small>지급 예정</small>
               </button>
-              <button className="dashboardFinanceCard fnb" onClick={()=>setTab("fnb")}>
+              <button className="dashboardFinanceCard fnb" onClick={()=>navigateTab("fnb")}>
                 <span>F&B</span>
                 <strong>{vnd(fnbTodayTotal)}</strong>
                 <small>오늘 비용</small>
               </button>
-              <button className="dashboardFinanceCard profit" onClick={()=>setTab("daily")}>
+              <button className="dashboardFinanceCard profit" onClick={()=>navigateTab("daily")}>
                 <span>오늘 수익</span>
                 <strong>{vnd(dashboardTodayProfit)}</strong>
                 <small>레이크 - 레이크백 - F&B</small>
@@ -1505,11 +1534,11 @@ export default function Home() {
                   <h2>테이블 실시간 현황</h2>
                   <span>{activeGameSessions.length} LIVE</span>
                 </div>
-                <button onClick={()=>setTab("games")}>게임 입력 ›</button>
+                <button onClick={()=>navigateTab("games")}>게임 입력 ›</button>
               </div>
 
               {activeGameSessions.length===0
-                ? <button className="dashboardNoLive" onClick={()=>setTab("games")}>
+                ? <button className="dashboardNoLive" onClick={()=>navigateTab("games")}>
                     <strong>진행 중인 테이블이 없습니다.</strong>
                     <span>테이블을 오픈하려면 클릭하세요.</span>
                   </button>
@@ -1518,7 +1547,7 @@ export default function Home() {
                       const tableEntries=entries.filter(e=>e.sessionId===gs.id);
                       const buyins=tableEntries.reduce((sum,e)=>sum+e.buyIn,0);
                       const rake=tableEntries.reduce((sum,e)=>sum+e.rake,0);
-                      return <button className="dashboardLiveCard" key={gs.id} onClick={()=>{setSelectedTableNo(gs.tableNo);setTab("games")}}>
+                      return <button className="dashboardLiveCard" key={gs.id} onClick={()=>{setSelectedTableNo(gs.tableNo);navigateTab("games")}}>
                         <div className="dashboardLiveCardTop">
                           <strong>T{gs.tableNo}</strong>
                           <span><i/>LIVE</span>
@@ -1571,7 +1600,7 @@ export default function Home() {
 
         {tab==="agencies" && <section className="panel agencyManagePanel">
           <div className="mobileSectionSwitcher playerAccessSwitcher">
-            <button onClick={()=>setTab("players")}>플레이어 명단</button>
+            <button onClick={()=>navigateTab("players")}>플레이어 명단</button>
             <button className="active">에이전트 코드</button>
           </div>
 
@@ -1647,7 +1676,7 @@ export default function Home() {
                       ? <div className="agencyPlayerEmpty">등록된 플레이어가 없습니다.</div>
                       : players.filter(p=>p.agencyId===agency.id).slice(0,50).map(p=>{
                           const lastEntry=entries.filter(e=>e.playerId===p.id).sort((a,b)=>b.date.localeCompare(a.date))[0];
-                          return <button key={p.id} onClick={()=>{setEditingAgencyId(null);openPlayerDetail(p.id);setTab("players")}}>
+                          return <button key={p.id} onClick={()=>{setEditingAgencyId(null);openPlayerDetail(p.id);navigateTab("players")}}>
                             <div>
                               <strong>{p.name}</strong>
                               <small>{p.koreanName || p.cardNo || "회원번호 없음"}</small>
@@ -1677,7 +1706,7 @@ export default function Home() {
         {tab==="players" && <section className="panel">
           <div className="mobileSectionSwitcher playerAccessSwitcher">
             <button className="active">플레이어 명단</button>
-            <button onClick={()=>setTab("agencies")}>에이전트 코드</button>
+            <button onClick={()=>navigateTab("agencies")}>에이전트 코드</button>
           </div>
           <div className="playerSectionActions">
             <div>
@@ -2055,7 +2084,7 @@ export default function Home() {
         {tab==="daily" && <section className="compactDailyPage">
           <div className="mobileSectionSwitcher settlementSwitcher">
             <button className="active">일일정산</button>
-            <button onClick={()=>setTab("weekly")}>주간정산</button>
+            <button onClick={()=>navigateTab("weekly")}>주간정산</button>
           </div>
 
           <section className="panel compactDailyPanel redesignedDailyPanel">
@@ -2242,7 +2271,7 @@ export default function Home() {
 
         {tab==="weekly" && <section className="panel weeklyPanel">
           <div className="mobileSectionSwitcher settlementSwitcher">
-            <button onClick={()=>setTab("daily")}>일일정산</button>
+            <button onClick={()=>navigateTab("daily")}>일일정산</button>
             <button className="active">주간정산</button>
           </div>
           <div className="sectionTitle"><div><h2>주간 정산</h2></div><div className="dateRange"><input className="datePicker" type="date" value={weekStart} onChange={e=>setWeekStart(e.target.value)}/><span>~</span><input className="datePicker" type="date" value={weekEnd} onChange={e=>setWeekEnd(e.target.value)}/></div></div>
@@ -2501,8 +2530,8 @@ export default function Home() {
           key={item.key}
           className={`${isActive?"active":""} ${item.key==="games"?"buyinNavItem":""}`}
           onClick={()=>{
-            if(item.key==="settlement") setTab("daily");
-            else setTab(item.key as any);
+            if(item.key==="settlement") navigateTab("daily");
+            else navigateTab(item.key as TabKey);
           }}
         >
           <span className="mobileNavIcon"><MobileBottomIcon type={item.key}/></span>
