@@ -1047,7 +1047,7 @@ export default function Home() {
     {key:"settings",label:"설정",description:"계정 · 시스템 설정",keywords:"설정 계정 다크모드"}
   ] as const;
 
-  const globalSearchResults = useMemo(()=>{
+  const globalSearchResults = (()=>{
     const q=globalSearch.trim().toLowerCase();
     if(!q)return {players:[] as Player[],features:[] as Array<(typeof globalFeatureItems)[number]>,tables:[] as GameSession[],agencies:[] as Agency[]};
 
@@ -1073,7 +1073,7 @@ export default function Home() {
     ).slice(0,4);
 
     return {players:playerResults,features:featureResults,tables:tableResults,agencies:agencyResults};
-  },[globalSearch,players,agencies,activeGameSessions,entries]);
+  })();
 
   const hasGlobalSearchResults =
     globalSearchResults.players.length+
