@@ -91,6 +91,7 @@ const DEFAULT_AGENCIES: Agency[] = [
 
 const money = new Intl.NumberFormat("ko-KR", { maximumFractionDigits: 0 });
 const vnd = (value:number) => money.format(value);
+const isOperatingFnbExpense = (item:FnbEntry) => item.expenseGroup==="2FLOOR";
 const today = () => new Date().toISOString().slice(0, 10);
 const uid = (prefix: string) => `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
@@ -113,6 +114,19 @@ function MobileBottomIcon({type}:{type:"dashboard"|"players"|"games"|"fnb"|"sett
   if(type==="games") return <svg {...common} strokeWidth={2.5}><path d="M12 5v14"/><path d="M5 12h14"/></svg>;
   if(type==="fnb") return <svg {...common}><path d="M5 8h11v5.5A4.5 4.5 0 0 1 11.5 18h-2A4.5 4.5 0 0 1 5 13.5V8Z"/><path d="M16 10h1.5a2.5 2.5 0 0 1 0 5H16"/><path d="M4 21h15"/><path d="M8 3c0 1 .8 1.2.8 2.2S8 6.4 8 7"/><path d="M12 3c0 1 .8 1.2.8 2.2S12 6.4 12 7"/></svg>;
   return <svg {...common}><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8"/><path d="M8 12h8"/><path d="M8 16h5"/></svg>;
+}
+
+function DesktopNavIcon({type}:{type:"dashboard"|"players"|"agencies"|"games"|"fnb"|"daily"|"weekly"|"reports"|"settings"}) {
+  const common={width:"100%",height:"100%",viewBox:"0 0 24 24",fill:"none",stroke:"currentColor",strokeWidth:2,strokeLinecap:"round" as const,strokeLinejoin:"round" as const,ariaHidden:true};
+  if(type==="dashboard") return <svg {...common}><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>;
+  if(type==="players") return <svg {...common}><circle cx="9" cy="8" r="3"/><path d="M3.5 19c.7-3.2 2.6-5 5.5-5s4.8 1.8 5.5 5"/><path d="M16 7h5"/><path d="M16 11h5"/><path d="M16 15h5"/></svg>;
+  if(type==="agencies") return <svg {...common}><circle cx="8" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M2.8 19c.7-3.2 2.5-5 5.2-5s4.5 1.8 5.2 5"/><path d="M14 15c2.6 0 4.3 1.4 5 4"/></svg>;
+  if(type==="games") return <svg {...common}><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M8 12h8"/><path d="M12 8v8"/></svg>;
+  if(type==="fnb") return <svg {...common}><path d="M5 8h11v5.5A4.5 4.5 0 0 1 11.5 18h-2A4.5 4.5 0 0 1 5 13.5V8Z"/><path d="M16 10h1.5a2.5 2.5 0 0 1 0 5H16"/><path d="M4 21h15"/><path d="M8 3c0 1 .8 1.2.8 2.2S8 6.4 8 7"/></svg>;
+  if(type==="daily") return <svg {...common}><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8"/><path d="M8 11h8"/><path d="M8 15h5"/></svg>;
+  if(type==="weekly") return <svg {...common}><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4"/><path d="M17 3v4"/><path d="M3 10h18"/><path d="M7 14h3"/><path d="M14 14h3"/></svg>;
+  if(type==="reports") return <svg {...common}><path d="M4 20V10"/><path d="M10 20V4"/><path d="M16 20v-7"/><path d="M22 20H2"/></svg>;
+  return <svg {...common}><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6V21h-4v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.6-1H3v-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9L4.3 7 7.1 4.2l.1.1a1.7 1.7 0 0 0 1.9.3A1.7 1.7 0 0 0 10 3h4v.1a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.1v4H21a1.7 1.7 0 0 0-1.6 1Z"/></svg>;
 }
 
 
@@ -497,8 +511,19 @@ export default function Home() {
 
   const weeklyEntryFee = total(weeklyEntries,"rake");
   const weeklyRakeback = total(weeklyEntries,"rakeback");
-  const weeklyFnbTotal = weeklyFnbEntries.reduce((sum,e)=>sum+e.totalAmount,0);
+  const weeklyFnbAllTotal = weeklyFnbEntries.reduce((sum,e)=>sum+e.totalAmount,0);
+  const weeklyFnbTotal = weeklyFnbEntries.filter(isOperatingFnbExpense).reduce((sum,e)=>sum+e.totalAmount,0);
   const weeklyProfit = weeklyEntryFee-weeklyRakeback-weeklyFnbTotal;
+  const weeklyFnbGroups = useMemo(()=>{
+    const map=new Map<string,{group:string;amount:number;count:number;operating:boolean}>();
+    weeklyFnbEntries.forEach(item=>{
+      const current=map.get(item.expenseGroup) ?? {group:item.expenseGroup,amount:0,count:0,operating:item.expenseGroup==="2FLOOR"};
+      current.amount+=item.totalAmount;
+      current.count+=1;
+      map.set(item.expenseGroup,current);
+    });
+    return [...map.values()].sort((a,b)=>Number(b.operating)-Number(a.operating) || b.amount-a.amount);
+  },[weeklyFnbEntries]);
   const weeklyAgentRows = agencyTotals(weeklyEntries).filter(a=>a.amount>0).sort((a,b)=>b.amount-a.amount);
 
   const weeklyPlayerRows = useMemo(()=>{
@@ -1698,12 +1723,17 @@ export default function Home() {
   const selectedFnbMenu = FNB_MENU.find(item=>item.name===fnbMenuName) ?? FNB_MENU[0];
   const fnbDayEntries = fnbEntries.filter(item=>item.date===fnbDate);
   const fnbDayTotal = fnbDayEntries.reduce((sum,item)=>sum+item.totalAmount,0);
-  const fnbTodayTotal = fnbEntries.filter(item=>item.date===today()).reduce((sum,item)=>sum+item.totalAmount,0);
+  const fnbDayOperatingTotal = fnbDayEntries.filter(isOperatingFnbExpense).reduce((sum,item)=>sum+item.totalAmount,0);
+  const fnbTodayEntries = fnbEntries.filter(item=>item.date===today());
+  const fnbTodayAllTotal = fnbTodayEntries.reduce((sum,item)=>sum+item.totalAmount,0);
+  const fnbTodayTotal = fnbTodayEntries.filter(isOperatingFnbExpense).reduce((sum,item)=>sum+item.totalAmount,0);
   const todayBuyinRevenue = todayEntries.reduce((sum,e)=>sum + revenuePerBuyIn(e.game)*e.buyIn,0);
   const activeTableBuyins = activeGameSessions.reduce((sum,s)=>sum+entries.filter(e=>e.sessionId===s.id).reduce((n,e)=>n+e.buyIn,0),0);
   const activeTablePlayers = activeGameSessions.reduce((sum,s)=>sum+entries.filter(e=>e.sessionId===s.id).length,0);
   const todayOperatingNet = todayBuyinRevenue - todaySettlement - fnbTodayTotal;
-  const dailyFnbTotal = fnbEntries.filter(item=>item.date===summaryDate).reduce((sum,item)=>sum+item.totalAmount,0);
+  const dailyFnbEntries = fnbEntries.filter(item=>item.date===summaryDate);
+  const dailyFnbAllTotal = dailyFnbEntries.reduce((sum,item)=>sum+item.totalAmount,0);
+  const dailyFnbTotal = dailyFnbEntries.filter(isOperatingFnbExpense).reduce((sum,item)=>sum+item.totalAmount,0);
   const dailyGrossAmount = total(dailyEntries,"rake");
   const dailyAgentRows = agencyTotals(dailyEntries).filter(a=>a.amount>0);
   const dailyAgentTotal = dailyAgentRows.reduce((sum,a)=>sum+a.amount,0);
@@ -1713,7 +1743,8 @@ export default function Home() {
   const reportFnbEntries = fnbEntries.filter(e=>e.date>=reportStart && e.date<=reportEnd);
   const reportRevenue = reportEntries.reduce((sum,e)=>sum+revenuePerBuyIn(e.game)*e.buyIn,0);
   const reportRakeback = reportEntries.reduce((sum,e)=>sum+e.rakeback,0);
-  const reportFnbTotal = reportFnbEntries.reduce((sum,e)=>sum+e.totalAmount,0);
+  const reportFnbAllTotal = reportFnbEntries.reduce((sum,e)=>sum+e.totalAmount,0);
+  const reportFnbTotal = reportFnbEntries.filter(isOperatingFnbExpense).reduce((sum,e)=>sum+e.totalAmount,0);
   const reportNet = reportRevenue-reportRakeback-reportFnbTotal;
   const dashboardTodayProfit = todayRevenue - todaySettlement - fnbTodayTotal;
   const dashboardDailyTrend = Array.from({length:7},(_,index)=>{
@@ -1721,7 +1752,7 @@ export default function Home() {
     const dayEntries=entries.filter(e=>e.date===date);
     const rake=dayEntries.reduce((sum,e)=>sum+e.rake,0);
     const agentRakeback=dayEntries.reduce((sum,e)=>sum+e.rakeback,0);
-    const fnb=fnbEntries.filter(e=>e.date===date).reduce((sum,e)=>sum+e.totalAmount,0);
+    const fnb=fnbEntries.filter(e=>e.date===date && e.expenseGroup==="2FLOOR").reduce((sum,e)=>sum+e.totalAmount,0);
     return {
       label: date.slice(5).replace("-","/"),
       rake,
@@ -1735,7 +1766,7 @@ export default function Home() {
     const weekEntries=entries.filter(e=>e.date>=startDate && e.date<=endDate);
     const rake=weekEntries.reduce((sum,e)=>sum+e.rake,0);
     const agentRakeback=weekEntries.reduce((sum,e)=>sum+e.rakeback,0);
-    const fnb=fnbEntries.filter(e=>e.date>=startDate && e.date<=endDate).reduce((sum,e)=>sum+e.totalAmount,0);
+    const fnb=fnbEntries.filter(e=>e.date>=startDate && e.date<=endDate && e.expenseGroup==="2FLOOR").reduce((sum,e)=>sum+e.totalAmount,0);
     return {
       label: `${startDate.slice(5).replace("-","/")}`,
       rake,
@@ -1774,15 +1805,15 @@ export default function Home() {
   </section>;
 
   const allNavItems = [
-    {key:"dashboard",label:"대시보드",icon:"▦"},
-    {key:"players",label:"플레이어 관리",icon:"♟"},
-    {key:"agencies",label:"에이전트 관리",icon:"♙"},
-    {key:"games",label:"게임 입력",icon:"▣"},
-    {key:"fnb",label:"F&B",icon:"☕"},
-    {key:"daily",label:"일일 정산",icon:"▤"},
-    {key:"weekly",label:"주간 정산",icon:"▥"},
-    {key:"reports",label:"리포트",icon:"▧"},
-    {key:"settings",label:"계정 관리",icon:"⚙"},
+    {key:"dashboard",label:"대시보드"},
+    {key:"players",label:"플레이어 관리"},
+    {key:"agencies",label:"에이전트 관리"},
+    {key:"games",label:"게임 입력"},
+    {key:"fnb",label:"F&B"},
+    {key:"daily",label:"일일 정산"},
+    {key:"weekly",label:"주간 정산"},
+    {key:"reports",label:"리포트"},
+    {key:"settings",label:"계정 관리"},
   ] as const;
   const navItems = allNavItems.filter(item=>{
     if(profile?.role==="admin") return true;
@@ -1808,7 +1839,7 @@ export default function Home() {
 
       <nav className="sideNav">
         {navItems.map(item=><button key={item.key} className={tab===item.key?"active":""} onClick={()=>navigateTab(item.key as TabKey)}>
-          <span className="navIcon">{item.icon}</span><span>{item.label}</span>
+          <span className="navIcon"><DesktopNavIcon type={item.key}/></span><span>{item.label}</span>
         </button>)}
       </nav>
 
@@ -2889,7 +2920,7 @@ export default function Home() {
             <div className="weeklyKpiGrid">
               <div><span>총 엔트리피</span><b>{vnd(weeklyEntryFee)}</b><small>{weeklyEntries.reduce((sum,e)=>sum+e.buyIn,0)} BUY-IN</small></div>
               <div className="expense"><span>레이크백</span><b>− {vnd(weeklyRakeback)}</b><small>{weeklyAgentRows.length}개 에이전트</small></div>
-              <div className="expense"><span>F&B</span><b>− {vnd(weeklyFnbTotal)}</b><small>{weeklyFnbEntries.length}건</small></div>
+              <div className="expense"><span>F&B 경비</span><b>− {vnd(weeklyFnbTotal)}</b><small>2FLOOR 반영 · 전체 {vnd(weeklyFnbAllTotal)}</small></div>
               <div className="profit"><span>주간 수익</span><b>{vnd(weeklyProfit)}</b><small>엔트리피 − 레이크백 − F&B</small></div>
             </div>
 
@@ -2912,10 +2943,28 @@ export default function Home() {
               <aside className="weeklyAccountingAside">
                 <div><span>총 엔트리피</span><b>{vnd(weeklyEntryFee)}</b></div>
                 <div><span>레이크백</span><b>− {vnd(weeklyRakeback)}</b></div>
-                <div><span>F&B</span><b>− {vnd(weeklyFnbTotal)}</b></div>
+                <div><span>F&B 경비 (2FLOOR)</span><b>− {vnd(weeklyFnbTotal)}</b></div>
                 <div className="profit"><span>주간 수익</span><b>{vnd(weeklyProfit)}</b></div>
               </aside>
             </div>
+
+            <section className="weeklyFnbBreakdown">
+              <div className="weeklySectionHeader">
+                <div>
+                  <h3>F&B 구분별 내역</h3>
+                  <p>2FLOOR만 운영 경비로 반영하고, 다른 구분은 기록만 집계합니다.</p>
+                </div>
+                <span>전체 {vnd(weeklyFnbAllTotal)}</span>
+              </div>
+              {weeklyFnbGroups.length===0
+                ? <div className="weeklyEmpty">이번 주 F&B 내역이 없습니다.</div>
+                : <div className="weeklyFnbRows">
+                    {weeklyFnbGroups.map(group=><div key={group.group}>
+                      <span><strong>{group.group}</strong><small>{group.count}건 · {group.operating?"비용 반영":"기록만"}</small></span>
+                      <b className={group.operating?"operating":""}>{vnd(group.amount)}</b>
+                    </div>)}
+                  </div>}
+            </section>
 
             <section className="weeklyPlayersSection">
               <div className="weeklySectionHeader">
@@ -2966,9 +3015,9 @@ export default function Home() {
         {tab==="fnb" && <section className="fnbPage">
           <div className="fnbSummary">
             <div>
-              <span>오늘 F&B 경비</span>
-              <b>{vnd(fnbTodayTotal)}</b>
-              <small>{today()} 기준</small>
+              <span>오늘 F&B</span>
+              <b>{vnd(fnbTodayAllTotal)}</b>
+              <small>운영 경비 반영 {vnd(fnbTodayTotal)} · 2FLOOR만 차감</small>
             </div>
             <div className="fnbCoffeeIcon">☕</div>
           </div>
@@ -2986,14 +3035,14 @@ export default function Home() {
                 onClick={()=>setFnbMenuName(item.name)}
               >
                 <span>{item.label}</span>
-                <small>{money.format(item.price)} ₫</small>
+                <small>{money.format(item.price)}</small>
               </button>)}
             </div>
 
             <div className="fnbFormGrid">
               <label>메뉴
                 <select value={fnbMenuName} onChange={e=>setFnbMenuName(e.target.value)}>
-                  {FNB_MENU.map(item=><option key={item.name} value={item.name}>{item.label} · {money.format(item.price)} ₫</option>)}
+                  {FNB_MENU.map(item=><option key={item.name} value={item.name}>{item.label} · {money.format(item.price)}</option>)}
                 </select>
               </label>
               <label>수량
@@ -3028,7 +3077,7 @@ export default function Home() {
           <section className="panel fnbHistoryPanel">
             <div className="sectionTitle">
               <div><h2>{fnbDate===today()?"오늘":"선택 날짜"} 입력 내역</h2><p>{fnbDayEntries.length}건 입력</p></div>
-              <strong className="fnbDayTotal">{vnd(fnbDayTotal)}</strong>
+              <div className="fnbDayTotals"><strong className="fnbDayTotal">{vnd(fnbDayTotal)}</strong><small>경비 반영 {vnd(fnbDayOperatingTotal)}</small></div>
             </div>
             {fnbDayEntries.length===0
               ? <div className="dashboardEmpty">이 날짜에 입력된 F&B 경비가 없습니다.</div>
