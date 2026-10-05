@@ -201,6 +201,9 @@ export default function Home() {
   const [summaryDate, setSummaryDate] = useState(today());
   const [dailyLogSearch, setDailyLogSearch] = useState("");
   const [dailyExportOpen, setDailyExportOpen] = useState(false);
+  const [dailyEditingCell, setDailyEditingCell] = useState<{entryId:string;field:"agency"|"buyin"} | null>(null);
+  const [dailyEditBuyInValue, setDailyEditBuyInValue] = useState("");
+  const [lastDeletedEntry, setLastDeletedEntry] = useState<GameEntry | null>(null);
   const [fnbDetailOpen, setFnbDetailOpen] = useState(false);
   const [reportPreset, setReportPreset] = useState<"today"|"week"|"custom">("today");
   const [reportStart, setReportStart] = useState(today());
@@ -871,12 +874,61 @@ export default function Home() {
     setManagePlayerSearch("");
   }
 
+  async function updateDailyEntryAgency(entry:GameEntry,agencyId:string){
+    const agency=agencies.find(a=>a.id===agencyId);
+    if(!agency)return;
+    const nextRakeback=Math.round(entry.rake*(agency.rate/100));
+    if(isSupabaseConfigured && supabase && session){
+      const {error}=await supabase.from("game_entries").update({
+        agency_id:agency.id,
+        agency_code_snapshot:agency.code,
+        rate_snapshot:agency.rate,
+        rakeback:nextRakeback
+      }).eq("id",entry.id);
+      if(error){setMessage(error.message);return;}
+    }
+    setEntries(prev=>prev.map(e=>e.id===entry.id?{
+      ...e,
+      agencyId:agency.id,
+      agencyCodeSnapshot:agency.code,
+      rateSnapshot:agency.rate,
+      rakeback:nextRakeback
+    }:e));
+    setDailyEditingCell(null);
+  }
+
+  async function undoLastDeletedEntry(){
+    const entry=lastDeletedEntry;
+    if(!entry)return;
+    if(isSupabaseConfigured && supabase && session){
+      const payload={
+        id:entry.id,
+        played_on:entry.date,
+        game_name:entry.game,
+        player_id:entry.playerId,
+        buy_in:entry.buyIn,
+        rake:entry.rake,
+        agency_id:entry.agencyId,
+        agency_code_snapshot:entry.agencyCodeSnapshot,
+        rate_snapshot:entry.rateSnapshot,
+        rakeback:entry.rakeback,
+        session_id:entry.sessionId ?? null
+      };
+      const {error}=await supabase.from("game_entries").insert(payload);
+      if(error){setMessage(error.message);return;}
+    }
+    setEntries(prev=>prev.some(e=>e.id===entry.id)?prev:[...prev,entry]);
+    setLastDeletedEntry(null);
+    setMessage("삭제한 기록을 복원했습니다.");
+  }
+
   async function removePlayerFromSession(entry:GameEntry){
     if(isSupabaseConfigured && supabase && session){
       const {error}=await supabase.from("game_entries").delete().eq("id",entry.id);
       if(error){setMessage(error.message);return;}
     }
     setEntries(prev=>prev.filter(e=>e.id!==entry.id));
+    setLastDeletedEntry(entry);
   }
 
   function addAvailableTable(){
@@ -2340,50 +2392,59 @@ export default function Home() {
                               <span>바이인</span>
                               <span>레이크</span>
                               <span>레이크백</span>
-                              <span></span>
                             </div>
 
                             {group.entries.length===0 && <div className="dailyGameEmptyRow">플레이어 기록이 없는 게임입니다.</div>}
-                            {group.entries.map(e=><div className="dailyGameRow" key={e.id}>
+                            {group.entries.map(e=><div className="dailyGameRow cleanDailyRow" key={e.id}>
                               <div className="dailyGamePlayerCell">
-                                <select className="dailyPlayerSelect" value={e.playerId} onChange={ev=>replaceSessionPlayer(e,ev.target.value)}>
-                                  {players.map(p=><option key={p.id} value={p.id}>{p.name}{p.koreanName?` · ${p.koreanName}`:""}</option>)}
-                                </select>
+                                <button className="dailyInlineValue playerValue" onClick={()=>setManageEntryId(e.id)}>
+                                  <strong>{getPlayerName(e.playerId)}</strong>
+                                  <span>수정 ›</span>
+                                </button>
                               </div>
 
-                              <div><span className="agencyCodeText">{e.agencyCodeSnapshot}</span></div>
+                              <div>
+                                {dailyEditingCell?.entryId===e.id && dailyEditingCell.field==="agency"
+                                  ? <select
+                                      className="dailyInlineSelect"
+                                      autoFocus
+                                      value={e.agencyId}
+                                      onChange={ev=>updateDailyEntryAgency(e,ev.target.value)}
+                                      onBlur={()=>setDailyEditingCell(null)}
+                                    >
+                                      {agencies.map(a=><option key={a.id} value={a.id}>{a.code} · {a.rate}%</option>)}
+                                    </select>
+                                  : <button className="dailyInlineValue" onClick={()=>setDailyEditingCell({entryId:e.id,field:"agency"})}>
+                                      {e.agencyCodeSnapshot}
+                                    </button>}
+                              </div>
 
                               <div>
-                                <div className="dailyBuyInEditor">
-                                  <button onClick={()=>changeSessionBuyIn(e,-1)} aria-label="바이인 감소">−</button>
-                                  <input
-                                    type="number"
-                                    min="1"
-                                    value={e.buyIn}
-                                    onChange={ev=>{
-                                      const value=Math.max(1,Number(ev.target.value)||1);
-                                      const rake=rakePerBuyIn(e.game)*value;
-                                      const rakeback=Math.round(rake*(e.rateSnapshot/100));
-                                      setEntries(prev=>prev.map(row=>row.id===e.id?{...row,buyIn:value,rake,rakeback}:row));
-                                    }}
-                                    onBlur={ev=>setSessionBuyInCount(e,Number(ev.target.value))}
-                                    onKeyDown={ev=>{if(ev.key==="Enter"){(ev.currentTarget as HTMLInputElement).blur();}}}
-                                  />
-                                  <button onClick={()=>changeSessionBuyIn(e,1)} aria-label="바이인 증가">＋</button>
-                                </div>
+                                {dailyEditingCell?.entryId===e.id && dailyEditingCell.field==="buyin"
+                                  ? <input
+                                      className="dailyInlineBuyIn"
+                                      autoFocus
+                                      type="number"
+                                      min="1"
+                                      value={dailyEditBuyInValue}
+                                      onChange={ev=>setDailyEditBuyInValue(ev.target.value)}
+                                      onBlur={async ev=>{
+                                        await setSessionBuyInCount(e,Number(ev.target.value));
+                                        setDailyEditingCell(null);
+                                      }}
+                                      onKeyDown={ev=>{
+                                        if(ev.key==="Enter")(ev.currentTarget as HTMLInputElement).blur();
+                                        if(ev.key==="Escape")setDailyEditingCell(null);
+                                      }}
+                                    />
+                                  : <button className="dailyInlineValue buyinValue" onClick={()=>{
+                                      setDailyEditBuyInValue(String(e.buyIn));
+                                      setDailyEditingCell({entryId:e.id,field:"buyin"});
+                                    }}>{e.buyIn}회</button>}
                               </div>
 
                               <div className="dailyMoneyCell">{vnd(e.rake)}</div>
                               <div className="dailyMoneyCell strong">{vnd(e.rakeback)}</div>
-
-                              <div className="dailyDeleteCell">
-                                <button
-                                  className="dailyDeleteButton"
-                                  onClick={()=>removePlayerFromSession(e)}
-                                  aria-label={`${getPlayerName(e.playerId)} 기록 삭제`}
-                                  title="기록 삭제"
-                                >×</button>
-                              </div>
                             </div>)}
                           </div>
                         </section>;
@@ -2619,6 +2680,12 @@ export default function Home() {
         </section>}
       </div>
     </section>
+
+    {lastDeletedEntry && <div className="undoToast">
+      <span><strong>{getPlayerName(lastDeletedEntry.playerId)}</strong> 기록을 삭제했습니다.</span>
+      <button onClick={undoLastDeletedEntry}>실행 취소</button>
+      <button className="undoDismiss" onClick={()=>setLastDeletedEntry(null)} aria-label="닫기">×</button>
+    </div>}
 
     {managedEntry && <div className="playerManageOverlay" onClick={()=>{setManageEntryId(null);setManagePlayerSearch("")}}>
       <section className="playerManageModal" onClick={e=>e.stopPropagation()}>
