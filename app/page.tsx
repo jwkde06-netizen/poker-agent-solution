@@ -516,6 +516,15 @@ export default function Home() {
     setEntries(prev=>prev.map(e=>e.id===entry.id?{...e,buyIn:nextBuyIn,rake:nextRake,rakeback:nextRakeback}:e));
   }
 
+  async function removePlayerFromSession(entry:GameEntry){
+    if(!confirm("이 플레이어를 현재 게임에서 삭제할까요?")) return;
+    if(isSupabaseConfigured && supabase && session){
+      const {error}=await supabase.from("game_entries").delete().eq("id",entry.id);
+      if(error){setMessage(error.message);return;}
+    }
+    setEntries(prev=>prev.filter(e=>e.id!==entry.id));
+  }
+
   async function closeGameSession(id:string){
     if(isSupabaseConfigured && supabase && session){
       const {error}=await supabase.from("game_sessions").update({status:"closed",closed_at:new Date().toISOString()}).eq("id",id);
@@ -1122,19 +1131,32 @@ export default function Home() {
                           {[...selectedTableEntries].sort((a,b)=>b.buyIn-a.buyIn).map(entry=>{
                             const player=players.find(p=>p.id===entry.playerId);
                             const perEntryRevenue=revenuePerBuyIn(entry.game);
-                            return <div className="selectedPlayerRow" key={entry.id}>
+                            return <div className="selectedPlayerRow compactPlayerRow" key={entry.id}>
                               <div className="selectedPlayerIdentity">
                                 <strong>{player?.name || "알 수 없음"}</strong>
                                 <span>{player?.koreanName && `${player.koreanName} · `}{entry.agencyCodeSnapshot}</span>
                               </div>
-                              <div className="selectedPlayerBuyin">
-                                <small>BUY-IN</small>
-                                <b>{entry.buyIn}회</b>
-                                <em>매출 {vnd(perEntryRevenue*entry.buyIn)}</em>
-                                <span>레이크백 {vnd(entry.rakeback)}</span>
+
+                              <div className="playerFinancialGrid">
+                                <div>
+                                  <small>바이인</small>
+                                  <b>{entry.buyIn}회</b>
+                                </div>
+                                <div>
+                                  <small>금액</small>
+                                  <b>{vnd(perEntryRevenue*entry.buyIn)}</b>
+                                </div>
+                                <div>
+                                  <small>레이크백</small>
+                                  <b>{vnd(entry.rakeback)}</b>
+                                </div>
                               </div>
-                              <button className="compactMinus" onClick={()=>changeSessionBuyIn(entry,-1)} disabled={entry.buyIn<=1}>−</button>
-                              <button className="quickRebuyButton" onClick={()=>changeSessionBuyIn(entry,1)}>＋1 리바인</button>
+
+                              <div className="playerRowActions">
+                                <button className="compactMinus" onClick={()=>changeSessionBuyIn(entry,-1)} disabled={entry.buyIn<=1}>−</button>
+                                <button className="quickRebuyButton" onClick={()=>changeSessionBuyIn(entry,1)}>＋1</button>
+                                <button className="removePlayerButton" onClick={()=>removePlayerFromSession(entry)}>삭제</button>
+                              </div>
                             </div>
                           })}
                         </div>}
