@@ -40,3 +40,4 @@ deploy minimal session header edit mode
 deploy game input readability cleanup
 deploy url tab persistence
 deploy table picker and keyboard search ux
+deploy game input cleanup delete tables
