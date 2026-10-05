@@ -7175,3 +7175,192 @@ html[data-theme="dark"] .globalSearchResultIcon.tableIcon{
 @media(max-width:820px){
   .globalSearchDropdown{display:none}
 }
+
+
+/* Daily settlement grouped game log */
+.dailyGameGroups{
+  display:grid;
+  gap:14px
+}
+.dailyGameGroupsEmpty{
+  min-height:110px;
+  display:grid;
+  place-items:center;
+  border:1px dashed var(--line-strong);
+  border-radius:14px;
+  color:var(--muted);
+  font-size:12px;
+  background:var(--surface-2)
+}
+.dailyGameGroup{
+  overflow:hidden;
+  border:1px solid var(--line);
+  border-radius:15px;
+  background:var(--surface)
+}
+.dailyGameGroupHeader{
+  min-height:58px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:18px;
+  padding:10px 14px;
+  border-bottom:1px solid var(--line);
+  background:var(--surface-2)
+}
+.dailyGameGroupIdentity{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  min-width:0
+}
+.dailyGameGroupIdentity strong{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:42px;
+  min-height:34px;
+  padding:0 9px;
+  border-radius:10px;
+  background:var(--gold-soft);
+  color:var(--gold-dark);
+  font-size:13px;
+  font-weight:900
+}
+.dailyGameGroupIdentity span{
+  color:var(--muted);
+  font-size:10px;
+  font-weight:750
+}
+.dailyGameGroupIdentity b{
+  color:var(--text);
+  font-size:13px
+}
+.dailyGameGroupSummary{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  white-space:nowrap
+}
+.dailyGameGroupSummary span{
+  color:var(--muted);
+  font-size:10px;
+  font-weight:700
+}
+.dailyGameGroupSummary strong{
+  color:var(--text);
+  font-size:12px
+}
+.dailyGameRows{width:100%}
+.dailyGameRow{
+  display:grid;
+  grid-template-columns:minmax(240px,1.5fr) minmax(90px,.55fr) 150px minmax(110px,.65fr) minmax(110px,.65fr) 42px;
+  align-items:center;
+  gap:10px;
+  min-height:56px;
+  padding:8px 12px;
+  border-bottom:1px solid var(--line)
+}
+.dailyGameRow:last-child{border-bottom:0}
+.dailyGameRowHead{
+  min-height:36px;
+  padding-top:0;
+  padding-bottom:0;
+  background:rgba(0,0,0,.018);
+  color:var(--muted);
+  font-size:9px;
+  font-weight:850;
+  letter-spacing:.05em
+}
+.dailyGamePlayerCell{min-width:0}
+.dailyGamePlayerCell .dailyPlayerSelect{
+  min-width:0;
+  width:100%;
+  height:38px
+}
+.dailyMoneyCell{
+  color:var(--text);
+  font-size:11px;
+  white-space:nowrap
+}
+.dailyDeleteCell{
+  display:flex;
+  justify-content:flex-end
+}
+.dailyDeleteButton{
+  width:32px;
+  height:32px;
+  display:grid;
+  place-items:center;
+  padding:0;
+  border:1px solid transparent;
+  border-radius:9px;
+  background:transparent;
+  color:#b45a5a;
+  font-size:20px;
+  line-height:1;
+  cursor:pointer
+}
+.dailyDeleteButton:hover{
+  transform:none;
+  background:#fff1f1;
+  border-color:#f0cccc;
+  color:#a73737
+}
+
+html[data-theme="dark"] .dailyGameGroup,
+html[data-theme="dark"] .dailyGameGroupsEmpty{
+  background:#18191c;
+  border-color:#2d2f34
+}
+html[data-theme="dark"] .dailyGameGroupHeader{
+  background:#1d1f22;
+  border-color:#2d2f34
+}
+html[data-theme="dark"] .dailyGameRow{
+  border-color:#292b30
+}
+html[data-theme="dark"] .dailyGameRowHead{
+  background:#1a1b1e
+}
+html[data-theme="dark"] .dailyDeleteButton:hover{
+  background:#321b1d;
+  border-color:#5b2e33;
+  color:#e47f87
+}
+
+@media(max-width:900px){
+  .dailyGameGroup{
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch
+  }
+  .dailyGameGroupHeader{
+    position:sticky;
+    left:0;
+    min-width:760px
+  }
+  .dailyGameRows{min-width:760px}
+  .dailyGameRow{
+    grid-template-columns:minmax(210px,1.35fr) 95px 145px 105px 105px 38px;
+    padding-left:10px;
+    padding-right:10px
+  }
+}
+
+@media(max-width:820px){
+  .dailyGameLogHeader{align-items:center}
+  .dailyGameLogHeader h3{font-size:16px}
+  .dailyGameLogHeader p{font-size:10px}
+  .dailyGameGroups{gap:12px}
+  .dailyGameGroup{border-radius:12px}
+  .dailyGameGroupHeader{
+    min-height:54px;
+    padding:9px 10px
+  }
+  .dailyGameGroupIdentity strong{
+    min-width:38px;
+    min-height:32px;
+    font-size:12px
+  }
+  .dailyGameGroupSummary{gap:9px}
+}
