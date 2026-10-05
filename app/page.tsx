@@ -1360,6 +1360,12 @@ export default function Home() {
         </section>}
 
         {tab==="games" && <section className="buyinPage floorBuyinPage">
+          <div className="mobileSectionSwitcher buyinModeSwitcher">
+            <button className={gamesView==="live"?"active":""} onClick={()=>setGamesView("live")}>진행 중</button>
+            <button className={gamesView==="logs"?"active":""} onClick={()=>setGamesView("logs")}>게임 로그</button>
+          </div>
+
+          {gamesView==="live" && <>
           <section className="panel floorSelectorPanel">
             <div className="floorSelectorHeader">
               <div>
@@ -1511,6 +1517,50 @@ export default function Home() {
                   </div>
                 </>}
           </section>
+          </>}
+
+          {gamesView==="logs" && <section className="panel gameLogPanel">
+            <div className="gameLogHeader">
+              <div><h2>게임 로그</h2><p>지금까지 진행한 게임과 바이인 기록입니다.</p></div>
+              <span>{gameSessions.length} GAME</span>
+            </div>
+            <div className="gameLogList">
+              {[...gameSessions].sort((a,b)=>(b.date+a.id).localeCompare(a.date+b.id)).map(gs=>{
+                const logEntries=entries.filter(e=>e.sessionId===gs.id);
+                const buyins=logEntries.reduce((sum,e)=>sum+e.buyIn,0);
+                const revenue=logEntries.reduce((sum,e)=>sum+revenuePerBuyIn(e.game)*e.buyIn,0);
+                const rakeback=logEntries.reduce((sum,e)=>sum+e.rakeback,0);
+                return <details className="gameLogItem" key={gs.id}>
+                  <summary>
+                    <div>
+                      <strong>T{gs.tableNo}</strong>
+                      <span>{gs.gameNo?`No.${gs.gameNo}`:"No.-"} · {gs.game}</span>
+                      <small>{gs.date} · {gs.status==="active"?"진행 중":"종료"}</small>
+                    </div>
+                    <div>
+                      <b>{buyins} BUY-IN</b>
+                      <em>{vnd(revenue)}</em>
+                    </div>
+                  </summary>
+                  <div className="gameLogSummary">
+                    <span>플레이어 {logEntries.length}명</span>
+                    <span>레이크백 {vnd(rakeback)}</span>
+                    <span>매출 {vnd(revenue)}</span>
+                  </div>
+                  <div className="gameLogPlayers">
+                    {logEntries.length===0
+                      ? <div className="gameLogEmpty">바이인 기록이 없습니다.</div>
+                      : logEntries.map(e=><div key={e.id}>
+                          <span><strong>{getPlayerName(e.playerId)}</strong><small>{e.agencyCodeSnapshot}</small></span>
+                          <span>{e.buyIn}회</span>
+                          <b>{vnd(revenuePerBuyIn(e.game)*e.buyIn)}</b>
+                        </div>)}
+                  </div>
+                </details>
+              })}
+              {gameSessions.length===0 && <div className="dashboardEmpty">아직 게임 로그가 없습니다.</div>}
+            </div>
+          </section>}
         </section>}
 
         {tab==="daily" && <section className="compactDailyPage">
