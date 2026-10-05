@@ -149,6 +149,8 @@ export default function Home() {
   const [playerName, setPlayerName] = useState("");
   const [playerKoreanName, setPlayerKoreanName] = useState("");
   const [playerSearch, setPlayerSearch] = useState("");
+  const [globalSearch, setGlobalSearch] = useState("");
+  const [globalSearchOpen, setGlobalSearchOpen] = useState(false);
   const [playerView, setPlayerView] = useState<"list"|"add">("list");
   const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
   const [detailAgencyId, setDetailAgencyId] = useState("");
@@ -175,6 +177,19 @@ export default function Home() {
     const nextTheme = saved === "dark" ? "dark" : "light";
     setTheme(nextTheme);
     document.documentElement.dataset.theme = nextTheme;
+  }, []);
+
+  useEffect(() => {
+    const onShortcut=(e:KeyboardEvent)=>{
+      if((e.metaKey||e.ctrlKey) && e.key.toLowerCase()==="k"){
+        e.preventDefault();
+        const input=document.querySelector(".globalSearchInput") as HTMLInputElement | null;
+        input?.focus();
+        setGlobalSearchOpen(true);
+      }
+    };
+    window.addEventListener("keydown",onShortcut);
+    return ()=>window.removeEventListener("keydown",onShortcut);
   }, []);
 
   function applyTheme(nextTheme: "light"|"dark") {
@@ -824,6 +839,74 @@ export default function Home() {
   const recentEntries = [...entries].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,6);
   const activeGameSessions = gameSessions.filter(s=>s.status==="active" && s.date===today());
   const selectedGameSession = activeGameSessions.find(s=>s.tableNo===selectedTableNo) ?? null;
+
+  const globalFeatureItems = [
+    {key:"dashboard",label:"대시보드",description:"오늘 운영 현황",keywords:"대시보드 홈 현황"},
+    {key:"players",label:"플레이어 관리",description:"플레이어 검색 · 등록 · 정보 확인",keywords:"플레이어 선수 회원 명단 등록"},
+    {key:"agencies",label:"에이전트 관리",description:"에이전트 코드와 정산 요율",keywords:"에이전트 코드 요율"},
+    {key:"games",label:"게임 입력",description:"테이블 현황 · 바이인 입력",keywords:"게임 바이인 테이블 현황 좌석"},
+    {key:"daily",label:"일일 정산",description:"오늘 정산 · 지난 게임 로그 수정",keywords:"일일 정산 로그 수정 매출 수익"},
+    {key:"weekly",label:"주간 정산",description:"주간 정산 내역",keywords:"주간 정산"},
+    {key:"fnb",label:"F&B",description:"F&B 비용 입력 · 내역",keywords:"f&b fnb 음식 음료 비용"},
+    {key:"reports",label:"리포트",description:"정산 리포트 · 내보내기",keywords:"리포트 보고서 csv png"},
+    {key:"settings",label:"설정",description:"계정 · 시스템 설정",keywords:"설정 계정 다크모드"}
+  ] as const;
+
+  const globalSearchResults = useMemo(()=>{
+    const q=globalSearch.trim().toLowerCase();
+    if(!q)return {players:[] as Player[],features:[] as typeof globalFeatureItems,tables:[] as GameSession[],agencies:[] as Agency[]};
+
+    const playerResults=players.filter(p=>[
+      p.name,p.koreanName,p.cardNo,agencies.find(a=>a.id===p.agencyId)?.code ?? ""
+    ].join(" ").toLowerCase().includes(q)).slice(0,6);
+
+    const featureResults=globalFeatureItems.filter(item=>
+      (item.label+" "+item.description+" "+item.keywords).toLowerCase().includes(q)
+    ).slice(0,5);
+
+    const tableResults=activeGameSessions.filter(gs=>{
+      const tableEntries=entries.filter(e=>e.sessionId===gs.id);
+      const playerNames=tableEntries.map(e=>{
+        const p=players.find(x=>x.id===e.playerId);
+        return [p?.name,p?.koreanName].filter(Boolean).join(" ");
+      }).join(" ");
+      return ("t"+gs.tableNo+" "+gs.tableNo+" "+gs.game+" "+gs.gameNo+" "+playerNames).toLowerCase().includes(q);
+    }).slice(0,5);
+
+    const agencyResults=agencies.filter(a=>
+      (a.code+" "+a.rate).toLowerCase().includes(q)
+    ).slice(0,4);
+
+    return {players:playerResults,features:featureResults,tables:tableResults,agencies:agencyResults};
+  },[globalSearch,players,agencies,activeGameSessions,entries]);
+
+  const hasGlobalSearchResults =
+    globalSearchResults.players.length+
+    globalSearchResults.features.length+
+    globalSearchResults.tables.length+
+    globalSearchResults.agencies.length>0;
+
+  function closeGlobalSearch(){
+    setGlobalSearch("");
+    setGlobalSearchOpen(false);
+  }
+
+  function goToPlayerFromSearch(playerId:string){
+    setTab("players");
+    openPlayerDetail(playerId);
+    closeGlobalSearch();
+  }
+
+  function goToFeatureFromSearch(key:string){
+    setTab(key as any);
+    closeGlobalSearch();
+  }
+
+  function goToTableFromSearch(tableNo:string){
+    setSelectedTableNo(tableNo);
+    setTab("games");
+    closeGlobalSearch();
+  }
   const selectedTableEntries = selectedGameSession ? entries.filter(e=>e.sessionId===selectedGameSession.id) : [];
   const selectedTableBuyIns = selectedTableEntries.reduce((sum,e)=>sum+e.buyIn,0);
   const selectedTableRevenue = selectedGameSession ? selectedTableBuyIns*revenuePerBuyIn(selectedGameSession.game) : 0;
@@ -945,7 +1028,75 @@ export default function Home() {
         >
           <span></span><span></span><span></span>
         </button>
-        <div className="searchBox">⌕ <input placeholder="에이전트 코드, 플레이어명, 이메일을 검색하세요..."/><kbd>⌘ K</kbd></div>
+        <div className="searchBox globalSearchBox">
+          <span className="globalSearchIcon">⌕</span>
+          <input
+            className="globalSearchInput"
+            value={globalSearch}
+            onChange={e=>{setGlobalSearch(e.target.value);setGlobalSearchOpen(true);}}
+            onFocus={()=>setGlobalSearchOpen(true)}
+            onBlur={()=>window.setTimeout(()=>setGlobalSearchOpen(false),160)}
+            onKeyDown={e=>{if(e.key==="Escape"){closeGlobalSearch();(e.currentTarget as HTMLInputElement).blur();}}}
+            placeholder="플레이어, 기능, 테이블 검색..."
+          />
+          {globalSearch?<button className="globalSearchClear" onMouseDown={e=>e.preventDefault()} onClick={closeGlobalSearch}>×</button>:<kbd>⌘ K</kbd>}
+
+          {globalSearchOpen && globalSearch.trim() && <div className="globalSearchDropdown" onMouseDown={e=>e.preventDefault()}>
+            {!hasGlobalSearchResults && <div className="globalSearchEmpty">검색 결과가 없습니다.</div>}
+
+            {globalSearchResults.players.length>0 && <div className="globalSearchGroup">
+              <span className="globalSearchGroupTitle">플레이어</span>
+              {globalSearchResults.players.map(p=><button key={p.id} onClick={()=>goToPlayerFromSearch(p.id)}>
+                <span className="globalSearchResultIcon">♟</span>
+                <span className="globalSearchResultText">
+                  <strong>{p.name}{p.koreanName&&<em>{p.koreanName}</em>}</strong>
+                  <small>{p.cardNo||"회원번호 없음"} · {agencies.find(a=>a.id===p.agencyId)?.code||"에이전트 없음"}</small>
+                </span>
+                <span className="globalSearchArrow">›</span>
+              </button>)}
+            </div>}
+
+            {globalSearchResults.tables.length>0 && <div className="globalSearchGroup">
+              <span className="globalSearchGroupTitle">현재 테이블</span>
+              {globalSearchResults.tables.map(gs=>{
+                const tableEntries=entries.filter(e=>e.sessionId===gs.id);
+                const buyIns=tableEntries.reduce((sum,e)=>sum+e.buyIn,0);
+                return <button key={gs.id} onClick={()=>goToTableFromSearch(gs.tableNo)}>
+                  <span className="globalSearchResultIcon tableIcon">T{gs.tableNo}</span>
+                  <span className="globalSearchResultText">
+                    <strong>{gs.game} <em>LIVE</em></strong>
+                    <small>{tableEntries.length}명 · 바이인 {buyIns}회{gs.gameNo?" · No."+gs.gameNo:""}</small>
+                  </span>
+                  <span className="globalSearchArrow">›</span>
+                </button>;
+              })}
+            </div>}
+
+            {globalSearchResults.features.length>0 && <div className="globalSearchGroup">
+              <span className="globalSearchGroupTitle">기능</span>
+              {globalSearchResults.features.map(item=><button key={item.key} onClick={()=>goToFeatureFromSearch(item.key)}>
+                <span className="globalSearchResultIcon">↗</span>
+                <span className="globalSearchResultText">
+                  <strong>{item.label}</strong>
+                  <small>{item.description}</small>
+                </span>
+                <span className="globalSearchArrow">›</span>
+              </button>)}
+            </div>}
+
+            {globalSearchResults.agencies.length>0 && <div className="globalSearchGroup">
+              <span className="globalSearchGroupTitle">에이전트</span>
+              {globalSearchResults.agencies.map(a=><button key={a.id} onClick={()=>goToFeatureFromSearch("agencies")}>
+                <span className="globalSearchResultIcon">♙</span>
+                <span className="globalSearchResultText">
+                  <strong>{a.code}</strong>
+                  <small>정산 요율 {a.rate}% · 에이전트 관리로 이동</small>
+                </span>
+                <span className="globalSearchArrow">›</span>
+              </button>)}
+            </div>}
+          </div>}
+        </div>
         <div className="accountArea accountMenuArea">
           <button
             className="accountMenuTrigger"
