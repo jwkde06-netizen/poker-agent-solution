@@ -118,6 +118,7 @@ export default function Home() {
   const [entries, setEntries] = useState<GameEntry[]>([]);
   const [gameSessions, setGameSessions] = useState<GameSession[]>([]);
   const [newTableNo, setNewTableNo] = useState("");
+  const [selectedTableNo, setSelectedTableNo] = useState("5");
   const [newSessionGame, setNewSessionGame] = useState("5M");
   const [sessionSearch, setSessionSearch] = useState<Record<string,string>>({});
   const [fnbEntries, setFnbEntries] = useState<FnbEntry[]>([]);
@@ -437,7 +438,7 @@ export default function Home() {
   }
 
   async function startGameSession(){
-    const tableNo=newTableNo.trim();
+    const tableNo=(selectedTableNo || newTableNo).trim();
     if(!tableNo){setMessage("테이블 번호를 입력해주세요.");return;}
     if(gameSessions.some(s=>s.status==="active" && s.tableNo===tableNo)){
       setMessage("이미 진행 중인 테이블 번호입니다.");
@@ -452,6 +453,7 @@ export default function Home() {
     }else{
       setGameSessions(prev=>[...prev,{id:uid("session"),date:today(),tableNo,game:newSessionGame,status:"active"}]);
     }
+    setSelectedTableNo(tableNo);
     setNewTableNo("");
     setMessage(`T${tableNo} · ${newSessionGame} 게임 시작`);
   }
@@ -616,6 +618,19 @@ export default function Home() {
   const weekSettlement = total(thisWeekEntries,"rakeback");
   const recentEntries = [...entries].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,6);
   const activeGameSessions = gameSessions.filter(s=>s.status==="active" && s.date===today());
+  const selectedGameSession = activeGameSessions.find(s=>s.tableNo===selectedTableNo) ?? null;
+  const selectedTableEntries = selectedGameSession ? entries.filter(e=>e.sessionId===selectedGameSession.id) : [];
+  const selectedTableBuyIns = selectedTableEntries.reduce((sum,e)=>sum+e.buyIn,0);
+  const selectedTableRevenue = selectedGameSession ? selectedTableBuyIns*revenuePerBuyIn(selectedGameSession.game) : 0;
+  const selectedTableSearch = selectedGameSession ? (sessionSearch[selectedGameSession.id]||"") : "";
+  const selectedTableQuery = selectedTableSearch.trim().toUpperCase();
+  const selectedTableMatches = selectedGameSession && selectedTableQuery
+    ? players.filter(p=>
+        p.name.toUpperCase().includes(selectedTableQuery) ||
+        p.koreanName.includes(selectedTableSearch) ||
+        p.cardNo.toUpperCase().includes(selectedTableQuery)
+      ).slice(0,8)
+    : [];
   const selectedFnbMenu = FNB_MENU.find(item=>item.name===fnbMenuName) ?? FNB_MENU[0];
   const fnbDayEntries = fnbEntries.filter(item=>item.date===fnbDate);
   const fnbDayTotal = fnbDayEntries.reduce((sum,item)=>sum+item.totalAmount,0);
@@ -1002,143 +1017,159 @@ export default function Home() {
           </div>}
         </section>}
 
-        {tab==="games" && <section className="buyinPage">
-          <section className="panel newTablePanel">
-            <div className="newTableHeading">
+        {tab==="games" && <section className="buyinPage floorBuyinPage">
+          <section className="panel floorSelectorPanel">
+            <div className="floorSelectorHeader">
               <div>
-                <h2>진행 중인 테이블</h2>
-                <p>새 게임을 열고 플레이어 바이인·리바인을 실시간으로 입력합니다.</p>
+                <h2>테이블 선택</h2>
+                <p>매장 위치와 같은 배치에서 테이블을 선택하세요.</p>
               </div>
               <span className="liveTableCount">{activeGameSessions.length} TABLE LIVE</span>
             </div>
 
-            <div className="newTableForm">
-              <label>
-                <span>테이블 번호</span>
-                <input inputMode="numeric" value={newTableNo} onChange={e=>setNewTableNo(e.target.value)} placeholder="예: 12"/>
-              </label>
-              <label>
-                <span>게임</span>
-                <select value={newSessionGame} onChange={e=>setNewSessionGame(e.target.value)}>
-                  <option value="3M">3M</option>
-                  <option value="5M">5M</option>
-                  <option value="10M">10M</option>
-                  <option value="15M">15M</option>
-                </select>
-              </label>
-              <button className="primary startTableButton" onClick={startGameSession}>＋ 새 테이블 시작</button>
+            <div className="pokerFloorMap">
+              <div className="finalTableLandmark">
+                <span>FINAL</span>
+                <small>기준점</small>
+              </div>
+
+              <button
+                className={`floorTableButton table4 ${selectedTableNo==="4"?"selected":""} ${activeGameSessions.some(s=>s.tableNo==="4")?"live":""}`}
+                onClick={()=>setSelectedTableNo("4")}
+              >
+                <strong>T4</strong>
+                {activeGameSessions.some(s=>s.tableNo==="4") && <small>LIVE</small>}
+              </button>
+
+              {["12","13","5","2"].map(no=>{
+                const liveSession=activeGameSessions.find(s=>s.tableNo===no);
+                const liveEntries=liveSession ? entries.filter(e=>e.sessionId===liveSession.id) : [];
+                return <button
+                  key={no}
+                  className={`floorTableButton table${no} ${selectedTableNo===no?"selected":""} ${liveSession?"live":""}`}
+                  onClick={()=>setSelectedTableNo(no)}
+                >
+                  <strong>T{no}</strong>
+                  <small>{liveSession?`${liveEntries.length}명 · LIVE`:"대기"}</small>
+                </button>
+              })}
+            </div>
+
+            <div className="otherTablePicker">
+              <span>기타 테이블</span>
+              <input
+                inputMode="numeric"
+                value={newTableNo}
+                onChange={e=>setNewTableNo(e.target.value.replace(/\D/g,""))}
+                placeholder="번호"
+              />
+              <button onClick={()=>{if(newTableNo.trim())setSelectedTableNo(newTableNo.trim())}}>선택</button>
             </div>
           </section>
 
-          {activeGameSessions.length>0 && <div className="liveTableOverview">
-            {activeGameSessions.map(gs=>{
-              const tableEntries=entries.filter(e=>e.sessionId===gs.id);
-              const totalBuyIns=tableEntries.reduce((sum,e)=>sum+e.buyIn,0);
-              const tableRevenue=totalBuyIns*revenuePerBuyIn(gs.game);
-              return <button
-                key={gs.id}
-                className="liveTableOverviewItem"
-                onClick={()=>{
-                  const el=document.getElementById(`table-${gs.id}`);
-                  el?.scrollIntoView({behavior:"smooth",block:"start"});
-                }}
-              >
-                <strong>T{gs.tableNo}</strong>
-                <span>{gs.game}</span>
-                <small>{tableEntries.length}명 · {totalBuyIns}바인</small>
-                <b>{vnd(tableRevenue)}</b>
-              </button>
-            })}
-          </div>}
+          <section className="panel selectedTablePanel">
+            <div className="selectedTableTop">
+              <div>
+                <span>선택 테이블</span>
+                <strong>T{selectedTableNo || "-"}</strong>
+              </div>
 
-          {activeGameSessions.length===0
-            ? <section className="panel buyinEmptyState">
-                <strong>현재 진행 중인 테이블이 없습니다.</strong>
-                <span>위에서 테이블 번호와 게임을 선택해 새 게임을 시작하세요.</span>
-              </section>
-            : <div className="liveTablesGrid">
-                {activeGameSessions.map(gs=>{
-                  const tableEntries=entries.filter(e=>e.sessionId===gs.id);
-                  const totalBuyIns=tableEntries.reduce((sum,e)=>sum+e.buyIn,0);
-                  const tableRevenue=totalBuyIns*revenuePerBuyIn(gs.game);
-                  const query=(sessionSearch[gs.id]||"").trim().toUpperCase();
-                  const matches=query
-                    ? players.filter(p=>
-                        p.name.toUpperCase().includes(query) ||
-                        p.koreanName.includes(sessionSearch[gs.id]||"") ||
-                        p.cardNo.toUpperCase().includes(query)
-                      ).slice(0,6)
-                    : [];
-                  return <section className="panel liveTableCard" id={`table-${gs.id}`} key={gs.id}>
-                    <div className="liveTableHeader">
+              {!selectedGameSession
+                ? <div className="selectedGameStart">
+                    <label>
+                      <span>게임</span>
+                      <select value={newSessionGame} onChange={e=>setNewSessionGame(e.target.value)}>
+                        <option value="3M">3M</option>
+                        <option value="5M">5M</option>
+                        <option value="10M">10M</option>
+                        <option value="15M">15M</option>
+                      </select>
+                    </label>
+                    <button className="primary startTableButton" onClick={startGameSession}>게임 시작</button>
+                  </div>
+                : <button className="closeTableButton selectedCloseButton" onClick={()=>closeGameSession(selectedGameSession.id)}>경기 종료</button>}
+            </div>
+
+            {selectedGameSession && <div className="selectedTableStats">
+              <div><span>게임</span><b>{selectedGameSession.game}</b></div>
+              <div><span>플레이어</span><b>{selectedTableEntries.length}명</b></div>
+              <div><span>총 바이인</span><b>{selectedTableBuyIns}회</b></div>
+              <div><span>현재 매출</span><b>{vnd(selectedTableRevenue)}</b></div>
+            </div>}
+
+            {!selectedGameSession
+              ? <div className="selectedTableEmpty">
+                  <div className="emptyPlayersIcon">♙</div>
+                  <strong>T{selectedTableNo}에서 진행 중인 게임이 없습니다.</strong>
+                  <span>게임 종류를 선택하고 게임 시작을 눌러주세요.</span>
+                </div>
+              : <>
+                  <div className="selectedPlayerSection">
+                    <div className="selectedPlayerSectionTitle">
                       <div>
-                        <div className="liveTableTitle"><span className="liveDot"/>T{gs.tableNo} <em>{gs.game}</em></div>
-                        <small>매출 {money.format(revenuePerBuyIn(gs.game))} ₫ / 1 BUY-IN</small>
+                        <strong>플레이어</strong>
+                        <span>{selectedTableEntries.length}명</span>
                       </div>
-                      <button className="closeTableButton" onClick={()=>closeGameSession(gs.id)}>경기 종료</button>
+                      <b>{selectedTableBuyIns} BUY-IN · {vnd(selectedTableRevenue)}</b>
                     </div>
 
-                    <div className="tableLiveStats">
-                      <div><span>플레이어</span><b>{tableEntries.length}명</b></div>
-                      <div><span>총 바이인</span><b>{totalBuyIns}회</b></div>
-                      <div><span>현재 매출</span><b>{vnd(tableRevenue)}</b></div>
-                    </div>
-
-                    <div className="livePlayerList">
-                      {tableEntries.length>0 && <div className="livePlayerColumns">
-                        <span>플레이어</span><span>최초</span><span>리바인</span><span>추가</span>
-                      </div>}
-                      {tableEntries.length===0
-                        ? <div className="emptyTablePlayers">플레이어를 추가해주세요.</div>
-                        : [...tableEntries].sort((a,b)=>b.buyIn-a.buyIn).map(entry=>{
+                    {selectedTableEntries.length===0
+                      ? <div className="selectedTableEmpty playerEmpty">
+                          <div className="emptyPlayersIcon">♙</div>
+                          <strong>등록된 플레이어가 없습니다.</strong>
+                          <span>아래 검색창에서 첫 플레이어를 추가하세요.</span>
+                        </div>
+                      : <div className="selectedPlayerList">
+                          {[...selectedTableEntries].sort((a,b)=>b.buyIn-a.buyIn).map(entry=>{
                             const player=players.find(p=>p.id===entry.playerId);
                             const perEntryRevenue=revenuePerBuyIn(entry.game);
-                            const rebuyCount=Math.max(0,entry.buyIn-1);
-                            return <div className="livePlayerRow" key={entry.id}>
-                              <div className="livePlayerInfo">
+                            return <div className="selectedPlayerRow" key={entry.id}>
+                              <div className="selectedPlayerIdentity">
                                 <strong>{player?.name || "알 수 없음"}</strong>
-                                <span>{entry.agencyCodeSnapshot}</span>
+                                <span>{player?.koreanName && `${player.koreanName} · `}{entry.agencyCodeSnapshot}</span>
                               </div>
-                              <div className="buyinMoneyCell">
-                                <small>1회</small>
-                                <b>{money.format(perEntryRevenue)}</b>
+                              <div className="selectedPlayerBuyin">
+                                <small>BUY-IN</small>
+                                <b>{entry.buyIn}회</b>
+                                <em>{vnd(perEntryRevenue*entry.buyIn)}</em>
                               </div>
-                              <div className="buyinMoneyCell rebuyCell">
-                                <small>{rebuyCount>0?`${rebuyCount}회`:"-"}</small>
-                                <b>{rebuyCount>0?money.format(perEntryRevenue*rebuyCount):"-"}</b>
-                              </div>
-                              <div className="buyinQuickActions">
-                                <button className="minusBuyinButton" onClick={()=>changeSessionBuyIn(entry,-1)} disabled={entry.buyIn<=1}>−</button>
-                                <button className="addBuyinButton" onClick={()=>changeSessionBuyIn(entry,1)}>＋1</button>
-                              </div>
+                              <button className="compactMinus" onClick={()=>changeSessionBuyIn(entry,-1)} disabled={entry.buyIn<=1}>−</button>
+                              <button className="quickRebuyButton" onClick={()=>changeSessionBuyIn(entry,1)}>＋1 리바인</button>
                             </div>
                           })}
-                    </div>
+                        </div>}
 
-                    <div className="tablePlayerSearch">
-                      <div className="tableSearchInput">
+                    <div className="selectedPlayerSearch">
+                      <div className="selectedSearchLabel">
+                        <strong>플레이어 추가</strong>
+                        <small>선택하면 최초 바이인 1회가 자동 입력됩니다.</small>
+                      </div>
+                      <div className="tableSearchInput selectedSearchInput">
                         <span>⌕</span>
                         <input
-                          value={sessionSearch[gs.id]||""}
-                          onChange={e=>setSessionSearch(prev=>({...prev,[gs.id]:e.target.value}))}
-                          placeholder="이름 · 한글명 · 회원번호로 플레이어 추가"
+                          value={selectedTableSearch}
+                          onChange={e=>setSessionSearch(prev=>({...prev,[selectedGameSession.id]:e.target.value}))}
+                          placeholder="이름 · 한글명 · 회원번호 검색"
                         />
                       </div>
-                      {matches.length>0 && <div className="tableSearchResults">
-                        {matches.map(p=>{
-                          const already=tableEntries.find(e=>e.playerId===p.id);
+                      {selectedTableMatches.length>0 && <div className="selectedSearchResults">
+                        {selectedTableMatches.map(p=>{
+                          const already=selectedTableEntries.find(e=>e.playerId===p.id);
                           const agency=agencies.find(a=>a.id===p.agencyId);
-                          return <button key={p.id} onClick={()=>addPlayerToSession(gs,p.id)}>
-                            <span><strong>{p.name}</strong><small>{p.koreanName || p.cardNo || "회원번호 없음"}</small></span>
+                          return <button key={p.id} onClick={()=>addPlayerToSession(selectedGameSession,p.id)}>
+                            <span>
+                              <strong>{p.name}</strong>
+                              <small>{p.koreanName || p.cardNo || "회원번호 없음"}</small>
+                            </span>
                             <em>{agency?.code || "-"}</em>
-                            <b>{already?"+1 바이인":"추가"}</b>
+                            <b>{already?"+1 리바인":"추가"}</b>
                           </button>
                         })}
                       </div>}
                     </div>
-                  </section>
-                })}
-              </div>}
+                  </div>
+                </>}
+          </section>
         </section>}
 
         {tab==="daily" && <section className="compactDailyPage">
