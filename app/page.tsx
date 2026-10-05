@@ -144,6 +144,7 @@ export default function Home() {
 
   const [newAgencyCode, setNewAgencyCode] = useState("");
   const [newAgencyRate, setNewAgencyRate] = useState("25");
+  const [editingAgencyId, setEditingAgencyId] = useState<string | null>(null);
   const [playerName, setPlayerName] = useState("");
   const [playerKoreanName, setPlayerKoreanName] = useState("");
   const [playerSearch, setPlayerSearch] = useState("");
@@ -971,20 +972,78 @@ export default function Home() {
           </section>
         </>}
 
-        {tab==="agencies" && <section className="panel">
+        {tab==="agencies" && <section className="panel agencyManagePanel">
           <div className="mobileSectionSwitcher playerAccessSwitcher">
             <button onClick={()=>setTab("players")}>플레이어 명단</button>
             <button className="active">에이전트 코드</button>
           </div>
-          <div className="sectionTitle"><div><h2>에이전트 코드 관리</h2><p>코드명과 정산 요율은 언제든 변경할 수 있습니다.</p></div></div>
-          <div className="inlineForm">
-            <input placeholder="새 코드명" value={newAgencyCode} onChange={e=>setNewAgencyCode(e.target.value)}/>
-            <input type="number" min="0" max="100" value={newAgencyRate} onChange={e=>setNewAgencyRate(e.target.value)}/>
-            <span className="suffix">%</span><button className="primary" onClick={addAgency}>+ 코드 추가</button>
+
+          <div className="agencyManageHeader">
+            <div>
+              <h2>에이전트 코드</h2>
+              <p>코드를 탭하면 이름과 정산 요율을 수정할 수 있습니다.</p>
+            </div>
           </div>
-          <div className="tableWrap"><table><thead><tr><th>내부 식별값</th><th>코드명</th><th>정산 요율</th><th>상태</th></tr></thead>
-          <tbody>{agencies.map(a=><tr key={a.id}><td className="muted mono">{a.id}</td><td><input className="cellInput" value={a.code} onChange={e=>updateAgency(a.id,{code:e.target.value.toUpperCase()})}/></td><td><div className="rateCell"><input className="cellInput rate" type="number" min="0" max="100" value={a.rate} onChange={e=>updateAgency(a.id,{rate:Number(e.target.value)})}/><span>%</span></div></td><td><button className={a.active?"pill on":"pill"} onClick={()=>updateAgency(a.id,{active:!a.active})}>{a.active?"사용 중":"사용 중지"}</button></td></tr>)}</tbody></table></div>
-          <div className="note">코드명을 바꿔도 내부 식별값은 유지되며, 과거 정산은 입력 당시 요율로 보존됩니다.</div>
+
+          <div className="agencyAddRow">
+            <input
+              placeholder="새 코드명"
+              value={newAgencyCode}
+              onChange={e=>setNewAgencyCode(e.target.value.toUpperCase())}
+            />
+            <select value={newAgencyRate} onChange={e=>setNewAgencyRate(e.target.value)}>
+              {Array.from({length:21},(_,i)=>i*5).map(rate=><option key={rate} value={rate}>{rate}%</option>)}
+            </select>
+            <button className="primary" onClick={addAgency}>＋ 추가</button>
+          </div>
+
+          <div className="agencySimpleList">
+            {agencies.map(a=><button key={a.id} className="agencySimpleRow" onClick={()=>setEditingAgencyId(a.id)}>
+              <div>
+                <strong>{a.code}</strong>
+                <small>{a.active?"사용 중":"사용 중지"}</small>
+              </div>
+              <div className="agencyRateDisplay">
+                <b>{a.rate}%</b>
+                <span>›</span>
+              </div>
+            </button>)}
+          </div>
+
+          {editingAgencyId && (()=> {
+            const agency=agencies.find(a=>a.id===editingAgencyId);
+            if(!agency)return null;
+            return <div className="agencyEditBackdrop" onClick={()=>setEditingAgencyId(null)}>
+              <section className="agencyEditModal" onClick={e=>e.stopPropagation()}>
+                <div className="agencyEditHeader">
+                  <div><span>에이전트 수정</span><strong>{agency.code}</strong></div>
+                  <button onClick={()=>setEditingAgencyId(null)}>×</button>
+                </div>
+
+                <label>
+                  <span>에이전트 코드</span>
+                  <input value={agency.code} onChange={e=>updateAgency(agency.id,{code:e.target.value.toUpperCase()})}/>
+                </label>
+
+                <label>
+                  <span>정산 요율</span>
+                  <select value={agency.rate} onChange={e=>updateAgency(agency.id,{rate:Number(e.target.value)})}>
+                    {Array.from({length:21},(_,i)=>i*5).map(rate=><option key={rate} value={rate}>{rate}%</option>)}
+                  </select>
+                </label>
+
+                <button
+                  className={`agencyStatusToggle ${agency.active?"active":""}`}
+                  onClick={()=>updateAgency(agency.id,{active:!agency.active})}
+                >
+                  <span>{agency.active?"●":"○"}</span>
+                  {agency.active?"사용 중":"사용 중지"}
+                </button>
+
+                <button className="primary agencyEditDone" onClick={()=>setEditingAgencyId(null)}>완료</button>
+              </section>
+            </div>
+          })()}
         </section>}
 
         {tab==="players" && <section className="panel">
