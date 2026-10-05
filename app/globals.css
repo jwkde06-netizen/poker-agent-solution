@@ -11611,3 +11611,175 @@ html[data-theme="dark"] .dailyDownloadDropdown button:hover{
     width:205px
   }
 }
+
+
+/* Daily settlement V5 — calm read mode + click-to-edit */
+.dailyGameRow,
+.dailyGameRowHead{
+  grid-template-columns:minmax(260px,1.55fr) minmax(110px,.55fr) 110px minmax(120px,.7fr) minmax(120px,.7fr)!important
+}
+.cleanDailyRow{
+  min-height:58px!important;
+  padding:6px 12px!important
+}
+.dailyInlineValue{
+  width:100%;
+  min-width:0;
+  min-height:36px;
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  gap:8px;
+  padding:0;
+  border:0;
+  background:transparent;
+  color:var(--text);
+  font-size:13px;
+  font-weight:650;
+  text-align:left;
+  cursor:pointer
+}
+.dailyInlineValue:hover{
+  transform:none;
+  color:#8b6417
+}
+.dailyInlineValue.playerValue{
+  justify-content:space-between
+}
+.dailyInlineValue.playerValue strong{
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font-size:14px;
+  font-weight:650
+}
+.dailyInlineValue.playerValue span{
+  opacity:0;
+  color:var(--muted);
+  font-size:10px;
+  white-space:nowrap;
+  transition:opacity .14s ease
+}
+.dailyInlineValue.playerValue:hover span{
+  opacity:1
+}
+.dailyInlineValue.buyinValue{
+  justify-content:center;
+  font-size:14px;
+  font-weight:700
+}
+.dailyInlineSelect,
+.dailyInlineBuyIn{
+  width:100%;
+  height:36px;
+  border:1px solid #d6b66c;
+  border-radius:8px;
+  background:var(--surface);
+  color:var(--text);
+  outline:none;
+  font-size:13px;
+  font-weight:700;
+  box-shadow:0 0 0 3px rgba(199,155,67,.08)
+}
+.dailyInlineSelect{
+  padding:0 28px 0 8px
+}
+.dailyInlineBuyIn{
+  max-width:78px;
+  margin:0 auto;
+  padding:0 8px;
+  text-align:center
+}
+.dailyMoneyCell{
+  font-size:13px!important;
+  font-weight:600!important
+}
+.dailyMoneyCell.strong{
+  font-weight:700!important
+}
+
+/* No destructive control in the row itself */
+.cleanDailyRow .dailyDeleteCell,
+.cleanDailyRow .dailyDeleteButton{
+  display:none!important
+}
+
+/* Undo bar after delete */
+.undoToast{
+  position:fixed;
+  left:50%;
+  bottom:28px;
+  z-index:140;
+  transform:translateX(-50%);
+  min-width:340px;
+  max-width:min(560px,calc(100vw - 32px));
+  min-height:52px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:10px 12px 10px 16px;
+  border:1px solid var(--line-strong);
+  border-radius:12px;
+  background:var(--surface);
+  color:var(--text);
+  box-shadow:0 16px 45px rgba(20,24,28,.18)
+}
+.undoToast>span{
+  min-width:0;
+  flex:1;
+  font-size:12px;
+  color:var(--muted)
+}
+.undoToast>span strong{
+  color:var(--text);
+  font-weight:700
+}
+.undoToast>button{
+  height:32px;
+  padding:0 11px;
+  border:1px solid #c89a3f;
+  border-radius:8px;
+  background:#fff7e7;
+  color:#8a6212;
+  font-size:11px;
+  font-weight:800;
+  cursor:pointer
+}
+.undoToast .undoDismiss{
+  width:30px;
+  padding:0;
+  border-color:transparent;
+  background:transparent;
+  color:var(--muted);
+  font-size:18px
+}
+
+html[data-theme="dark"] .dailyInlineSelect,
+html[data-theme="dark"] .dailyInlineBuyIn{
+  background:#202126;
+  border-color:#6d5930;
+  color:#f1f2f3
+}
+html[data-theme="dark"] .undoToast{
+  background:#1a1b1e;
+  border-color:#34363b;
+  box-shadow:0 16px 45px rgba(0,0,0,.42)
+}
+html[data-theme="dark"] .undoToast>button{
+  background:#2b2212;
+  color:#e3b85d
+}
+
+@media(max-width:900px){
+  .dailyGameRow,
+  .dailyGameRowHead{
+    grid-template-columns:minmax(220px,1.5fr) 100px 90px 120px 120px!important
+  }
+}
+@media(max-width:820px){
+  .undoToast{
+    bottom:82px;
+    min-width:0;
+    width:calc(100vw - 24px)
+  }
+}
