@@ -12855,3 +12855,41 @@ html[data-theme="dark"] .weeklyQuickWeeks button.active{
     min-width:176px!important
   }
 }
+
+
+/* Weekly navigation: no future week beyond current week */
+.weeklyPeriodControl.compact>button:disabled{
+  opacity:.35!important;
+  cursor:not-allowed!important;
+  transform:none!important
+}
+
+/* Desktop F&B page: use the same quick expense workflow as mobile */
+@media(min-width:821px){
+  .fnbPage{
+    display:grid;
+    grid-template-columns:minmax(0,1.35fr) minmax(320px,.65fr);
+    gap:14px;
+    align-items:start
+  }
+  .fnbSummary{
+    grid-column:1/-1
+  }
+  .fnbEntryPanel{
+    grid-column:1
+  }
+  .fnbHistoryPanel{
+    grid-column:2;
+    position:sticky;
+    top:86px
+  }
+  .fnbQuickMenu{
+    grid-template-columns:repeat(4,minmax(0,1fr))!important
+  }
+  .fnbFormGrid{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important
+  }
+  .fnbSaveBar{
+    align-items:center!important
+  }
+}
