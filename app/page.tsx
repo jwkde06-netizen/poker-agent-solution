@@ -1363,7 +1363,7 @@ export default function Home() {
     <aside className="sidebar">
       <div className="brand">
         <img className="brandLogo" src="/dream-poker-logo.svg" alt="Dream Poker Da Nang"/>
-        <div><strong>Dream Poker Panel</strong><span>{profile?.role==="admin"?"관리자":profile?.role==="staff"?"직원":profile?.role==="agent"?"에이전트":"승인 대기"}</span></div>
+        <div><strong>Dream Poker</strong><span>{profile?.role==="admin"?"관리자":profile?.role==="staff"?"직원":profile?.role==="agent"?"에이전트":"승인 대기"}</span></div>
       </div>
 
       <nav className="sideNav">
@@ -1382,7 +1382,7 @@ export default function Home() {
       <header className="workspaceTopbar">
         <div className="mobileTopTitle">
           <img src="/dream-poker-logo.svg" alt=""/>
-          <span className="mobileProductTitle"><strong>Dream Poker Panel <em>· {profile?.role==="admin"?"관리자":profile?.role==="staff"?"직원":profile?.role==="agent"?"에이전트":"승인 대기"}</em></strong></span>
+          <span className="mobileProductTitle"><strong>Dream Poker <em>· {profile?.role==="admin"?"관리자":profile?.role==="staff"?"직원":profile?.role==="agent"?"에이전트":"승인 대기"}</em></strong></span>
         </div>
         <button
           className="mobileSideMenuButton"
