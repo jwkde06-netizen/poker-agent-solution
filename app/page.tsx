@@ -835,6 +835,7 @@ export default function Home() {
   const todaySettlement = total(todayEntries,"rakeback");
   const todayRevenue = total(todayEntries,"rake");
   const todayGameCount = todayEntries.length;
+  const todayPlayerCount = new Set(todayEntries.map(e=>e.playerId)).size;
   const weekSettlement = total(thisWeekEntries,"rakeback");
   const recentEntries = [...entries].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,6);
   const activeGameSessions = gameSessions.filter(s=>s.status==="active" && s.date===today());
@@ -979,8 +980,8 @@ export default function Home() {
 
   const navItems = [
     {key:"dashboard",label:"대시보드",icon:"▦"},
-    {key:"agencies",label:"에이전트 관리",icon:"♙"},
     {key:"players",label:"플레이어 관리",icon:"♟"},
+    {key:"agencies",label:"에이전트 관리",icon:"♙"},
     {key:"games",label:"게임 입력",icon:"▣"},
     {key:"daily",label:"일일 정산",icon:"▤"},
     {key:"weekly",label:"주간 정산",icon:"▥"},
@@ -1202,79 +1203,148 @@ export default function Home() {
         {message && <div className="note globalNote">{message}</div>}
 
         {tab==="dashboard" && <>
-          <section className="dashboardOverview dashboardOverviewV2">
-            <div className="dashboardOverviewHeader">
+          <section className="dashboardCommandCenter">
+            <div className="dashboardCommandHeader">
               <div>
-                <span>오늘</span>
+                <span>오늘 운영 현황</span>
                 <strong>{today()}</strong>
               </div>
-              <small>{activeGameSessions.length} LIVE</small>
+              <div className={activeGameSessions.length>0?"dashboardLiveStatus on":"dashboardLiveStatus"}>
+                <i/>
+                {activeGameSessions.length>0?`${activeGameSessions.length}개 테이블 진행 중`:"진행 중인 경기 없음"}
+              </div>
             </div>
 
-            <div className="dashboardMetricGrid dashboardMetricGridV2">
-              <button className="dashboardMetricCard revenue heroMetric" onClick={()=>setTab("games")}>
-                <span>오늘 바이인</span>
-                <b>{vnd(todayBuyinRevenue)}</b>
-                <small>{activeTableBuyins} BUY-IN</small>
-                <em>›</em>
+            <div className="dashboardBlockGrid">
+              <button className="dashboardBlock buyin" onClick={()=>setTab("games")}>
+                <div className="dashboardBlockTop">
+                  <span>오늘 바이인</span>
+                  <em>›</em>
+                </div>
+                <b>{activeTableBuyins}<small>회</small></b>
+                <p>{vnd(todayBuyinRevenue)}</p>
+                <footer>게임 입력 바로가기</footer>
               </button>
 
-              <button className="dashboardMetricCard profit" onClick={()=>setTab("daily")}>
-                <span>오늘 순수익</span>
+              <button className="dashboardBlock live" onClick={()=>setTab("games")}>
+                <div className="dashboardBlockTop">
+                  <span>진행 경기</span>
+                  <em>›</em>
+                </div>
+                <b>{activeGameSessions.length}<small>테이블</small></b>
+                <p>{activeGameSessions.length>0?activeGameSessions.map(gs=>`T${gs.tableNo} · ${gs.game}`).join(" / "):"현재 대기 중"}</p>
+                <footer>테이블 현황 보기</footer>
+              </button>
+
+              <button className="dashboardBlock players" onClick={()=>setTab("players")}>
+                <div className="dashboardBlockTop">
+                  <span>오늘 참여 플레이어</span>
+                  <em>›</em>
+                </div>
+                <b>{todayPlayerCount}<small>명</small></b>
+                <p>오늘 기록 {todayGameCount}건</p>
+                <footer>플레이어 관리 바로가기</footer>
+              </button>
+
+              <button className="dashboardBlock settlement" onClick={()=>setTab("daily")}>
+                <div className="dashboardBlockTop">
+                  <span>오늘 일일 수익</span>
+                  <em>›</em>
+                </div>
                 <b>{vnd(todayOperatingNet)}</b>
-                <small>정산 보기</small>
-                <em>›</em>
-              </button>
-
-              <button className="dashboardMetricCard fnb" onClick={()=>setTab("fnb")}>
-                <span>F&B</span>
-                <b>{vnd(fnbTodayTotal)}</b>
-                <small>오늘 비용</small>
-                <em>›</em>
+                <p>F&B {vnd(fnbTodayTotal)} · 정산 {vnd(todaySettlement)}</p>
+                <footer>일일 정산 바로가기</footer>
               </button>
             </div>
           </section>
 
-          <section className="dashCard dashboardLiveTables dashboardSectionCard">
-            <div className="cardHeader compactCardHeader">
-              <h2>LIVE 테이블</h2>
-              <span className="headerCount">{activeGameSessions.length}</span>
-            </div>
+          <section className="dashboardStatusGrid">
+            <section className="dashCard dashboardLiveTables dashboardSectionCard">
+              <div className="cardHeader compactCardHeader">
+                <div>
+                  <h2>현재 테이블 현황</h2>
+                  <p>테이블을 누르면 해당 게임으로 바로 이동합니다.</p>
+                </div>
+                <span className="headerCount">{activeGameSessions.length} LIVE</span>
+              </div>
 
-            {activeGameSessions.length===0
-              ? <div className="dashboardEmpty liveEmpty">진행 중인 테이블이 없습니다.</div>
-              : <div className="dashboardLiveTableList">
-                  {activeGameSessions.map(gs=>{
-                    const tableEntries=entries.filter(e=>e.sessionId===gs.id);
-                    const buyins=tableEntries.reduce((sum,e)=>sum+e.buyIn,0);
-                    const revenue=buyins*revenuePerBuyIn(gs.game);
-                    return <button key={gs.id} onClick={()=>{setSelectedTableNo(gs.tableNo);setTab("games")}}>
-                      <div className="dashTableMain">
-                        <span className="dashLiveDot"/>
-                        <strong>T{gs.tableNo}</strong>
-                        <em>{gs.gameNo?`No.${gs.gameNo}`:"No.-"}</em>
-                        <b>{gs.game}</b>
-                      </div>
-                      <div className="dashTableStats">
-                        <span>{tableEntries.length}명</span>
-                        <span>{buyins} BUY-IN</span>
-                        <strong>{vnd(revenue)}</strong>
-                        <i>›</i>
-                      </div>
-                    </button>
-                  })}
-                </div>}
+              {activeGameSessions.length===0
+                ? <button className="dashboardEmpty dashboardEmptyAction" onClick={()=>setTab("games")}>
+                    <strong>진행 중인 테이블이 없습니다.</strong>
+                    <span>게임을 시작하려면 탭하세요 ›</span>
+                  </button>
+                : <div className="dashboardLiveTableList">
+                    {activeGameSessions.map(gs=>{
+                      const tableEntries=entries.filter(e=>e.sessionId===gs.id);
+                      const buyins=tableEntries.reduce((sum,e)=>sum+e.buyIn,0);
+                      const revenue=buyins*revenuePerBuyIn(gs.game);
+                      return <button key={gs.id} onClick={()=>{setSelectedTableNo(gs.tableNo);setTab("games")}}>
+                        <div className="dashTableMain">
+                          <span className="dashLiveDot"/>
+                          <strong>T{gs.tableNo}</strong>
+                          <em>{gs.gameNo?`No.${gs.gameNo}`:"No.-"}</em>
+                          <b>{gs.game}</b>
+                        </div>
+                        <div className="dashTableStats">
+                          <span>{tableEntries.length}명</span>
+                          <span>{buyins} BUY-IN</span>
+                          <strong>{vnd(revenue)}</strong>
+                          <i>›</i>
+                        </div>
+                      </button>
+                    })}
+                  </div>}
+            </section>
+
+            <section className="dashCard dashboardQuickStatus dashboardSectionCard">
+              <div className="cardHeader compactCardHeader">
+                <div>
+                  <h2>오늘 한눈에 보기</h2>
+                  <p>자주 확인하는 항목을 바로 열 수 있습니다.</p>
+                </div>
+              </div>
+
+              <div className="dashboardQuickList">
+                <button onClick={()=>setTab("daily")}>
+                  <span>총 레이크백</span>
+                  <b>{vnd(todaySettlement)}</b>
+                  <em>›</em>
+                </button>
+                <button onClick={()=>setTab("fnb")}>
+                  <span>F&B 비용</span>
+                  <b>{vnd(fnbTodayTotal)}</b>
+                  <em>›</em>
+                </button>
+                <button onClick={()=>setTab("players")}>
+                  <span>오늘 참여 인원</span>
+                  <b>{todayPlayerCount}명</b>
+                  <em>›</em>
+                </button>
+                <button onClick={()=>setTab("games")}>
+                  <span>총 바이인</span>
+                  <b>{activeTableBuyins}회</b>
+                  <em>›</em>
+                </button>
+              </div>
+            </section>
           </section>
 
           <section className="dashCard recentCard dashboardRecent dashboardSectionCard">
             <div className="cardHeader compactCardHeader">
-              <h2>최근 바이인</h2>
-              <span className="headerCount">{Math.min(recentEntries.length,4)}</span>
+              <div>
+                <h2>최근 바이인</h2>
+                <p>최근 입력된 게임 기록입니다.</p>
+              </div>
+              <button className="dashboardHeaderLink" onClick={()=>setTab("games")}>전체 보기 ›</button>
             </div>
             {recentEntries.length===0
               ? <div className="dashboardEmpty">아직 입력된 기록이 없습니다.</div>
               : <div className="dashboardRecentList">
-                  {recentEntries.slice(0,4).map(e=><div key={e.id}>
+                  {recentEntries.slice(0,4).map(e=><button key={e.id} onClick={()=>{
+                    const gs=gameSessions.find(gs=>gs.id===e.sessionId);
+                    if(gs)setSelectedTableNo(gs.tableNo);
+                    setTab("games");
+                  }}>
                     <div>
                       <strong>{getPlayerName(e.playerId)}</strong>
                       <span>{e.agencyCodeSnapshot} · {e.game}</span>
@@ -1283,7 +1353,8 @@ export default function Home() {
                       <small>{e.buyIn} BUY-IN</small>
                       <b>{vnd(revenuePerBuyIn(e.game)*e.buyIn)}</b>
                     </div>
-                  </div>)}
+                    <em>›</em>
+                  </button>)}
                 </div>}
           </section>
         </>}
