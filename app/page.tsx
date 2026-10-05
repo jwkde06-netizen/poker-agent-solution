@@ -656,11 +656,46 @@ export default function Home() {
   const pendingExpenseTotal=pendingExpenseRows.reduce((sum,x)=>sum+(x.amount-x.processedAmount),0);
   const processedExpenseRows=expenseItems.filter(x=>x.processedAmount>=x.amount);
   const expenseProcessedTotal=expenseItems.reduce((sum,x)=>sum+x.processedAmount,0);
-  const visibleExpenseRows=expenseItems.filter(x=>
-    expenseFilter==="all" ? true :
-    expenseFilter==="pending" ? x.processedAmount<x.amount :
-    x.processedAmount>=x.amount
-  );
+  const totalExpenseAmount=expenseItems.reduce((sum,x)=>sum+x.amount,0);
+  const totalDepositAmount=expenseDeposits.reduce((sum,x)=>sum+x.amount,0);
+  const ledgerBalance=totalDepositAmount-totalExpenseAmount;
+  const ledgerRows=(()=>{
+    const rows=[
+      ...expenseDeposits.map(x=>({
+        kind:"deposit" as const,
+        id:x.id,
+        date:x.date,
+        description:x.description,
+        amount:x.amount,
+        sourceRef:x.sourceRef,
+        note:x.note,
+        expense:null as ExpenseItem|null
+      })),
+      ...expenseItems.map(x=>({
+        kind:"expense" as const,
+        id:x.id,
+        date:x.date,
+        description:x.description,
+        amount:x.amount,
+        sourceRef:x.sourceRef,
+        note:x.note,
+        expense:x
+      }))
+    ].sort((a,b)=>a.date.localeCompare(b.date) || (a.kind==="deposit"?-1:1) || a.id.localeCompare(b.id));
+    let balance=0;
+    return rows.map(row=>{
+      balance += row.kind==="deposit" ? row.amount : -row.amount;
+      return {...row,balance};
+    });
+  })();
+  const visibleLedgerRows=ledgerRows.filter(row=>{
+    if(expenseFilter==="all")return true;
+    if(row.kind==="deposit")return false;
+    if(!row.expense)return false;
+    return expenseFilter==="pending"
+      ? row.expense.processedAmount<row.expense.amount
+      : row.expense.processedAmount>=row.expense.amount;
+  });
   const selectedWeekDistribution=weeklyDistributions.find(x=>x.weekStart===weekStart) ?? null;
   const selectedWeekPayouts=selectedWeekDistribution
     ? shareholderPayouts.filter(x=>x.distributionId===selectedWeekDistribution.id)
@@ -1278,6 +1313,40 @@ export default function Home() {
     setFnbEntries(prev=>prev.filter(item=>item.id!==id));
   }
 
+
+  async function addDepositItem(){
+    const amount=Number(expenseAmount.replace(/,/g,""));
+    const description=expenseDescription.trim() || "주간 정산금";
+    if(!amount || amount<=0){
+      setMessage("Deposit 금액을 입력해주세요.");
+      return;
+    }
+    if(!supabase || !session){
+      setMessage("Deposit은 서버 연결 상태에서만 저장할 수 있습니다.");
+      return;
+    }
+    const {error}=await supabase.rpc("record_expense_deposit",{
+      p_deposited_on:expenseDate,
+      p_description:description,
+      p_amount:amount,
+      p_note:expenseNote.trim() || null,
+      p_source_ref:"Dream Poker Solution"
+    });
+    if(error){setMessage(error.message);return;}
+    setExpenseDescription("");
+    setExpenseAmount("");
+    setExpenseNote("");
+    await loadFromDatabase();
+    setMessage("Deposit을 등록하고 미처리 경비에 반영했습니다.");
+  }
+
+  async function addLedgerItem(){
+    if(expenseEntryType==="deposit"){
+      await addDepositItem();
+      return;
+    }
+    await addExpenseItem();
+  }
 
   async function addExpenseItem(){
     const amount=Number(expenseAmount.replace(/,/g,""));
