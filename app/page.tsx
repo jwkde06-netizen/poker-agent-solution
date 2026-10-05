@@ -3344,12 +3344,47 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="weeklyKpiGrid">
-              <div><span>총 엔트리피</span><b>{vnd(weeklyEntryFee)}</b><small>{weeklyEntries.reduce((sum,e)=>sum+e.buyIn,0)} BUY-IN</small></div>
-              <div className="expense"><span>레이크백</span><b>− {vnd(weeklyRakeback)}</b><small>{weeklyAgentRows.length}개 에이전트</small></div>
-              <div className="expense"><span>F&B 경비</span><b>− {vnd(weeklyFnbTotal)}</b><small>2FLOOR 반영 · 전체 {vnd(weeklyFnbAllTotal)}</small></div>
-              <div className="profit"><span>주간 수익</span><b>{vnd(weeklyProfit)}</b><small>총 엔트리피 − 레이크백 − F&B</small></div>
-            </div>
+            <section className="weeklyStatementSheet">
+              <div className="weeklyStatementMeta">
+                <div><span>주 시작일 (월요일)</span><strong>{weekStart}</strong></div>
+                <div><span>주 종료일</span><strong>{weekEnd}</strong></div>
+              </div>
+
+              <div className="weeklyStatementTable">
+                <div className="weeklyStatementHead">
+                  <span>항목</span>
+                  <span>금액</span>
+                </div>
+
+                <div className="weeklyStatementRow gross">
+                  <span>TOTAL RAKE BACK</span>
+                  <b>{vnd(weeklyEntryFee)}</b>
+                </div>
+
+                <div className="weeklyStatementRow">
+                  <span>F&amp;B</span>
+                  <b>{vnd(weeklyFnbTotal)}</b>
+                </div>
+
+                {agencies.map(agent=>{
+                  const amount=weeklyAgentRows.find(row=>row.id===agent.id)?.amount ?? 0;
+                  return <div className="weeklyStatementRow" key={agent.id}>
+                    <span>{agent.code} RAKE BACK</span>
+                    <b>{vnd(amount)}</b>
+                  </div>;
+                })}
+
+                <div className="weeklyStatementRow totalExpense">
+                  <span>TOTAL EXPENSE</span>
+                  <b>{vnd(weeklyRakeback+weeklyFnbTotal)}</b>
+                </div>
+
+                <div className="weeklyStatementRow netProfit">
+                  <span>NET PROFIT / LOSS</span>
+                  <b>{vnd(weeklyProfit)}</b>
+                </div>
+              </div>
+            </section>
 
             <div className="weeklyReportGrid">
               <section className="weeklyAgentSection">
@@ -3367,12 +3402,7 @@ export default function Home() {
                     </div>}
               </section>
 
-              <aside className="weeklyAccountingAside">
-                <div><span>총 엔트리피</span><b>{vnd(weeklyEntryFee)}</b></div>
-                <div><span>레이크백</span><b>− {vnd(weeklyRakeback)}</b></div>
-                <div><span>F&B 경비 (2FLOOR)</span><b>− {vnd(weeklyFnbTotal)}</b></div>
-                <div className="profit"><span>주간 수익</span><b>{vnd(weeklyProfit)}</b></div>
-              </aside>
+
             </div>
 
             <section className="weeklyFnbBreakdown">
