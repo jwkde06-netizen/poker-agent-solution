@@ -8073,3 +8073,236 @@ html[data-theme="dark"] .ownLoginGrid input{background:#1b1c1f;border-color:#303
     color:#25292d!important;
   }
 }
+
+
+/* Compact daily settlement desktop layout */
+.dailySummaryGridCompact{
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:10px
+}
+.dailyWorkspaceGrid{
+  display:grid;
+  grid-template-columns:minmax(0,1.7fr) minmax(260px,.65fr);
+  gap:14px;
+  align-items:start
+}
+.dailyMainDetail{
+  margin-top:0;
+  padding-top:0;
+  border-top:0
+}
+.dailySideSummary{
+  display:grid;
+  gap:12px;
+  position:sticky;
+  top:76px
+}
+.dailySideCard{
+  overflow:hidden;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:var(--surface)
+}
+.dailySideCardHeader{
+  min-height:42px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:0 13px;
+  border-bottom:1px solid var(--line);
+  background:var(--surface-2)
+}
+.dailySideCardHeader strong{
+  color:var(--text);
+  font-size:11px
+}
+.dailySideCardHeader span{
+  min-width:24px;
+  height:24px;
+  display:grid;
+  place-items:center;
+  border-radius:999px;
+  background:var(--gold-soft);
+  color:var(--gold-dark);
+  font-size:9px;
+  font-weight:850
+}
+.dailySideTotal{
+  min-height:44px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:0 13px;
+  border-top:1px solid var(--line);
+  background:#fffaf1
+}
+.dailySideTotal span{
+  color:var(--muted);
+  font-size:10px;
+  font-weight:750
+}
+.dailySideTotal b{
+  color:#a86d14;
+  font-size:12px
+}
+.dailyExpenseRows{
+  display:grid
+}
+.dailyExpenseRows>button,
+.dailyExpenseRows>div{
+  min-height:46px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:0 13px;
+  border:0;
+  border-bottom:1px solid var(--line);
+  background:transparent;
+  text-align:left
+}
+.dailyExpenseRows>button{
+  cursor:pointer
+}
+.dailyExpenseRows>button:hover{
+  transform:none;
+  background:var(--surface-2)
+}
+.dailyExpenseRows span{
+  color:var(--muted);
+  font-size:10px
+}
+.dailyExpenseRows b{
+  color:#b16e42;
+  font-size:11px
+}
+.dailyNetCard{
+  padding:15px 14px;
+  background:#fff9e9;
+  border-color:#ead5a4
+}
+.dailyNetCard>span{
+  display:block;
+  color:#8d6b2b;
+  font-size:10px;
+  font-weight:850
+}
+.dailyNetCard>b{
+  display:block;
+  margin-top:7px;
+  color:#9d6810;
+  font-size:22px;
+  letter-spacing:-.04em
+}
+.dailyNetCard>small{
+  display:block;
+  margin-top:6px;
+  color:var(--muted);
+  font-size:9px
+}
+.dailyGameGroupSummary em{
+  font-style:normal;
+  color:#a16b18;
+  font-size:10px;
+  font-weight:800
+}
+.compactExportActions{
+  flex:0 0 auto
+}
+.compactExportActions .dailyExportButton{
+  min-width:auto;
+  height:36px;
+  padding:0 11px
+}
+.dailyTitleBlock{
+  display:flex;
+  align-items:center;
+  gap:12px
+}
+.dailyTitleBlock>strong{
+  margin:0;
+  font-size:18px
+}
+.dailyTitleBlock .compactDailyDate{
+  height:36px;
+  min-width:150px
+}
+.redesignedDailyPanel{
+  max-width:1440px;
+  margin:0 auto
+}
+html[data-theme="dark"] .dailySideCard{
+  background:#18191c;
+  border-color:#2d2f34
+}
+html[data-theme="dark"] .dailySideCardHeader{
+  background:#1d1f22;
+  border-color:#2d2f34
+}
+html[data-theme="dark"] .dailySideTotal{
+  background:#211d15;
+  border-color:#3e3423
+}
+html[data-theme="dark"] .dailyExpenseRows>button,
+html[data-theme="dark"] .dailyExpenseRows>div{
+  border-color:#292b30
+}
+html[data-theme="dark"] .dailyExpenseRows>button:hover{
+  background:#222328
+}
+html[data-theme="dark"] .dailyNetCard{
+  background:#211b0f;
+  border-color:#4a3a1f
+}
+
+@media(max-width:1100px){
+  .dailyWorkspaceGrid{
+    grid-template-columns:1fr
+  }
+  .dailySideSummary{
+    position:static;
+    grid-template-columns:repeat(3,minmax(0,1fr))
+  }
+}
+@media(max-width:900px){
+  .dailySummaryGridCompact{
+    grid-template-columns:repeat(2,minmax(0,1fr))
+  }
+  .dailySideSummary{
+    grid-template-columns:1fr
+  }
+}
+@media(max-width:820px){
+  .dailyTitleBlock{
+    width:100%;
+    justify-content:space-between
+  }
+  .dailyTitleBlock .compactDailyDate{
+    min-width:0;
+    width:150px
+  }
+  .compactExportActions{
+    display:flex;
+    width:auto
+  }
+  .compactExportActions .dailyExportButton{
+    width:auto;
+    min-width:64px
+  }
+}
+@media(max-width:560px){
+  .dailyTitleBlock{
+    align-items:flex-start;
+    flex-direction:column;
+    gap:8px
+  }
+  .dailyTitleBlock .compactDailyDate{
+    width:100%
+  }
+  .dailyTopActions.compactExportActions{
+    width:100%;
+    justify-content:flex-end
+  }
+}
