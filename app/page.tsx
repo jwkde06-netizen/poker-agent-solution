@@ -2019,150 +2019,182 @@ export default function Home() {
           <section className="panel compactDailyPanel redesignedDailyPanel">
             <div className="dailyTopBar">
               <div className="dailyTitleBlock">
-                <span>일일 정산</span>
-                <strong>{summaryDate}</strong>
+                <strong>일일 정산</strong>
+                <input className="datePicker compactDailyDate" type="date" value={summaryDate} onChange={e=>setSummaryDate(e.target.value)}/>
               </div>
 
-              <div className="dailyTopActions">
-                <input className="datePicker compactDailyDate" type="date" value={summaryDate} onChange={e=>setSummaryDate(e.target.value)}/>
-                <button className="dailyExportButton primary" onClick={exportSettlementPng}>PNG</button>
+              <div className="dailyTopActions compactExportActions">
+                <button className="dailyExportButton primary" onClick={exportSettlementPng}>PNG 출력</button>
                 <button className="dailyExportButton" onClick={exportSettlementCsv}>CSV</button>
               </div>
             </div>
 
-            <div className="dailySummaryGrid">
-              <button className="dailySummaryCard" onClick={()=>setTab("games")}>
+            <div className="dailySummaryGrid dailySummaryGridCompact">
+              <div className="dailySummaryCard">
                 <span>총 레이크</span>
                 <b>{vnd(dailyGrossAmount)}</b>
-                <small>게임 내역 보기 ›</small>
-              </button>
-              <button className="dailySummaryCard expense" onClick={()=>setFnbDetailOpen(true)}>
-                <span>F&B</span>
-                <b>− {vnd(dailyFnbTotal)}</b>
-                <small>상세보기 ›</small>
-              </button>
+                <small>{dailyEntries.reduce((sum,e)=>sum+e.buyIn,0)} BUY-IN</small>
+              </div>
               <div className="dailySummaryCard expense">
-                <span>에이전트 레이크백</span>
+                <span>레이크백</span>
                 <b>− {vnd(dailyAgentTotal)}</b>
                 <small>{dailyAgentRows.length}개 에이전트</small>
               </div>
+              <button className="dailySummaryCard expense" onClick={()=>setFnbDetailOpen(true)}>
+                <span>F&B</span>
+                <b>− {vnd(dailyFnbTotal)}</b>
+                <small>비용 상세 ›</small>
+              </button>
               <div className="dailySummaryCard profit">
-                <span>일일 수익</span>
+                <span>최종 순수익</span>
                 <b>{vnd(dailyProfit)}</b>
                 <small>총 비용 {vnd(dailyExpenseTotal)}</small>
               </div>
             </div>
 
-            <section className="dailyAgentSection">
-              <div className="dailyAgentSectionHeader">
-                <strong>에이전트별 레이크백</strong>
-                <span>{dailyAgentRows.length}개</span>
-              </div>
-              {dailyAgentRows.length===0
-                ? <div className="dailyAgentEmpty">정산할 에이전트 내역이 없습니다.</div>
-                : <div className="dailyAgentRows">
-                    {dailyAgentRows.map(a=><div className="dailyAgentRow" key={a.id}>
-                      <span><strong>{a.code}</strong><small>{a.rate}%</small></span>
-                      <b>− {vnd(a.amount)}</b>
-                    </div>)}
-                  </div>}
-            </section>
-
-            <section className="dailyGameLog">
-              <div className="dailyGameLogHeader">
-                <div>
-                  <h3>게임별 상세내역</h3>
-                  <p>모든 게임 기록은 항상 펼쳐져 있으며 플레이어·바이인 수정 또는 삭제가 바로 가능합니다.</p>
+            <div className="dailyWorkspaceGrid">
+              <section className="dailyGameLog dailyMainDetail">
+                <div className="dailyGameLogHeader">
+                  <div>
+                    <h3>게임별 정산</h3>
+                  </div>
+                  <span className="dailyLogCount">{dailyGameGroups.length} GAME · {dailyEntries.length}명</span>
                 </div>
-                <span className="dailyLogCount">{dailyEntries.length}건</span>
-              </div>
 
-              <div className="dailyLogSearch">
-                <span>⌕</span>
-                <input
-                  value={dailyLogSearch}
-                  onChange={e=>setDailyLogSearch(e.target.value)}
-                  placeholder="플레이어, 게임, 에이전트 검색"
-                />
-                {dailyLogSearch && <button onClick={()=>setDailyLogSearch("")}>×</button>}
-              </div>
+                <div className="dailyLogSearch">
+                  <span>⌕</span>
+                  <input
+                    value={dailyLogSearch}
+                    onChange={e=>setDailyLogSearch(e.target.value)}
+                    placeholder="플레이어 · 게임 · 에이전트 검색"
+                  />
+                  {dailyLogSearch && <button onClick={()=>setDailyLogSearch("")}>×</button>}
+                </div>
 
-              {dailyGameGroups.length===0
-                ? <div className="dailyGameGroupsEmpty">{dailyEntries.length===0?"해당 날짜의 게임 기록이 없습니다.":"검색 결과가 없습니다."}</div>
-                : <div className="dailyGameGroups">
-                    {dailyGameGroups.map(group=>{
-                      const groupBuyIns=group.entries.reduce((sum,e)=>sum+e.buyIn,0);
-                      const groupRake=group.entries.reduce((sum,e)=>sum+e.rake,0);
-                      return <section className="dailyGameGroup" key={group.key}>
-                        <header className="dailyGameGroupHeader">
-                          <div className="dailyGameGroupIdentity">
-                            <strong>{group.tableNo?`T${group.tableNo}`:"GAME"}</strong>
-                            {group.gameNo && <span>No.{group.gameNo}</span>}
-                            <b>{group.game}</b>
-                          </div>
-                          <div className="dailyGameGroupSummary">
-                            <span>{group.entries.length}명</span>
-                            <span>{groupBuyIns} BUY-IN</span>
-                            <strong>{vnd(groupRake)}</strong>
-                          </div>
-                        </header>
+                {dailyGameGroups.length===0
+                  ? <div className="dailyGameGroupsEmpty">{dailyEntries.length===0?"해당 날짜의 게임 기록이 없습니다.":"검색 결과가 없습니다."}</div>
+                  : <div className="dailyGameGroups">
+                      {dailyGameGroups.map(group=>{
+                        const groupBuyIns=group.entries.reduce((sum,e)=>sum+e.buyIn,0);
+                        const groupRake=group.entries.reduce((sum,e)=>sum+e.rake,0);
+                        const groupRakeback=group.entries.reduce((sum,e)=>sum+e.rakeback,0);
+                        return <section className="dailyGameGroup" key={group.key}>
+                          <header className="dailyGameGroupHeader">
+                            <div className="dailyGameGroupIdentity">
+                              <strong>{group.tableNo?`T${group.tableNo}`:"GAME"}</strong>
+                              {group.gameNo && <span>No.{group.gameNo}</span>}
+                              <b>{group.game}</b>
+                            </div>
+                            <div className="dailyGameGroupSummary">
+                              <span>{group.entries.length}명</span>
+                              <span>{groupBuyIns} BUY-IN</span>
+                              <strong>{vnd(groupRake)}</strong>
+                              <em>RB {vnd(groupRakeback)}</em>
+                            </div>
+                          </header>
 
-                        <div className="dailyGameRows">
-                          <div className="dailyGameRow dailyGameRowHead">
-                            <span>플레이어</span>
-                            <span>에이전트</span>
-                            <span>바이인</span>
-                            <span>레이크</span>
-                            <span>레이크백</span>
-                            <span></span>
-                          </div>
-
-                          {group.entries.map(e=><div className="dailyGameRow" key={e.id}>
-                            <div className="dailyGamePlayerCell">
-                              <select className="dailyPlayerSelect" value={e.playerId} onChange={ev=>replaceSessionPlayer(e,ev.target.value)}>
-                                {players.map(p=><option key={p.id} value={p.id}>{p.name}{p.koreanName?` · ${p.koreanName}`:""}</option>)}
-                              </select>
+                          <div className="dailyGameRows">
+                            <div className="dailyGameRow dailyGameRowHead">
+                              <span>플레이어</span>
+                              <span>에이전트</span>
+                              <span>바이인</span>
+                              <span>레이크</span>
+                              <span>레이크백</span>
+                              <span></span>
                             </div>
 
-                            <div><span className="agencyCodeText">{e.agencyCodeSnapshot}</span></div>
-
-                            <div>
-                              <div className="dailyBuyInEditor">
-                                <button onClick={()=>changeSessionBuyIn(e,-1)} aria-label="바이인 감소">−</button>
-                                <input
-                                  type="number"
-                                  min="1"
-                                  value={e.buyIn}
-                                  onChange={ev=>{
-                                    const value=Math.max(1,Number(ev.target.value)||1);
-                                    const rake=rakePerBuyIn(e.game)*value;
-                                    const rakeback=Math.round(rake*(e.rateSnapshot/100));
-                                    setEntries(prev=>prev.map(row=>row.id===e.id?{...row,buyIn:value,rake,rakeback}:row));
-                                  }}
-                                  onBlur={ev=>setSessionBuyInCount(e,Number(ev.target.value))}
-                                  onKeyDown={ev=>{if(ev.key==="Enter"){(ev.currentTarget as HTMLInputElement).blur();}}}
-                                />
-                                <button onClick={()=>changeSessionBuyIn(e,1)} aria-label="바이인 증가">＋</button>
+                            {group.entries.map(e=><div className="dailyGameRow" key={e.id}>
+                              <div className="dailyGamePlayerCell">
+                                <select className="dailyPlayerSelect" value={e.playerId} onChange={ev=>replaceSessionPlayer(e,ev.target.value)}>
+                                  {players.map(p=><option key={p.id} value={p.id}>{p.name}{p.koreanName?` · ${p.koreanName}`:""}</option>)}
+                                </select>
                               </div>
-                            </div>
 
-                            <div className="dailyMoneyCell">{vnd(e.rake)}</div>
-                            <div className="dailyMoneyCell strong">{vnd(e.rakeback)}</div>
+                              <div><span className="agencyCodeText">{e.agencyCodeSnapshot}</span></div>
 
-                            <div className="dailyDeleteCell">
-                              <button
-                                className="dailyDeleteButton"
-                                onClick={()=>removePlayerFromSession(e)}
-                                aria-label={`${getPlayerName(e.playerId)} 기록 삭제`}
-                                title="기록 삭제"
-                              >×</button>
-                            </div>
-                          </div>)}
-                        </div>
-                      </section>;
-                    })}
-                  </div>}
-            </section>
+                              <div>
+                                <div className="dailyBuyInEditor">
+                                  <button onClick={()=>changeSessionBuyIn(e,-1)} aria-label="바이인 감소">−</button>
+                                  <input
+                                    type="number"
+                                    min="1"
+                                    value={e.buyIn}
+                                    onChange={ev=>{
+                                      const value=Math.max(1,Number(ev.target.value)||1);
+                                      const rake=rakePerBuyIn(e.game)*value;
+                                      const rakeback=Math.round(rake*(e.rateSnapshot/100));
+                                      setEntries(prev=>prev.map(row=>row.id===e.id?{...row,buyIn:value,rake,rakeback}:row));
+                                    }}
+                                    onBlur={ev=>setSessionBuyInCount(e,Number(ev.target.value))}
+                                    onKeyDown={ev=>{if(ev.key==="Enter"){(ev.currentTarget as HTMLInputElement).blur();}}}
+                                  />
+                                  <button onClick={()=>changeSessionBuyIn(e,1)} aria-label="바이인 증가">＋</button>
+                                </div>
+                              </div>
+
+                              <div className="dailyMoneyCell">{vnd(e.rake)}</div>
+                              <div className="dailyMoneyCell strong">{vnd(e.rakeback)}</div>
+
+                              <div className="dailyDeleteCell">
+                                <button
+                                  className="dailyDeleteButton"
+                                  onClick={()=>removePlayerFromSession(e)}
+                                  aria-label={`${getPlayerName(e.playerId)} 기록 삭제`}
+                                  title="기록 삭제"
+                                >×</button>
+                              </div>
+                            </div>)}
+                          </div>
+                        </section>;
+                      })}
+                    </div>}
+              </section>
+
+              <aside className="dailySideSummary">
+                <section className="dailySideCard">
+                  <div className="dailySideCardHeader">
+                    <strong>에이전트별 레이크백</strong>
+                    <span>{dailyAgentRows.length}</span>
+                  </div>
+                  {dailyAgentRows.length===0
+                    ? <div className="dailyAgentEmpty">정산 내역 없음</div>
+                    : <div className="dailyAgentRows">
+                        {dailyAgentRows.map(a=><div className="dailyAgentRow" key={a.id}>
+                          <span><strong>{a.code}</strong><small>{a.rate}%</small></span>
+                          <b>− {vnd(a.amount)}</b>
+                        </div>)}
+                      </div>}
+                  <div className="dailySideTotal">
+                    <span>레이크백 합계</span>
+                    <b>− {vnd(dailyAgentTotal)}</b>
+                  </div>
+                </section>
+
+                <section className="dailySideCard dailyExpenseCard">
+                  <div className="dailySideCardHeader">
+                    <strong>비용 요약</strong>
+                  </div>
+                  <div className="dailyExpenseRows">
+                    <button onClick={()=>setFnbDetailOpen(true)}>
+                      <span>F&B</span><b>− {vnd(dailyFnbTotal)}</b>
+                    </button>
+                    <div>
+                      <span>에이전트 레이크백</span><b>− {vnd(dailyAgentTotal)}</b>
+                    </div>
+                  </div>
+                  <div className="dailySideTotal">
+                    <span>총 비용</span>
+                    <b>− {vnd(dailyExpenseTotal)}</b>
+                  </div>
+                </section>
+
+                <section className="dailySideCard dailyNetCard">
+                  <span>최종 순수익</span>
+                  <b>{vnd(dailyProfit)}</b>
+                  <small>{summaryDate}</small>
+                </section>
+              </aside>
+            </div>
           </section>
         </section>}
 
