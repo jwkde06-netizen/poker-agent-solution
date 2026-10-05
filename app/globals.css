@@ -3790,3 +3790,56 @@ html[data-theme="dark"] .accountDropdown>button:hover{
     margin-bottom:8px!important;
   }
 }
+
+/* Compact selected table header: T5 · No.1 · 5M */
+.selectedTableHeadline{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  min-width:0;
+}
+.selectedTableHeadline strong{
+  color:#e0ad49;
+  font-size:24px;
+  line-height:1;
+}
+.selectedTableHeadline span{
+  padding:5px 7px;
+  border-radius:8px;
+  background:#211a0d;
+  color:#e0ad49;
+  font-size:9px;
+  font-weight:900;
+  white-space:nowrap;
+}
+.selectedTableHeadline b{
+  color:#ddd;
+  font-size:11px;
+  white-space:nowrap;
+}
+.compactSelectedStats{
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+}
+
+@media(max-width:820px){
+  .selectedTableHeadline{
+    gap:6px;
+  }
+  .selectedTableHeadline strong{
+    font-size:23px;
+  }
+  .selectedTableHeadline span{
+    padding:4px 6px;
+    font-size:8px;
+  }
+  .selectedTableHeadline b{
+    font-size:10px;
+  }
+  .compactSelectedStats{
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  }
+  .compactSelectedStats>div{
+    padding-top:7px!important;
+    padding-bottom:7px!important;
+  }
+}
