@@ -5160,3 +5160,235 @@ html[data-theme="light"] .linkButton{
     font-size:13px;
   }
 }
+
+/* Agency management: simple list + tap-to-edit */
+.agencyManagePanel{padding:16px}
+.agencyManageHeader h2{margin:0;font-size:18px}
+.agencyManageHeader p{margin:4px 0 0;color:#8a9198;font-size:10px}
+.agencyAddRow{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 110px auto;
+  gap:8px;
+  margin-top:14px;
+}
+.agencyAddRow input,
+.agencyAddRow select{
+  height:42px;
+  min-width:0;
+  padding:0 11px;
+  border:1px solid var(--line-strong);
+  border-radius:10px;
+  background:#111;
+  color:#eee;
+  font-size:13px;
+}
+.agencyAddRow .primary{
+  min-width:88px;
+  height:42px;
+}
+.agencySimpleList{
+  display:grid;
+  gap:7px;
+  margin-top:14px;
+}
+.agencySimpleRow{
+  width:100%;
+  min-height:60px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:10px 12px;
+  border:1px solid #2b2b2b;
+  border-radius:12px;
+  background:#111;
+  color:#eee;
+  text-align:left;
+  cursor:pointer;
+}
+.agencySimpleRow>div:first-child{
+  min-width:0;
+}
+.agencySimpleRow strong{
+  display:block;
+  font-size:14px;
+  letter-spacing:.01em;
+}
+.agencySimpleRow small{
+  display:block;
+  margin-top:3px;
+  color:#7f858b;
+  font-size:8px;
+}
+.agencyRateDisplay{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.agencyRateDisplay b{
+  color:#e0ad49;
+  font-size:15px;
+}
+.agencyRateDisplay span{
+  color:#6f757b;
+  font-size:22px;
+}
+.agencyEditBackdrop{
+  position:fixed;
+  inset:0;
+  z-index:420;
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+  padding:18px;
+  background:rgba(0,0,0,.58);
+  backdrop-filter:blur(7px);
+  -webkit-backdrop-filter:blur(7px);
+  box-sizing:border-box;
+}
+.agencyEditModal{
+  width:min(440px,100%);
+  padding:16px;
+  border:1px solid #333;
+  border-radius:18px;
+  background:#101010;
+  box-shadow:0 24px 70px rgba(0,0,0,.5);
+}
+.agencyEditHeader{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:10px;
+  padding-bottom:12px;
+  border-bottom:1px solid #292929;
+}
+.agencyEditHeader span{
+  display:block;
+  color:#8a9198;
+  font-size:9px;
+}
+.agencyEditHeader strong{
+  display:block;
+  margin-top:3px;
+  color:#f0f0f0;
+  font-size:18px;
+}
+.agencyEditHeader>button{
+  width:36px;height:36px;
+  border:1px solid #303030;
+  border-radius:10px;
+  background:#171717;
+  color:#aaa;
+  font-size:22px;
+}
+.agencyEditModal label{
+  display:grid;
+  gap:6px;
+  margin-top:13px;
+}
+.agencyEditModal label>span{
+  color:#8f969d;
+  font-size:9px;
+  font-weight:800;
+}
+.agencyEditModal input,
+.agencyEditModal select{
+  width:100%;
+  height:46px;
+  padding:0 11px;
+  border:1px solid #333;
+  border-radius:10px;
+  background:#111;
+  color:#eee;
+  font-size:16px;
+  box-sizing:border-box;
+}
+.agencyStatusToggle{
+  width:100%;
+  height:44px;
+  margin-top:13px;
+  border:1px solid #343434;
+  border-radius:10px;
+  background:#171717;
+  color:#aaa;
+  font-size:11px;
+  font-weight:850;
+}
+.agencyStatusToggle.active{
+  border-color:#31543a;
+  background:#102016;
+  color:#69c47b;
+}
+.agencyEditDone{
+  width:100%;
+  height:44px;
+  margin-top:10px;
+}
+html[data-theme="light"] .agencyAddRow input,
+html[data-theme="light"] .agencyAddRow select,
+html[data-theme="light"] .agencySimpleRow,
+html[data-theme="light"] .agencyEditModal,
+html[data-theme="light"] .agencyEditModal input,
+html[data-theme="light"] .agencyEditModal select{
+  background:#fff!important;
+  color:#111!important;
+  border-color:#dedfe2!important;
+}
+html[data-theme="light"] .agencySimpleRow strong,
+html[data-theme="light"] .agencyEditHeader strong{
+  color:#111!important;
+}
+html[data-theme="light"] .agencySimpleRow small,
+html[data-theme="light"] .agencyEditHeader span,
+html[data-theme="light"] .agencyEditModal label>span{
+  color:#666d75!important;
+}
+html[data-theme="light"] .agencyEditBackdrop{
+  background:rgba(0,0,0,.35);
+}
+html[data-theme="light"] .agencyStatusToggle{
+  background:#f6f7f8!important;
+  color:#555!important;
+  border-color:#dedfe2!important;
+}
+html[data-theme="light"] .agencyStatusToggle.active{
+  background:#eff8f1!important;
+  color:#28763b!important;
+  border-color:#c8e1cf!important;
+}
+
+@media(max-width:820px){
+  .agencyManagePanel{padding:12px!important}
+  .agencyManageHeader h2{font-size:16px}
+  .agencyManageHeader p{font-size:9px}
+  .agencyAddRow{
+    grid-template-columns:minmax(0,1fr) 84px 76px;
+    gap:6px;
+    margin-top:10px;
+  }
+  .agencyAddRow input,
+  .agencyAddRow select{
+    height:40px;
+    font-size:16px;
+  }
+  .agencyAddRow .primary{
+    min-width:0;
+    height:40px;
+    padding:0 8px;
+    font-size:10px;
+  }
+  .agencySimpleList{
+    gap:6px;
+    margin-top:10px;
+  }
+  .agencySimpleRow{
+    min-height:56px;
+    padding:9px 11px;
+  }
+  .agencySimpleRow strong{font-size:14px}
+  .agencySimpleRow small{font-size:8px}
+  .agencyRateDisplay b{font-size:15px}
+  .agencyEditBackdrop{
+    padding:10px 10px calc(90px + env(safe-area-inset-bottom));
+  }
+}
