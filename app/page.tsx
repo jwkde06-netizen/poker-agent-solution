@@ -1184,7 +1184,7 @@ export default function Home() {
       <header className="workspaceTopbar">
         <div className="mobileTopTitle">
           <img src="/dream-poker-logo.svg" alt=""/>
-          <span className="mobileProductTitle"><strong>드림포커 운영 시스템 <em>· 관리자</em></strong></span>
+          <span className="mobileProductTitle"><strong>드림포커 운영 시스템 <em>· {profile?.role==="admin"?"관리자":profile?.role==="staff"?"직원":profile?.role==="agent"?"에이전트":"승인 대기"}</em></strong></span>
         </div>
         <button
           className="mobileSideMenuButton"
@@ -1271,7 +1271,7 @@ export default function Home() {
           >
             <span className="avatar">{session?.user.email?.slice(0,1).toUpperCase() || "A"}</span>
             <span className="accountMenuText">
-              <strong>관리자</strong>
+              <strong>{profile?.role==="admin"?"관리자":profile?.role==="staff"?"직원":profile?.role==="agent"?"에이전트":"승인 대기"}</strong>
               <small>{session?.user.email}</small>
             </span>
             <span className="menuChevron">{accountMenuOpen?"⌃":"⌄"}</span>
@@ -1281,7 +1281,7 @@ export default function Home() {
             <div className="accountDropdownProfile">
               <span className="avatar largeAvatar">{session?.user.email?.slice(0,1).toUpperCase() || "A"}</span>
               <div>
-                <strong>관리자 계정</strong>
+                <strong>{profile?.displayName || (profile?.role==="admin"?"관리자 계정":profile?.role==="staff"?"직원 계정":profile?.role==="agent"?"에이전트 계정":"승인 대기")}</strong>
                 <small>{session?.user.email}</small>
               </div>
             </div>
