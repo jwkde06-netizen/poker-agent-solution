@@ -3410,3 +3410,186 @@ html[data-theme="dark"] .accountDropdown>button:hover{
     padding:4px 8px!important;
   }
 }
+
+/* Mobile buy-in readability + keyboard-safe player picker */
+@media(max-width:820px){
+  .floorSelectorHeader h2{
+    font-size:16px!important;
+  }
+  .liveTableCount{
+    font-size:10px!important;
+    padding:6px 9px!important;
+  }
+
+  .finalTableLandmark span{
+    font-size:10px!important;
+  }
+  .finalTableLandmark small{
+    font-size:8px!important;
+  }
+
+  .floorTableButton strong{
+    font-size:15px!important;
+  }
+  .floorTableButton small{
+    font-size:8px!important;
+  }
+
+  .selectedTableTop>div:first-child>span{
+    font-size:10px!important;
+  }
+  .selectedTableTop>div:first-child>strong{
+    font-size:26px!important;
+  }
+
+  .selectedGameStart label span{
+    font-size:9px!important;
+  }
+  .selectedGameStart select{
+    font-size:17px!important;
+    min-width:82px!important;
+  }
+  .selectedGameStart .startTableButton{
+    font-size:11px!important;
+    font-weight:900!important;
+  }
+
+  .selectedTableStats span{
+    font-size:9px!important;
+  }
+  .selectedTableStats b{
+    font-size:12px!important;
+  }
+
+  .selectedPlayerSectionTitle strong{
+    font-size:14px!important;
+  }
+  .selectedPlayerSectionTitle span{
+    font-size:9px!important;
+  }
+  .selectedPlayerSectionTitle>b{
+    font-size:11px!important;
+  }
+
+  .selectedTableEmpty{
+    padding:28px 10px!important;
+  }
+  .selectedTableEmpty strong{
+    font-size:15px!important;
+  }
+  .selectedTableEmpty span{
+    font-size:11px!important;
+    line-height:1.45;
+  }
+  .emptyPlayersIcon{
+    width:50px!important;
+    height:50px!important;
+    font-size:25px!important;
+  }
+
+  .selectedPlayerRow{
+    grid-template-columns:minmax(0,1fr) 72px 28px 80px!important;
+    min-height:58px;
+    padding:9px 8px!important;
+  }
+  .selectedPlayerIdentity strong{
+    font-size:12px!important;
+  }
+  .selectedPlayerIdentity span{
+    margin-top:3px!important;
+    font-size:9px!important;
+  }
+  .selectedPlayerBuyin small{
+    font-size:8px!important;
+  }
+  .selectedPlayerBuyin b{
+    font-size:11px!important;
+  }
+  .selectedPlayerBuyin em{
+    font-size:8px!important;
+  }
+  .quickRebuyButton{
+    font-size:10px!important;
+  }
+
+  .selectedPlayerSearch{
+    padding:11px!important;
+    overflow:visible!important;
+  }
+  .selectedSearchLabel strong{
+    font-size:14px!important;
+  }
+  .selectedSearchLabel small{
+    display:block!important;
+    font-size:9px!important;
+  }
+
+  .selectedSearchInput{
+    height:50px!important;
+  }
+  .selectedSearchInput span{
+    font-size:18px!important;
+  }
+  .selectedSearchInput input{
+    font-size:16px!important;
+    line-height:1.2!important;
+  }
+
+  .selectedSearchResults{
+    position:fixed!important;
+    left:12px!important;
+    right:12px!important;
+    top:auto!important;
+    bottom:calc(96px + env(safe-area-inset-bottom))!important;
+    width:auto!important;
+    max-width:none!important;
+    max-height:min(42vh,360px)!important;
+    overflow-y:auto!important;
+    -webkit-overflow-scrolling:touch;
+    z-index:250!important;
+    border-radius:14px!important;
+    border:1px solid #3a3a3a!important;
+    background:#111!important;
+    box-shadow:0 -12px 36px rgba(0,0,0,.55)!important;
+  }
+
+  .selectedSearchResults button{
+    min-height:58px!important;
+    padding:10px 12px!important;
+    grid-template-columns:minmax(0,1fr) auto auto!important;
+    gap:10px!important;
+  }
+  .selectedSearchResults button strong{
+    font-size:13px!important;
+  }
+  .selectedSearchResults button small{
+    margin-top:3px!important;
+    font-size:9px!important;
+  }
+  .selectedSearchResults button em{
+    font-size:9px!important;
+  }
+  .selectedSearchResults button b{
+    padding:7px 9px!important;
+    font-size:9px!important;
+  }
+
+  /* Keep active search/results above the fixed bottom nav */
+  .selectedPlayerSearch:focus-within{
+    position:relative;
+    z-index:240;
+  }
+}
+
+@media(max-width:390px){
+  .selectedPlayerRow{
+    grid-template-columns:minmax(0,1fr) 66px 26px 74px!important;
+  }
+  .selectedSearchLabel small{
+    display:none!important;
+  }
+  .selectedSearchResults{
+    left:8px!important;
+    right:8px!important;
+  }
+}
