@@ -1844,49 +1844,58 @@ export default function Home() {
             <button className="active">일일정산</button>
             <button onClick={()=>setTab("weekly")}>주간정산</button>
           </div>
-          {reportPanel}
-          <section className="panel compactDailyPanel">
-            <div className="compactDailyHeader">
-              <div>
+
+          <section className="panel compactDailyPanel redesignedDailyPanel">
+            <div className="dailyTopBar">
+              <div className="dailyTitleBlock">
                 <span>일일 정산</span>
                 <strong>{summaryDate}</strong>
               </div>
-              <input className="datePicker compactDailyDate" type="date" value={summaryDate} onChange={e=>setSummaryDate(e.target.value)}/>
+
+              <div className="dailyTopActions">
+                <input className="datePicker compactDailyDate" type="date" value={summaryDate} onChange={e=>setSummaryDate(e.target.value)}/>
+                <button className="dailyExportButton primary" onClick={exportSettlementPng}>PNG</button>
+                <button className="dailyExportButton" onClick={exportSettlementCsv}>CSV</button>
+              </div>
             </div>
 
-            <div className="dailyStatementList">
-              <div className="dailyStatementLine income">
-                <span>총 레이크백</span>
+            <div className="dailySummaryGrid">
+              <button className="dailySummaryCard" onClick={()=>setTab("games")}>
+                <span>총 레이크</span>
                 <b>{vnd(dailyGrossAmount)}</b>
-              </div>
-
-              <button className="dailyStatementLine expense clickableStatementLine" onClick={()=>setFnbDetailOpen(true)}>
-                <span>F&B <small>상세보기 ›</small></span>
-                <b>− {vnd(dailyFnbTotal)}</b>
+                <small>게임 내역 보기 ›</small>
               </button>
-
-              <div className="dailyStatementSectionLabel">에이전트별 레이크백</div>
-
-              {dailyAgentRows.length===0
-                ? <div className="dailyStatementLine muted">
-                    <span>에이전트 레이크백</span>
-                    <b>− {vnd(0)}</b>
-                  </div>
-                : dailyAgentRows.map(a=><div className="dailyStatementLine expense agentLine" key={a.id}>
-                    <span>{a.code}<small>{a.rate}%</small></span>
-                    <b>− {vnd(a.amount)}</b>
-                  </div>)}
-
-              <div className="dailyStatementLine subtotal">
-                <span>총 비용</span>
-                <b>− {vnd(dailyExpenseTotal)}</b>
+              <button className="dailySummaryCard expense" onClick={()=>setFnbDetailOpen(true)}>
+                <span>F&B</span>
+                <b>− {vnd(dailyFnbTotal)}</b>
+                <small>상세보기 ›</small>
+              </button>
+              <div className="dailySummaryCard expense">
+                <span>에이전트 레이크백</span>
+                <b>− {vnd(dailyAgentTotal)}</b>
+                <small>{dailyAgentRows.length}개 에이전트</small>
               </div>
-
-              <div className="dailyStatementLine profit">
+              <div className="dailySummaryCard profit">
                 <span>일일 수익</span>
                 <b>{vnd(dailyProfit)}</b>
+                <small>총 비용 {vnd(dailyExpenseTotal)}</small>
               </div>
             </div>
+
+            <section className="dailyAgentSection">
+              <div className="dailyAgentSectionHeader">
+                <strong>에이전트별 레이크백</strong>
+                <span>{dailyAgentRows.length}개</span>
+              </div>
+              {dailyAgentRows.length===0
+                ? <div className="dailyAgentEmpty">정산할 에이전트 내역이 없습니다.</div>
+                : <div className="dailyAgentRows">
+                    {dailyAgentRows.map(a=><div className="dailyAgentRow" key={a.id}>
+                      <span><strong>{a.code}</strong><small>{a.rate}%</small></span>
+                      <b>− {vnd(a.amount)}</b>
+                    </div>)}
+                  </div>}
+            </section>
 
             <section className="dailyGameLog">
               <div className="dailyGameLogHeader">
