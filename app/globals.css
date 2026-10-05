@@ -7364,3 +7364,226 @@ html[data-theme="dark"] .dailyDeleteButton:hover{
   }
   .dailyGameGroupSummary{gap:9px}
 }
+
+
+/* Redesigned daily settlement */
+.redesignedDailyPanel{padding:18px}
+.dailyTopBar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  margin-bottom:14px
+}
+.dailyTitleBlock span{
+  display:block;
+  color:var(--muted);
+  font-size:10px;
+  font-weight:850;
+  letter-spacing:.04em
+}
+.dailyTitleBlock strong{
+  display:block;
+  margin-top:4px;
+  color:var(--text);
+  font-size:20px;
+  letter-spacing:-.03em
+}
+.dailyTopActions{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:8px
+}
+.dailyExportButton{
+  height:40px;
+  min-width:58px;
+  padding:0 13px;
+  border:1px solid var(--line-strong);
+  border-radius:10px;
+  background:var(--surface);
+  color:var(--text);
+  font-size:11px;
+  font-weight:850;
+  cursor:pointer
+}
+.dailyExportButton.primary{
+  border-color:#b98421;
+  background:#d4a140;
+  color:#19140a
+}
+.dailySummaryGrid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:10px;
+  margin-bottom:14px
+}
+.dailySummaryCard{
+  min-height:112px;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  justify-content:center;
+  padding:15px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:var(--surface-2);
+  text-align:left
+}
+button.dailySummaryCard{
+  width:100%;
+  cursor:pointer
+}
+button.dailySummaryCard:hover{
+  transform:none;
+  border-color:#d8bc7d;
+  background:#fffaf0
+}
+.dailySummaryCard span{
+  color:var(--muted);
+  font-size:10px;
+  font-weight:850
+}
+.dailySummaryCard b{
+  display:block;
+  margin-top:9px;
+  color:var(--text);
+  font-size:19px;
+  letter-spacing:-.035em
+}
+.dailySummaryCard small{
+  display:block;
+  margin-top:7px;
+  color:var(--muted-2);
+  font-size:9px
+}
+.dailySummaryCard.expense b{color:#b16e42}
+.dailySummaryCard.profit{
+  background:#fff9e9;
+  border-color:#ead5a4
+}
+.dailySummaryCard.profit b{color:#a46d08}
+.dailyAgentSection{
+  margin-bottom:16px;
+  overflow:hidden;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:var(--surface)
+}
+.dailyAgentSectionHeader{
+  min-height:40px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 13px;
+  border-bottom:1px solid var(--line);
+  background:var(--surface-2)
+}
+.dailyAgentSectionHeader strong{
+  color:var(--text);
+  font-size:11px
+}
+.dailyAgentSectionHeader span{
+  color:var(--muted);
+  font-size:9px
+}
+.dailyAgentRows{display:grid}
+.dailyAgentRow{
+  min-height:46px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  padding:0 13px;
+  border-bottom:1px solid var(--line)
+}
+.dailyAgentRow:last-child{border-bottom:0}
+.dailyAgentRow>span{
+  display:flex;
+  align-items:center;
+  gap:7px
+}
+.dailyAgentRow strong{
+  color:var(--text);
+  font-size:11px
+}
+.dailyAgentRow small{
+  color:var(--muted);
+  font-size:9px
+}
+.dailyAgentRow b{
+  color:#b16e42;
+  font-size:11px
+}
+
+html[data-theme="dark"] .dailySummaryCard,
+html[data-theme="dark"] .dailyAgentSection{
+  background:#18191c;
+  border-color:#2d2f34
+}
+html[data-theme="dark"] .dailySummaryCard.profit{
+  background:#211b0f;
+  border-color:#4a3a1f
+}
+html[data-theme="dark"] .dailyAgentSectionHeader{
+  background:#1d1f22;
+  border-color:#2d2f34
+}
+html[data-theme="dark"] .dailyAgentRow{
+  border-color:#292b30
+}
+html[data-theme="dark"] .dailyExportButton{
+  background:#1d1f22;
+  border-color:#36383d;
+  color:#e8e9ea
+}
+html[data-theme="dark"] button.dailySummaryCard:hover{
+  background:#211d15;
+  border-color:#4c3c22
+}
+
+@media(max-width:900px){
+  .dailySummaryGrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+
+@media(max-width:820px){
+  .redesignedDailyPanel{padding:12px}
+  .dailyTopBar{
+    align-items:flex-start;
+    gap:10px
+  }
+  .dailyTitleBlock strong{font-size:16px}
+  .dailyTopActions{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) 52px 52px;
+    width:min(100%,330px)
+  }
+  .dailyTopActions .compactDailyDate{
+    min-width:0;
+    width:100%
+  }
+  .dailyExportButton{
+    min-width:0;
+    width:52px;
+    padding:0
+  }
+  .dailySummaryGrid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:8px;
+    margin-bottom:12px
+  }
+  .dailySummaryCard{
+    min-height:94px;
+    padding:12px
+  }
+  .dailySummaryCard b{font-size:16px}
+  .dailyAgentSection{margin-bottom:12px}
+}
+
+@media(max-width:560px){
+  .dailyTopBar{
+    flex-direction:column;
+    align-items:stretch
+  }
+  .dailyTopActions{width:100%}
+}
