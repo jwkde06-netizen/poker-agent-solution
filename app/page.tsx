@@ -102,13 +102,13 @@ function plusDays(dateString: string, days: number) {
   return d.toISOString().slice(0, 10);
 }
 
-function MobileBottomIcon({type}:{type:"dashboard"|"fnb"|"games"|"daily"|"weekly"}) {
+function MobileBottomIcon({type}:{type:"dashboard"|"players"|"games"|"fnb"|"settlement"}) {
   const common={width:"100%",height:"100%",viewBox:"0 0 24 24",fill:"none",stroke:"currentColor",strokeWidth:2.2,strokeLinecap:"round" as const,strokeLinejoin:"round" as const,ariaHidden:true};
   if(type==="dashboard") return <svg {...common}><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>;
-  if(type==="fnb") return <svg {...common}><path d="M5 8h11v5.5A4.5 4.5 0 0 1 11.5 18h-2A4.5 4.5 0 0 1 5 13.5V8Z"/><path d="M16 10h1.5a2.5 2.5 0 0 1 0 5H16"/><path d="M4 21h15"/><path d="M8 3c0 1 .8 1.2.8 2.2S8 6.4 8 7"/><path d="M12 3c0 1 .8 1.2.8 2.2S12 6.4 12 7"/></svg>;
+  if(type==="players") return <svg {...common}><circle cx="9" cy="8" r="3"/><path d="M3.5 19c.7-3.2 2.6-5 5.5-5s4.8 1.8 5.5 5"/><path d="M16 7h5"/><path d="M16 11h5"/><path d="M16 15h5"/></svg>;
   if(type==="games") return <svg {...common} strokeWidth={2.5}><path d="M12 5v14"/><path d="M5 12h14"/></svg>;
-  if(type==="daily") return <svg {...common}><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6"/><path d="M9 12h6"/><path d="M9 16h4"/></svg>;
-  return <svg {...common}><path d="M5 20V12"/><path d="M10 20V8"/><path d="M15 20V4"/><path d="M20 20V10"/></svg>;
+  if(type==="fnb") return <svg {...common}><path d="M5 8h11v5.5A4.5 4.5 0 0 1 11.5 18h-2A4.5 4.5 0 0 1 5 13.5V8Z"/><path d="M16 10h1.5a2.5 2.5 0 0 1 0 5H16"/><path d="M4 21h15"/><path d="M8 3c0 1 .8 1.2.8 2.2S8 6.4 8 7"/><path d="M12 3c0 1 .8 1.2.8 2.2S12 6.4 12 7"/></svg>;
+  return <svg {...common}><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8"/><path d="M8 12h8"/><path d="M8 16h5"/></svg>;
 }
 
 
@@ -721,10 +721,10 @@ export default function Home() {
 
   const mobileNavItems = [
     {key:"dashboard",label:"대시보드"},
-    {key:"fnb",label:"F&B"},
+    {key:"players",label:"플레이어"},
     {key:"games",label:"바이인"},
-    {key:"daily",label:"일일정산"},
-    {key:"weekly",label:"주간정산"},
+    {key:"fnb",label:"F&B"},
+    {key:"settlement",label:"정산"},
   ] as const;
 
   return <main className="appShell">
@@ -960,6 +960,10 @@ export default function Home() {
         </>}
 
         {tab==="agencies" && <section className="panel">
+          <div className="mobileSectionSwitcher playerAccessSwitcher">
+            <button onClick={()=>setTab("players")}>플레이어 명단</button>
+            <button className="active">에이전트 코드</button>
+          </div>
           <div className="sectionTitle"><div><h2>에이전트 코드 관리</h2><p>코드명과 정산 요율은 언제든 변경할 수 있습니다.</p></div></div>
           <div className="inlineForm">
             <input placeholder="새 코드명" value={newAgencyCode} onChange={e=>setNewAgencyCode(e.target.value)}/>
@@ -972,6 +976,10 @@ export default function Home() {
         </section>}
 
         {tab==="players" && <section className="panel">
+          <div className="mobileSectionSwitcher playerAccessSwitcher">
+            <button className="active">플레이어 명단</button>
+            <button onClick={()=>setTab("agencies")}>에이전트 코드</button>
+          </div>
           <div className="playerSectionActions">
             <div>
               <h3>플레이어 검색</h3>
@@ -1267,6 +1275,10 @@ export default function Home() {
         </section>}
 
         {tab==="daily" && <section className="compactDailyPage">
+          <div className="mobileSectionSwitcher settlementSwitcher">
+            <button className="active">일일정산</button>
+            <button onClick={()=>setTab("weekly")}>주간정산</button>
+          </div>
           <section className="panel compactDailyPanel">
             <div className="compactDailyHeader">
               <div>
@@ -1325,7 +1337,11 @@ export default function Home() {
           </section>
         </section>}
 
-        {tab==="weekly" && <section className="panel">
+        {tab==="weekly" && <section className="panel weeklyPanel">
+          <div className="mobileSectionSwitcher settlementSwitcher">
+            <button onClick={()=>setTab("daily")}>일일정산</button>
+            <button className="active">주간정산</button>
+          </div>
           <div className="sectionTitle"><div><h2>주간 정산</h2><p>기간별 에이전트·플레이어 정산 결과를 확인합니다.</p></div><div className="dateRange"><input className="datePicker" type="date" value={weekStart} onChange={e=>setWeekStart(e.target.value)}/><span>~</span><input className="datePicker" type="date" value={weekEnd} onChange={e=>setWeekEnd(e.target.value)}/></div></div>
           <div className="cards"><div className="metric"><span>주간 총 레이크</span><b>{vnd(total(weeklyEntries,"rake"))}</b></div><div className="metric"><span>주간 총 에이전트 정산액</span><b>{vnd(total(weeklyEntries,"rakeback"))}</b></div><div className="metric"><span>주간 정산 후 순액</span><b>{vnd(total(weeklyEntries,"rake")-total(weeklyEntries,"rakeback"))}</b></div></div>
           <div className="agencyGrid">{agencyTotals(weeklyEntries).map(a=><div className="agencyCard" key={a.id}><span>{a.code}</span><small>현재 정산 요율 {a.rate}%</small><b>{vnd(a.amount)}</b></div>)}</div>
@@ -1477,14 +1493,23 @@ export default function Home() {
     </div>}
 
     <nav className="mobileBottomNav" aria-label="모바일 메뉴">
-      {mobileNavItems.map(item=><button
-        key={item.key}
-        className={`${tab===item.key?"active":""} ${item.key==="games"?"buyinNavItem":""}`}
-        onClick={()=>setTab(item.key as any)}
-      >
-        <span className="mobileNavIcon"><MobileBottomIcon type={item.key}/></span>
-        <span>{item.label}</span>
-      </button>)}
+      {mobileNavItems.map(item=>{
+        const isActive =
+          item.key==="settlement" ? (tab==="daily" || tab==="weekly") :
+          item.key==="players" ? (tab==="players" || tab==="agencies") :
+          tab===item.key;
+        return <button
+          key={item.key}
+          className={`${isActive?"active":""} ${item.key==="games"?"buyinNavItem":""}`}
+          onClick={()=>{
+            if(item.key==="settlement") setTab("daily");
+            else setTab(item.key as any);
+          }}
+        >
+          <span className="mobileNavIcon"><MobileBottomIcon type={item.key}/></span>
+          <span>{item.label}</span>
+        </button>
+      })}
     </nav>
   </main>;
 }
