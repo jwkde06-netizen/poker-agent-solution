@@ -1055,16 +1055,6 @@ export default function Home() {
               })}
             </div>
 
-            <div className="otherTablePicker">
-              <span>기타 테이블</span>
-              <input
-                inputMode="numeric"
-                value={newTableNo}
-                onChange={e=>setNewTableNo(e.target.value.replace(/\D/g,""))}
-                placeholder="번호"
-              />
-              <button onClick={()=>{if(newTableNo.trim())setSelectedTableNo(newTableNo.trim())}}>선택</button>
-            </div>
           </section>
 
           <section className="panel selectedTablePanel">
