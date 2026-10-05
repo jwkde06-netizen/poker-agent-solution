@@ -10675,3 +10675,168 @@ html[data-theme="dark"] .quickBuyinControl b{
     font-size:18px
   }
 }
+
+
+/* Minimal live-session header */
+.simpleSessionTop{
+  align-items:center!important;
+  padding-bottom:12px!important;
+  border-bottom:1px solid var(--line)!important
+}
+.simpleSessionHeader{
+  display:flex!important;
+  align-items:center!important;
+  min-width:0
+}
+.sessionTitlePlain{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  min-width:0
+}
+.sessionTitlePlain strong,
+.sessionTitlePlain span,
+.sessionTitlePlain b{
+  margin:0;
+  padding:0;
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important
+}
+.sessionTitlePlain strong{
+  color:var(--text);
+  font-size:28px;
+  font-weight:850;
+  letter-spacing:-.045em
+}
+.sessionTitlePlain span{
+  color:#8a6a27;
+  font-size:15px;
+  font-weight:800
+}
+.sessionTitlePlain b{
+  color:var(--text);
+  font-size:24px;
+  font-weight:850
+}
+.sessionTopActions{
+  display:flex;
+  align-items:center;
+  gap:8px
+}
+.sessionEditButton,
+.sessionSaveButton,
+.sessionCancelButton{
+  height:38px;
+  padding:0 14px;
+  border-radius:9px;
+  border:1px solid var(--line-strong);
+  background:#fff;
+  color:#4d555d;
+  font-size:12px;
+  font-weight:800;
+  cursor:pointer
+}
+.sessionEditButton:hover,
+.sessionCancelButton:hover{
+  background:#f7f8fa
+}
+.sessionSaveButton{
+  border-color:#c89531;
+  background:#c89531;
+  color:#18130a
+}
+.sessionEditInline{
+  display:flex;
+  align-items:center;
+  gap:10px
+}
+.sessionEditInline label{
+  display:flex;
+  align-items:center;
+  gap:6px
+}
+.sessionEditInline label>span{
+  color:var(--text);
+  font-size:22px;
+  font-weight:850
+}
+.sessionEditInline input,
+.sessionEditInline select{
+  height:38px;
+  border:1px solid var(--line-strong);
+  border-radius:9px;
+  background:var(--surface);
+  color:var(--text);
+  outline:none;
+  font-weight:800
+}
+.sessionEditInline input{
+  width:54px;
+  padding:0 9px;
+  font-size:20px
+}
+.sessionEditInline select{
+  min-width:76px;
+  padding:0 10px;
+  font-size:17px
+}
+.simpleSessionNo{
+  color:#8a6a27!important;
+  font-size:15px!important;
+  font-weight:800!important
+}
+
+html[data-theme="dark"] .sessionEditButton,
+html[data-theme="dark"] .sessionCancelButton,
+html[data-theme="dark"] .sessionEditInline input,
+html[data-theme="dark"] .sessionEditInline select{
+  background:#1d1f22;
+  border-color:#34363b;
+  color:#f0f1f2
+}
+html[data-theme="dark"] .sessionSaveButton{
+  background:#d0a044;
+  border-color:#d0a044;
+  color:#16110a
+}
+
+@media(max-width:820px){
+  .simpleSessionTop{
+    gap:10px!important
+  }
+  .sessionTitlePlain{
+    gap:8px
+  }
+  .sessionTitlePlain strong{
+    font-size:21px
+  }
+  .sessionTitlePlain span{
+    font-size:12px
+  }
+  .sessionTitlePlain b{
+    font-size:18px
+  }
+  .sessionEditButton,
+  .sessionSaveButton,
+  .sessionCancelButton,
+  .selectedCloseButton{
+    height:36px!important;
+    padding:0 10px!important;
+    font-size:11px!important
+  }
+  .sessionEditInline{
+    gap:6px
+  }
+  .sessionEditInline label>span{
+    font-size:18px
+  }
+  .sessionEditInline input{
+    width:46px;
+    font-size:17px
+  }
+  .sessionEditInline select{
+    min-width:66px;
+    font-size:15px
+  }
+}
