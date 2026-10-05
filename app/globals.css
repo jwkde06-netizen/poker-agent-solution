@@ -4000,3 +4000,174 @@ html[data-theme="dark"] .accountDropdown>button:hover{
     font-size:8px!important;
   }
 }
+
+/* Dashboard readability + quick actions */
+.dashboardQuickMenu{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:10px;
+  margin:12px 0;
+}
+.dashboardQuickMenu button{
+  min-height:78px;
+  display:grid;
+  grid-template-columns:34px minmax(0,1fr);
+  grid-template-areas:
+    "icon title"
+    "icon meta";
+  align-items:center;
+  gap:2px 9px;
+  padding:12px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:#fff;
+  color:#25282c;
+  text-align:left;
+  cursor:pointer;
+}
+.dashboardQuickMenu button>span{
+  grid-area:icon;
+  display:grid;
+  place-items:center;
+  width:34px;
+  height:34px;
+  border-radius:10px;
+  background:#fff6df;
+  color:#9b6c12;
+  font-size:20px;
+}
+.dashboardQuickMenu button>strong{
+  grid-area:title;
+  font-size:13px;
+}
+.dashboardQuickMenu button>small{
+  grid-area:meta;
+  color:#8b9299;
+  font-size:9px;
+}
+html[data-theme="dark"] .dashboardQuickMenu button{
+  background:#111;
+  border-color:#2b2b2b;
+  color:#eee;
+}
+html[data-theme="dark"] .dashboardQuickMenu button>span{
+  background:#211a0d;
+  color:#e0ad49;
+}
+
+@media(max-width:820px){
+  .dashboardKpis{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:8px!important;
+  }
+  .dashboardKpi{
+    min-height:92px!important;
+    padding:12px!important;
+  }
+  .dashboardKpi .kpiIcon{
+    width:34px!important;
+    height:34px!important;
+    font-size:18px!important;
+  }
+  .dashboardKpi .kpiCopy span{
+    font-size:11px!important;
+  }
+  .dashboardKpi .kpiCopy b{
+    font-size:18px!important;
+    margin-top:4px!important;
+  }
+  .dashboardKpi .kpiCopy small{
+    font-size:8px!important;
+    margin-top:3px!important;
+  }
+
+  .dashboardQuickMenu{
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:6px;
+    margin:9px 0;
+  }
+  .dashboardQuickMenu button{
+    min-height:76px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:4px;
+    padding:7px 4px;
+    text-align:center;
+    border-radius:12px;
+  }
+  .dashboardQuickMenu button>span{
+    width:32px;
+    height:32px;
+    font-size:18px;
+  }
+  .dashboardQuickMenu button>strong{
+    font-size:11px;
+  }
+  .dashboardQuickMenu button>small{
+    font-size:7px;
+  }
+
+  .dashboardRecent .cardHeader h2,
+  .chartCard .cardHeader h2,
+  .agentSummaryCard .cardHeader h2{
+    font-size:15px!important;
+  }
+  .dashboardRecent .cardHeader p,
+  .chartCard .cardHeader p,
+  .agentSummaryCard .cardHeader p{
+    font-size:9px!important;
+  }
+  .recentSettlementCopy strong{
+    font-size:13px!important;
+  }
+  .recentSettlementCopy span,
+  .recentSettlementAmount small{
+    font-size:9px!important;
+  }
+  .recentSettlementAmount b{
+    font-size:16px!important;
+  }
+}
+
+/* Buy-in table selector: all tables in one compact row */
+@media(max-width:820px){
+  .pokerFloorMap{
+    grid-template-columns:repeat(5,minmax(0,1fr))!important;
+    grid-template-rows:46px!important;
+    gap:5px!important;
+    padding:7px!important;
+  }
+  .table12{
+    grid-column:1!important;
+    grid-row:1!important;
+  }
+  .table13{
+    grid-column:2!important;
+    grid-row:1!important;
+  }
+  .table5{
+    grid-column:3!important;
+    grid-row:1!important;
+  }
+  .table2{
+    grid-column:4!important;
+    grid-row:1!important;
+  }
+  .table4{
+    grid-column:5!important;
+    grid-row:1!important;
+  }
+  .floorTableButton{
+    height:44px!important;
+    min-height:44px!important;
+    border-radius:9px!important;
+  }
+  .floorTableButton strong{
+    font-size:14px!important;
+  }
+  .floorTableButton small{
+    font-size:8px!important;
+  }
+}
