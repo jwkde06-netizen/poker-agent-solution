@@ -122,6 +122,7 @@ export default function Home() {
   const [selectedTableNo, setSelectedTableNo] = useState("5");
   const [newGameNo, setNewGameNo] = useState("");
   const [newSessionGame, setNewSessionGame] = useState("5M");
+  const [gamesView, setGamesView] = useState<"live"|"logs">("live");
   const [sessionSearch, setSessionSearch] = useState<Record<string,string>>({});
   const [manageEntryId, setManageEntryId] = useState<string | null>(null);
   const [managePlayerSearch, setManagePlayerSearch] = useState("");
@@ -160,6 +161,10 @@ export default function Home() {
   const [gameBuyIn, setGameBuyIn] = useState("1");
   const [gameRake, setGameRake] = useState("500000");
   const [summaryDate, setSummaryDate] = useState(today());
+  const [fnbDetailOpen, setFnbDetailOpen] = useState(false);
+  const [reportPreset, setReportPreset] = useState<"today"|"week"|"custom">("today");
+  const [reportStart, setReportStart] = useState(today());
+  const [reportEnd, setReportEnd] = useState(today());
   const start = monday(today());
   const [weekStart, setWeekStart] = useState(start);
   const [weekEnd, setWeekEnd] = useState(plusDays(start, 6));
