@@ -3372,7 +3372,7 @@ export default function Home() {
     </div>}
 
     <nav className="mobileBottomNav" aria-label="모바일 메뉴">
-      {mobileNavItems.map(item=>{
+      {mobileNavItems.filter(item=>!isStaff || item.key!=="settlement").map(item=>{
         const isActive =
           item.key==="settlement" ? (tab==="daily" || tab==="weekly") :
           item.key==="players" ? (tab==="players" || tab==="agencies") :
