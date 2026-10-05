@@ -1849,6 +1849,7 @@ export default function Home() {
     ].join(" ").toLowerCase().includes(q)).slice(0,6);
 
     const featureResults=globalFeatureItems.filter(item=>
+      (item.key!=="expenses" || profile?.role==="admin") &&
       (item.label+" "+item.description+" "+item.keywords).toLowerCase().includes(q)
     ).slice(0,5);
 
@@ -3170,7 +3171,7 @@ export default function Home() {
               <div className="profit"><span>주간 수익</span><b>{vnd(weeklyProfit)}</b><small>엔트리피 − 레이크백 − F&B</small></div>
             </div>
 
-            <section className="weeklyDistributionFlow">
+            {profile?.role==="admin" && <section className="weeklyDistributionFlow">
               <div className="weeklyDistributionHead">
                 <div>
                   <h3>지출 처리 → 지분 배당</h3>
@@ -3220,7 +3221,7 @@ export default function Home() {
                   {row.status!=="preview" && <em className={row.status==="paid"?"paid":""}>{row.status==="paid"?"지급완료":"지급대기"}</em>}
                 </div>)}
               </div>
-            </section>
+            </section>}
 
             <div className="weeklyReportGrid">
               <section className="weeklyAgentSection">
