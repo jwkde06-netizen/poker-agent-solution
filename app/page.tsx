@@ -197,6 +197,8 @@ export default function Home() {
   const [ownUsername, setOwnUsername] = useState("");
   const [ownPassword, setOwnPassword] = useState("");
   const [updatingOwnLogin, setUpdatingOwnLogin] = useState(false);
+  const isStaff = profile?.role==="staff";
+  const staffAllowedTabs = ["dashboard","players","games","fnb"] as const;
 
   const [loginId, setLoginId] = useState("");
   const [password, setPassword] = useState("");
@@ -267,6 +269,17 @@ export default function Home() {
     window.addEventListener("popstate",readTabFromUrl);
     return ()=>window.removeEventListener("popstate",readTabFromUrl);
   }, []);
+
+  useEffect(() => {
+    if(profile?.role!=="staff")return;
+    if((staffAllowedTabs as readonly string[]).includes(tab))return;
+    setTab("dashboard");
+    if(typeof window!=="undefined"){
+      const url=new URL(window.location.href);
+      url.searchParams.set("tab","dashboard");
+      window.history.replaceState({tab:"dashboard"},"",url.toString());
+    }
+  },[profile?.role,tab]);
 
   useEffect(() => {
     try{
@@ -1854,7 +1867,7 @@ export default function Home() {
   ] as const;
   const navItems = allNavItems.filter(item=>{
     if(profile?.role==="admin") return true;
-    if(profile?.role==="staff") return item.key!=="settings" && item.key!=="agencies";
+    if(profile?.role==="staff") return ["dashboard","players","games","fnb"].includes(item.key);
     if(profile?.role==="agent") return ["dashboard","players","daily","weekly","reports"].includes(item.key);
     return item.key==="dashboard";
   });
