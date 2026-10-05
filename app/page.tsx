@@ -623,6 +623,19 @@ export default function Home() {
   const weeklyFnbAllTotal = weeklyFnbEntries.reduce((sum,e)=>sum+e.totalAmount,0);
   const weeklyFnbTotal = weeklyFnbEntries.filter(isOperatingFnbExpense).reduce((sum,e)=>sum+e.totalAmount,0);
   const weeklyProfit = weeklyEntryFee-weeklyRakeback-weeklyFnbTotal;
+  const pendingExpenseRows=expenseItems.filter(x=>x.processedAmount<x.amount);
+  const pendingExpenseTotal=pendingExpenseRows.reduce((sum,x)=>sum+(x.amount-x.processedAmount),0);
+  const selectedWeekDistribution=weeklyDistributions.find(x=>x.weekStart===weekStart) ?? null;
+  const selectedWeekPayouts=selectedWeekDistribution
+    ? shareholderPayouts.filter(x=>x.distributionId===selectedWeekDistribution.id)
+    : [];
+  const previewExpenseApplied=selectedWeekDistribution
+    ? selectedWeekDistribution.expenseApplied
+    : Math.min(Math.max(weeklyProfit,0),pendingExpenseTotal);
+  const previewDistributableProfit=selectedWeekDistribution
+    ? selectedWeekDistribution.distributableProfit
+    : Math.max(weeklyProfit-previewExpenseApplied,0);
+  const shareholderRateTotal=shareholders.filter(x=>x.active).reduce((sum,x)=>sum+x.rate,0);
   const weeklyFnbGroups = useMemo(()=>{
     const map=new Map<string,{group:string;amount:number;count:number;operating:boolean}>();
     weeklyFnbEntries.forEach(item=>{
@@ -1821,6 +1834,7 @@ export default function Home() {
     {key:"games",label:"게임 입력",description:"테이블 현황 · 바이인 입력",keywords:"게임 바이인 테이블 현황 좌석"},
     {key:"daily",label:"일일 정산",description:"오늘 정산 · 지난 게임 로그 수정",keywords:"일일 정산 로그 수정 매출 수익"},
     {key:"weekly",label:"주간 정산",description:"주간 정산 내역",keywords:"주간 정산"},
+    {key:"expenses",label:"지출 내역서",description:"미처리 경비 · 지분 배당",keywords:"지출 경비 비용 배당 지분"},
     {key:"fnb",label:"F&B",description:"F&B 비용 입력 · 내역",keywords:"f&b fnb 음식 음료 비용"},
     {key:"reports",label:"리포트",description:"정산 리포트 · 내보내기",keywords:"리포트 보고서 csv png"},
     {key:"settings",label:"설정",description:"계정 · 시스템 설정",keywords:"설정 계정 다크모드"}
@@ -2026,6 +2040,7 @@ export default function Home() {
     {key:"fnb",label:"F&B"},
     {key:"daily",label:"일일 정산"},
     {key:"weekly",label:"주간 정산"},
+    {key:"expenses",label:"지출 내역서"},
     {key:"reports",label:"리포트"},
     {key:"settings",label:"계정 관리"},
   ] as const;
