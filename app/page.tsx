@@ -1993,25 +1993,32 @@ export default function Home() {
                         <b>{selectedGameSession.game}</b>
                         <span>{selectedGameSession.gameNo ? `No.${selectedGameSession.gameNo}` : "No.-"}</span>
                       </div>
-                  : <strong>Table {selectedTableNo || "-"}</strong>}
-              </div>
-
-              {!selectedGameSession
-                ? <div className="selectedGameStart">
-                    <label className="gameNoField">
-                      <span>게임 번호</span>
-                      <input inputMode="numeric" value={newGameNo} onChange={e=>setNewGameNo(e.target.value.replace(/\D/g,""))} placeholder="No."/>
-                    </label>
-                    <label>
-                      <span>게임</span>
+                  : <div className="sessionEditInline preStartSessionEdit">
+                      <label>
+                        <span>Table</span>
+                        <input value={selectedTableNo} readOnly aria-label="선택된 테이블 번호"/>
+                      </label>
                       <select value={newSessionGame} onChange={e=>setNewSessionGame(e.target.value)}>
                         <option value="3M">3M</option>
                         <option value="5M">5M</option>
                         <option value="10M">10M</option>
                         <option value="15M">15M</option>
                       </select>
-                    </label>
-                    <button className="primary startTableButton" onClick={startGameSession}>게임 시작</button>
+                      <label className="sessionNoEdit">
+                        <span>No.</span>
+                        <input
+                          inputMode="numeric"
+                          value={newGameNo}
+                          onChange={e=>setNewGameNo(e.target.value.replace(/\D/g,""))}
+                          placeholder="-"
+                        />
+                      </label>
+                    </div>}
+              </div>
+
+              {!selectedGameSession
+                ? <div className="sessionTopActions">
+                    <button className="sessionSaveButton startTableButton unifiedStartButton" onClick={startGameSession}>게임 시작</button>
                   </div>
                 : <div className="sessionTopActions">
                     {editingSessionId===selectedGameSession.id
@@ -2039,20 +2046,14 @@ export default function Home() {
                   </div>}
             </div>
 
-            {selectedGameSession && <div className="selectedTableStats compactSelectedStats fourStats">
-              <div><span>플레이어</span><b>{selectedTableEntries.length}명</b></div>
-              <div><span>총 바이인</span><b>{selectedTableBuyIns}회</b></div>
-              <div><span>전체 매출</span><b>{vnd(selectedTableRevenue)}</b></div>
-              <div><span>레이크백</span><b>{vnd(selectedTableRakeback)}</b></div>
-            </div>}
+            <div className="selectedTableStats compactSelectedStats fourStats">
+              <div><span>플레이어</span><b>{selectedGameSession?selectedTableEntries.length:0}명</b></div>
+              <div><span>총 바이인</span><b>{selectedGameSession?selectedTableBuyIns:0}회</b></div>
+              <div><span>전체 매출</span><b>{vnd(selectedGameSession?selectedTableRevenue:0)}</b></div>
+              <div><span>레이크백</span><b>{vnd(selectedGameSession?selectedTableRakeback:0)}</b></div>
+            </div>
 
-            {!selectedGameSession
-              ? <div className="selectedTableEmpty">
-                  <div className="emptyPlayersIcon">♙</div>
-                  <strong>T{selectedTableNo}에서 진행 중인 게임이 없습니다.</strong>
-                  <span>게임 종류를 선택하고 게임 시작을 눌러주세요.</span>
-                </div>
-              : <>
+            {selectedGameSession && <>
                   <div className="selectedPlayerSection">
                     <div className="selectedPlayerSearch topPlayerSearch">
                       <div className="selectedSearchLabel">
