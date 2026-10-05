@@ -1416,20 +1416,6 @@ export default function Home() {
       </>}
 
       <div className="contentArea">
-        {tab!=="dashboard" && <div className="pageHeading">
-          <div>
-            <p className="eyebrow">드림 포커 · 에이전트 운영</p>
-            <h1>{tab==="agencies"?"에이전트 관리":
-              tab==="players"?"플레이어 관리":
-              tab==="games"?"게임 입력":
-              tab==="daily"?"일일 정산":
-              tab==="weekly"?"주간 정산":
-              tab==="fnb"?"F&B":
-              tab==="reports"?"리포트":"설정"}</h1>
-            <p className="sub">운영 데이터와 정산 정보를 관리합니다.</p>
-          </div>
-        </div>}
-
         {message && <div className="note globalNote">{message}</div>}
 
         {tab==="dashboard" && <>
@@ -1804,15 +1790,7 @@ export default function Home() {
             </div>
 
             <div className="pokerFloorMap">
-              <button
-                className={`floorTableButton table4 ${selectedTableNo==="4"?"selected":""} ${activeGameSessions.some(s=>s.tableNo==="4")?"live":""}`}
-                onClick={()=>setSelectedTableNo("4")}
-              >
-                <strong>T4</strong>
-                {activeGameSessions.some(s=>s.tableNo==="4") && <small>LIVE</small>}
-              </button>
-
-              {["12","13","5","2"].map(no=>{
+              {["4","12","13","5","2"].map(no=>{
                 const liveSession=activeGameSessions.find(s=>s.tableNo===no);
                 const liveEntries=liveSession ? entries.filter(e=>e.sessionId===liveSession.id) : [];
                 return <button
