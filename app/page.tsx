@@ -89,7 +89,7 @@ const DEFAULT_AGENCIES: Agency[] = [
   { id: "agency-korea2", code: "KOREA2", rate: 25, active: true },
 ];
 
-const money = new Intl.NumberFormat("vi-VN", { maximumFractionDigits: 0 });
+const money = new Intl.NumberFormat("ko-KR", { maximumFractionDigits: 0 });
 const vnd = (value:number) => money.format(value);
 const today = () => new Date().toISOString().slice(0, 10);
 const uid = (prefix: string) => `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -1661,7 +1661,7 @@ export default function Home() {
               <button className="dashboardFinanceCard gross" onClick={()=>navigateTab("daily")}>
                 <span>오늘 레이크백</span>
                 <strong>{vnd(todayRevenue)}</strong>
-                <small>오늘 총 레이크</small>
+                <small>오늘 총 엔트리피</small>
               </button>
               <button className="dashboardFinanceCard agent" onClick={()=>navigateTab("daily")}>
                 <span>에이전트 레이크백</span>
@@ -1730,7 +1730,7 @@ export default function Home() {
               </div>
 
               <div className="dashboardTrendSummary">
-                <div><span>총 레이크</span><strong>{vnd(dashboardTrendRake)}</strong></div>
+                <div><span>총 엔트리피</span><strong>{vnd(dashboardTrendRake)}</strong></div>
                 <div><span>순수익</span><strong>{vnd(dashboardTrendProfit)}</strong></div>
               </div>
 
@@ -1745,7 +1745,7 @@ export default function Home() {
               </div>
 
               <div className="dashboardTrendLegend">
-                <span><i className="rakeLegend"/>총 레이크</span>
+                <span><i className="rakeLegend"/>총 엔트리피</span>
                 <span><i className="profitLegend"/>순수익</span>
               </div>
             </section>
@@ -2321,29 +2321,6 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="dailySummaryGrid dailySummaryGridCompact">
-              <div className="dailySummaryCard">
-                <span>총 레이크</span>
-                <b>{vnd(dailyGrossAmount)}</b>
-                <small>{dailyEntries.reduce((sum,e)=>sum+e.buyIn,0)} BUY-IN</small>
-              </div>
-              <div className="dailySummaryCard expense">
-                <span>레이크백</span>
-                <b>− {vnd(dailyAgentTotal)}</b>
-                <small>{dailyAgentRows.length}개 에이전트</small>
-              </div>
-              <button className="dailySummaryCard expense" onClick={()=>setFnbDetailOpen(true)}>
-                <span>F&B</span>
-                <b>− {vnd(dailyFnbTotal)}</b>
-                <small>비용 상세 ›</small>
-              </button>
-              <div className="dailySummaryCard profit">
-                <span>최종 순수익</span>
-                <b>{vnd(dailyProfit)}</b>
-                <small>총 비용 {vnd(dailyExpenseTotal)}</small>
-              </div>
-            </div>
-
             <div className="dailyWorkspaceGrid">
               <section className="dailyGameLog dailyMainDetail">
                 <div className="dailyGameLogHeader">
@@ -2373,15 +2350,12 @@ export default function Home() {
                         return <section className="dailyGameGroup" key={group.key}>
                           <header className="dailyGameGroupHeader">
                             <div className="dailyGameGroupIdentity">
-                              <strong>{group.tableNo?`T${group.tableNo}`:"GAME"}</strong>
-                              {group.gameNo && <span>No.{group.gameNo}</span>}
+                              <strong>{group.tableNo?`Table ${group.tableNo}`:"Game"}</strong>
+                              <span>{group.gameNo?`No.${group.gameNo}`:"No.-"}</span>
                               <b>{group.game}</b>
                             </div>
                             <div className="dailyGameGroupSummary">
-                              <span>{group.entries.length}명</span>
-                              <span>{groupBuyIns} BUY-IN</span>
-                              <strong>{vnd(groupRake)}</strong>
-                              <em>RB {vnd(groupRakeback)}</em>
+                              <strong>{groupBuyIns} BUY-IN</strong>
                             </div>
                           </header>
 
@@ -2390,7 +2364,7 @@ export default function Home() {
                               <span>플레이어</span>
                               <span>에이전트</span>
                               <span>바이인</span>
-                              <span>레이크</span>
+                              <span>엔트리피</span>
                               <span>레이크백</span>
                             </div>
 
@@ -2453,47 +2427,29 @@ export default function Home() {
               </section>
 
               <aside className="dailySideSummary">
-                <section className="dailySideCard">
-                  <div className="dailySideCardHeader">
-                    <strong>에이전트별 레이크백</strong>
-                    <span>{dailyAgentRows.length}</span>
+                <section className="dailyAccountingCard">
+                  <div className="dailyAccountingHeader">
+                    <strong>오늘 정산</strong>
+                    <span>{summaryDate}</span>
                   </div>
-                  {dailyAgentRows.length===0
-                    ? <div className="dailyAgentEmpty">정산 내역 없음</div>
-                    : <div className="dailyAgentRows">
-                        {dailyAgentRows.map(a=><div className="dailyAgentRow" key={a.id}>
-                          <span><strong>{a.code}</strong><small>{a.rate}%</small></span>
-                          <b>− {vnd(a.amount)}</b>
-                        </div>)}
-                      </div>}
-                  <div className="dailySideTotal">
-                    <span>레이크백 합계</span>
-                    <b>− {vnd(dailyAgentTotal)}</b>
-                  </div>
-                </section>
-
-                <section className="dailySideCard dailyExpenseCard">
-                  <div className="dailySideCardHeader">
-                    <strong>비용 요약</strong>
-                  </div>
-                  <div className="dailyExpenseRows">
-                    <button onClick={()=>setFnbDetailOpen(true)}>
-                      <span>F&B</span><b>− {vnd(dailyFnbTotal)}</b>
-                    </button>
+                  <div className="dailyAccountingRows">
                     <div>
-                      <span>에이전트 레이크백</span><b>− {vnd(dailyAgentTotal)}</b>
+                      <span>총 엔트리피</span>
+                      <b>{vnd(dailyGrossAmount)}</b>
+                    </div>
+                    <div className="expense">
+                      <span>레이크백</span>
+                      <b>− {vnd(dailyAgentTotal)}</b>
+                    </div>
+                    <button className="expense" onClick={()=>setFnbDetailOpen(true)}>
+                      <span>F&B</span>
+                      <b>− {vnd(dailyFnbTotal)}</b>
+                    </button>
+                    <div className="profit">
+                      <span>오늘 수익</span>
+                      <b>{vnd(dailyProfit)}</b>
                     </div>
                   </div>
-                  <div className="dailySideTotal">
-                    <span>총 비용</span>
-                    <b>− {vnd(dailyExpenseTotal)}</b>
-                  </div>
-                </section>
-
-                <section className="dailySideCard dailyNetCard">
-                  <span>최종 순수익</span>
-                  <b>{vnd(dailyProfit)}</b>
-                  <small>{summaryDate}</small>
                 </section>
               </aside>
             </div>
@@ -2506,10 +2462,10 @@ export default function Home() {
             <button className="active">주간정산</button>
           </div>
           <div className="sectionTitle"><div><h2>주간 정산</h2></div><div className="dateRange"><input className="datePicker" type="date" value={weekStart} onChange={e=>setWeekStart(e.target.value)}/><span>~</span><input className="datePicker" type="date" value={weekEnd} onChange={e=>setWeekEnd(e.target.value)}/></div></div>
-          <div className="cards"><div className="metric"><span>주간 총 레이크</span><b>{vnd(total(weeklyEntries,"rake"))}</b></div><div className="metric"><span>주간 총 에이전트 정산액</span><b>{vnd(total(weeklyEntries,"rakeback"))}</b></div><div className="metric"><span>주간 정산 후 순액</span><b>{vnd(total(weeklyEntries,"rake")-total(weeklyEntries,"rakeback"))}</b></div></div>
+          <div className="cards"><div className="metric"><span>주간 총 엔트리피</span><b>{vnd(total(weeklyEntries,"rake"))}</b></div><div className="metric"><span>주간 총 에이전트 정산액</span><b>{vnd(total(weeklyEntries,"rakeback"))}</b></div><div className="metric"><span>주간 정산 후 순액</span><b>{vnd(total(weeklyEntries,"rake")-total(weeklyEntries,"rakeback"))}</b></div></div>
           <div className="agencyGrid">{agencyTotals(weeklyEntries).map(a=><div className="agencyCard" key={a.id}><span>{a.code}</span><small>현재 정산 요율 {a.rate}%</small><b>{vnd(a.amount)}</b></div>)}</div>
           <div className="sectionTitle compact"><div><h2>플레이어별 주간 정산</h2><p>각 게임 입력 당시 저장된 정산 요율을 기준으로 계산합니다.</p></div></div>
-          <div className="tableWrap"><table><thead><tr><th>플레이어</th><th>에이전트</th><th>바이인</th><th>총 레이크</th><th>레이크백</th></tr></thead><tbody>{weeklyPlayerRows.length===0?<tr><td colSpan={5} className="empty">해당 기간의 정산 기록이 없습니다.</td></tr>:weeklyPlayerRows.map(r=><tr key={`${r.playerId}-${r.agency}`}><td>{r.playerName}</td><td>{r.agency}</td><td>{vnd(r.buyIn)}</td><td>{vnd(r.rake)}</td><td className="strong">{vnd(r.rakeback)}</td></tr>)}</tbody></table></div>
+          <div className="tableWrap"><table><thead><tr><th>플레이어</th><th>에이전트</th><th>바이인</th><th>총 엔트리피</th><th>레이크백</th></tr></thead><tbody>{weeklyPlayerRows.length===0?<tr><td colSpan={5} className="empty">해당 기간의 정산 기록이 없습니다.</td></tr>:weeklyPlayerRows.map(r=><tr key={`${r.playerId}-${r.agency}`}><td>{r.playerName}</td><td>{r.agency}</td><td>{vnd(r.buyIn)}</td><td>{vnd(r.rake)}</td><td className="strong">{vnd(r.rakeback)}</td></tr>)}</tbody></table></div>
         </section>}
 
         {tab==="fnb" && <section className="fnbPage">
