@@ -1937,14 +1937,6 @@ export default function Home() {
                 </div>
               : <>
                   <div className="selectedPlayerSection">
-                    <div className="selectedPlayerSectionTitle">
-                      <div>
-                        <strong>플레이어</strong>
-                        <span>{selectedTableEntries.length}명</span>
-                      </div>
-                      <b>{selectedTableBuyIns} BUY-IN · {vnd(selectedTableRevenue)}</b>
-                    </div>
-
                     <div className="selectedPlayerSearch topPlayerSearch">
                       <div className="selectedSearchLabel">
                         <strong>플레이어 추가</strong>
