@@ -3338,112 +3338,98 @@ export default function Home() {
         {tab==="expenses" && profile?.role==="admin" && <section className="expenseWorkflowPage">
           <section className="expenseHero">
             <div>
-              <span>배당 전 비용 정산</span>
+              <span>운영 경비 장부</span>
               <h2>지출 내역서</h2>
-              <p>미처리 경비를 주간 수익에서 우선 처리하고 남은 이익만 지분자에게 배당합니다.</p>
+              <p>선지급된 경비를 기록하고, 미처리 잔액이 모두 상계된 뒤에만 실제 수익이 발생합니다.</p>
             </div>
             <div className="expenseHeroAmount">
-              <small>경비처리 대기</small>
+              <small>현재 미처리 잔액</small>
               <strong>{vnd(pendingExpenseTotal)}</strong>
             </div>
           </section>
 
           <div className="expenseKpiGrid">
-            <div><span>전체 등록 경비</span><b>{vnd(expenseItems.reduce((sum,x)=>sum+x.amount,0))}</b><small>{expenseItems.length}건</small></div>
-            <div className="expense"><span>미처리 잔액</span><b>{vnd(pendingExpenseTotal)}</b><small>{pendingExpenseRows.length}건 대기</small></div>
-            <div><span>이번 주 영업이익</span><b>{vnd(weeklyProfit)}</b><small>{weekStart} ~ {weekEnd}</small></div>
-            <div className="profit"><span>예상 배당 가능액</span><b>{vnd(previewDistributableProfit)}</b><small>경비 우선 차감 후</small></div>
+            <div><span>전체 경비</span><b>{vnd(expenseItems.reduce((sum,x)=>sum+x.amount,0))}</b><small>{expenseItems.length}건 등록</small></div>
+            <div><span>처리 완료 금액</span><b>{vnd(expenseProcessedTotal)}</b><small>{processedExpenseRows.length}건 완전 처리</small></div>
+            <div className="expense"><span>미처리 잔액</span><b>{vnd(pendingExpenseTotal)}</b><small>{pendingExpenseRows.length}건 남음</small></div>
+            <div className="profit"><span>이번 주 상계 후 수익</span><b>{vnd(previewDistributableProfit)}</b><small>상계 전 잉여금 {vnd(weeklyProfit)}</small></div>
           </div>
 
-          <div className="expenseWorkspaceGrid">
-            <section className="panel expenseEntryPanel">
-              <div className="sectionTitle">
-                <div><h2>지출 등록</h2><p>새 경비는 자동으로 미처리 큐의 마지막에 추가됩니다.</p></div>
+          <section className="panel expenseLedgerPanel">
+            <div className="expenseLedgerHeader">
+              <div>
+                <h2>경비 장부</h2>
+                <p>Google Sheet처럼 새 경비를 바로 추가하고 처리 상태를 한눈에 확인합니다.</p>
               </div>
-              <div className="expenseFormGrid">
-                <label>날짜<input type="date" value={expenseDate} onChange={e=>setExpenseDate(e.target.value)}/></label>
-                <label>구분
-                  <select value={expenseCategory} onChange={e=>setExpenseCategory(e.target.value)}>
-                    <option value="OTHER">기타</option>
-                    <option value="HOUSING">숙소 / 임대</option>
-                    <option value="LODGING">호텔</option>
-                    <option value="MEAL">식대</option>
-                    <option value="ENTERTAINMENT">접대비</option>
-                    <option value="SUPPLIES">비품</option>
-                    <option value="INCIDENT">사고비</option>
-                    <option value="SALARY">급여</option>
-                    <option value="TRANSPORT">교통</option>
-                  </select>
-                </label>
-                <label className="expenseDescriptionField">항목<input value={expenseDescription} onChange={e=>setExpenseDescription(e.target.value)} placeholder="예: 10월 숙소비"/></label>
-                <label>금액<input inputMode="numeric" value={expenseAmount} onChange={e=>setExpenseAmount(e.target.value.replace(/[^0-9]/g,""))} placeholder="VND"/></label>
-                <label className="expenseNoteField">메모<input value={expenseNote} onChange={e=>setExpenseNote(e.target.value)} placeholder="선택"/></label>
-                <button className="primary expenseAddButton" onClick={addExpenseItem}>＋ 지출 등록</button>
+              <div className="expenseFilterTabs">
+                <button className={expenseFilter==="pending"?"active":""} onClick={()=>setExpenseFilter("pending")}>미처리 {pendingExpenseRows.length}</button>
+                <button className={expenseFilter==="all"?"active":""} onClick={()=>setExpenseFilter("all")}>전체 {expenseItems.length}</button>
+                <button className={expenseFilter==="processed"?"active":""} onClick={()=>setExpenseFilter("processed")}>처리완료 {processedExpenseRows.length}</button>
               </div>
-            </section>
-
-            <section className="panel shareholderPanel">
-              <div className="sectionTitle">
-                <div><h2>지분 설정</h2><p>배당 확정 시 현재 지분율을 스냅샷으로 저장합니다.</p></div>
-                <strong className={Math.abs(shareholderRateTotal-100)<0.001?"shareTotal ok":"shareTotal"}>{shareholderRateTotal}%</strong>
-              </div>
-              <div className="shareholderRows">
-                {shareholders.map(holder=><div key={holder.id}>
-                  <span><strong>{holder.name}</strong><small>{holder.active?"배당 대상":"비활성"}</small></span>
-                  <div><input type="number" min="0" max="100" step="0.5" value={holder.rate} onChange={e=>setShareholders(prev=>prev.map(x=>x.id===holder.id?{...x,rate:Number(e.target.value)}:x))} onBlur={e=>updateShareholderRate(holder,Number(e.target.value))}/><em>%</em></div>
-                </div>)}
-              </div>
-            </section>
-          </div>
-
-          <section className="panel expenseQueuePanel">
-            <div className="sectionTitle">
-              <div><h2>경비처리 대기</h2><p>오래된 항목부터 주간 수익으로 자동 상계됩니다.</p></div>
-              <span className="expenseQueueTotal">{pendingExpenseRows.length}건 · {vnd(pendingExpenseTotal)}</span>
             </div>
-            {pendingExpenseRows.length===0
-              ? <div className="weeklyEmpty">미처리 경비가 없습니다.</div>
-              : <div className="expenseTable">
-                  <div className="expenseTableHead"><span>날짜 / 항목</span><span>구분</span><span>원금</span><span>처리</span><span>남은 금액</span><span>상태</span><span></span></div>
-                  {pendingExpenseRows.map(item=>{
-                    const remaining=item.amount-item.processedAmount;
-                    return <div className="expenseTableRow" key={item.id}>
-                      <span><strong>{item.description}</strong><small>{item.date}{item.note?" · "+item.note:""}</small></span>
-                      <span>{item.category}</span>
-                      <span>{vnd(item.amount)}</span>
-                      <span>{vnd(item.processedAmount)}</span>
-                      <b>{vnd(remaining)}</b>
-                      <em className={item.status}>{item.status==="partial"?"일부처리":"대기"}</em>
-                      <button onClick={()=>deleteExpenseItem(item)} disabled={item.processedAmount>0} aria-label="지출 삭제">×</button>
-                    </div>;
-                  })}
-                </div>}
-          </section>
 
-          <section className="panel distributionHistoryPanel">
-            <div className="sectionTitle">
-              <div><h2>주간 배당 내역</h2><p>주간 수익 → 경비 처리 → 지분 배당 결과입니다.</p></div>
+            <div className="expenseQuickAdd">
+              <input type="date" value={expenseDate} onChange={e=>setExpenseDate(e.target.value)} aria-label="지출 날짜"/>
+              <select value={expenseCategory} onChange={e=>setExpenseCategory(e.target.value)} aria-label="지출 구분">
+                <option value="OTHER">기타</option>
+                <option value="HOUSING">숙소 / 임대</option>
+                <option value="LODGING">호텔</option>
+                <option value="MEAL">식대</option>
+                <option value="ENTERTAINMENT">접대비</option>
+                <option value="SUPPLIES">비품</option>
+                <option value="INCIDENT">사고비</option>
+                <option value="SALARY">급여</option>
+                <option value="TRANSPORT">교통</option>
+              </select>
+              <input value={expenseDescription} onChange={e=>setExpenseDescription(e.target.value)} placeholder="경비 항목" aria-label="경비 항목"/>
+              <input value={expensePrepaidBy} onChange={e=>setExpensePrepaidBy(e.target.value)} placeholder="선지급자" aria-label="선지급자"/>
+              <input inputMode="numeric" value={expenseAmount} onChange={e=>setExpenseAmount(e.target.value.replace(/[^0-9]/g,""))} placeholder="금액(VND)" aria-label="경비 금액"/>
+              <input value={expenseNote} onChange={e=>setExpenseNote(e.target.value)} placeholder="메모" aria-label="메모"/>
+              <button className="primary" onClick={addExpenseItem}>＋ 추가</button>
             </div>
-            {weeklyDistributions.length===0
-              ? <div className="weeklyEmpty">아직 확정된 주간 배당이 없습니다.</div>
-              : <div className="distributionHistoryList">
-                  {weeklyDistributions.map(dist=>{
-                    const payouts=shareholderPayouts.filter(x=>x.distributionId===dist.id);
-                    return <section key={dist.id}>
-                      <header>
-                        <div><strong>{dist.weekStart} ~ {dist.weekEnd}</strong><small>주간 영업이익 {vnd(dist.operatingProfit)}</small></div>
-                        <div><span>경비 −{vnd(dist.expenseApplied)}</span><b>배당 {vnd(dist.distributableProfit)}</b></div>
-                      </header>
-                      <div className="distributionPayoutRows">
-                        {payouts.map(payout=><div key={payout.id}>
-                          <span><strong>{payout.name}</strong><small>{payout.rate}%</small></span>
-                          <b>{vnd(payout.amount)}</b>
-                          <button className={payout.status==="paid"?"paid":""} onClick={()=>markShareholderPayoutPaid(payout)}>{payout.status==="paid"?"지급완료":"지급대기"}</button>
-                        </div>)}
-                      </div>
-                    </section>;
-                  })}
-                </div>}
+
+            <div className="expenseLedgerScroll">
+              <div className="expenseLedgerTable">
+                <div className="expenseLedgerHead">
+                  <span>날짜</span>
+                  <span>경비 항목</span>
+                  <span>구분</span>
+                  <span>선지급자</span>
+                  <span>총 금액</span>
+                  <span>처리 금액</span>
+                  <span>미처리 잔액</span>
+                  <span>상태</span>
+                  <span>메모</span>
+                  <span></span>
+                </div>
+
+                {visibleExpenseRows.length===0
+                  ? <div className="expenseLedgerEmpty">표시할 경비 항목이 없습니다.</div>
+                  : visibleExpenseRows.map(item=>{
+                      const remaining=Math.max(0,item.amount-item.processedAmount);
+                      const state=item.processedAmount>=item.amount?"processed":item.processedAmount>0?"partial":"pending";
+                      return <div className="expenseLedgerRow" key={item.id}>
+                        <span>{item.date}</span>
+                        <span className="expenseItemName"><strong>{item.description}</strong><small>{item.sourceRef || "직접 입력"}</small></span>
+                        <span>{item.category}</span>
+                        <span>
+                          <input
+                            className="expensePayerInput"
+                            defaultValue={item.prepaidBy}
+                            placeholder="미입력"
+                            onBlur={e=>updateExpensePrepaidBy(item,e.target.value)}
+                          />
+                        </span>
+                        <span>{vnd(item.amount)}</span>
+                        <span>{vnd(item.processedAmount)}</span>
+                        <b>{vnd(remaining)}</b>
+                        <em className={state}>{state==="processed"?"처리완료":state==="partial"?"일부처리":"미처리"}</em>
+                        <span className="expenseNoteCell">{item.note || "-"}</span>
+                        <button onClick={()=>deleteExpenseItem(item)} disabled={item.processedAmount>0} aria-label="지출 삭제">×</button>
+                      </div>;
+                    })}
+              </div>
+            </div>
           </section>
         </section>}
 
