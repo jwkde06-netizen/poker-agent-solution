@@ -660,6 +660,117 @@ export default function Home() {
     setFnbEntries(prev=>prev.filter(item=>item.id!==id));
   }
 
+  function applyReportPreset(preset:"today"|"week"|"custom"){
+    setReportPreset(preset);
+    if(preset==="today"){
+      setReportStart(today());
+      setReportEnd(today());
+    } else if(preset==="week"){
+      const ws=monday(today());
+      setReportStart(ws);
+      setReportEnd(plusDays(ws,6));
+    }
+  }
+
+  function downloadBlob(filename:string,blob:Blob){
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement("a");
+    a.href=url;
+    a.download=filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  function exportSettlementCsv(){
+    const reportEntries=entries.filter(e=>e.date>=reportStart && e.date<=reportEnd);
+    const reportFnb=fnbEntries.filter(e=>e.date>=reportStart && e.date<=reportEnd);
+    const revenue=reportEntries.reduce((sum,e)=>sum+revenuePerBuyIn(e.game)*e.buyIn,0);
+    const rakeback=reportEntries.reduce((sum,e)=>sum+e.rakeback,0);
+    const fnb=reportFnb.reduce((sum,e)=>sum+e.totalAmount,0);
+    const net=revenue-rakeback-fnb;
+    const rows:string[][]=[
+      ["드림포커 운영 시스템 정산표"],
+      ["기간",reportStart,reportEnd],
+      ["바이인 매출",String(revenue)],
+      ["에이전트 레이크백",String(rakeback)],
+      ["F&B",String(fnb)],
+      ["순수익",String(net)],
+      [],
+      ["게임 내역"],
+      ["날짜","테이블","게임번호","게임","플레이어","에이전트","바이인","매출","레이크백"]
+    ];
+    reportEntries.forEach(e=>{
+      const gs=gameSessions.find(s=>s.id===e.sessionId);
+      rows.push([
+        e.date,
+        gs?.tableNo ? "T"+gs.tableNo : "",
+        gs?.gameNo ? "No."+gs.gameNo : "",
+        e.game,
+        getPlayerName(e.playerId),
+        e.agencyCodeSnapshot,
+        String(e.buyIn),
+        String(revenuePerBuyIn(e.game)*e.buyIn),
+        String(e.rakeback)
+      ]);
+    });
+    rows.push([],["F&B 상세"],["날짜","항목","수량","단가","금액","구분","비고"]);
+    reportFnb.forEach(x=>rows.push([x.date,x.itemName,String(x.quantity),String(x.unitPrice),String(x.totalAmount),x.expenseGroup,x.note||""]));
+    const csv="\uFEFF"+rows.map(r=>r.map(v=>'"'+String(v??"").replace(/"/g,'""')+'"').join(",")).join("\n");
+    downloadBlob("dream-poker-settlement-"+reportStart+"-"+reportEnd+".csv",new Blob([csv],{type:"text/csv;charset=utf-8"}));
+  }
+
+  function exportSettlementPng(){
+    const reportEntries=entries.filter(e=>e.date>=reportStart && e.date<=reportEnd);
+    const reportFnb=fnbEntries.filter(e=>e.date>=reportStart && e.date<=reportEnd);
+    const revenue=reportEntries.reduce((sum,e)=>sum+revenuePerBuyIn(e.game)*e.buyIn,0);
+    const rakeback=reportEntries.reduce((sum,e)=>sum+e.rakeback,0);
+    const fnb=reportFnb.reduce((sum,e)=>sum+e.totalAmount,0);
+    const net=revenue-rakeback-fnb;
+    const width=1200;
+    const lineCount=Math.min(reportEntries.length,18);
+    const height=820+lineCount*42;
+    const canvas=document.createElement("canvas");
+    canvas.width=width; canvas.height=height;
+    const ctx=canvas.getContext("2d");
+    if(!ctx)return;
+    ctx.fillStyle="#0d0d0d"; ctx.fillRect(0,0,width,height);
+    ctx.fillStyle="#d7aa4d"; ctx.fillRect(0,0,width,10);
+    ctx.fillStyle="#ffffff"; ctx.font="700 42px sans-serif"; ctx.fillText("드림포커 운영 시스템 정산표",70,85);
+    ctx.fillStyle="#a0a0a0"; ctx.font="24px sans-serif"; ctx.fillText(reportStart+" ~ "+reportEnd,70,125);
+
+    const cards:[string,number][]=[
+      ["바이인 매출",revenue],
+      ["에이전트 레이크백",rakeback],
+      ["F&B",fnb],
+      ["순수익",net]
+    ];
+    cards.forEach((item,i)=>{
+      const x=70+(i%2)*540, y=175+Math.floor(i/2)*145;
+      ctx.fillStyle="#171717"; ctx.fillRect(x,y,500,115);
+      ctx.fillStyle="#9a9a9a"; ctx.font="22px sans-serif"; ctx.fillText(item[0],x+24,y+36);
+      ctx.fillStyle=i===3?"#e0ad49":"#ffffff"; ctx.font="700 34px sans-serif";
+      ctx.fillText(money.format(item[1])+" ₫",x+24,y+82);
+    });
+
+    let y=510;
+    ctx.fillStyle="#ffffff"; ctx.font="700 28px sans-serif"; ctx.fillText("바이인 내역",70,y);
+    y+=36;
+    ctx.fillStyle="#8c8c8c"; ctx.font="20px sans-serif"; ctx.fillText("날짜   테이블   게임   플레이어   BUY-IN   매출",70,y);
+    y+=28;
+    reportEntries.slice(0,18).forEach(e=>{
+      const gs=gameSessions.find(s=>s.id===e.sessionId);
+      ctx.fillStyle="#202020"; ctx.fillRect(70,y-24,1060,36);
+      ctx.fillStyle="#e8e8e8"; ctx.font="19px sans-serif";
+      const label=e.date+"   "+(gs?.tableNo?"T"+gs.tableNo:"-")+"   "+(gs?.gameNo?"No."+gs.gameNo+" ":"")+e.game+"   "+getPlayerName(e.playerId)+"   "+e.buyIn+"회   "+money.format(revenuePerBuyIn(e.game)*e.buyIn)+" ₫";
+      ctx.fillText(label.slice(0,95),82,y);
+      y+=42;
+    });
+    ctx.fillStyle="#777"; ctx.font="17px sans-serif"; ctx.fillText("Dream Poker Operations Report",70,height-42);
+    canvas.toBlob(blob=>{if(blob)downloadBlob("dream-poker-settlement-"+reportStart+"-"+reportEnd+".png",blob)},"image/png");
+  }
+
   if (isSupabaseConfigured && !session) {
     return <main className="shell authShell">
       <section className="panel authPanel">
