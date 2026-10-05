@@ -3361,3 +3361,52 @@ html[data-theme="dark"] .accountDropdown>button:hover{
     grid-template-columns:minmax(0,1fr) 58px 22px 66px;
   }
 }
+
+/* Uniform compact floor-table buttons */
+.pokerFloorMap{
+  grid-template-rows:48px 54px!important;
+}
+.floorTableButton{
+  width:100%!important;
+  height:46px!important;
+  min-height:46px!important;
+  align-self:center!important;
+  justify-self:stretch!important;
+  border-radius:10px!important;
+  padding:4px 6px!important;
+}
+.floorTableButton strong{
+  font-size:13px!important;
+  line-height:1!important;
+}
+.floorTableButton small{
+  margin-top:3px!important;
+  font-size:6px!important;
+}
+.table4{
+  grid-column:3!important;
+  grid-row:1!important;
+  align-self:center!important;
+}
+.table12{grid-column:1!important;grid-row:2!important}
+.table13{grid-column:2!important;grid-row:2!important}
+.table5{grid-column:3!important;grid-row:2!important}
+.table2{grid-column:4!important;grid-row:2!important}
+
+@media(max-width:820px){
+  .pokerFloorMap{
+    grid-template-rows:44px 50px!important;
+    gap:5px!important;
+    padding:7px!important;
+  }
+  .floorTableButton{
+    height:42px!important;
+    min-height:42px!important;
+    border-radius:9px!important;
+  }
+  .floorTableButton strong{font-size:12px!important}
+  .finalTableLandmark{
+    min-width:88px!important;
+    padding:4px 8px!important;
+  }
+}
