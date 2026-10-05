@@ -10955,3 +10955,181 @@ html:not([data-theme="dark"]) .quickBuyinRow .playerFinancialGrid b{
     font-size:17px!important;
   }
 }
+
+
+/* Game input UX: plain session title, extensible table picker, keyboard search suggestions */
+.sessionTitlePlain{
+  display:flex!important;
+  align-items:center!important;
+  gap:14px!important;
+}
+.sessionTitlePlain > strong,
+.sessionTitlePlain > b,
+.sessionTitlePlain > span{
+  padding:0!important;
+  margin:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  color:var(--text)!important;
+}
+.sessionTitlePlain > strong{
+  font-size:28px!important;
+}
+.sessionTitlePlain > b{
+  font-size:24px!important;
+}
+.sessionTitlePlain > span{
+  font-size:18px!important;
+  font-weight:800!important;
+}
+
+.sessionNoEdit{
+  display:flex!important;
+  align-items:center!important;
+  gap:4px!important;
+}
+.sessionNoEdit > span{
+  color:var(--text)!important;
+  font-size:17px!important;
+  font-weight:850!important;
+}
+.sessionNoEdit > input{
+  width:48px!important;
+}
+
+.floorSelectorActions{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.tableAddControl{
+  display:flex;
+  align-items:center;
+  gap:5px;
+}
+.tableAddControl>span{
+  color:var(--muted);
+  font-size:11px;
+  font-weight:800
+}
+.tableAddControl input{
+  width:58px;
+  height:34px;
+  padding:0 8px;
+  border:1px solid var(--line-strong);
+  border-radius:8px;
+  background:var(--surface);
+  color:var(--text);
+  outline:none;
+  font-size:13px;
+  font-weight:800
+}
+.tableAddControl input:focus{
+  border-color:#c79b43;
+  box-shadow:0 0 0 3px rgba(199,155,67,.10)
+}
+.tableAddControl button{
+  height:34px;
+  padding:0 10px;
+  border:1px solid var(--line-strong);
+  border-radius:8px;
+  background:var(--surface);
+  color:var(--text);
+  font-size:11px;
+  font-weight:800;
+  cursor:pointer
+}
+.tableAddControl button:hover{
+  background:var(--surface-2)
+}
+
+.pokerFloorMap{
+  grid-template-columns:repeat(auto-fit,minmax(96px,1fr))!important;
+  grid-template-rows:none!important;
+  grid-auto-rows:54px!important;
+}
+.table4,
+.table12,
+.table13,
+.table5,
+.table2{
+  grid-column:auto!important;
+  grid-row:auto!important
+}
+
+/* Search suggestions sit below the input instead of covering typed text */
+.selectedSearchResults{
+  position:static!important;
+  left:auto!important;
+  right:auto!important;
+  top:auto!important;
+  margin-top:7px!important;
+  max-height:260px!important;
+  border-radius:10px!important;
+  box-shadow:none!important;
+  overflow:auto!important
+}
+html:not([data-theme="dark"]) .selectedSearchResults{
+  background:#fff!important;
+  border-color:#dfe3e7!important
+}
+html:not([data-theme="dark"]) .selectedSearchResults button{
+  color:#17191c!important
+}
+html:not([data-theme="dark"]) .selectedSearchResults button:hover,
+html:not([data-theme="dark"]) .selectedSearchResults button.active{
+  background:#f4f6f8!important
+}
+.selectedSearchResults button.active{
+  outline:1px solid #d5b568!important;
+  outline-offset:-1px!important
+}
+.selectedSearchResults button.active b{
+  color:#8a6212!important
+}
+
+html[data-theme="dark"] .tableAddControl input,
+html[data-theme="dark"] .tableAddControl button{
+  background:#1d1f22;
+  border-color:#34363b;
+  color:#f0f1f2
+}
+
+@media(max-width:820px){
+  .floorSelectorHeader{
+    align-items:flex-start!important
+  }
+  .floorSelectorActions{
+    align-items:flex-end;
+    gap:7px
+  }
+  .tableAddControl>span{
+    display:none
+  }
+  .tableAddControl input{
+    width:50px;
+    height:32px
+  }
+  .tableAddControl button{
+    height:32px;
+    padding:0 8px
+  }
+  .pokerFloorMap{
+    grid-template-columns:repeat(auto-fit,minmax(62px,1fr))!important;
+    grid-auto-rows:48px!important
+  }
+  .sessionTitlePlain{
+    gap:9px!important
+  }
+  .sessionTitlePlain > strong{
+    font-size:22px!important
+  }
+  .sessionTitlePlain > b{
+    font-size:19px!important
+  }
+  .sessionTitlePlain > span{
+    font-size:15px!important
+  }
+}
