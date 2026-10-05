@@ -1096,29 +1096,29 @@ export default function Home() {
     URL.revokeObjectURL(url);
   }
 
-  function exportSettlementCsv(){
-    const reportEntries=entries.filter(e=>e.date>=reportStart && e.date<=reportEnd);
-    const reportFnb=fnbEntries.filter(e=>e.date>=reportStart && e.date<=reportEnd);
-    const revenue=reportEntries.reduce((sum,e)=>sum+revenuePerBuyIn(e.game)*e.buyIn,0);
+  function exportSettlementCsv(startDate=reportStart,endDate=reportEnd){
+    const reportEntries=entries.filter(e=>e.date>=startDate && e.date<=endDate);
+    const reportFnb=fnbEntries.filter(e=>e.date>=startDate && e.date<=endDate);
+    const entryFee=reportEntries.reduce((sum,e)=>sum+revenuePerBuyIn(e.game)*e.buyIn,0);
     const rakeback=reportEntries.reduce((sum,e)=>sum+e.rakeback,0);
     const fnb=reportFnb.reduce((sum,e)=>sum+e.totalAmount,0);
-    const net=revenue-rakeback-fnb;
+    const net=entryFee-rakeback-fnb;
     const rows:string[][]=[
-      ["드림포커 운영 시스템 정산표"],
-      ["기간",reportStart,reportEnd],
-      ["바이인 금액",String(revenue)],
-      ["에이전트 레이크백",String(rakeback)],
+      ["드림포커 정산서"],
+      ["기간",startDate,endDate],
+      ["총 엔트리피",String(entryFee)],
+      ["레이크백",String(rakeback)],
       ["F&B",String(fnb)],
-      ["순수익",String(net)],
+      ["오늘 수익",String(net)],
       [],
-      ["게임 내역"],
-      ["날짜","테이블","게임번호","게임","플레이어","에이전트","바이인","바이인 금액","레이크백"]
+      ["게임별 정산"],
+      ["날짜","테이블","게임번호","게임","플레이어","에이전트","바이인","엔트리피","레이크백"]
     ];
     reportEntries.forEach(e=>{
       const gs=gameSessions.find(s=>s.id===e.sessionId);
       rows.push([
         e.date,
-        gs?.tableNo ? "T"+gs.tableNo : "",
+        gs?.tableNo ? "Table "+gs.tableNo : "",
         gs?.gameNo ? "No."+gs.gameNo : "",
         e.game,
         getPlayerName(e.playerId),
@@ -1131,85 +1131,172 @@ export default function Home() {
     rows.push([],["F&B 상세"],["날짜","항목","수량","단가","금액","구분","비고"]);
     reportFnb.forEach(x=>rows.push([x.date,x.itemName,String(x.quantity),String(x.unitPrice),String(x.totalAmount),x.expenseGroup,x.note||""]));
     const csv="\uFEFF"+rows.map(r=>r.map(v=>'"'+String(v??"").replace(/"/g,'""')+'"').join(",")).join("\n");
-    downloadBlob("dream-poker-settlement-"+reportStart+"-"+reportEnd+".csv",new Blob([csv],{type:"text/csv;charset=utf-8"}));
+    downloadBlob("드림포커_정산서_"+startDate+(startDate!==endDate?"_"+endDate:"")+".csv",new Blob([csv],{type:"text/csv;charset=utf-8"}));
     setDailyExportOpen(false);
   }
 
-  function buildSettlementCanvas(){
-    const reportEntries=entries.filter(e=>e.date>=reportStart && e.date<=reportEnd);
-    const reportFnb=fnbEntries.filter(e=>e.date>=reportStart && e.date<=reportEnd);
-    const revenue=reportEntries.reduce((sum,e)=>sum+revenuePerBuyIn(e.game)*e.buyIn,0);
+  function buildSettlementCanvas(startDate=reportStart,endDate=reportEnd){
+    const reportEntries=entries.filter(e=>e.date>=startDate && e.date<=endDate);
+    const reportFnb=fnbEntries.filter(e=>e.date>=startDate && e.date<=endDate);
+    const entryFee=reportEntries.reduce((sum,e)=>sum+revenuePerBuyIn(e.game)*e.buyIn,0);
     const rakeback=reportEntries.reduce((sum,e)=>sum+e.rakeback,0);
     const fnb=reportFnb.reduce((sum,e)=>sum+e.totalAmount,0);
-    const net=revenue-rakeback-fnb;
-    const width=1200;
-    const lineCount=Math.min(reportEntries.length,18);
-    const height=820+lineCount*42;
+    const net=entryFee-rakeback-fnb;
+
+    const groups=new Map<string,{tableNo:string;gameNo:string;game:string;entries:GameEntry[]}>();
+    reportEntries.forEach(entry=>{
+      const gs=gameSessions.find(s=>s.id===entry.sessionId);
+      const key=entry.sessionId || `legacy-${entry.game}`;
+      const existing=groups.get(key);
+      if(existing) existing.entries.push(entry);
+      else groups.set(key,{
+        tableNo:gs?.tableNo||"-",
+        gameNo:gs?.gameNo||"-",
+        game:entry.game,
+        entries:[entry]
+      });
+    });
+
+    const detailRows=Math.max(1,reportEntries.length);
+    const groupCount=Math.max(1,groups.size);
+    const width=1400;
+    const height=Math.max(900,430 + detailRows*54 + groupCount*64 + 100);
     const canvas=document.createElement("canvas");
-    canvas.width=width; canvas.height=height;
+    canvas.width=width;
+    canvas.height=height;
     const ctx=canvas.getContext("2d");
     if(!ctx)return null;
-    ctx.fillStyle="#0d0d0d"; ctx.fillRect(0,0,width,height);
-    ctx.fillStyle="#d7aa4d"; ctx.fillRect(0,0,width,10);
-    ctx.fillStyle="#ffffff"; ctx.font="700 42px sans-serif"; ctx.fillText("Dream Poker Settlement",70,85);
-    ctx.fillStyle="#a0a0a0"; ctx.font="24px sans-serif"; ctx.fillText(reportStart+" ~ "+reportEnd,70,125);
 
-    const cards:[string,number][]=[
-      ["Total Rake",revenue],
-      ["Agent Rakeback",rakeback],
-      ["F&B",fnb],
-      ["Net Profit",net]
-    ];
-    cards.forEach((item,i)=>{
-      const x=70+(i%2)*540, y=175+Math.floor(i/2)*145;
-      ctx.fillStyle="#171717"; ctx.fillRect(x,y,500,115);
-      ctx.fillStyle="#9a9a9a"; ctx.font="22px sans-serif"; ctx.fillText(item[0],x+24,y+36);
-      ctx.fillStyle=i===3?"#e0ad49":"#ffffff"; ctx.font="700 34px sans-serif";
-      ctx.fillText(money.format(item[1]),x+24,y+82);
+    const text=(value:string,x:number,y:number,size:number,weight=500,color="#202328",align:"left"|"right"="left")=>{
+      ctx.fillStyle=color;
+      ctx.font=`${weight} ${size}px Arial, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif`;
+      ctx.textAlign=align;
+      ctx.textBaseline="middle";
+      ctx.fillText(value,x,y);
+    };
+    const line=(x1:number,y1:number,x2:number,y2:number,color="#e2e5e9")=>{
+      ctx.strokeStyle=color;
+      ctx.lineWidth=1;
+      ctx.beginPath();
+      ctx.moveTo(x1,y1);
+      ctx.lineTo(x2,y2);
+      ctx.stroke();
+    };
+    const roundRect=(x:number,y:number,w:number,h:number,r:number,fill:string,stroke="#e1e4e8")=>{
+      ctx.beginPath();
+      ctx.roundRect(x,y,w,h,r);
+      ctx.fillStyle=fill;
+      ctx.fill();
+      ctx.strokeStyle=stroke;
+      ctx.lineWidth=1;
+      ctx.stroke();
+    };
+
+    ctx.fillStyle="#f5f6f8";
+    ctx.fillRect(0,0,width,height);
+    roundRect(45,35,width-90,height-70,22,"#ffffff","#dfe3e7");
+
+    // Header
+    text("드림포커 정산서",80,92,34,800,"#17191c");
+    text(startDate===endDate?startDate:`${startDate} ~ ${endDate}`,width-80,92,18,600,"#757d86","right");
+    line(80,132,width-80,132);
+
+    // Accounting summary
+    const summary=[
+      ["총 엔트리피",entryFee],
+      ["레이크백",-rakeback],
+      ["F&B",-fnb],
+      ["오늘 수익",net]
+    ] as [string,number][];
+    const cardGap=14;
+    const cardW=(width-160-cardGap*3)/4;
+    summary.forEach(([label,value],i)=>{
+      const x=80+i*(cardW+cardGap);
+      const isProfit=i===3;
+      roundRect(x,158,cardW,112,14,isProfit?"#fff9eb":"#fafbfc",isProfit?"#e5c77f":"#e3e6ea");
+      text(label,x+18,188,15,700,isProfit?"#8b6518":"#6a727b");
+      text((value<0?"− ":"")+money.format(Math.abs(value)),x+18,232,26,800,isProfit?"#9c6b0c":"#17191c");
     });
 
-    let y=510;
-    ctx.fillStyle="#ffffff"; ctx.font="700 28px sans-serif"; ctx.fillText("Game Entries",70,y);
-    y+=36;
-    ctx.fillStyle="#8c8c8c"; ctx.font="20px sans-serif"; ctx.fillText("Date   Table   Game   Player   BUY-IN   Amount",70,y);
-    y+=28;
-    reportEntries.slice(0,18).forEach(e=>{
-      const gs=gameSessions.find(s=>s.id===e.sessionId);
-      ctx.fillStyle="#202020"; ctx.fillRect(70,y-24,1060,36);
-      ctx.fillStyle="#e8e8e8"; ctx.font="19px sans-serif";
-      const label=e.date+"   "+(gs?.tableNo?"Table "+gs.tableNo:"-")+"   "+(gs?.gameNo?"No."+gs.gameNo+" ":"")+e.game+"   "+getPlayerName(e.playerId)+"   "+e.buyIn+"   "+money.format(revenuePerBuyIn(e.game)*e.buyIn);
-      ctx.fillText(label.slice(0,95),82,y);
-      y+=42;
-    });
-    ctx.fillStyle="#777"; ctx.font="17px sans-serif"; ctx.fillText("Dream Poker Operations Report",70,height-42);
+    // Section heading
+    text("게임별 정산",80,322,23,800,"#17191c");
+    text(`${groups.size} GAME · ${reportEntries.length}명`,width-80,322,14,700,"#7b838c","right");
+
+    let y=358;
+    if(groups.size===0){
+      roundRect(80,y,width-160,86,12,"#fafbfc");
+      text("해당 기간의 게임 기록이 없습니다.",100,y+43,16,600,"#8a929a");
+      y+=110;
+    }else{
+      [...groups.values()].forEach(group=>{
+        const groupBuyIns=group.entries.reduce((sum,e)=>sum+e.buyIn,0);
+        const groupEntryFee=group.entries.reduce((sum,e)=>sum+revenuePerBuyIn(e.game)*e.buyIn,0);
+
+        roundRect(80,y,width-160,52,10,"#f7f8fa","#e0e4e8");
+        text(`Table ${group.tableNo}   No.${group.gameNo}   ${group.game}`,100,y+26,17,750,"#202328");
+        text(`${groupBuyIns} BUY-IN   ·   ${money.format(groupEntryFee)}`,width-100,y+26,15,700,"#4f5862","right");
+        y+=52;
+
+        // Table header
+        ctx.fillStyle="#ffffff";
+        ctx.fillRect(80,y,width-160,40);
+        const cols=[
+          {label:"플레이어",x:100},
+          {label:"에이전트",x:610},
+          {label:"바이인",x:790},
+          {label:"엔트리피",x:940},
+          {label:"레이크백",x:1180}
+        ];
+        cols.forEach(col=>text(col.label,col.x,y+20,13,700,"#777f88"));
+        line(80,y+40,width-80,y+40);
+        y+=40;
+
+        group.entries.forEach(entry=>{
+          const rowH=54;
+          text(getPlayerName(entry.playerId),100,y+rowH/2,16,600,"#202328");
+          text(entry.agencyCodeSnapshot,610,y+rowH/2,14,600,"#59616a");
+          text(`${entry.buyIn}회`,790,y+rowH/2,15,650,"#202328");
+          text(money.format(revenuePerBuyIn(entry.game)*entry.buyIn),940,y+rowH/2,15,650,"#202328");
+          text(money.format(entry.rakeback),1180,y+rowH/2,15,700,"#202328");
+          line(80,y+rowH,width-80,y+rowH);
+          y+=rowH;
+        });
+        y+=20;
+      });
+    }
+
+    // Footer
+    line(80,height-105,width-80,height-105);
+    text("Dream Poker",80,height-72,14,700,"#9aa1a8");
+    text("정산 데이터는 시스템 입력 내역을 기준으로 생성되었습니다.",width-80,height-72,12,500,"#9aa1a8","right");
     return canvas;
   }
 
-  function exportSettlementPng(){
-    const canvas=buildSettlementCanvas();
+  function exportSettlementPng(startDate=reportStart,endDate=reportEnd){
+    const canvas=buildSettlementCanvas(startDate,endDate);
     if(!canvas)return;
     canvas.toBlob(blob=>{
-      if(blob)downloadBlob("dream-poker-settlement-"+reportStart+"-"+reportEnd+".png",blob);
+      if(blob)downloadBlob("드림포커_정산서_"+startDate+(startDate!==endDate?"_"+endDate:"")+".png",blob);
     },"image/png");
     setDailyExportOpen(false);
   }
 
-  function exportSettlementPdf(){
-    const canvas=buildSettlementCanvas();
+  function exportSettlementPdf(startDate=reportStart,endDate=reportEnd){
+    const canvas=buildSettlementCanvas(startDate,endDate);
     if(!canvas)return;
-    const image=canvas.toDataURL("image/jpeg",0.92);
+    const image=canvas.toDataURL("image/jpeg",0.94);
     const pdf=new jsPDF({
-      orientation: canvas.width>=canvas.height?"landscape":"portrait",
+      orientation:"landscape",
       unit:"pt",
       format:"a4"
     });
     const pageWidth=pdf.internal.pageSize.getWidth();
     const pageHeight=pdf.internal.pageSize.getHeight();
-    const ratio=Math.min(pageWidth/canvas.width,pageHeight/canvas.height);
+    const ratio=Math.min((pageWidth-24)/canvas.width,(pageHeight-24)/canvas.height);
     const width=canvas.width*ratio;
     const height=canvas.height*ratio;
     pdf.addImage(image,"JPEG",(pageWidth-width)/2,(pageHeight-height)/2,width,height);
-    pdf.save("dream-poker-settlement-"+reportStart+"-"+reportEnd+".pdf");
+    pdf.save("드림포커_정산서_"+startDate+(startDate!==endDate?"_"+endDate:"")+".pdf");
     setDailyExportOpen(false);
   }
 
@@ -1425,8 +1512,8 @@ export default function Home() {
       <div><span>순수익</span><b>{vnd(reportNet)}</b></div>
     </div>
     <div className="reportExportActions">
-      <button onClick={exportSettlementPng}>PNG 저장</button>
-      <button onClick={exportSettlementCsv}>시트 CSV 저장</button>
+      <button onClick={()=>exportSettlementPng(reportStart,reportEnd)}>PNG 저장</button>
+      <button onClick={()=>exportSettlementCsv(reportStart,reportEnd)}>시트 CSV 저장</button>
     </div>
   </section>;
 
@@ -2313,9 +2400,9 @@ export default function Home() {
                     <span>{dailyExportOpen?"⌃":"⌄"}</span>
                   </button>
                   {dailyExportOpen && <div className="dailyDownloadDropdown">
-                    <button onClick={exportSettlementPdf}><strong>PDF</strong><small>인쇄·공유용 문서</small></button>
-                    <button onClick={exportSettlementPng}><strong>PNG</strong><small>이미지 파일</small></button>
-                    <button onClick={exportSettlementCsv}><strong>스프레드시트</strong><small>CSV 파일</small></button>
+                    <button onClick={()=>exportSettlementPdf(summaryDate,summaryDate)}><strong>PDF</strong><small>인쇄·공유용 문서</small></button>
+                    <button onClick={()=>exportSettlementPng(summaryDate,summaryDate)}><strong>PNG</strong><small>이미지 파일</small></button>
+                    <button onClick={()=>exportSettlementCsv(summaryDate,summaryDate)}><strong>스프레드시트</strong><small>CSV 파일</small></button>
                   </div>}
                 </div>
               </div>
