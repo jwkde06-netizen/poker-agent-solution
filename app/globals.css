@@ -13795,3 +13795,570 @@ html[data-theme="dark"] .staffQuickActions button:hover{
     font-size:12px!important;
   }
 }
+
+
+/* Expense queue -> weekly profit -> shareholder distribution workflow */
+.expenseWorkflowPage{
+  display:grid;
+  gap:12px
+}
+.expenseHero{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:18px;
+  padding:20px 22px;
+  border:1px solid var(--line);
+  border-radius:16px;
+  background:linear-gradient(135deg,var(--surface),var(--surface-2))
+}
+.expenseHero>div:first-child>span{
+  color:#9a6c14;
+  font-size:10px;
+  font-weight:850
+}
+.expenseHero h2{
+  margin:3px 0 4px;
+  font-size:27px;
+  letter-spacing:-.04em
+}
+.expenseHero p{
+  margin:0;
+  color:var(--muted);
+  font-size:11px
+}
+.expenseHeroAmount{
+  min-width:220px;
+  text-align:right
+}
+.expenseHeroAmount small{
+  display:block;
+  color:var(--muted);
+  font-size:10px;
+  font-weight:700
+}
+.expenseHeroAmount strong{
+  display:block;
+  margin-top:5px;
+  color:#b35c4d;
+  font-size:28px;
+  letter-spacing:-.04em
+}
+.expenseKpiGrid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:10px
+}
+.expenseKpiGrid>div{
+  min-height:94px;
+  padding:14px;
+  border:1px solid var(--line);
+  border-radius:13px;
+  background:var(--surface)
+}
+.expenseKpiGrid span{
+  color:var(--muted);
+  font-size:10px;
+  font-weight:700
+}
+.expenseKpiGrid b{
+  display:block;
+  margin-top:7px;
+  color:var(--text);
+  font-size:20px
+}
+.expenseKpiGrid small{
+  display:block;
+  margin-top:5px;
+  color:var(--muted-2);
+  font-size:9px
+}
+.expenseKpiGrid .expense b{color:#b35c4d}
+.expenseKpiGrid .profit{
+  border-color:#ddc17d;
+  background:#fffaf0
+}
+.expenseKpiGrid .profit b{color:#94650d}
+
+.expenseWorkspaceGrid{
+  display:grid;
+  grid-template-columns:minmax(0,1.6fr) minmax(300px,.65fr);
+  gap:12px
+}
+.expenseEntryPanel,
+.shareholderPanel,
+.expenseQueuePanel,
+.distributionHistoryPanel{
+  padding:15px!important
+}
+.expenseFormGrid{
+  display:grid;
+  grid-template-columns:140px 160px minmax(220px,1fr) 170px;
+  gap:10px;
+  align-items:end
+}
+.expenseFormGrid label{
+  display:grid;
+  gap:6px;
+  color:var(--muted);
+  font-size:10px;
+  font-weight:700
+}
+.expenseFormGrid input,
+.expenseFormGrid select{
+  height:40px;
+  width:100%;
+  box-sizing:border-box;
+  padding:0 10px;
+  border:1px solid var(--line-strong);
+  border-radius:9px;
+  background:var(--surface);
+  color:var(--text);
+  font:inherit;
+  font-size:12px
+}
+.expenseNoteField{
+  grid-column:1/4
+}
+.expenseAddButton{
+  height:40px!important;
+  align-self:end
+}
+.shareTotal{
+  color:#b35c4d;
+  font-size:14px
+}
+.shareTotal.ok{color:#4c8d5e}
+.shareholderRows{
+  display:grid;
+  border:1px solid var(--line);
+  border-radius:11px;
+  overflow:hidden
+}
+.shareholderRows>div{
+  min-height:49px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:0 11px;
+  border-bottom:1px solid var(--line)
+}
+.shareholderRows>div:last-child{border-bottom:0}
+.shareholderRows span{
+  display:grid;
+  gap:2px
+}
+.shareholderRows strong{font-size:12px}
+.shareholderRows small{
+  color:var(--muted);
+  font-size:8px
+}
+.shareholderRows>div>div{
+  display:flex;
+  align-items:center;
+  gap:4px
+}
+.shareholderRows input{
+  width:62px;
+  height:32px;
+  border:1px solid var(--line-strong);
+  border-radius:8px;
+  background:var(--surface);
+  color:var(--text);
+  text-align:right;
+  padding:0 7px;
+  font-weight:750
+}
+.shareholderRows em{
+  color:var(--muted);
+  font-size:10px;
+  font-style:normal
+}
+.expenseQueueTotal{
+  color:#b35c4d;
+  font-size:11px;
+  font-weight:800
+}
+.expenseTable{
+  border:1px solid var(--line);
+  border-radius:12px;
+  overflow:hidden
+}
+.expenseTableHead,
+.expenseTableRow{
+  display:grid;
+  grid-template-columns:minmax(260px,1.7fr) 120px 130px 130px 140px 90px 32px;
+  align-items:center;
+  gap:10px;
+  min-width:980px;
+  padding:0 12px
+}
+.expenseTableHead{
+  min-height:38px;
+  background:var(--surface-2);
+  color:var(--muted);
+  font-size:9px;
+  font-weight:800
+}
+.expenseTableRow{
+  min-height:56px;
+  border-top:1px solid var(--line);
+  color:var(--text);
+  font-size:11px
+}
+.expenseTableRow>span:first-child{
+  display:grid;
+  gap:3px
+}
+.expenseTableRow>span:first-child strong{font-size:12px}
+.expenseTableRow>span:first-child small{
+  color:var(--muted);
+  font-size:8px
+}
+.expenseTableRow>b{
+  color:#b35c4d;
+  font-size:12px
+}
+.expenseTableRow>em{
+  justify-self:start;
+  padding:4px 7px;
+  border-radius:999px;
+  background:#fff5e8;
+  color:#9a6c14;
+  font-size:8px;
+  font-style:normal;
+  font-weight:800
+}
+.expenseTableRow>em.partial{
+  background:#fff0df;
+  color:#b16423
+}
+.expenseTableRow>button{
+  width:28px;
+  height:28px;
+  border:0;
+  border-radius:7px;
+  background:transparent;
+  color:var(--muted);
+  cursor:pointer
+}
+.expenseTableRow>button:disabled{
+  opacity:.2;
+  cursor:not-allowed
+}
+.distributionHistoryList{
+  display:grid;
+  gap:10px
+}
+.distributionHistoryList>section{
+  border:1px solid var(--line);
+  border-radius:12px;
+  overflow:hidden
+}
+.distributionHistoryList>section>header{
+  min-height:58px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:0 13px;
+  background:var(--surface-2)
+}
+.distributionHistoryList header>div{
+  display:grid;
+  gap:3px
+}
+.distributionHistoryList header>div:last-child{
+  text-align:right
+}
+.distributionHistoryList header strong{font-size:13px}
+.distributionHistoryList header small,
+.distributionHistoryList header span{
+  color:var(--muted);
+  font-size:9px
+}
+.distributionHistoryList header b{
+  color:#98680d;
+  font-size:14px
+}
+.distributionPayoutRows{
+  display:grid
+}
+.distributionPayoutRows>div{
+  min-height:48px;
+  display:grid;
+  grid-template-columns:minmax(160px,1fr) 150px 90px;
+  align-items:center;
+  gap:10px;
+  padding:0 13px;
+  border-top:1px solid var(--line)
+}
+.distributionPayoutRows span{
+  display:flex;
+  align-items:center;
+  gap:7px
+}
+.distributionPayoutRows strong{font-size:12px}
+.distributionPayoutRows small{
+  color:var(--muted);
+  font-size:9px
+}
+.distributionPayoutRows b{
+  text-align:right;
+  font-size:13px
+}
+.distributionPayoutRows button{
+  height:30px;
+  border:1px solid var(--line-strong);
+  border-radius:8px;
+  background:var(--surface);
+  color:#9a6c14;
+  font-size:9px;
+  font-weight:800;
+  cursor:pointer
+}
+.distributionPayoutRows button.paid{
+  border-color:#bcd5c3;
+  background:#f1faf3;
+  color:#4e875d
+}
+
+/* Weekly close flow */
+.weeklyDistributionFlow{
+  margin-bottom:12px;
+  border:1px solid #e1c985;
+  border-radius:14px;
+  background:#fffdf8;
+  overflow:hidden
+}
+.weeklyDistributionHead{
+  min-height:58px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:10px 14px;
+  border-bottom:1px solid #eadfbd
+}
+.weeklyDistributionHead h3{
+  margin:0;
+  font-size:15px
+}
+.weeklyDistributionHead p{
+  margin:3px 0 0;
+  color:var(--muted);
+  font-size:9px
+}
+.expenseLinkButton{
+  height:32px;
+  padding:0 10px;
+  border:1px solid #dfc985;
+  border-radius:8px;
+  background:#fff;
+  color:#8a6212;
+  font-size:10px;
+  font-weight:800;
+  cursor:pointer
+}
+.distributionFlowGrid{
+  display:grid;
+  grid-template-columns:1fr 24px 1fr 24px 1fr;
+  align-items:center;
+  padding:14px
+}
+.distributionFlowGrid>div{
+  min-height:76px;
+  display:grid;
+  align-content:center;
+  gap:4px;
+  padding:10px 12px;
+  border:1px solid var(--line);
+  border-radius:11px;
+  background:var(--surface)
+}
+.distributionFlowGrid>i{
+  color:#b8a16b;
+  font-size:18px;
+  font-style:normal;
+  text-align:center
+}
+.distributionFlowGrid span{
+  color:var(--muted);
+  font-size:9px;
+  font-weight:700
+}
+.distributionFlowGrid b{
+  font-size:17px
+}
+.distributionFlowGrid small{
+  color:var(--muted-2);
+  font-size:8px
+}
+.distributionFlowGrid .expenseStep b{color:#b35c4d}
+.distributionFlowGrid .profitStep b{color:#8a6212}
+.distributionActionRow{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:10px 14px;
+  border-top:1px solid #eadfbd;
+  border-bottom:1px solid #eadfbd
+}
+.distributionActionRow>div{
+  display:grid;
+  gap:2px
+}
+.distributionActionRow strong{font-size:11px}
+.distributionActionRow span{
+  color:var(--muted);
+  font-size:9px
+}
+.distributionActionRow button{
+  min-width:150px;
+  height:38px!important
+}
+.sharePreviewRows{
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr))
+}
+.sharePreviewRows>div{
+  min-height:56px;
+  display:grid;
+  align-content:center;
+  gap:3px;
+  padding:8px 11px;
+  border-right:1px solid #eadfbd
+}
+.sharePreviewRows>div:last-child{border-right:0}
+.sharePreviewRows span{
+  display:flex;
+  align-items:center;
+  gap:5px
+}
+.sharePreviewRows strong{font-size:10px}
+.sharePreviewRows small{
+  color:var(--muted);
+  font-size:8px
+}
+.sharePreviewRows b{
+  font-size:12px
+}
+.sharePreviewRows em{
+  color:#9a6c14;
+  font-size:7px;
+  font-style:normal
+}
+.sharePreviewRows em.paid{color:#4e875d}
+
+html[data-theme="dark"] .expenseHero,
+html[data-theme="dark"] .expenseKpiGrid>div,
+html[data-theme="dark"] .expenseFormGrid input,
+html[data-theme="dark"] .expenseFormGrid select,
+html[data-theme="dark"] .shareholderRows input,
+html[data-theme="dark"] .distributionPayoutRows button,
+html[data-theme="dark"] .weeklyDistributionFlow,
+html[data-theme="dark"] .distributionFlowGrid>div{
+  background:#18191c;
+  border-color:#34363b;
+  color:#f1f2f3
+}
+html[data-theme="dark"] .expenseKpiGrid .profit{
+  background:#211b0f;
+  border-color:#675325
+}
+html[data-theme="dark"] .weeklyDistributionHead,
+html[data-theme="dark"] .distributionActionRow,
+html[data-theme="dark"] .sharePreviewRows>div{
+  border-color:#40371f
+}
+html[data-theme="dark"] .expenseLinkButton{
+  background:#211b0f;
+  border-color:#675325;
+  color:#ddb35d
+}
+html[data-theme="dark"] .expenseTableRow>em{
+  background:#2b2112
+}
+html[data-theme="dark"] .distributionPayoutRows button.paid{
+  background:#17251b;
+  border-color:#355640
+}
+
+@media(max-width:1100px){
+  .expenseKpiGrid{
+    grid-template-columns:repeat(2,minmax(0,1fr))
+  }
+  .expenseWorkspaceGrid{
+    grid-template-columns:1fr
+  }
+  .expenseFormGrid{
+    grid-template-columns:repeat(2,minmax(0,1fr))
+  }
+  .expenseNoteField{
+    grid-column:auto
+  }
+  .sharePreviewRows{
+    grid-template-columns:repeat(3,minmax(0,1fr))
+  }
+}
+@media(max-width:820px){
+  .expenseHero{
+    align-items:flex-start;
+    padding:14px;
+  }
+  .expenseHero h2{font-size:22px}
+  .expenseHero p{display:none}
+  .expenseHeroAmount{
+    min-width:0
+  }
+  .expenseHeroAmount strong{font-size:18px}
+  .expenseKpiGrid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:7px
+  }
+  .expenseKpiGrid>div{
+    min-height:78px;
+    padding:10px
+  }
+  .expenseKpiGrid b{font-size:15px}
+  .expenseFormGrid{
+    grid-template-columns:1fr 1fr
+  }
+  .expenseDescriptionField,
+  .expenseNoteField{
+    grid-column:1/-1
+  }
+  .expenseAddButton{
+    grid-column:1/-1
+  }
+  .expenseQueuePanel{
+    overflow-x:auto
+  }
+  .distributionFlowGrid{
+    grid-template-columns:1fr;
+    gap:6px;
+    padding:9px
+  }
+  .distributionFlowGrid>i{
+    transform:rotate(90deg);
+    font-size:13px
+  }
+  .distributionFlowGrid>div{
+    min-height:60px
+  }
+  .distributionActionRow{
+    align-items:stretch;
+    flex-direction:column
+  }
+  .distributionActionRow button{
+    width:100%
+  }
+  .sharePreviewRows{
+    grid-template-columns:repeat(2,minmax(0,1fr))
+  }
+  .sharePreviewRows>div{
+    border-bottom:1px solid #eadfbd
+  }
+}
