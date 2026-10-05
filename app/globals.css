@@ -5733,3 +5733,271 @@ html[data-theme="light"] .studioSettlementRows .studioNetRow b{
     min-height:45px;
   }
 }
+
+/* Dashboard visual depth pass */
+.dashboardOverview{
+  position:relative;
+  padding:14px;
+  border:1px solid rgba(201,150,49,.16);
+  border-radius:20px;
+  background:
+    radial-gradient(circle at 8% 0%,rgba(201,150,49,.13),transparent 28%),
+    radial-gradient(circle at 95% 15%,rgba(70,130,90,.08),transparent 24%),
+    linear-gradient(180deg,#111,#0c0c0c);
+  box-shadow:
+    0 18px 45px rgba(0,0,0,.22),
+    inset 0 1px 0 rgba(255,255,255,.025);
+  overflow:hidden;
+}
+.dashboardOverview::after{
+  content:"";
+  position:absolute;
+  left:14px;
+  right:14px;
+  bottom:0;
+  height:1px;
+  background:linear-gradient(90deg,transparent,rgba(201,150,49,.5),transparent);
+}
+.dashboardOverviewHeader{
+  position:relative;
+  z-index:1;
+}
+.dashboardOverviewHeader>div:first-child{
+  position:relative;
+  padding-left:12px;
+}
+.dashboardOverviewHeader>div:first-child::before{
+  content:"";
+  position:absolute;
+  left:0;
+  top:2px;
+  bottom:2px;
+  width:3px;
+  border-radius:999px;
+  background:linear-gradient(180deg,#efc35f,#8d651e);
+  box-shadow:0 0 14px rgba(224,173,73,.35);
+}
+.dashboardOverviewHeader span{
+  letter-spacing:.04em;
+  text-transform:uppercase;
+}
+.dashboardOverviewHeader strong{
+  text-shadow:0 1px 0 rgba(255,255,255,.03);
+}
+.dashboardOverviewHeader small{
+  box-shadow:
+    0 6px 16px rgba(201,150,49,.08),
+    inset 0 1px 0 rgba(255,255,255,.03);
+}
+
+.dashboardMetricGrid{
+  position:relative;
+  z-index:1;
+}
+.dashboardMetricCard{
+  overflow:hidden;
+  transform:translateZ(0);
+  transition:transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+  box-shadow:
+    0 10px 24px rgba(0,0,0,.22),
+    inset 0 1px 0 rgba(255,255,255,.03);
+}
+.dashboardMetricCard::before{
+  content:"";
+  position:absolute;
+  top:0;
+  left:0;
+  width:100%;
+  height:3px;
+  background:linear-gradient(90deg,rgba(255,255,255,.06),rgba(255,255,255,.18),rgba(255,255,255,.06));
+}
+.dashboardMetricCard::after{
+  content:"";
+  position:absolute;
+  width:72px;
+  height:72px;
+  right:-18px;
+  bottom:-24px;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(255,255,255,.055),transparent 68%);
+  pointer-events:none;
+}
+.dashboardMetricCard:active{
+  transform:scale(.985);
+}
+.dashboardMetricCard.revenue{
+  box-shadow:
+    0 12px 30px rgba(201,150,49,.13),
+    inset 0 1px 0 rgba(255,255,255,.03);
+}
+.dashboardMetricCard.revenue::before{
+  background:linear-gradient(90deg,#7f5a18,#e5b44b,#7f5a18);
+}
+.dashboardMetricCard.profit{
+  box-shadow:
+    0 12px 30px rgba(58,139,79,.11),
+    inset 0 1px 0 rgba(255,255,255,.03);
+}
+.dashboardMetricCard.profit::before{
+  background:linear-gradient(90deg,#245934,#63b97a,#245934);
+}
+.dashboardMetricCard.live::before{
+  background:linear-gradient(90deg,#31363b,#6d747b,#31363b);
+}
+.dashboardMetricCard.fnb::before{
+  background:linear-gradient(90deg,#704815,#c88f3e,#704815);
+}
+.dashboardMetricCard span{
+  position:relative;
+  z-index:1;
+}
+.dashboardMetricCard b{
+  position:relative;
+  z-index:1;
+  text-shadow:0 2px 14px rgba(0,0,0,.18);
+}
+.dashboardMetricCard small{
+  position:relative;
+  z-index:1;
+}
+.dashboardMetricCard em{
+  width:28px;
+  height:28px;
+  display:grid;
+  place-items:center;
+  border-radius:50%;
+  background:rgba(255,255,255,.035);
+  border:1px solid rgba(255,255,255,.04);
+  color:#8b9197;
+  font-size:17px;
+}
+
+.dashboardLiveTables,
+.dashboardTodaySummary,
+.dashboardRecent{
+  position:relative;
+  border-radius:18px!important;
+  border-color:#292929!important;
+  box-shadow:
+    0 12px 30px rgba(0,0,0,.15),
+    inset 0 1px 0 rgba(255,255,255,.02);
+  overflow:hidden;
+}
+.dashboardLiveTables::before,
+.dashboardTodaySummary::before,
+.dashboardRecent::before{
+  content:"";
+  position:absolute;
+  top:0;
+  left:16px;
+  right:16px;
+  height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.07),transparent);
+}
+.dashboardLiveTableList>button{
+  position:relative;
+  overflow:hidden;
+  transition:transform .15s ease,border-color .15s ease,background .15s ease;
+}
+.dashboardLiveTableList>button::after{
+  content:"";
+  position:absolute;
+  right:-18px;
+  top:-18px;
+  width:64px;
+  height:64px;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(72,201,106,.06),transparent 66%);
+}
+.dashboardLiveTableList>button:active{
+  transform:scale(.99);
+}
+.dashLiveDot{
+  box-shadow:0 0 0 4px rgba(72,201,106,.09),0 0 12px rgba(72,201,106,.35);
+  animation:dashLivePulse 1.8s ease-in-out infinite;
+}
+@keyframes dashLivePulse{
+  0%,100%{opacity:1;transform:scale(1)}
+  50%{opacity:.65;transform:scale(.92)}
+}
+
+.dashboardSummaryRows>button{
+  transition:background .15s ease;
+}
+.dashboardSummaryRows>button:active{
+  background:#171717;
+}
+.dashboardSummaryRows>button.netRow{
+  position:relative;
+}
+.dashboardSummaryRows>button.netRow::before{
+  content:"";
+  position:absolute;
+  left:0;
+  top:0;
+  bottom:0;
+  width:3px;
+  background:#c99631;
+}
+
+.dashboardRecentList>div{
+  position:relative;
+}
+.dashboardRecentList>div::before{
+  content:"";
+  position:absolute;
+  left:-2px;
+  top:50%;
+  width:4px;
+  height:4px;
+  border-radius:50%;
+  background:#54462b;
+  transform:translateY(-50%);
+}
+
+/* richer light mode dashboard */
+html[data-theme="light"] .dashboardOverview{
+  background:
+    radial-gradient(circle at 8% 0%,rgba(201,150,49,.09),transparent 30%),
+    radial-gradient(circle at 95% 10%,rgba(80,140,95,.055),transparent 25%),
+    linear-gradient(180deg,#ffffff,#f8f9fa)!important;
+  border-color:#e6e0d2!important;
+  box-shadow:
+    0 16px 34px rgba(28,34,40,.08),
+    inset 0 1px 0 rgba(255,255,255,.8)!important;
+}
+html[data-theme="light"] .dashboardMetricCard{
+  box-shadow:
+    0 10px 24px rgba(28,34,40,.08),
+    inset 0 1px 0 rgba(255,255,255,.9)!important;
+}
+html[data-theme="light"] .dashboardMetricCard em{
+  background:#f5f6f7!important;
+  border-color:#eceef0!important;
+  color:#666d75!important;
+}
+html[data-theme="light"] .dashboardLiveTables,
+html[data-theme="light"] .dashboardTodaySummary,
+html[data-theme="light"] .dashboardRecent{
+  box-shadow:
+    0 10px 26px rgba(28,34,40,.07),
+    inset 0 1px 0 rgba(255,255,255,.8)!important;
+}
+
+@media(max-width:820px){
+  .dashboardOverview{
+    padding:12px!important;
+    border-radius:17px!important;
+  }
+  .dashboardMetricCard{
+    min-height:108px!important;
+  }
+  .dashboardMetricCard b{
+    font-size:21px!important;
+  }
+  .dashboardLiveTables,
+  .dashboardTodaySummary,
+  .dashboardRecent{
+    border-radius:15px!important;
+  }
+}
