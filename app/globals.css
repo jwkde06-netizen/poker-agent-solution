@@ -11951,3 +11951,21 @@ html[data-theme="dark"] .dailyAccountingRows .profit{
     border-bottom:0
   }
 }
+
+
+/* Restore at-a-glance daily settlement cards */
+.restoredDailySummary{
+  margin-bottom:12px!important
+}
+.restoredDailySummary .dailySummaryCard{
+  min-height:96px!important
+}
+.restoredDailySummary .dailySummaryCard span{
+  font-size:12px!important
+}
+.restoredDailySummary .dailySummaryCard b{
+  font-size:22px!important
+}
+.restoredDailySummary .dailySummaryCard small{
+  font-size:10px!important
+}
