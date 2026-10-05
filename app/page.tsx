@@ -3568,7 +3568,7 @@ export default function Home() {
                       if(row.kind==="deposit"){
                         return <div className="expenseLedgerRow depositLedgerRow" key={"deposit-"+row.id}>
                           <span>{row.date}</span>
-                          <span className="expenseItemName"><strong>{row.description}</strong><small>DEPOSIT · {row.sourceRef || "직접 입력"}</small></span>
+                          <span className="expenseItemName"><strong>{row.description}</strong></span>
                           <span>-</span>
                           <b className="depositValue">+ {vnd(row.amount)}</b>
                           <span>-</span>
@@ -3585,7 +3585,7 @@ export default function Home() {
                       const state=item.processedAmount>=item.amount?"processed":item.processedAmount>0?"partial":"pending";
                       return <div className="expenseLedgerRow editableExpenseRow" key={"expense-"+item.id} onClick={()=>openExpenseEditor(item)} role="button" tabIndex={0} onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();openExpenseEditor(item);}}}>
                         <span>{item.date}</span>
-                        <span className="expenseItemName"><strong>{item.description}</strong><small>EXPENSE · {item.category} · {item.sourceRef || "직접 입력"}</small></span>
+                        <span className="expenseItemName"><strong>{item.description}</strong></span>
                         <span>
                           <input
                             className="expensePayerInput"
