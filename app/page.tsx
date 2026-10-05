@@ -146,6 +146,7 @@ export default function Home() {
   const [extraTableNos, setExtraTableNos] = useState<string[]>([]);
   const [removedTableNos, setRemovedTableNos] = useState<string[]>([]);
   const [selectedSearchIndex, setSelectedSearchIndex] = useState(0);
+  const [playerValueView, setPlayerValueView] = useState<"amount"|"rakeback">("amount");
   const [sessionSearch, setSessionSearch] = useState<Record<string,string>>({});
   const [manageEntryId, setManageEntryId] = useState<string | null>(null);
   const [managePlayerSearch, setManagePlayerSearch] = useState("");
@@ -2107,6 +2108,14 @@ export default function Home() {
                       </div>}
                     </div>
 
+                    <div className="playerValueToolbar">
+                      <span>플레이어 {selectedTableEntries.length}명</span>
+                      <div className="playerValueToggle">
+                        <button className={playerValueView==="amount"?"active":""} onClick={()=>setPlayerValueView("amount")}>금액</button>
+                        <button className={playerValueView==="rakeback"?"active":""} onClick={()=>setPlayerValueView("rakeback")}>레이크백</button>
+                      </div>
+                    </div>
+
                     {selectedTableEntries.length===0
                       ? <div className="selectedTableEmpty playerEmpty">
                           <div className="emptyPlayersIcon">♙</div>
@@ -2118,9 +2127,10 @@ export default function Home() {
                             const player=players.find(p=>p.id===entry.playerId);
                             const perEntryRevenue=revenuePerBuyIn(entry.game);
                             return <div className="selectedPlayerRow compactPlayerRow quickBuyinRow" key={entry.id}>
-                              <button className="selectedPlayerIdentity playerOpenManage" onClick={()=>setManageEntryId(entry.id)}>
+                              <button className="selectedPlayerIdentity playerOpenManage inlinePlayerIdentity" onClick={()=>setManageEntryId(entry.id)}>
                                 <strong>{player?.name || "알 수 없음"}</strong>
-                                <span>{player?.koreanName && `${player.koreanName} · `}{entry.agencyCodeSnapshot}</span>
+                                <span className="inlineAgencyCode">{entry.agencyCodeSnapshot}</span>
+                                {player?.koreanName && <small>{player.koreanName}</small>}
                               </button>
 
                               <div className="quickBuyinControl" aria-label="바이인 빠른 수정">
@@ -2129,15 +2139,9 @@ export default function Home() {
                                 <button onClick={()=>changeSessionBuyIn(entry,1)}>＋</button>
                               </div>
 
-                              <div className="playerFinancialGrid">
-                                <div>
-                                  <small>금액</small>
-                                  <b>{vnd(perEntryRevenue*entry.buyIn)}</b>
-                                </div>
-                                <div>
-                                  <small>레이크백</small>
-                                  <b>{vnd(entry.rakeback)}</b>
-                                </div>
+                              <div className="playerSingleValue">
+                                <small>{playerValueView==="amount"?"금액":"레이크백"}</small>
+                                <b>{playerValueView==="amount"?vnd(perEntryRevenue*entry.buyIn):vnd(entry.rakeback)}</b>
                               </div>
 
                               <button className="manageChevron playerManageButton" onClick={()=>setManageEntryId(entry.id)} aria-label="플레이어 관리">›</button>
