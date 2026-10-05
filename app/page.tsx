@@ -201,8 +201,6 @@ export default function Home() {
   const [summaryDate, setSummaryDate] = useState(today());
   const [dailyLogSearch, setDailyLogSearch] = useState("");
   const [dailyExportOpen, setDailyExportOpen] = useState(false);
-  const [weeklyExportOpen, setWeeklyExportOpen] = useState(false);
-  const [weeklyAgentExportOpen, setWeeklyAgentExportOpen] = useState<string | null>(null);
   const [dailyEditingCell, setDailyEditingCell] = useState<{entryId:string;field:"agency"|"buyin"} | null>(null);
   const [dailyEditBuyInValue, setDailyEditBuyInValue] = useState("");
   const [lastDeletedEntry, setLastDeletedEntry] = useState<GameEntry | null>(null);
@@ -1419,7 +1417,6 @@ export default function Home() {
     const canvas=buildWeeklySettlementCanvas();
     if(!canvas)return;
     canvas.toBlob(blob=>{if(blob)downloadBlob(`드림포커_주간정산_${weekStart}_${weekEnd}.png`,blob)},"image/png");
-    setWeeklyExportOpen(false);
   }
 
   function exportWeeklyPdf(){
@@ -1433,7 +1430,6 @@ export default function Home() {
     const width=canvas.width*ratio, height=canvas.height*ratio;
     pdf.addImage(image,"JPEG",(pageWidth-width)/2,(pageHeight-height)/2,width,height);
     pdf.save(`드림포커_주간정산_${weekStart}_${weekEnd}.pdf`);
-    setWeeklyExportOpen(false);
   }
 
   function exportWeeklyCsv(){
@@ -1455,7 +1451,6 @@ export default function Home() {
     }));
     const csv="\uFEFF"+rows.map(r=>r.map(v=>'"'+String(v??"").replace(/"/g,'""')+'"').join(",")).join("\n");
     downloadBlob(`드림포커_주간정산_${weekStart}_${weekEnd}.csv`,new Blob([csv],{type:"text/csv;charset=utf-8"}));
-    setWeeklyExportOpen(false);
   }
 
   function buildWeeklyAgentCanvas(agencyCode:string){
@@ -1528,7 +1523,6 @@ export default function Home() {
     const canvas=buildWeeklyAgentCanvas(agencyCode);
     if(!canvas)return;
     canvas.toBlob(blob=>{if(blob)downloadBlob(`드림포커_${agencyCode}_주간정산_${weekStart}_${weekEnd}.png`,blob)},"image/png");
-    setWeeklyAgentExportOpen(null);
   }
 
   function exportWeeklyAgentPdf(agencyCode:string){
@@ -1542,7 +1536,6 @@ export default function Home() {
     const width=canvas.width*ratio, height=canvas.height*ratio;
     pdf.addImage(image,"JPEG",(pageWidth-width)/2,(pageHeight-height)/2,width,height);
     pdf.save(`드림포커_${agencyCode}_주간정산_${weekStart}_${weekEnd}.pdf`);
-    setWeeklyAgentExportOpen(null);
   }
 
   function exportWeeklyAgentCsv(agencyCode:string){
@@ -1561,7 +1554,6 @@ export default function Home() {
     group.rows.forEach(row=>rows.push([row.playerName,String(row.buyIn),String(row.rake),String(row.rakeback)]));
     const csv="\uFEFF"+rows.map(r=>r.map(v=>'"'+String(v??"").replace(/"/g,'""')+'"').join(",")).join("\n");
     downloadBlob(`드림포커_${agencyCode}_주간정산_${weekStart}_${weekEnd}.csv`,new Blob([csv],{type:"text/csv;charset=utf-8"}));
-    setWeeklyAgentExportOpen(null);
   }
 
   if (isSupabaseConfigured && !session) {
@@ -2837,36 +2829,51 @@ export default function Home() {
           </div>
 
           <section className="panel weeklyReportPanel">
-            <div className="weeklyReportTop">
-              <div>
-                <span className="weeklyReportEyebrow">주주 · 운영 보고</span>
+            <div className="weeklyReportTop compactWeeklyTop">
+              <div className="weeklyTitleOnly">
                 <h2>주간 정산</h2>
-                <div className="weeklyPeriodControl">
-                  <button onClick={()=>{
+              </div>
+
+              <div className="weeklyTopControls">
+                <div className="weeklyQuickWeeks">
+                  {[0,-1,-2,-3].map((offset,index)=>{
+                    const base=monday(today());
+                    const start=plusDays(base,offset*7);
+                    const end=plusDays(start,6);
+                    const labels=["이번 주","지난 주","2주 전","3주 전"];
+                    const active=weekStart===start && weekEnd===end;
+                    return <button
+                      key={offset}
+                      className={active?"active":""}
+                      onClick={()=>{setWeekStart(start);setWeekEnd(end);}}
+                    >{labels[index]}</button>
+                  })}
+                </div>
+
+                <div className="weeklyPeriodControl compact">
+                  <button aria-label="이전 주" onClick={()=>{
                     const start=plusDays(weekStart,-7);
                     setWeekStart(start); setWeekEnd(plusDays(start,6));
                   }}>‹</button>
                   <strong>{weekStart} ~ {weekEnd}</strong>
-                  <button onClick={()=>{
+                  <button aria-label="다음 주" onClick={()=>{
                     const start=plusDays(weekStart,7);
                     setWeekStart(start); setWeekEnd(plusDays(start,6));
                   }}>›</button>
-                  <button className="weeklyThisWeekButton" onClick={()=>{
-                    const start=monday(today());
-                    setWeekStart(start); setWeekEnd(plusDays(start,6));
-                  }}>이번 주</button>
                 </div>
-              </div>
 
-              <div className="weeklyDownloadMenu">
-                <button className="weeklyDownloadTrigger" onClick={()=>setWeeklyExportOpen(v=>!v)}>
-                  주간 정산서 다운로드 <span>{weeklyExportOpen?"⌃":"⌄"}</span>
+                <button
+                  className="weeklyIconDownload"
+                  onClick={exportWeeklyPng}
+                  title="주간 정산서 PNG 다운로드"
+                  aria-label="주간 정산서 PNG 다운로드"
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M12 3v11"/>
+                    <path d="m7.5 10 4.5 4.5 4.5-4.5"/>
+                    <path d="M5 20h14"/>
+                  </svg>
                 </button>
-                {weeklyExportOpen && <div className="weeklyDownloadDropdown">
-                  <button onClick={exportWeeklyPdf}><strong>PDF</strong><small>보고·인쇄용</small></button>
-                  <button onClick={exportWeeklyPng}><strong>PNG</strong><small>이미지 파일</small></button>
-                  <button onClick={exportWeeklyCsv}><strong>스프레드시트</strong><small>CSV 파일</small></button>
-                </div>}
               </div>
             </div>
 
@@ -2918,17 +2925,18 @@ export default function Home() {
                         <div><strong>{group.agency}</strong><span>{group.rows.length}명</span></div>
                         <div className="weeklyAgentGroupActions">
                           <b>{vnd(group.totalRakeback)}</b>
-                          <div className="weeklyAgentDownloadMenu">
-                            <button
-                              className="weeklyAgentDownloadTrigger"
-                              onClick={()=>setWeeklyAgentExportOpen(v=>v===group.agency?null:group.agency)}
-                            >정산서 다운로드</button>
-                            {weeklyAgentExportOpen===group.agency && <div className="weeklyAgentDownloadDropdown">
-                              <button onClick={()=>exportWeeklyAgentPdf(group.agency)}><strong>PDF</strong><small>공유·인쇄용</small></button>
-                              <button onClick={()=>exportWeeklyAgentPng(group.agency)}><strong>PNG</strong><small>이미지 파일</small></button>
-                              <button onClick={()=>exportWeeklyAgentCsv(group.agency)}><strong>스프레드시트</strong><small>CSV 파일</small></button>
-                            </div>}
-                          </div>
+                          <button
+                            className="weeklyAgentIconDownload"
+                            onClick={()=>exportWeeklyAgentPng(group.agency)}
+                            title={`${group.agency} 정산서 PNG 다운로드`}
+                            aria-label={`${group.agency} 정산서 PNG 다운로드`}
+                          >
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                              <path d="M12 3v11"/>
+                              <path d="m7.5 10 4.5 4.5 4.5-4.5"/>
+                              <path d="M5 20h14"/>
+                            </svg>
+                          </button>
                         </div>
                       </header>
                       <div className="weeklyPlayerHead">
