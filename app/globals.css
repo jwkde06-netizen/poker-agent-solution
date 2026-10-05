@@ -3774,3 +3774,19 @@ html[data-theme="dark"] .accountDropdown>button:hover{
     display:none!important;
   }
 }
+
+/* Mobile workspace: remove redundant per-tab headings */
+@media(max-width:820px){
+  .pageHeading{
+    display:none!important;
+  }
+
+  .contentArea{
+    padding-top:8px!important;
+  }
+
+  .globalNote{
+    margin-top:0!important;
+    margin-bottom:8px!important;
+  }
+}
