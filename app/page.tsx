@@ -3192,7 +3192,7 @@ export default function Home() {
               <div><span>총 엔트리피</span><b>{vnd(weeklyEntryFee)}</b><small>{weeklyEntries.reduce((sum,e)=>sum+e.buyIn,0)} BUY-IN</small></div>
               <div className="expense"><span>레이크백</span><b>− {vnd(weeklyRakeback)}</b><small>{weeklyAgentRows.length}개 에이전트</small></div>
               <div className="expense"><span>F&B 경비</span><b>− {vnd(weeklyFnbTotal)}</b><small>2FLOOR 반영 · 전체 {vnd(weeklyFnbAllTotal)}</small></div>
-              <div className="profit"><span>주간 수익</span><b>{vnd(weeklyProfit)}</b><small>엔트리피 − 레이크백 − F&B</small></div>
+              <div className="profit"><span>상계 전 잉여금</span><b>{vnd(weeklyProfit)}</b><small>이 금액으로 미처리 경비를 먼저 상계</small></div>
             </div>
 
             {profile?.role==="admin" && <section className="weeklyDistributionFlow">
@@ -3206,9 +3206,9 @@ export default function Home() {
 
               <div className="distributionFlowGrid">
                 <div>
-                  <span>주간 영업이익</span>
+                  <span>상계 전 잉여금</span>
                   <b>{vnd(weeklyProfit)}</b>
-                  <small>엔트리피 − 레이크백 − F&B</small>
+                  <small>아직 실제 수익으로 확정되지 않은 금액</small>
                 </div>
                 <i>→</i>
                 <div className="expenseStep">
@@ -3218,7 +3218,7 @@ export default function Home() {
                 </div>
                 <i>→</i>
                 <div className="profitStep">
-                  <span>배당 가능 금액</span>
+                  <span>상계 후 실제 수익</span>
                   <b>{vnd(previewDistributableProfit)}</b>
                   <small>{selectedWeekDistribution?"확정 완료":"확정 전 예상"}</small>
                 </div>
@@ -3267,7 +3267,7 @@ export default function Home() {
                 <div><span>총 엔트리피</span><b>{vnd(weeklyEntryFee)}</b></div>
                 <div><span>레이크백</span><b>− {vnd(weeklyRakeback)}</b></div>
                 <div><span>F&B 경비 (2FLOOR)</span><b>− {vnd(weeklyFnbTotal)}</b></div>
-                <div className="profit"><span>주간 수익</span><b>{vnd(weeklyProfit)}</b></div>
+                <div className="profit"><span>상계 전 잉여금</span><b>{vnd(weeklyProfit)}</b></div>
               </aside>
             </div>
 
@@ -3584,6 +3584,30 @@ export default function Home() {
               <button className="primary ownLoginSaveButton" onClick={updateOwnLogin} disabled={updatingOwnLogin}>
                 {updatingOwnLogin?"변경 중...":"로그인 정보 저장"}
               </button>
+            </div>
+          </section>
+
+          <section className="panel shareholderSettingsPanel">
+            <div className="sectionTitle">
+              <div><h2>사업 지분 설정</h2><p>주간 경비 상계 후 발생한 실제 수익을 이 지분율로 배당합니다.</p></div>
+              <strong className={Math.abs(shareholderRateTotal-100)<0.001?"shareTotal ok":"shareTotal"}>{shareholderRateTotal}%</strong>
+            </div>
+            <div className="shareholderRows">
+              {shareholders.map(holder=><div key={holder.id}>
+                <span><strong>{holder.name}</strong><small>{holder.active?"배당 대상":"비활성"}</small></span>
+                <div>
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    step="0.5"
+                    value={holder.rate}
+                    onChange={e=>setShareholders(prev=>prev.map(x=>x.id===holder.id?{...x,rate:Number(e.target.value)}:x))}
+                    onBlur={e=>updateShareholderRate(holder,Number(e.target.value))}
+                  />
+                  <em>%</em>
+                </div>
+              </div>)}
             </div>
           </section>
 
