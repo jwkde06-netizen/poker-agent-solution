@@ -954,21 +954,21 @@ export default function Home() {
             </div>
 
             <button onClick={()=>{setTab("settings");setAccountMenuOpen(false)}}>
-              <span>⚙</span><div><strong>설정</strong><small>계정 및 운영 설정</small></div>
+              <span>⚙</span><div><strong>설정</strong></div>
             </button>
 
             <button onClick={()=>{applyTheme(theme==="dark"?"light":"dark");setAccountMenuOpen(false)}}>
-              <span>{theme==="dark"?"☀":"☾"}</span><div><strong>{theme==="dark"?"라이트 모드":"다크 모드"}</strong><small>화면 테마 변경</small></div>
+              <span>{theme==="dark"?"☀":"☾"}</span><div><strong>{theme==="dark"?"라이트 모드":"다크 모드"}</strong></div>
             </button>
 
             <button onClick={()=>setAccountMenuOpen(false)}>
-              <span>⇄</span><div><strong>에이전트 보기</strong><small>에이전트 권한 화면</small></div>
+              <span>⇄</span><div><strong>에이전트 보기</strong></div>
             </button>
 
             <div className="accountDropdownDivider"/>
 
             <button className="logoutMenuItem" onClick={signOut}>
-              <span>↪</span><div><strong>로그아웃</strong><small>현재 계정에서 나가기</small></div>
+              <span>↪</span><div><strong>로그아웃</strong></div>
             </button>
           </div>}
         </div>
@@ -991,18 +991,18 @@ export default function Home() {
           <nav className="mobileSideMenuNav">
             <button onClick={()=>{setTab("settings");setMobileSideMenuOpen(false)}}>
               <span className="sideMenuIcon">⚙</span>
-              <div><strong>설정</strong><small>계정 및 운영 설정</small></div>
+              <div><strong>설정</strong></div>
             </button>
 
             <button onClick={()=>applyTheme(theme==="dark"?"light":"dark")}>
               <span className="sideMenuIcon">{theme==="dark"?"☀":"☾"}</span>
-              <div><strong>{theme==="dark"?"라이트 모드":"다크 모드"}</strong><small>화면 테마 변경</small></div>
+              <div><strong>{theme==="dark"?"라이트 모드":"다크 모드"}</strong></div>
               <span className={`sideThemeSwitch ${theme==="dark"?"on":""}`}><i/></span>
             </button>
 
             <button onClick={()=>setMobileSideMenuOpen(false)}>
               <span className="sideMenuIcon">⇄</span>
-              <div><strong>에이전트 보기</strong><small>에이전트 권한 화면</small></div>
+              <div><strong>에이전트 보기</strong></div>
             </button>
           </nav>
 
@@ -1264,7 +1264,7 @@ export default function Home() {
                 <div>
                   <span className="modalEyebrow">NEW PLAYER</span>
                   <h3>플레이어 추가</h3>
-                  <p>플레이어의 기본 정보와 담당 에이전트를 입력하세요.</p>
+                  
                 </div>
                 <button className="modalClose" onClick={()=>setPlayerView("list")} aria-label="닫기">×</button>
               </div>
@@ -1640,8 +1640,7 @@ export default function Home() {
             <button onClick={()=>setTab("daily")}>일일정산</button>
             <button className="active">주간정산</button>
           </div>
-          {reportPanel}
-          <div className="sectionTitle"><div><h2>주간 정산</h2><p>기간별 에이전트·플레이어 정산 결과를 확인합니다.</p></div><div className="dateRange"><input className="datePicker" type="date" value={weekStart} onChange={e=>setWeekStart(e.target.value)}/><span>~</span><input className="datePicker" type="date" value={weekEnd} onChange={e=>setWeekEnd(e.target.value)}/></div></div>
+          <div className="sectionTitle"><div><h2>주간 정산</h2></div><div className="dateRange"><input className="datePicker" type="date" value={weekStart} onChange={e=>setWeekStart(e.target.value)}/><span>~</span><input className="datePicker" type="date" value={weekEnd} onChange={e=>setWeekEnd(e.target.value)}/></div></div>
           <div className="cards"><div className="metric"><span>주간 총 레이크</span><b>{vnd(total(weeklyEntries,"rake"))}</b></div><div className="metric"><span>주간 총 에이전트 정산액</span><b>{vnd(total(weeklyEntries,"rakeback"))}</b></div><div className="metric"><span>주간 정산 후 순액</span><b>{vnd(total(weeklyEntries,"rake")-total(weeklyEntries,"rakeback"))}</b></div></div>
           <div className="agencyGrid">{agencyTotals(weeklyEntries).map(a=><div className="agencyCard" key={a.id}><span>{a.code}</span><small>현재 정산 요율 {a.rate}%</small><b>{vnd(a.amount)}</b></div>)}</div>
           <div className="sectionTitle compact"><div><h2>플레이어별 주간 정산</h2><p>각 게임 입력 당시 저장된 정산 요율을 기준으로 계산합니다.</p></div></div>
@@ -1660,7 +1659,7 @@ export default function Home() {
 
           <section className="panel fnbEntryPanel">
             <div className="sectionTitle">
-              <div><h2>F&B 빠른 입력</h2><p>메뉴를 선택하면 단가가 자동 적용됩니다.</p></div>
+              <div><h2>F&B 빠른 입력</h2></div>
               <input className="datePicker" type="date" value={fnbDate} onChange={e=>setFnbDate(e.target.value)}/>
             </div>
 
