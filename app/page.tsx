@@ -817,12 +817,19 @@ export default function Home() {
               <div className="kpiCopy"><span>오늘 레이크백</span><b>{vnd(todaySettlement)}</b><small>오늘 에이전트 지급액</small></div>
               <span className="kpiArrow">›</span>
             </button>
-            <button className="kpiCard dashboardKpi" onClick={()=>setTab("players")}>
-              <div className="kpiIcon">♙</div>
-              <div className="kpiCopy"><span>총 플레이어 수</span><b>{players.length}명</b><small>등록된 전체 플레이어</small></div>
+            <button className="kpiCard dashboardKpi" onClick={()=>setTab("fnb")}>
+              <div className="kpiIcon">☕</div>
+              <div className="kpiCopy"><span>오늘 F&B</span><b>{vnd(fnbTodayTotal)}</b><small>오늘 입력된 F&B 비용</small></div>
               <span className="kpiArrow">›</span>
             </button>
           </div>
+
+          <section className="dashboardQuickMenu" aria-label="빠른 메뉴">
+            <button onClick={()=>setTab("games")}><span>＋</span><strong>바이인</strong><small>테이블 입력</small></button>
+            <button onClick={()=>setTab("fnb")}><span>☕</span><strong>F&B</strong><small>비용 입력</small></button>
+            <button onClick={()=>setTab("daily")}><span>▤</span><strong>일일정산</strong><small>오늘 정산</small></button>
+            <button onClick={()=>setTab("weekly")}><span>▥</span><strong>주간정산</strong><small>주간 확인</small></button>
+          </section>
 
           <section className="dashCard recentCard dashboardRecent">
             <div className="cardHeader"><div><h2>최근 정산 현황</h2><p>최근 게임 입력 기준</p></div><button className="linkButton" onClick={()=>setTab("weekly")}>전체보기 ›</button></div>
