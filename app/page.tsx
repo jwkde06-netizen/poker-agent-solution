@@ -2192,7 +2192,7 @@ export default function Home() {
           </section>
         </>}
 
-        {tab==="agencies" && <section className="agencyPage">
+        {!isStaff && tab==="agencies" && <section className="agencyPage">
           {!editingAgencyId ? <section className="panel agencyManagePanel">
             <div className="mobileSectionSwitcher playerAccessSwitcher">
               <button onClick={()=>navigateTab("players")}>플레이어 명단</button>
@@ -2378,7 +2378,7 @@ export default function Home() {
                 <div>
                   <span className="modalEyebrow">PLAYER DETAIL</span>
                   <h3>{selectedPlayer.name}</h3>
-                  <p>{selectedPlayer.koreanName ? `${selectedPlayer.koreanName} · ` : ""}회원번호 {selectedPlayer.cardNo || "-"} · {agencies.find(a=>a.id===selectedPlayer.agencyId)?.code || "-"} · 정산 요율 {agencies.find(a=>a.id===selectedPlayer.agencyId)?.rate ?? 0}%</p>
+                  <p>{selectedPlayer.koreanName ? `${selectedPlayer.koreanName} · ` : ""}회원번호 {selectedPlayer.cardNo || "-"} · {agencies.find(a=>a.id===selectedPlayer.agencyId)?.code || "-"}</p>
                 </div>
                 <button className="modalClose" onClick={()=>setSelectedPlayerId(null)} aria-label="닫기">×</button>
               </div>
@@ -2386,17 +2386,17 @@ export default function Home() {
               <div className="playerStatsGrid">
                 <div className="playerStatCard"><span>참여 게임</span><b>{selectedPlayerEntries.length}회</b></div>
                 <div className="playerStatCard"><span>총 바이인</span><b>{vnd(selectedPlayerBuyIns)}</b></div>
-                <div className="playerStatCard"><span>총 발생 레이크</span><b>{vnd(selectedPlayerRake)}</b></div>
+                {!isStaff && <div className="playerStatCard"><span>총 엔트리피</span><b>{vnd(selectedPlayerRake)}</b></div>}
               </div>
 
               <div className="playerAgencyEditor">
                 <div>
                   <span>에이전트</span>
-                  <small>현재 정산 요율 {agencies.find(a=>a.id===selectedPlayer.agencyId)?.rate ?? 0}%</small>
+                  <small>{isStaff?"소속 에이전트 코드":`현재 정산 요율 ${agencies.find(a=>a.id===selectedPlayer.agencyId)?.rate ?? 0}%`}</small>
                 </div>
                 <div className="playerAgencyControls">
                   <select value={detailAgencyId || selectedPlayer.agencyId} onChange={e=>setDetailAgencyId(e.target.value)}>
-                    {agencies.map(a=><option key={a.id} value={a.id}>{a.code} · {a.rate}%</option>)}
+                    {agencies.map(a=><option key={a.id} value={a.id}>{isStaff?a.code:`${a.code} · ${a.rate}%`}</option>)}
                   </select>
                   <button
                     className="primary"
@@ -2419,10 +2419,10 @@ export default function Home() {
               <div className="playerDetailSection">
                 <div className="playerDetailTitle"><h4>게임별 기록</h4><span>{selectedPlayerGameBreakdown.length}개 게임</span></div>
                 <div className="tableWrap playerDetailTable"><table>
-                  <thead><tr><th>게임</th><th>참여</th><th>바이인</th><th>레이크</th></tr></thead>
+                  <thead><tr><th>게임</th><th>참여</th><th>바이인</th>{!isStaff && <th>엔트리피</th>}</tr></thead>
                   <tbody>{selectedPlayerGameBreakdown.length===0
-                    ? <tr><td colSpan={4} className="empty">아직 게임 기록이 없습니다.</td></tr>
-                    : selectedPlayerGameBreakdown.map(r=><tr key={r.game}><td><strong>{r.game}</strong></td><td>{r.games}회</td><td>{vnd(r.buyIns)}</td><td>{vnd(r.rake)}</td></tr>)}
+                    ? <tr><td colSpan={isStaff?3:4} className="empty">아직 게임 기록이 없습니다.</td></tr>
+                    : selectedPlayerGameBreakdown.map(r=><tr key={r.game}><td><strong>{r.game}</strong></td><td>{r.games}회</td><td>{r.buyIns}</td>{!isStaff && <td>{vnd(r.rake)}</td>}</tr>)}
                   </tbody>
                 </table></div>
               </div>
@@ -2430,10 +2430,10 @@ export default function Home() {
               <div className="playerDetailSection">
                 <div className="playerDetailTitle"><h4>게임 내역</h4><span>최근 기록순</span></div>
                 <div className="tableWrap playerDetailTable"><table>
-                  <thead><tr><th>날짜</th><th>게임</th><th>바이인</th><th>레이크</th><th>레이크백</th></tr></thead>
+                  <thead><tr><th>날짜</th><th>게임</th><th>바이인</th>{!isStaff && <><th>엔트리피</th><th>레이크백</th></>}</tr></thead>
                   <tbody>{selectedPlayerEntries.length===0
-                    ? <tr><td colSpan={5} className="empty">아직 게임 기록이 없습니다.</td></tr>
-                    : [...selectedPlayerEntries].sort((a,b)=>b.date.localeCompare(a.date)).map(e=><tr key={e.id}><td>{e.date}</td><td>{e.game}</td><td>{vnd(e.buyIn)}</td><td>{vnd(e.rake)}</td><td>{vnd(e.rakeback)}</td></tr>)}
+                    ? <tr><td colSpan={isStaff?3:5} className="empty">아직 게임 기록이 없습니다.</td></tr>
+                    : [...selectedPlayerEntries].sort((a,b)=>b.date.localeCompare(a.date)).map(e=><tr key={e.id}><td>{e.date}</td><td>{e.game}</td><td>{e.buyIn}</td>{!isStaff && <><td>{vnd(e.rake)}</td><td>{vnd(e.rakeback)}</td></>}</tr>)}
                   </tbody>
                 </table></div>
               </div>
@@ -2580,11 +2580,11 @@ export default function Home() {
                   </div>}
             </div>
 
-            <div className="selectedTableStats compactSelectedStats fourStats">
+            <div className={isStaff?"selectedTableStats compactSelectedStats staffSelectedStats":"selectedTableStats compactSelectedStats fourStats"}>
               <div><span>플레이어</span><b>{selectedGameSession?selectedTableEntries.length:0}명</b></div>
               <div><span>총 바이인</span><b>{selectedGameSession?selectedTableBuyIns:0}회</b></div>
-              <div><span>전체 매출</span><b>{vnd(selectedGameSession?selectedTableRevenue:0)}</b></div>
-              <div><span>레이크백</span><b>{vnd(selectedGameSession?selectedTableRakeback:0)}</b></div>
+              {!isStaff && <div><span>전체 매출</span><b>{vnd(selectedGameSession?selectedTableRevenue:0)}</b></div>}
+              {!isStaff && <div><span>레이크백</span><b>{vnd(selectedGameSession?selectedTableRakeback:0)}</b></div>}
             </div>
 
             {selectedGameSession && <>
@@ -2643,13 +2643,13 @@ export default function Home() {
                       </div>}
                     </div>
 
-                    <div className="playerValueToolbar">
+                    {!isStaff && <div className="playerValueToolbar">
                       <span>플레이어 {selectedTableEntries.length}명</span>
                       <div className="playerValueToggle">
                         <button className={playerValueView==="amount"?"active":""} onClick={()=>setPlayerValueView("amount")}>금액</button>
                         <button className={playerValueView==="rakeback"?"active":""} onClick={()=>setPlayerValueView("rakeback")}>레이크백</button>
                       </div>
-                    </div>
+                    </div>}
 
                     {selectedTableEntries.length===0
                       ? <div className="selectedTableEmpty playerEmpty">
@@ -2661,7 +2661,7 @@ export default function Home() {
                           {[...selectedTableEntries].sort((a,b)=>b.buyIn-a.buyIn).map(entry=>{
                             const player=players.find(p=>p.id===entry.playerId);
                             const perEntryRevenue=revenuePerBuyIn(entry.game);
-                            return <div className="selectedPlayerRow compactPlayerRow quickBuyinRow" key={entry.id}>
+                            return <div className={isStaff?"selectedPlayerRow compactPlayerRow quickBuyinRow staffPlayerRow":"selectedPlayerRow compactPlayerRow quickBuyinRow"} key={entry.id}>
                               <button className="selectedPlayerIdentity playerOpenManage inlinePlayerIdentity" onClick={()=>setManageEntryId(entry.id)}>
                                 <strong>{player?.name || "알 수 없음"}</strong>
                                 <span className="inlineAgencyCode">{entry.agencyCodeSnapshot}</span>
@@ -2674,10 +2674,10 @@ export default function Home() {
                                 <button onClick={()=>changeSessionBuyIn(entry,1)}>＋</button>
                               </div>
 
-                              <div className="playerSingleValue">
+                              {!isStaff && <div className="playerSingleValue">
                                 <small>{playerValueView==="amount"?"금액":"레이크백"}</small>
                                 <b>{playerValueView==="amount"?vnd(perEntryRevenue*entry.buyIn):vnd(entry.rakeback)}</b>
-                              </div>
+                              </div>}
 
                               <button className="manageChevron playerManageButton" onClick={()=>setManageEntryId(entry.id)} aria-label="플레이어 관리">›</button>
                             </div>
@@ -2708,13 +2708,13 @@ export default function Home() {
                     </div>
                     <div>
                       <b>{buyins} BUY-IN</b>
-                      <em>{vnd(revenue)}</em>
+                      {!isStaff && <em>{vnd(revenue)}</em>}
                     </div>
                   </summary>
                   <div className="gameLogSummary">
                     <span>플레이어 {logEntries.length}명</span>
-                    <span>레이크백 {vnd(rakeback)}</span>
-                    <span>바이인 금액 {vnd(revenue)}</span>
+                    {!isStaff && <span>레이크백 {vnd(rakeback)}</span>}
+                    {!isStaff && <span>바이인 금액 {vnd(revenue)}</span>}
                   </div>
                   <div className="gameLogPlayers">
                     {logEntries.length===0
@@ -2722,7 +2722,7 @@ export default function Home() {
                       : logEntries.map(e=><div key={e.id}>
                           <span><strong>{getPlayerName(e.playerId)}</strong><small>{e.agencyCodeSnapshot}</small></span>
                           <span>{e.buyIn}회</span>
-                          <b>{vnd(revenuePerBuyIn(e.game)*e.buyIn)}</b>
+                          {!isStaff && <b>{vnd(revenuePerBuyIn(e.game)*e.buyIn)}</b>}
                         </div>)}
                   </div>
                 </details>
@@ -2732,7 +2732,7 @@ export default function Home() {
           </section>}
         </section>}
 
-        {tab==="daily" && <section className="compactDailyPage">
+        {!isStaff && tab==="daily" && <section className="compactDailyPage">
           <div className="mobileSectionSwitcher settlementSwitcher">
             <button className="active">일일정산</button>
             <button onClick={()=>navigateTab("weekly")}>주간정산</button>
@@ -2919,7 +2919,7 @@ export default function Home() {
           </section>
         </section>}
 
-        {tab==="weekly" && <section className="weeklyReportPage">
+        {!isStaff && tab==="weekly" && <section className="weeklyReportPage">
           <div className="mobileSectionSwitcher settlementSwitcher">
             <button onClick={()=>navigateTab("daily")}>일일정산</button>
             <button className="active">주간정산</button>
@@ -3163,7 +3163,7 @@ export default function Home() {
           </section>
         </section>}
 
-        {tab==="reports" && <section className="reportAnalyticsPage">
+        {!isStaff && tab==="reports" && <section className="reportAnalyticsPage">
           <section className="panel reportAnalyticsPanel">
             <div className="reportAnalyticsTop">
               <div><h2>리포트</h2><p>기간별 운영 통계와 수익 추이를 확인합니다.</p></div>
@@ -3319,10 +3319,10 @@ export default function Home() {
             <strong>{managedEntry.buyIn}회</strong>
             <button onClick={()=>setSessionBuyInCount(managedEntry,managedEntry.buyIn+1)}>＋</button>
           </div>
-          <div className="manageFinancialSummary">
+          {!isStaff && <div className="manageFinancialSummary">
             <div><small>금액</small><b>{vnd(revenuePerBuyIn(managedEntry.game)*managedEntry.buyIn)}</b></div>
             <div><small>레이크백</small><b>{vnd(managedEntry.rakeback)}</b></div>
-          </div>
+          </div>}
         </div>
 
         <div className="manageReplaceSection">
