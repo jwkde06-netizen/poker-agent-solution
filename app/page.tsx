@@ -811,12 +811,51 @@ export default function Home() {
   }
 
   async function removePlayerFromSession(entry:GameEntry){
-    if(!confirm("이 플레이어를 현재 게임에서 삭제할까요?")) return;
     if(isSupabaseConfigured && supabase && session){
       const {error}=await supabase.from("game_entries").delete().eq("id",entry.id);
       if(error){setMessage(error.message);return;}
     }
     setEntries(prev=>prev.filter(e=>e.id!==entry.id));
+  }
+
+  async function updateActiveGameSession(gameSession:GameSession,patch:{tableNo?:string;game?:string}){
+    const nextTableNo=(patch.tableNo ?? gameSession.tableNo).trim();
+    const nextGame=patch.game ?? gameSession.game;
+    if(!nextTableNo)return;
+    if(nextTableNo!==gameSession.tableNo && gameSessions.some(s=>s.id!==gameSession.id && s.status==="active" && s.date===gameSession.date && s.tableNo===nextTableNo)){
+      setMessage(`T${nextTableNo}는 이미 진행 중입니다.`);
+      return;
+    }
+
+    if(isSupabaseConfigured && supabase && session){
+      const payload:any={};
+      if(patch.tableNo!==undefined)payload.table_no=nextTableNo;
+      if(patch.game!==undefined)payload.game_name=nextGame;
+      const {error}=await supabase.from("game_sessions").update(payload).eq("id",gameSession.id);
+      if(error){setMessage(error.message);return;}
+
+      if(patch.game!==undefined){
+        const sessionEntries=entries.filter(e=>e.sessionId===gameSession.id);
+        for(const entry of sessionEntries){
+          const nextRake=rakePerBuyIn(nextGame)*entry.buyIn;
+          const nextRakeback=Math.round(nextRake*(entry.rateSnapshot/100));
+          const {error:entryError}=await supabase.from("game_entries").update({
+            game_name:nextGame,rake:nextRake,rakeback:nextRakeback
+          }).eq("id",entry.id);
+          if(entryError){setMessage(entryError.message);return;}
+        }
+      }
+    }
+
+    setGameSessions(prev=>prev.map(s=>s.id===gameSession.id?{...s,tableNo:nextTableNo,game:nextGame}:s));
+    if(patch.game!==undefined){
+      setEntries(prev=>prev.map(e=>{
+        if(e.sessionId!==gameSession.id)return e;
+        const nextRake=rakePerBuyIn(nextGame)*e.buyIn;
+        return {...e,game:nextGame,rake:nextRake,rakeback:Math.round(nextRake*(e.rateSnapshot/100))};
+      }));
+    }
+    if(patch.tableNo!==undefined)setSelectedTableNo(nextTableNo);
   }
 
   async function closeGameSession(id:string){
@@ -1808,10 +1847,31 @@ export default function Home() {
 
           <section className="panel selectedTablePanel">
             <div className="selectedTableTop">
-              <div className="selectedTableHeadline">
-                <strong>T{selectedTableNo || "-"}</strong>
-                {selectedGameSession && <span>{selectedGameSession.gameNo ? `No.${selectedGameSession.gameNo}` : "No.-"}</span>}
-                {selectedGameSession && <b>{selectedGameSession.game}</b>}
+              <div className={selectedGameSession?"selectedTableHeadline editableSessionMeta":"selectedTableHeadline"}>
+                {selectedGameSession
+                  ? <>
+                      <label className="inlineSessionEdit tableEdit">
+                        <span>TABLE</span>
+                        <input
+                          value={selectedGameSession.tableNo}
+                          onChange={e=>setGameSessions(prev=>prev.map(s=>s.id===selectedGameSession.id?{...s,tableNo:e.target.value.replace(/\D/g,"")}:s))}
+                          onBlur={e=>updateActiveGameSession(selectedGameSession,{tableNo:e.target.value})}
+                          onKeyDown={e=>{if(e.key==="Enter")(e.currentTarget as HTMLInputElement).blur();}}
+                          aria-label="테이블 번호 수정"
+                        />
+                      </label>
+                      <span>{selectedGameSession.gameNo ? `No.${selectedGameSession.gameNo}` : "No.-"}</span>
+                      <label className="inlineSessionEdit gameEdit">
+                        <span>BUY-IN</span>
+                        <select value={selectedGameSession.game} onChange={e=>updateActiveGameSession(selectedGameSession,{game:e.target.value})} aria-label="게임 바이인 금액 수정">
+                          <option value="3M">3M</option>
+                          <option value="5M">5M</option>
+                          <option value="10M">10M</option>
+                          <option value="15M">15M</option>
+                        </select>
+                      </label>
+                    </>
+                  : <strong>T{selectedTableNo || "-"}</strong>}
               </div>
 
               {!selectedGameSession
@@ -1856,46 +1916,10 @@ export default function Home() {
                       <b>{selectedTableBuyIns} BUY-IN · {vnd(selectedTableRevenue)}</b>
                     </div>
 
-                    {selectedTableEntries.length===0
-                      ? <div className="selectedTableEmpty playerEmpty">
-                          <div className="emptyPlayersIcon">♙</div>
-                          <strong>등록된 플레이어가 없습니다.</strong>
-                          <span>플레이어를 검색해 추가하세요.</span>
-                        </div>
-                      : <div className="selectedPlayerList">
-                          {[...selectedTableEntries].sort((a,b)=>b.buyIn-a.buyIn).map(entry=>{
-                            const player=players.find(p=>p.id===entry.playerId);
-                            const perEntryRevenue=revenuePerBuyIn(entry.game);
-                            return <button className="selectedPlayerRow compactPlayerRow playerManageTrigger" key={entry.id} onClick={()=>setManageEntryId(entry.id)}>
-                              <div className="selectedPlayerIdentity">
-                                <strong>{player?.name || "알 수 없음"}</strong>
-                                <span>{player?.koreanName && `${player.koreanName} · `}{entry.agencyCodeSnapshot}</span>
-                              </div>
-
-                              <div className="playerFinancialGrid">
-                                <div>
-                                  <small>바이인</small>
-                                  <b>{entry.buyIn}회</b>
-                                </div>
-                                <div>
-                                  <small>금액</small>
-                                  <b>{vnd(perEntryRevenue*entry.buyIn)}</b>
-                                </div>
-                                <div>
-                                  <small>레이크백</small>
-                                  <b>{vnd(entry.rakeback)}</b>
-                                </div>
-                              </div>
-
-                              <span className="manageChevron">›</span>
-                            </button>
-                          })}
-                        </div>}
-
-                    <div className="selectedPlayerSearch">
+                    <div className="selectedPlayerSearch topPlayerSearch">
                       <div className="selectedSearchLabel">
                         <strong>플레이어 추가</strong>
-                        <small>선택 즉시 1 BUY-IN</small>
+                        <small>검색 후 선택 즉시 1 BUY-IN</small>
                       </div>
                       <div className="tableSearchInput selectedSearchInput">
                         <span>⌕</span>
@@ -1920,6 +1944,44 @@ export default function Home() {
                         })}
                       </div>}
                     </div>
+
+                    {selectedTableEntries.length===0
+                      ? <div className="selectedTableEmpty playerEmpty">
+                          <div className="emptyPlayersIcon">♙</div>
+                          <strong>등록된 플레이어가 없습니다.</strong>
+                          <span>위 검색창에서 플레이어를 추가하세요.</span>
+                        </div>
+                      : <div className="selectedPlayerList">
+                          {[...selectedTableEntries].sort((a,b)=>b.buyIn-a.buyIn).map(entry=>{
+                            const player=players.find(p=>p.id===entry.playerId);
+                            const perEntryRevenue=revenuePerBuyIn(entry.game);
+                            return <div className="selectedPlayerRow compactPlayerRow quickBuyinRow" key={entry.id}>
+                              <button className="selectedPlayerIdentity playerOpenManage" onClick={()=>setManageEntryId(entry.id)}>
+                                <strong>{player?.name || "알 수 없음"}</strong>
+                                <span>{player?.koreanName && `${player.koreanName} · `}{entry.agencyCodeSnapshot}</span>
+                              </button>
+
+                              <div className="quickBuyinControl" aria-label="바이인 빠른 수정">
+                                <button onClick={()=>changeSessionBuyIn(entry,-1)} disabled={entry.buyIn<=1}>−</button>
+                                <b>{entry.buyIn}</b>
+                                <button onClick={()=>changeSessionBuyIn(entry,1)}>＋</button>
+                              </div>
+
+                              <div className="playerFinancialGrid">
+                                <div>
+                                  <small>금액</small>
+                                  <b>{vnd(perEntryRevenue*entry.buyIn)}</b>
+                                </div>
+                                <div>
+                                  <small>레이크백</small>
+                                  <b>{vnd(entry.rakeback)}</b>
+                                </div>
+                              </div>
+
+                              <button className="manageChevron playerManageButton" onClick={()=>setManageEntryId(entry.id)} aria-label="플레이어 관리">›</button>
+                            </div>
+                          })}
+                        </div>}
                   </div>
                 </>}
           </section>
