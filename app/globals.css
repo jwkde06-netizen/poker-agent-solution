@@ -13435,3 +13435,77 @@ html[data-theme="dark"] .agencyMemberRow span{
     margin-top:10px
   }
 }
+
+
+/* Staff operations interface */
+.staffDashboardStrip .dashboardFinanceCard{
+  cursor:pointer
+}
+.staffOperationsGrid .dashboardFinanceCard strong{
+  font-size:26px!important
+}
+.staffOperationsGrid .dashboardFinanceCard span{
+  font-size:12px!important
+}
+.staffOperationsGrid .dashboardFinanceCard small{
+  font-size:10px!important
+}
+.staffQuickPanel{
+  min-height:100%
+}
+.staffQuickActions{
+  display:grid;
+  gap:9px;
+  padding:12px
+}
+.staffQuickActions button{
+  min-height:70px;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  justify-content:center;
+  gap:4px;
+  padding:12px 14px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:var(--surface);
+  color:var(--text);
+  text-align:left;
+  cursor:pointer
+}
+.staffQuickActions button:hover{
+  background:var(--surface-2);
+  transform:none
+}
+.staffQuickActions strong{
+  font-size:14px;
+  font-weight:750
+}
+.staffQuickActions span{
+  color:var(--muted);
+  font-size:10px
+}
+.staffSelectedStats{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important
+}
+.staffPlayerRow{
+  grid-template-columns:minmax(240px,1.5fr) auto 28px!important
+}
+html[data-theme="dark"] .staffQuickActions button{
+  background:#18191c;
+  border-color:#303238
+}
+html[data-theme="dark"] .staffQuickActions button:hover{
+  background:#222429
+}
+@media(max-width:820px){
+  .staffOperationsGrid{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important
+  }
+  .staffSelectedStats{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important
+  }
+  .staffPlayerRow{
+    grid-template-columns:minmax(0,1fr) auto 24px!important
+  }
+}
