@@ -755,7 +755,15 @@ export default function Home() {
       return;
     }
     setMessage("");
-    const authEmail = cleanId.includes("@") ? cleanId : `${cleanId}@dream-poker.local`;
+
+    let authEmail=cleanId;
+    if(!cleanId.includes("@")){
+      const {data:resolvedEmail}=await supabase.rpc("resolve_login_email",{p_username:cleanId});
+      authEmail=(typeof resolvedEmail==="string" && resolvedEmail)
+        ? resolvedEmail.toLowerCase()
+        : `${cleanId}@dream-poker.local`;
+    }
+
     const { error } = await supabase.auth.signInWithPassword({ email: authEmail, password });
     if (error) setMessage("아이디 또는 비밀번호가 올바르지 않습니다.");
   }
