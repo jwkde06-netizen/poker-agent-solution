@@ -90,3 +90,5 @@ deploy staff operations interface
 2026-10-05 weekly-settlement-report-sheet-v2
 
 2026-10-06 fix-admin-username-login
+
+2026-10-06 fix-admin-auth-email-resolver
