@@ -63,6 +63,33 @@ jobs:
           PAYLOAD=$(jq -n --arg query "$SQL" '{query:$query}')
           curl --fail-with-body -sS             "https://api.supabase.com/v1/projects/$SUPABASE_PROJECT_REF/database/query"             -X POST             -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN"             -H "Content-Type: application/json"             --data-binary "$PAYLOAD"
 
+      - name: 현재 admin username 매핑 확인
+        shell: bash
+        run: |
+          SQL="select
+            p.user_id,
+            p.username,
+            p.email as profile_email,
+            p.role,
+            p.active,
+            u.email as auth_email,
+            u.email_confirmed_at is not null as email_confirmed,
+            length(coalesce(u.encrypted_password,'')) as password_length
+          from public.user_profiles p
+          left join auth.users u on u.id=p.user_id
+          where lower(coalesce(p.username,''))='admin'
+             or p.role='admin'
+          order by p.created_at asc;"
+          PAYLOAD=$(jq -n --arg query "$SQL" '{query:$query}')
+          curl --fail-with-body -sS             "https://api.supabase.com/v1/projects/$SUPABASE_PROJECT_REF/database/query"             -X POST             -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN"             -H "Content-Type: application/json"             --data-binary "$PAYLOAD"
+
+      - name: username resolver 확인
+        shell: bash
+        run: |
+          SQL="select public.resolve_login_email('admin') as resolved_email;"
+          PAYLOAD=$(jq -n --arg query "$SQL" '{query:$query}')
+          curl --fail-with-body -sS             "https://api.supabase.com/v1/projects/$SUPABASE_PROJECT_REF/database/query"             -X POST             -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN"             -H "Content-Type: application/json"             --data-binary "$PAYLOAD"
+
       - name: 최근 Auth / Postgres 오류 로그 확인
         shell: bash
         run: |
