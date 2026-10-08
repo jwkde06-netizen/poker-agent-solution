@@ -15767,3 +15767,10 @@ html[data-theme="dark"] .weeklyStatementRow.totalExpense{
 .weeklyDetailTotals>div{padding:15px 0;border-bottom:1px solid var(--line);font-size:13px;}
 .weeklyDetailTotals b{font-variant-numeric:tabular-nums;white-space:nowrap;}
 @media(max-width:900px){.weeklyStatementSplit{grid-template-columns:1fr;}.weeklyStatementDetail{max-height:none;}.weeklyStatementSplit .weeklyStatementTable{min-width:0;}}
+
+/* Weekly settlement: balanced two-column layout, dates only in top toolbar. */
+.weeklyInteractiveSheet{display:block!important;width:100%!important;max-width:none!important;margin:0!important;min-width:0!important;}
+.weeklyInteractiveSheet .weeklyStatementMeta{display:none!important;}
+.weeklyInteractiveSheet .weeklyStatementSplit{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;gap:18px!important;align-items:start!important;width:100%!important;}
+.weeklyInteractiveSheet .weeklyStatementTable,.weeklyInteractiveSheet .weeklyStatementDetail{width:100%!important;min-width:0!important;max-width:none!important;}
+@media(max-width:900px){.weeklyInteractiveSheet .weeklyStatementSplit{grid-template-columns:minmax(0,1fr)!important;gap:12px!important;}}
