@@ -16193,3 +16193,44 @@ html{scroll-behavior:smooth}
  html,.sidebar,.workspace,.contentArea{scroll-behavior:auto!important}
  .sideNav .sideNavActiveTrack,.sideNav button,.sideNav .navIcon{transition:none!important}
 }
+
+
+/* Dashboard: tactile premium cards, restrained ambient highlight */
+@keyframes dpDashboardGlow{0%,100%{opacity:.32}50%{opacity:.7}}
+.contentArea[data-motion="on"] :is(.dashboardFinanceCard,.dashboardMetricCard,.dashboardKpi,.dashboardBlockGrid > *){
+  position:relative;isolation:isolate;
+  transition:transform .34s cubic-bezier(.2,.8,.2,1),box-shadow .34s cubic-bezier(.2,.8,.2,1),border-color .25s ease,filter .3s ease;
+  will-change:auto;
+}
+.contentArea[data-motion="on"] :is(.dashboardFinanceCard,.dashboardMetricCard,.dashboardKpi,.dashboardBlockGrid > *):hover{
+  transform:translate3d(0,-5px,0) scale(1.012);
+  border-color:rgba(197,157,76,.58);
+  box-shadow:0 18px 32px rgba(0,0,0,.16),0 0 0 1px rgba(197,157,76,.16),inset 0 1px 0 rgba(255,255,255,.09);
+  filter:brightness(1.045);
+  z-index:2;
+}
+.contentArea[data-motion="on"] :is(.dashboardFinanceCard,.dashboardMetricCard,.dashboardKpi,.dashboardBlockGrid > *):active{
+  transform:translate3d(0,-1px,0) scale(.988);
+  transition-duration:.12s;
+}
+.contentArea[data-motion="on"] :is(.dashboardFinanceCard,.dashboardMetricCard,.dashboardKpi)::after{
+  content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:linear-gradient(115deg,transparent 24%,rgba(211,170,93,.12) 47%,rgba(255,255,255,.08) 51%,transparent 72%);
+  background-size:240% 100%;background-position:130% 0;opacity:0;
+  transition:opacity .25s ease,background-position .75s cubic-bezier(.2,.8,.2,1);
+}
+.contentArea[data-motion="on"] :is(.dashboardFinanceCard,.dashboardMetricCard,.dashboardKpi):hover::after{
+  opacity:1;background-position:-110% 0;
+}
+.contentArea[data-motion="on"] :is(.dashboardFinanceCard,.dashboardMetricCard,.dashboardKpi):focus-visible{
+  outline:2px solid #c5a063;outline-offset:4px;
+}
+@media(hover:none){
+ .contentArea[data-motion="on"] :is(.dashboardFinanceCard,.dashboardMetricCard,.dashboardKpi,.dashboardBlockGrid > *):hover{
+  transform:none;filter:none;box-shadow:initial;
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ .contentArea :is(.dashboardFinanceCard,.dashboardMetricCard,.dashboardKpi,.dashboardBlockGrid > *){transition:none!important;transform:none!important;filter:none!important}
+ .contentArea :is(.dashboardFinanceCard,.dashboardMetricCard,.dashboardKpi)::after{display:none!important}
+}
