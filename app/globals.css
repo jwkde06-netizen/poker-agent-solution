@@ -16641,3 +16641,47 @@ html{scroll-behavior:smooth}
  .floorBuyinPage .floorTableButton strong{font-size:20px!important}
  .floorBuyinPage .selectedPlayerIdentity strong{font-weight:620!important}
 }
+
+
+/* Consistent table alignment and less aggressive financial typography */
+.compactDailyPage .dailyGameRow,
+.compactDailyPage .dailyGameRow.dailyGameRowHead{
+ display:grid!important;
+ grid-template-columns:minmax(190px,2.15fr) minmax(100px,1fr) minmax(80px,.7fr) minmax(115px,1fr) minmax(115px,1fr)!important;
+ align-items:center!important;
+ column-gap:12px!important;
+}
+.compactDailyPage .dailyGameRow>*{min-width:0!important;box-sizing:border-box}
+.compactDailyPage .dailyGameRow>*:nth-child(1),
+.compactDailyPage .dailyGameRow>*:nth-child(2){text-align:left!important}
+.compactDailyPage .dailyGameRow>*:nth-child(3){text-align:center!important}
+.compactDailyPage .dailyGameRow>*:nth-child(4),
+.compactDailyPage .dailyGameRow>*:nth-child(5){text-align:right!important}
+.compactDailyPage .dailyGameRow .buyinValue{display:inline-flex;justify-content:center;align-items:center;width:100%;font-weight:580!important}
+.compactDailyPage .dailyGameRow .dailyInlineValue{font-weight:560!important}
+.compactDailyPage .dailyGameRow .dailyGamePlayerCell strong{font-weight:600!important}
+.compactDailyPage .dailyGameRow .dailyMoneyCell{font-weight:570!important;font-variant-numeric:tabular-nums}
+.compactDailyPage .dailyGameRow .dailyMoneyCell.strong{font-weight:620!important}
+.compactDailyPage .dailyGameRowHead span{font-size:12px!important;font-weight:540!important;color:var(--muted)}
+.compactDailyPage .dailySummaryCard b{font-weight:620!important;letter-spacing:-.02em}
+.compactDailyPage .dailySummaryCard span{font-weight:530!important}
+.compactDailyPage .dailyGameLogHeader h3{font-weight:650!important}
+.compactDailyPage .dailyGameGroupIdentity strong{font-weight:630!important}
+.compactDailyPage .dailyGameGroupSummary strong{font-weight:590!important}
+.compactDailyPage .dailyAccountingHeader strong{font-weight:650!important}
+.compactDailyPage .dailyAccountingRows span{font-weight:510!important}
+.compactDailyPage .dailyAccountingRows b{font-weight:630!important;font-variant-numeric:tabular-nums}
+.compactDailyPage .dailyAccountingRows .expense b{font-weight:600!important;letter-spacing:-.035em}
+.compactDailyPage .dailyAccountingRows .profit b{font-weight:690!important}
+.compactDailyPage .dailyAccountingRows .expense b,
+.compactDailyPage .dailySummaryCard.expense b{font-feature-settings:"tnum";font-variant-numeric:tabular-nums}
+@media(max-width:820px){
+ .compactDailyPage .dailyGameRows{overflow-x:auto}
+ .compactDailyPage .dailyGameRow,
+ .compactDailyPage .dailyGameRow.dailyGameRowHead{
+  min-width:600px!important;
+  grid-template-columns:minmax(150px,2fr) minmax(85px,1fr) 68px 105px 105px!important;
+  column-gap:8px!important
+ }
+ .compactDailyPage .dailySummaryCard b{font-size:19px!important}
+}
