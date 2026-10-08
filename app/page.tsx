@@ -666,6 +666,20 @@ export default function Home() {
   const pendingExpenseTotal=pendingExpenseRows.reduce((sum,x)=>sum+(x.amount-x.processedAmount),0);
   const processedExpenseRows=expenseItems.filter(x=>x.processedAmount>=x.amount);
   const expenseProcessedTotal=expenseItems.reduce((sum,x)=>sum+x.processedAmount,0);
+  const prepaidByGroups=(()=>{
+    const groups=new Map<string,{name:string;total:number;processed:number;remaining:number;items:ExpenseItem[]}>();
+    expenseItems.forEach(item=>{
+      const name=item.prepaidBy.trim();
+      if(!name)return;
+      const existing=groups.get(name) ?? {name,total:0,processed:0,remaining:0,items:[]};
+      existing.total+=item.amount;
+      existing.processed+=item.processedAmount;
+      existing.remaining+=Math.max(0,item.amount-item.processedAmount);
+      existing.items.push(item);
+      groups.set(name,existing);
+    });
+    return [...groups.values()].sort((a,b)=>b.remaining-a.remaining);
+  })();
   const totalExpenseAmount=expenseItems.reduce((sum,x)=>sum+x.amount,0);
   const totalDepositAmount=expenseDeposits.reduce((sum,x)=>sum+x.amount,0);
   const ledgerBalance=totalDepositAmount-totalExpenseAmount;
@@ -1547,7 +1561,7 @@ export default function Home() {
       setMessage("이 주차 정산금은 이미 Deposit으로 반영되었습니다.");
       return;
     }
-    if(!confirm(`${weekStart} ~ ${weekEnd} 주간 수익 ${vnd(weeklyProfit)}을 지출 장부 Deposit으로 반영할까요?`))return;
+    if(!confirm(`${weekStart} ~ ${weekEnd} 주간 수익 ${vnd(weeklyProfit)}을 실제 수령했나요? 확인하면 지출 장부에 Deposit으로 기록됩니다.`))return;
     setFinalizingDistribution(true);
     const {error}=await supabase.rpc("finalize_weekly_distribution",{
       p_week_start:weekStart,
@@ -1557,7 +1571,7 @@ export default function Home() {
     setFinalizingDistribution(false);
     if(error){setMessage(error.message);return;}
     await loadFromDatabase();
-    setMessage("주간 정산금을 지출 장부 Deposit으로 반영했습니다.");
+    setMessage("이번 주 정산금 수령을 기록하고 장부에 Deposit을 반영했습니다.");
   }
 
   async function markShareholderPayoutPaid(payout:ShareholderPayout){
@@ -3680,9 +3694,9 @@ export default function Home() {
               <button type="button" className="expenseLedgerPngButton" onClick={exportExpenseLedgerPng} title="전체 입출금 장부 PNG 다운로드">↓ PNG 다운로드</button>
               {profile?.role==="admin" && (
                 selectedWeekDistribution
-                  ? <span className="weeklyDepositApplied">{weekStart} ~ {weekEnd} 정산금 반영 완료</span>
+                  ? <span className="weeklyDepositApplied">{weekStart} ~ {weekEnd} 정산금 수령 완료</span>
                   : <button className="weeklyDepositButton" onClick={finalizeSelectedWeek} disabled={finalizingDistribution}>
-                      {finalizingDistribution?"반영 중...":"이번 주 정산금 Deposit 반영"}
+                      {finalizingDistribution?"반영 중...":"이번 주 정산금 수령"}
                     </button>
               )}
             </div>
@@ -3760,6 +3774,23 @@ export default function Home() {
                     })}
               </div>
             </div>
+            <section className="prepaidSummary">
+              <div className="prepaidSummaryHead"><div><h3>선지급자별 미정산 내역</h3><p>선지급자가 돌려받아야 할 금액 · 처리 완료 금액 차감 기준</p></div><strong>{vnd(prepaidByGroups.reduce((sum,x)=>sum+x.remaining,0))} VND</strong></div>
+              {prepaidByGroups.length===0
+                ? <div className="prepaidSummaryEmpty">선지급자가 지정된 지출 내역이 없습니다. 위 장부에서 선지급자를 입력하면 여기에 자동 집계됩니다.</div>
+                : <div className="prepaidSummaryList">
+                  {prepaidByGroups.map(group=><details className="prepaidSummaryGroup" key={group.name}>
+                    <summary><span><strong>{group.name}</strong><small>{group.items.length}건 · 총 선지급 {vnd(group.total)}</small></span><span className="prepaidGroupAmount"><small>미정산 금액</small><b>{vnd(group.remaining)}</b></span></summary>
+                    <div className="prepaidGroupDetails">
+                      <div className="prepaidGroupTotals"><span>총 선지급 {vnd(group.total)}</span><span>처리 반영 {vnd(group.processed)}</span></div>
+                      {group.items.slice().sort((a,b)=>b.date.localeCompare(a.date)).map(item=><div className="prepaidGroupItem" key={item.id}>
+                        <span><strong>{item.description}</strong><small>{item.date} · 선지급 {vnd(item.amount)} · 처리 {vnd(item.processedAmount)}</small></span><b>{vnd(Math.max(0,item.amount-item.processedAmount))}</b>
+                      </div>)}
+                    </div>
+                  </details>)}
+                </div>}
+              <p className="prepaidSummaryNote">※ 미정산 금액은 장부의 '미처리 금액'(지출 − 처리 반영)으로 계산합니다. 실제 개인별 송금·상환 완료 여부는 별도 확인이 필요합니다.</p>
+            </section>
           </section>
         </section>}
 
