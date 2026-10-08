@@ -16165,3 +16165,31 @@ button.reportIntelRanking:hover{background:var(--surface-2);}
     animation:none!important;transition:none!important;scroll-behavior:auto!important;
   }
 }
+
+
+/* Fluid navigation and site-wide surface movement */
+html{scroll-behavior:smooth}
+.sideNav{position:relative;isolation:isolate;grid-auto-rows:46px;gap:5px}
+.sideNav .sideNavActiveTrack{
+  position:absolute;z-index:0;top:0;left:0;right:0;height:46px;
+  background:var(--gold-soft);border:1px solid rgba(193,151,65,.14);
+  border-radius:10px;pointer-events:none;
+  transition:transform .38s cubic-bezier(.22,1,.36,1),background-color .25s ease,border-color .25s ease;
+  will-change:transform;
+}
+.sideNav button{height:46px;min-height:46px;position:relative;z-index:1;transform:translateZ(0);
+  transition:color .26s ease,background-color .24s ease,transform .24s cubic-bezier(.22,1,.36,1)}
+.sideNav button.active,.sideNav button.active:hover{background:transparent!important}
+.sideNav button:not(.active):hover{transform:translateX(3px)}
+.sideNav .navIcon{transition:transform .3s cubic-bezier(.22,1,.36,1),color .24s ease}
+.sideNav button:hover .navIcon{transform:scale(1.1)}
+.sideNav button:focus-visible{outline:2px solid #70a8d2;outline-offset:2px}
+.sidebar{scrollbar-gutter:stable}
+.sidebar,.workspace,.contentArea{scroll-behavior:smooth}
+.workspace .workspaceHeader,.contentArea .panel,.contentArea .accountRow{
+  transition:background-color .26s ease,border-color .26s ease,box-shadow .3s ease;
+}
+@media(prefers-reduced-motion:reduce){
+ html,.sidebar,.workspace,.contentArea{scroll-behavior:auto!important}
+ .sideNav .sideNavActiveTrack,.sideNav button,.sideNav .navIcon{transition:none!important}
+}
