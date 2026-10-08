@@ -317,6 +317,7 @@ export default function Home() {
   const start = monday(today());
   const [weekStart, setWeekStart] = useState(start);
   const [weekEnd, setWeekEnd] = useState(plusDays(start, 6));
+  const [weeklyDetailKey,setWeeklyDetailKey] = useState("overview");
 
   useEffect(() => {
     if(!message)return;
@@ -724,6 +725,7 @@ export default function Home() {
     return [...map.values()].sort((a,b)=>Number(b.operating)-Number(a.operating) || b.amount-a.amount);
   },[weeklyFnbEntries]);
   const weeklyAgentRows = agencyTotals(weeklyEntries).filter(a=>a.amount>0).sort((a,b)=>b.amount-a.amount);
+  const weeklyStatementAgencies=agencies.filter(a=>a.rate>0);
 
   const weeklyPlayerRows = useMemo(()=>{
     const map = new Map<string,{playerId:string;playerName:string;agency:string;buyIn:number;rake:number;rakeback:number}>();
@@ -3424,45 +3426,45 @@ export default function Home() {
               </div>
             </div>
 
-            <section className="weeklyStatementSheet">
+            <section className="weeklyStatementSheet weeklyInteractiveSheet">
               <div className="weeklyStatementMeta">
                 <div><span>주 시작일 (월요일)</span><strong>{weekStart}</strong></div>
                 <div><span>주 종료일</span><strong>{weekEnd}</strong></div>
               </div>
-
-              <div className="weeklyStatementTable">
-                <div className="weeklyStatementHead">
-                  <span>항목</span>
-                  <span>금액</span>
+              <div className="weeklyStatementSplit">
+                <div className="weeklyStatementTable">
+                  <div className="weeklyStatementHead"><span>항목</span><span>금액</span></div>
+                  <button type="button" className="weeklyStatementRow gross weeklyDetailPick" onClick={()=>setWeeklyDetailKey("overview")}><span>TOTAL RAKE BACK</span><b>{vnd(weeklyEntryFee)}</b></button>
+                  <button type="button" className="weeklyStatementRow weeklyDetailPick" onClick={()=>setWeeklyDetailKey("fnb")}><span>F&amp;B</span><b>{vnd(weeklyFnbTotal)}</b></button>
+                  {weeklyStatementAgencies.map(agent=><button type="button" className="weeklyStatementRow weeklyDetailPick" key={agent.id} onClick={()=>setWeeklyDetailKey(agent.id)}>
+                    <span>{agent.code} RAKE BACK</span><b>{vnd(weeklyAgentRows.find(row=>row.id===agent.id)?.amount ?? 0)}</b>
+                  </button>)}
+                  <button type="button" className="weeklyStatementRow totalExpense weeklyDetailPick" onClick={()=>setWeeklyDetailKey("expense")}><span>TOTAL EXPENSE</span><b>{vnd(weeklyRakeback+weeklyFnbTotal)}</b></button>
+                  <button type="button" className="weeklyStatementRow netProfit weeklyDetailPick" onClick={()=>setWeeklyDetailKey("profit")}><span>NET PROFIT / LOSS</span><b>{vnd(weeklyProfit)}</b></button>
                 </div>
-
-                <div className="weeklyStatementRow gross">
-                  <span>TOTAL RAKE BACK</span>
-                  <b>{vnd(weeklyEntryFee)}</b>
-                </div>
-
-                <div className="weeklyStatementRow">
-                  <span>F&amp;B</span>
-                  <b>{vnd(weeklyFnbTotal)}</b>
-                </div>
-
-                {agencies.map(agent=>{
-                  const amount=weeklyAgentRows.find(row=>row.id===agent.id)?.amount ?? 0;
-                  return <div className="weeklyStatementRow" key={agent.id}>
-                    <span>{agent.code} RAKE BACK</span>
-                    <b>{vnd(amount)}</b>
-                  </div>;
-                })}
-
-                <div className="weeklyStatementRow totalExpense">
-                  <span>TOTAL EXPENSE</span>
-                  <b>{vnd(weeklyRakeback+weeklyFnbTotal)}</b>
-                </div>
-
-                <div className="weeklyStatementRow netProfit">
-                  <span>NET PROFIT / LOSS</span>
-                  <b>{vnd(weeklyProfit)}</b>
-                </div>
+                <aside className="weeklyStatementDetail">
+                  <div className="weeklyDetailTitle"><h3>상세 내역</h3></div>
+                  {weeklyStatementAgencies.filter(a=>a.id===weeklyDetailKey).map(agent=><section key={agent.id}>
+                    <h3>{agent.code} RAKE BACK</h3>
+                    {weeklyPlayerRows.filter(row=>row.agency===agent.code).map(row=><div className="weeklyDetailLine" key={row.playerId}>
+                      <span><strong>{row.playerName}</strong><small>바이인 {row.buyIn}회 · 엔트리피 {vnd(row.rake)}</small></span>
+                      <b>{vnd(row.rakeback)}</b>
+                    </div>)}
+                  </section>)}
+                  {weeklyDetailKey==="fnb" && <section>
+                    <h3>F&B 운영 경비</h3>
+                    {weeklyFnbEntries.filter(isOperatingFnbExpense).map(item=><div className="weeklyDetailLine" key={item.id}>
+                      <span><strong>{item.itemName}</strong><small>{item.date} · {item.quantity}개</small></span>
+                      <b>{vnd(item.totalAmount)}</b>
+                    </div>)}
+                  </section>}
+                  {["overview","expense","profit"].includes(weeklyDetailKey) && <div className="weeklyDetailTotals">
+                    <div><span>총 엔트리피</span><b>{vnd(weeklyEntryFee)}</b></div>
+                    <div><span>에이전트 레이크백</span><b>{vnd(weeklyRakeback)}</b></div>
+                    <div><span>F&B 비용</span><b>{vnd(weeklyFnbTotal)}</b></div>
+                    <div><span>순이익</span><b>{vnd(weeklyProfit)}</b></div>
+                  </div>}
+                </aside>
               </div>
             </section>
 
