@@ -277,6 +277,9 @@ export default function Home() {
   const [creatingAccount, setCreatingAccount] = useState(false);
   const [ownUsername, setOwnUsername] = useState("");
   const [ownPassword, setOwnPassword] = useState("");
+  const [managedAccountDetailId,setManagedAccountDetailId] = useState<string|null>(null);
+  const [managedAccountName,setManagedAccountName] = useState("");
+  const [managedAccountUsername,setManagedAccountUsername] = useState("");
   const [updatingOwnLogin, setUpdatingOwnLogin] = useState(false);
   const isStaff = profile?.role==="staff";
   const staffAllowedTabs = ["dashboard","players","games","fnb","staffDaily"] as const;
@@ -917,6 +920,26 @@ export default function Home() {
     setNewAccountRole("staff");
     setNewAccountAgencyId("");
     setMessage(`${cleanName} 계정을 생성했습니다. 로그인 아이디는 ${cleanUsername} 입니다.`);
+    await loadFromDatabase();
+  }
+
+  function openManagedAccountDetail(account:UserProfile){
+    setManagedAccountDetailId(account.userId);
+    setManagedAccountName(account.displayName);
+    setManagedAccountUsername(account.username);
+  }
+
+  async function saveManagedAccountInfo(){
+    if(!supabase || profile?.role!=="admin" || !managedAccountDetailId)return;
+    const name=managedAccountName.trim();
+    const username=managedAccountUsername.trim().toLowerCase();
+    if(!name){setMessage("표시 이름을 입력해주세요.");return;}
+    // Other users' auth emails are not editable from a browser admin session.
+    const existing=accountProfiles.find(a=>a.userId===managedAccountDetailId);
+    if(!existing || username!==existing.username){setMessage("다른 계정의 로그인 아이디 변경은 인증 관리자 서버 작업이 필요합니다.");return;}
+    const {error}=await supabase.from("user_profiles").update({display_name:name,updated_at:new Date().toISOString()}).eq("user_id",managedAccountDetailId);
+    if(error){setMessage(error.message);return;}
+    setMessage("계정 정보 저장 완료");
     await loadFromDatabase();
   }
 
@@ -3876,10 +3899,10 @@ export default function Home() {
             </div>
             <div className="accountList">
               {accountProfiles.map(u=><div className="accountRow" key={u.userId}>
-                <div className="accountIdentity">
+                <button type="button" className="accountIdentity accountOpenDetail" onClick={()=>openManagedAccountDetail(u)} title="계정 상세 설정">
                   <span className="accountAvatar">{(u.displayName||u.email||"?").slice(0,1).toUpperCase()}</span>
-                  <div><strong>{u.displayName||"이름 없음"}</strong><small>@{u.username || "아이디 없음"}</small></div>
-                </div>
+                  <div><strong>{u.displayName||"이름 없음"}</strong><small>@{u.username || "아이디 없음"} · 상세 설정 ›</small></div>
+                </button>
                 <select value={u.role} onChange={e=>updateManagedAccount(u.userId,{role:e.target.value as UserRole})} disabled={u.userId===profile.userId}>
                   <option value="admin">관리자</option>
                   <option value="staff">직원</option>
@@ -3902,6 +3925,39 @@ export default function Home() {
               </div>)}
             </div>
           </section>
+          {managedAccountDetailId && (() => {
+            const u=accountProfiles.find(a=>a.userId===managedAccountDetailId);
+            if(!u)return null;
+            const isOwn=u.userId===profile.userId;
+            const rolePermissions=u.role==="admin"
+              ? ["전체 관리자 화면","플레이어·바이인·정산","에이전트·계정 관리"]
+              : u.role==="staff"
+                ? ["대시보드·플레이어","바이인·F&B 입력","오늘 정산(운영 현황)"]
+                : u.role==="agent"
+                  ? ["대시보드·플레이어","본인 에이전트 정산·리포트"]
+                  : ["관리자 승인 대기"];
+            return <div className="managedAccountOverlay" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)setManagedAccountDetailId(null);}}>
+              <section className="managedAccountModal" role="dialog" aria-modal="true" aria-label="계정 상세 설정">
+                <div className="managedAccountModalHeader"><div><small>계정 관리</small><h2>{u.displayName||u.username} 상세 설정</h2><p>@{u.username}</p></div><button type="button" onClick={()=>setManagedAccountDetailId(null)} aria-label="닫기">×</button></div>
+                <div className="managedAccountForm">
+                  <h3>기본 정보</h3>
+                  <label>표시 이름<input value={managedAccountName} onChange={e=>setManagedAccountName(e.target.value)}/></label>
+                  <label>로그인 아이디<input value={managedAccountUsername} readOnly title="로그인 아이디는 계정 생성 후 인증 서버에서 변경해야 합니다."/></label>
+                  <label>연결 이메일<input value={u.email || ""} readOnly/></label>
+                  <button type="button" className="primary" onClick={saveManagedAccountInfo}>기본 정보 저장</button>
+                  <h3>역할 및 접근 권한</h3>
+                  <label>계정 역할<select value={u.role} onChange={e=>updateManagedAccount(u.userId,{role:e.target.value as UserRole})} disabled={isOwn}>
+                    <option value="admin">관리자</option><option value="staff">직원</option><option value="agent">에이전트</option><option value="pending">승인 대기</option>
+                  </select></label>
+                  {u.role==="agent" && <label>담당 에이전트<select value={u.agencyId} onChange={e=>updateManagedAccount(u.userId,{agencyId:e.target.value})}><option value="">선택</option>{agencies.map(a=><option key={a.id} value={a.id}>{a.code}</option>)}</select></label>}
+                  <div className="managedAccountPermissions"><strong>현재 역할의 접근 가능 기능</strong>{rolePermissions.map(permission=><span key={permission}>✓ {permission}</span>)}<small>접근 권한은 역할별로 적용됩니다. 개별 탭 권한 설정은 제공되지 않습니다.</small></div>
+                  <label className="managedAccountStatus">접속 허용 <button type="button" disabled={isOwn} onClick={()=>updateManagedAccount(u.userId,{active:!u.active})}>{u.active?"활성 · 정지하기":"정지 · 활성화하기"}</button></label>
+                  <h3>비밀번호 및 로그인 보안</h3>
+                  {isOwn ? <p>본인 비밀번호는 위의 ‘내 로그인 정보’에서 변경할 수 있습니다.</p> : <p>다른 사용자의 비밀번호는 보안을 위해 이 화면에서 직접 열람하거나 변경할 수 없습니다. 관리자 인증 서버를 통한 재설정 기능이 별도로 필요합니다.</p>}
+                </div>
+              </section>
+            </div>;
+          })()}
         </section>}
       </div>
     </section>
