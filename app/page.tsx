@@ -766,6 +766,14 @@ export default function Home() {
     return {date,label:["월","화","수","목","금","토","일"][index],revenue,buyIns};
   });
   const weeklyPeakRevenue=Math.max(1,...weeklyDayRevenue.map(day=>day.revenue));
+  const dashboardWeekStart=monday(today());
+  const dashboardWeekRevenue=Array.from({length:7},(_,index)=>{
+    const date=plusDays(dashboardWeekStart,index);
+    const dayEntries=entries.filter(entry=>entry.date===date);
+    return {date,label:["월","화","수","목","금","토","일"][index],revenue:dayEntries.reduce((sum,entry)=>sum+entry.rake,0),buyIns:dayEntries.reduce((sum,entry)=>sum+entry.buyIn,0)};
+  });
+  const dashboardWeekPeak=Math.max(1,...dashboardWeekRevenue.map(day=>day.revenue));
+  const dashboardWeekTotal=dashboardWeekRevenue.reduce((sum,day)=>sum+day.revenue,0);
   const weeklyEntryFee = total(weeklyEntries,"rake");
   const weeklyRakeback = total(weeklyEntries,"rakeback");
   const weeklyFnbAllTotal = weeklyFnbEntries.reduce((sum,e)=>sum+e.totalAmount,0);
@@ -2888,11 +2896,11 @@ export default function Home() {
           </section>
 
             <section className="weeklyDailyRevenuePanel" aria-label="요일별 엔트리피 매출">
-              <div className="weeklyDailyRevenueHeader"><div><h3>요일별 매출 현황</h3><p>월요일부터 일요일까지 · 엔트리피 기준</p></div><strong>합계 {vnd(weeklyEntryFee)}</strong></div>
+              <div className="weeklyDailyRevenueHeader"><div><h3>요일별 매출 현황</h3><p>월요일부터 일요일까지 · 엔트리피 기준</p></div><strong>합계 {vnd(dashboardWeekTotal)}</strong></div>
               <div className="weeklyDayRevenueList">
-                {weeklyDayRevenue.map(day=><div className="weeklyDayRevenueRow" key={day.date}>
+                {dashboardWeekRevenue.map(day=><div className="weeklyDayRevenueRow" key={day.date}>
                   <div className="weeklyDayLabel"><strong>{day.label}</strong><small>{day.date.slice(5)}</small></div>
-                  <div className="weeklyDayBarTrack"><div className="weeklyDayBarFill" style={{width:`${day.revenue?Math.max(3,100*day.revenue/weeklyPeakRevenue):0}%`}}/></div>
+                  <div className="weeklyDayBarTrack"><div className="weeklyDayBarFill" style={{width:`${day.revenue?Math.max(3,100*day.revenue/dashboardWeekPeak):0}%`}}/></div>
                   <div className="weeklyDayAmount"><strong>{vnd(day.revenue)}</strong><small>{day.buyIns} BUY-IN</small></div>
                 </div>)}
               </div>
@@ -3461,6 +3469,7 @@ export default function Home() {
 
                     <div className="playerValueToolbar">
                       <span>플레이어 {selectedTableEntries.length}명</span>
+                      {!isStaff && <div className="opsPlayerColumnLabels"><span>매출</span><span>레이크백</span></div>}
 
                     </div>
 
@@ -3489,11 +3498,11 @@ export default function Home() {
 
                               {!isStaff && <div className="playerSingleValue dualPlayerValues">
                                 <span>
-                                  <small>금액</small>
+                                  
                                   <b>{vnd(perEntryRevenue * entry.buyIn)}</b>
                                 </span>
                                 <span>
-                                  <small>레이크백</small>
+                                  
                                   <b>{vnd(entry.rakeback)}</b>
                                 </span>
                               </div>}
