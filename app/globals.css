@@ -16419,3 +16419,17 @@ html{scroll-behavior:smooth}
  .weeklyReportPage .weeklyTopControls{flex-wrap:wrap;gap:8px}
 }
 @media(prefers-reduced-motion:reduce){.weeklyDayBarFill{transition:none}}
+
+
+/* Active poker game indicator: breathing status light, never a loading spinner */
+.opsLivePulse{
+  display:inline-block;width:9px;height:9px;vertical-align:0;margin-right:7px;
+  border-radius:50%;background:#28bb76;box-shadow:0 0 0 3px rgba(40,187,118,.13);
+  animation:opsActivePulse 2.8s ease-in-out infinite;
+}
+@keyframes opsActivePulse{
+  0%,100%{opacity:.84;box-shadow:0 0 0 3px rgba(40,187,118,.12)}
+  50%{opacity:1;box-shadow:0 0 0 6px rgba(40,187,118,.21)}
+}
+[data-motion="off"] .opsLivePulse{animation:none}
+@media(prefers-reduced-motion:reduce){.opsLivePulse{animation:none!important}}
