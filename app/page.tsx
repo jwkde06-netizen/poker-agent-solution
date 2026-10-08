@@ -2836,7 +2836,7 @@ export default function Home() {
                     <strong>진행 중인 테이블이 없습니다.</strong>
                     <span>테이블을 오픈하려면 클릭하세요.</span>
                   </button>
-                : <div className="dashboardLiveBoard">
+                : <div className={isStaff?"dashboardLiveBoard staffLiveBoard":"dashboardLiveBoard"}>
                     <div className="dashboardLiveBoardHead">
                       <span>테이블 / 게임</span><span>플레이어</span><span>BUY-IN</span>{!isStaff && <span>엔트리피</span>}<span aria-hidden="true"></span>
                     </div>
