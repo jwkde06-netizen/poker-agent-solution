@@ -547,6 +547,8 @@ export default function Home() {
       setCurrentBusinessDate(operatingDay.business_date);
       setSummaryDate(operatingDay.business_date);
       setFnbDate(operatingDay.business_date);
+      setWeekStart(monday(operatingDay.business_date));
+      setWeekEnd(plusDays(monday(operatingDay.business_date),6));
     }
     setGameSessions((gs.data ?? []).map((x:any)=>({
       id:x.id,date:x.played_on,tableNo:x.table_no,gameNo:x.game_no ?? "",game:x.game_name,status:x.status
@@ -1232,6 +1234,8 @@ export default function Home() {
     setCurrentBusinessDate(nextDate);
     setSummaryDate(nextDate);
     setFnbDate(nextDate);
+    setWeekStart(monday(nextDate));
+    setWeekEnd(plusDays(monday(nextDate),6));
     setMessage(`영업일 마감 완료. 다음 영업일: ${nextDate}`);
   }
 
