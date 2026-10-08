@@ -1246,10 +1246,10 @@ export default function Home() {
     }
 
     if(isSupabaseConfigured && supabase && session){
-      const payload={played_on:businessDate,table_no:tableNo,game_no:newGameNo.trim() || null,game_name:newSessionGame,status:"active"};
-      const {data,error}=await supabase.from("game_sessions").insert(payload).select().single();
+      const {data,error}=await supabase.rpc("start_operating_game",{p_table_no:tableNo,p_game_name:newSessionGame,p_game_no:newGameNo.trim() || null});
       if(error){setMessage(error.message);return;}
       setGameSessions(prev=>[...prev,{id:data.id,date:data.played_on,tableNo:data.table_no,gameNo:data.game_no ?? "",game:data.game_name,status:data.status}]);
+      if(data.played_on!==currentBusinessDate){setCurrentBusinessDate(data.played_on);setSummaryDate(data.played_on);setFnbDate(data.played_on);}
     }else{
       setGameSessions(prev=>[...prev,{id:uid("session"),date:businessDate,tableNo,gameNo:newGameNo.trim(),game:newSessionGame,status:"active"}]);
     }
