@@ -733,6 +733,13 @@ export default function Home() {
     ...a, amount: items.filter(e=>e.agencyId===a.id).reduce((s,e)=>s+e.rakeback,0)
   }));
 
+  const weeklyDayRevenue = Array.from({length:7},(_,index)=>{
+    const date=plusDays(weekStart,index);
+    const revenue=weeklyEntries.filter(entry=>entry.date===date).reduce((sum,entry)=>sum+entry.rake,0);
+    const buyIns=weeklyEntries.filter(entry=>entry.date===date).reduce((sum,entry)=>sum+entry.buyIn,0);
+    return {date,label:["월","화","수","목","금","토","일"][index],revenue,buyIns};
+  });
+  const weeklyPeakRevenue=Math.max(1,...weeklyDayRevenue.map(day=>day.revenue));
   const weeklyEntryFee = total(weeklyEntries,"rake");
   const weeklyRakeback = total(weeklyEntries,"rakeback");
   const weeklyFnbAllTotal = weeklyFnbEntries.reduce((sum,e)=>sum+e.totalAmount,0);
@@ -3798,6 +3805,16 @@ export default function Home() {
               </div>
             </div>
 
+            <section className="weeklyDailyRevenuePanel" aria-label="요일별 엔트리피 매출">
+              <div className="weeklyDailyRevenueHeader"><div><h3>요일별 매출 현황</h3><p>월요일부터 일요일까지 · 엔트리피 기준</p></div><strong>합계 {vnd(weeklyEntryFee)}</strong></div>
+              <div className="weeklyDayRevenueList">
+                {weeklyDayRevenue.map(day=><div className="weeklyDayRevenueRow" key={day.date}>
+                  <div className="weeklyDayLabel"><strong>{day.label}</strong><small>{day.date.slice(5)}</small></div>
+                  <div className="weeklyDayBarTrack"><div className="weeklyDayBarFill" style={{width:`${day.revenue?Math.max(3,100*day.revenue/weeklyPeakRevenue):0}%`}}/></div>
+                  <div className="weeklyDayAmount"><strong>{vnd(day.revenue)}</strong><small>{day.buyIns} BUY-IN</small></div>
+                </div>)}
+              </div>
+            </section>
             <section className="weeklyStatementSheet weeklyInteractiveSheet">
               <div className="weeklyStatementSplit">
                 <div className="weeklyStatementTable">
@@ -3812,8 +3829,8 @@ export default function Home() {
                   <button type="button" className={`weeklyStatementRow netProfit weeklyDetailPick ${weeklyDetailKey==="profit"?"chosen":""}`} onClick={()=>setWeeklyDetailKey("profit")}><span>NET PROFIT / LOSS</span><b>{vnd(weeklyProfit)}</b></button>
                   {profile?.role==="admin" && <button type="button" className="weeklyBottomAddButton" onClick={()=>{setAdjustmentKind("expense");setAddingAdjustment(v=>!v);}}>{addingAdjustment?"− 항목 입력 닫기":"＋ 정산 항목 추가"}</button>}
                 </div>
-                <aside className="weeklyStatementDetail">
-                  <div className="weeklyDetailTitle"><h3>상세 내역</h3></div>
+                <aside className={weeklyDetailKey==="overview"?"weeklyStatementDetail weeklyDetailOverview":"weeklyStatementDetail"}>
+                  <div className="weeklyDetailTitle"><h3>항목별 상세 내역</h3></div>
                   {weeklyStatementAgencies.filter(a=>a.id===weeklyDetailKey).map(agent=><section key={agent.id}>
                     <h3>{agent.code} RAKE BACK</h3>
                     {weeklyPlayerRows.filter(row=>row.agency===agent.code).map(row=><div className="weeklyDetailLine" key={row.playerId}>
