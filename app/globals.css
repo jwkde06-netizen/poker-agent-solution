@@ -16301,3 +16301,27 @@ html{scroll-behavior:smooth}
  .playerListTable th:nth-child(4),.playerListTable td:nth-child(4){width:21%!important;text-align:center!important}
  .playerListTable th:nth-child(5),.playerListTable td:nth-child(5){width:22%!important;text-align:center!important}
 }
+
+
+/* Ledger single-row input strip on desktop; no unused note field */
+@media(min-width:1100px){
+ .expenseEntryForm{overflow-x:auto!important}
+ .expenseEntryFields{
+   display:grid!important;
+   grid-template-columns:110px 142px minmax(175px,1.5fr) 145px 135px 130px 82px!important;
+   align-items:end!important;gap:9px!important;width:100%;min-width:1020px;
+ }
+ .expenseEntryFields .expenseEntryTypeField{grid-column:1!important}
+ .expenseEntryFields .expenseEntryDateField{grid-column:2!important}
+ .expenseEntryFields .expenseEntryNameField{grid-column:3!important}
+ .expenseEntryFields .expenseEntryAmountField{grid-column:4!important}
+ .expenseEntryFields .expenseEntryCategoryField{grid-column:5!important}
+ .expenseEntryFields .expenseEntryPayerField{grid-column:6!important}
+ .expenseEntryFields .expenseEntrySaveButton{grid-column:7!important;width:100%!important}
+ .expenseEntryForm.depositMode .expenseEntryFields{grid-template-columns:115px 160px minmax(240px,1fr) 170px 86px!important}
+ .expenseEntryForm.depositMode .expenseEntrySaveButton{grid-column:5!important}
+}
+@media(min-width:700px) and (max-width:1099px){
+ .expenseEntryFields{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+ .expenseEntryFields .expenseEntryNameField,.expenseEntryFields .expenseEntryAmountField,.expenseEntryFields .expenseEntryCategoryField,.expenseEntryFields .expenseEntryPayerField,.expenseEntryFields .expenseEntrySaveButton{grid-column:auto!important}
+}

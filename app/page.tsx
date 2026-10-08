@@ -1687,7 +1687,7 @@ export default function Home() {
     const amount=Number(adjustmentAmount.replace(/,/g,""));
     const shareRate=adjustmentKind==="mm"?Number(adjustmentShareRate):100;
     if(!adjustmentLabel.trim()||!Number.isFinite(amount)||amount<=0){setMessage("항목명과 0보다 큰 금액을 입력해주세요.");return;}
-    if(!Number.isFinite(shareRate)||shareRate<0||shareRate>100){setMessage("MM 정산 지분은 0~100%로 설정해주세요.");return;}
+    if(!Number.isFinite(shareRate)||shareRate<0||shareRate>100){setMessage("Partner 1 비율은 0~100%로 설정해주세요.");return;}
     setSavingAdjustment(true);
     const {data,error}=await supabase.from("weekly_adjustments").insert({
       week_start:weekStart,kind:adjustmentKind,label:adjustmentLabel.trim(),amount,share_rate:shareRate,
@@ -2093,9 +2093,9 @@ export default function Home() {
     text("대표님 정산 청구 요약",80,mmSectionTop+30,23,800,"#17191c");
     text("Dream Poker 운영 순수익",92,mmSectionTop+76,15,600,"#3c4650");
     text(money.format(weeklyProfit),width-92,mmSectionTop+76,17,750,"#202328","right");
-    text("MM 전체 정산금 / 우리 정산금 / 파트너 정산금",92,mmSectionTop+118,14,600,"#59616a");
+    text("MM 전체 정산금 / Partner 1 / Partner 2",92,mmSectionTop+118,14,600,"#59616a");
     text(`${money.format(weekMMGross)} / ${money.format(weekMMOurShare)} / ${money.format(weekMMAgentShare)}`,width-92,mmSectionTop+118,15,700,"#202328","right");
-    text("MM 미수령분 (우리 정산금)",92,mmSectionTop+158,15,600,"#59616a");
+    text("MM 미수령분 (Partner 1)",92,mmSectionTop+158,15,600,"#59616a");
     text(money.format(weekMMOutstanding),width-92,mmSectionTop+158,16,700,"#202328","right");
     text("캐시게임 레이크백 미수령",92,mmSectionTop+198,15,600,"#59616a");
     text(money.format(weekCashOutstanding),width-92,mmSectionTop+198,16,700,"#202328","right");
@@ -3845,31 +3845,31 @@ export default function Home() {
             </section>
 
             {addingAdjustment && profile?.role==="admin" && <section className="weeklyAdjustmentForm">
-              <h3>{adjustmentKind==="expense"?"주간 정산 항목 추가":adjustmentKind==="mm"?"MM 정산금 추가":"캐시게임 청구액 추가"}</h3>
+              <h3>{adjustmentKind==="expense"?"주간 정산 항목 추가":adjustmentKind==="mm"?"MM 정산금 추가":"VIP 레이크백 청구 추가"}</h3>
               <div className="weeklyAdjustmentFields">
-                <label>항목 이름<input value={adjustmentLabel} onChange={e=>setAdjustmentLabel(e.target.value)} placeholder={adjustmentKind==="expense"?"예: 베트남 직원 급여":adjustmentKind==="mm"?"예: MM 정산금":"예: 캐시게임 레이크백"}/></label>
+                <label>항목 이름<input value={adjustmentLabel} onChange={e=>setAdjustmentLabel(e.target.value)} placeholder={adjustmentKind==="expense"?"예: 베트남 직원 급여":adjustmentKind==="mm"?"예: MM 정산금":"예: VIP 레이크백"}/></label>
                 <label>전체 금액 (VND)<input inputMode="numeric" value={adjustmentAmount?Number(adjustmentAmount).toLocaleString("en-US"):""} onChange={e=>setAdjustmentAmount(e.target.value.replace(/\D/g,""))} placeholder="0"/></label>
-                {adjustmentKind==="mm" && <label>우리 지분 (%)<input type="number" min="0" max="100" value={adjustmentShareRate} onChange={e=>setAdjustmentShareRate(e.target.value)}/></label>}
+                {adjustmentKind==="mm" && <label>Partner 1 (%)<input type="number" min="0" max="100" value={adjustmentShareRate} onChange={e=>setAdjustmentShareRate(e.target.value)}/></label>}
 
                 <button type="button" className="primary" disabled={savingAdjustment} onClick={saveWeeklyAdjustment}>{savingAdjustment?"저장 중...":"＋ 추가 저장"}</button>
               </div>
             </section>}
             <section className="weeklyExternalSettlements">
-              <div className="weeklyExternalHeader"><div><h3>MM · 캐시게임 정산 및 청구</h3><p>드림 정산과 별도로 청구·수령 내역을 관리합니다.</p></div>{profile?.role==="admin"&&<div className="weeklyExternalAddControls"><button type="button" onClick={()=>{setAdjustmentKind("mm");setAddingAdjustment(true);}}>＋ MM 정산</button><button type="button" onClick={()=>{setAdjustmentKind("cash");setAddingAdjustment(true);}}>＋ 캐시 청구</button></div>}</div>
+              <div className="weeklyExternalHeader"><div><h3>MM · 캐시게임 정산 및 청구</h3><p>드림 정산과 별도로 청구·수령 내역을 관리합니다.</p></div>{profile?.role==="admin"&&<div className="weeklyExternalAddControls"><button type="button" onClick={()=>{setAdjustmentKind("mm");setAddingAdjustment(true);}}>＋ MM 정산</button><button type="button" onClick={()=>{setAdjustmentKind("cash");setAddingAdjustment(true);}}>＋ VIP 레이크백 청구</button></div>}</div>
               <div className="weeklyExternalSummary">
                 <div><span>MM 전체 정산금</span><b>{vnd(weekMMGross)}</b></div>
-                <div><span>우리 정산금</span><b>{vnd(weekMMOurShare)}</b></div>
-                <div><span>에이전트 정산금</span><b>{vnd(weekMMAgentShare)}</b></div>
+                <div><span>Partner 1</span><b>{vnd(weekMMOurShare)}</b></div>
+                <div><span>Partner 2</span><b>{vnd(weekMMAgentShare)}</b></div>
                 <div className="claim"><span>총 청구금액</span><strong>{vnd(weekTotalClaim)}</strong></div>
               </div>
               {weekAdjustments.filter(x=>x.kind!=="expense").length===0 && <p className="weeklyExternalEmpty">MM 및 캐시게임 청구 내역이 없습니다. 아래 ＋ 버튼으로 추가하세요.</p>}
               {weekAdjustments.filter(x=>x.kind!=="expense").map(item=><div className="weeklyExternalRow" key={item.id}>
-                <div><strong>{item.label}</strong><small>{item.kind==="mm"?"MM 정산": "캐시게임 레이크백"} · {item.kind==="mm"?`우리 ${item.shareRate}% / 에이전트 ${100-item.shareRate}%`:"청구 100%"}{item.note?" · "+item.note:""}</small></div>
+                <div><strong>{item.label}</strong><small>{item.kind==="mm"?"MM 정산": "캐시게임 레이크백"} · {item.kind==="mm"?`Partner 1 ${item.shareRate}% / Partner 2 ${100-item.shareRate}%`:"청구 100%"}{item.note?" · "+item.note:""}</small></div>
                 <b>{vnd(item.kind==="mm"?Math.round(item.amount*item.shareRate/100):item.amount)}</b>
                 <span className={item.received?"weeklyReceived yes":"weeklyReceived"}>{item.received?"수령 완료":"미수령"}</span>
                 {profile?.role==="admin" && <div className="weeklyExternalActions"><button type="button" onClick={()=>setWeeklyAdjustmentReceived(item)}>{item.received?"수령 취소":"수령 처리"}</button><button type="button" onClick={()=>deleteWeeklyAdjustment(item)} aria-label={item.label+" 삭제"}>×</button></div>}
               </div>)}
-              <p className="weeklyExternalHint">구글 시트의 MM 금액은 참고용이며 자동으로 입금 처리되지 않습니다. 70%는 우리 정산금, 30%는 파트너 정산금입니다. 수령 처리 시 미수령 합계에서만 제외됩니다.</p>
+              <p className="weeklyExternalHint">구글 시트의 MM 금액은 참고용이며 자동으로 입금 처리되지 않습니다. Partner 1은 70%, Partner 2는 30%입니다. 수령 처리 시 미수령 합계에서만 제외됩니다.</p>
             </section>
 
             <div className="weeklyReportGrid">
@@ -3974,9 +3974,9 @@ export default function Home() {
 
           <section className="panel expenseLedgerPanel">
             <form className={expenseEntryType==="deposit"?"expenseQuickAdd expenseEntryForm depositMode":"expenseQuickAdd expenseEntryForm"} onSubmit={e=>{e.preventDefault();void addLedgerItem();}}>
-              <div className="expenseEntryFormHeading"><strong>새 장부 항목</strong><span>금액은 VND 기준 · 필수 정보부터 입력</span></div>
+              <div className="expenseEntryFormHeading"><strong>항목 추가</strong><span>금액은 VND 기준 · 필수 정보부터 입력</span></div>
               <div className="expenseEntryFields">
-                <label className="expenseEntryTypeField"><span>입출금 유형</span><select className="ledgerTypeSelect" value={expenseEntryType} onChange={e=>setExpenseEntryType(e.target.value as "expense"|"deposit")}><option value="expense">− 출금</option><option value="deposit">＋ 입금</option></select></label>
+                <label className="expenseEntryTypeField"><span>입출금 유형</span><select className="ledgerTypeSelect" value={expenseEntryType} onChange={e=>setExpenseEntryType(e.target.value as "expense"|"deposit")}><option value="expense">출금</option><option value="deposit">입금</option></select></label>
                 <label className="expenseEntryDateField"><span>날짜</span><input type="date" value={expenseDate} onChange={e=>setExpenseDate(e.target.value)}/></label>
                 <label className="expenseEntryNameField"><span>항목 *</span><input value={expenseDescription} onChange={e=>setExpenseDescription(e.target.value)} placeholder={expenseEntryType==="deposit"?"예: 지난주 정산금 수령":"예: 숙소비, 직원 식대"} required={expenseEntryType==="expense"}/></label>
                 <label className="expenseEntryAmountField"><span>금액 (VND) *</span><input inputMode="numeric" value={expenseAmount?Number(expenseAmount).toLocaleString("en-US"):""} onChange={e=>setExpenseAmount(e.target.value.replace(/[^0-9]/g,""))} placeholder="0" required/></label>
@@ -3984,8 +3984,8 @@ export default function Home() {
                   <option value="OTHER">기타</option><option value="HOUSING">숙소 / 임대</option><option value="LODGING">호텔</option><option value="MEAL">식대</option><option value="ENTERTAINMENT">접대비</option><option value="SUPPLIES">비품</option><option value="INCIDENT">사고비</option><option value="SALARY">급여</option><option value="TRANSPORT">교통</option>
                 </select></label>}
                 {expenseEntryType==="expense" && <label className="expenseEntryPayerField"><span>선지급자</span><input value={expensePrepaidBy} onChange={e=>setExpensePrepaidBy(e.target.value)} placeholder="선지급자 이름 (선택)"/></label>}
-                <label className="expenseEntryNoteField"><span>메모</span><input value={expenseNote} onChange={e=>setExpenseNote(e.target.value)} placeholder="추가 설명 (선택)"/></label>
-                <button className="primary expenseEntrySaveButton" type="submit">＋ 장부에 추가</button>
+                
+                <button className="primary expenseEntrySaveButton" type="submit">추가</button>
               </div>
             </form>
 
