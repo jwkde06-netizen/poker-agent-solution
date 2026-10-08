@@ -2924,16 +2924,6 @@ export default function Home() {
                 </div>}
           </section>
 
-            <section className="weeklyDailyRevenuePanel" aria-label="요일별 엔트리피 매출">
-              <div className="weeklyDailyRevenueHeader"><div><h3>요일별 매출 현황</h3><p>월요일부터 일요일까지 · 엔트리피 기준</p></div><strong>합계 {vnd(dashboardWeekTotal)}</strong></div>
-              <div className="weeklyDayRevenueList">
-                {dashboardWeekRevenue.map(day=><div className="weeklyDayRevenueRow" key={day.date}>
-                  <div className="weeklyDayLabel"><strong>{day.label}</strong><small>{day.date.slice(5)}</small></div>
-                  <div className="weeklyDayBarTrack"><div className="weeklyDayBarFill" style={{["--day-height" as string]:`${day.revenue?Math.max(3,100*day.revenue/dashboardWeekPeak):0}%`}}/></div>
-                  <div className="weeklyDayAmount"><strong>{vnd(day.revenue)}</strong><small>{day.buyIns} BUY-IN</small></div>
-                </div>)}
-              </div>
-            </section>
           <section className="dashboardMainSplit">
             <section className="dashboardLivePanel">
               <div className="dashboardPanelHeader">
@@ -2984,34 +2974,17 @@ export default function Home() {
                     <button onClick={()=>navigateTab("fnb")}><strong>F&B 입력</strong><span>음료 · 경비 등록</span></button>
                   </div>
                 </section>
-              : <section className="dashboardTrendPanel">
-                  <div className="dashboardPanelHeader trendHeader">
-                    <div>
-                      <h2>운영 추이</h2>
-                      <span>{dashboardTrendMode==="daily"?"최근 7일":"최근 4주"}</span>
-                    </div>
-                    <div className="dashboardTrendToggle">
-                      <button className={dashboardTrendMode==="daily"?"active":""} onClick={()=>setDashboardTrendMode("daily")}>일간</button>
-                      <button className={dashboardTrendMode==="weekly"?"active":""} onClick={()=>setDashboardTrendMode("weekly")}>주간</button>
-                    </div>
-                  </div>
-                  <div className="dashboardTrendSummary">
-                    <div><span>총 엔트리피</span><strong>{vnd(dashboardTrendRake)}</strong></div>
-                    <div><span>순수익</span><strong>{vnd(dashboardTrendProfit)}</strong></div>
-                  </div>
-                  <div className="dashboardTrendChart" aria-label="운영 추이 그래프">
-                    {dashboardTrendData.map((item,index)=><div className="dashboardTrendColumn" key={item.label+"-"+index}>
-                      <div className="dashboardTrendBars">
-                        <span className="rakeBar" style={{height:`${Math.max(item.rake>0?8:2,(item.rake/dashboardTrendMax)*100)}%`}} title={`엔트리피 ${vnd(item.rake)}`}/>
-                        <span className="profitBar" style={{height:`${Math.max(item.profit>0?8:2,(Math.max(0,item.profit)/dashboardTrendMax)*100)}%`}} title={`순수익 ${vnd(item.profit)}`}/>
-                      </div>
-                      <small>{item.label}</small>
-                    </div>)}
-                  </div>
-                  <div className="dashboardTrendLegend">
-                    <span><i className="rakeLegend"/>총 엔트리피</span>
-                    <span><i className="profitLegend"/>순수익</span>
-                  </div>
+              : <section className="dashboardTrendPanel dashboardWeekdayPanel">
+<section className="weeklyDailyRevenuePanel dashboardEmbeddedWeekday" aria-label="요일별 엔트리피 매출">
+              <div className="weeklyDailyRevenueHeader"><div><h3>요일별 매출 현황</h3><p>월요일부터 일요일까지 · 엔트리피 기준</p></div><strong>합계 {vnd(dashboardWeekTotal)}</strong></div>
+              <div className="weeklyDayRevenueList">
+                {dashboardWeekRevenue.map(day=><div className="weeklyDayRevenueRow" key={day.date}>
+                  <div className="weeklyDayLabel"><strong>{day.label}</strong><small>{day.date.slice(5)}</small></div>
+                  <div className="weeklyDayBarTrack"><div className="weeklyDayBarFill" style={{["--day-height" as string]:`${day.revenue?Math.max(3,100*day.revenue/dashboardWeekPeak):0}%`}}/></div>
+                  <div className="weeklyDayAmount"><strong>{vnd(day.revenue)}</strong><small>{day.buyIns} BUY-IN</small></div>
+                </div>)}
+              </div>
+            </section>
                 </section>}
           </section>
         </>}
