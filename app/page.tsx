@@ -3676,7 +3676,7 @@ export default function Home() {
 
                 {ledgerRows.length===0
                   ? <div className="expenseLedgerEmpty">표시할 장부 항목이 없습니다.</div>
-                  : ledgerRows.map(row=>{
+                  : [...ledgerRows].reverse().map(row=>{
                       if(row.kind==="deposit"){
                         return <div className="expenseLedgerRow depositLedgerRow" key={"deposit-"+row.id}>
                           <span>{row.date}</span>
