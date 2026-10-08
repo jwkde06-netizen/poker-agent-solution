@@ -3437,13 +3437,13 @@ export default function Home() {
               <div className="weeklyStatementSplit">
                 <div className="weeklyStatementTable">
                   <div className="weeklyStatementHead"><span>항목</span><span>금액</span></div>
-                  <button type="button" className="weeklyStatementRow gross weeklyDetailPick" onClick={()=>setWeeklyDetailKey("overview")}><span>TOTAL RAKE BACK</span><b>{vnd(weeklyEntryFee)}</b></button>
-                  <button type="button" className="weeklyStatementRow weeklyDetailPick" onClick={()=>setWeeklyDetailKey("fnb")}><span>F&amp;B</span><b>{vnd(weeklyFnbTotal)}</b></button>
-                  {weeklyStatementAgencies.map(agent=><button type="button" className="weeklyStatementRow weeklyDetailPick" key={agent.id} onClick={()=>setWeeklyDetailKey(agent.id)}>
+                  <button type="button" className={`weeklyStatementRow gross weeklyDetailPick ${weeklyDetailKey==="overview"?"chosen":""}`} onClick={()=>setWeeklyDetailKey("overview")}><span>TOTAL RAKE BACK</span><b>{vnd(weeklyEntryFee)}</b></button>
+                  <button type="button" className={`weeklyStatementRow weeklyDetailPick ${weeklyDetailKey==="fnb"?"chosen":""}`} onClick={()=>setWeeklyDetailKey("fnb")}><span>F&amp;B</span><b>{vnd(weeklyFnbTotal)}</b></button>
+                  {weeklyStatementAgencies.map(agent=><button type="button" className={`weeklyStatementRow weeklyDetailPick ${weeklyDetailKey===agent.id?"chosen":""}`} key={agent.id} onClick={()=>setWeeklyDetailKey(agent.id)}>
                     <span>{agent.code} RAKE BACK</span><b>{vnd(weeklyAgentRows.find(row=>row.id===agent.id)?.amount ?? 0)}</b>
                   </button>)}
-                  <button type="button" className="weeklyStatementRow totalExpense weeklyDetailPick" onClick={()=>setWeeklyDetailKey("expense")}><span>TOTAL EXPENSE</span><b>{vnd(weeklyRakeback+weeklyFnbTotal)}</b></button>
-                  <button type="button" className="weeklyStatementRow netProfit weeklyDetailPick" onClick={()=>setWeeklyDetailKey("profit")}><span>NET PROFIT / LOSS</span><b>{vnd(weeklyProfit)}</b></button>
+                  <button type="button" className={`weeklyStatementRow totalExpense weeklyDetailPick ${weeklyDetailKey==="expense"?"chosen":""}`} onClick={()=>setWeeklyDetailKey("expense")}><span>TOTAL EXPENSE</span><b>{vnd(weeklyRakeback+weeklyFnbTotal)}</b></button>
+                  <button type="button" className={`weeklyStatementRow netProfit weeklyDetailPick ${weeklyDetailKey==="profit"?"chosen":""}`} onClick={()=>setWeeklyDetailKey("profit")}><span>NET PROFIT / LOSS</span><b>{vnd(weeklyProfit)}</b></button>
                 </div>
                 <aside className="weeklyStatementDetail">
                   <div className="weeklyDetailTitle"><h3>상세 내역</h3></div>
