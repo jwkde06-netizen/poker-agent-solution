@@ -15854,3 +15854,28 @@ html[data-theme="dark"] .weeklyStatementRow.totalExpense{
  .mobileBottomNav:has(button:nth-child(5)) button{min-width:0;flex:1;padding-left:2px;padding-right:2px;}
  .mobileBottomNav:has(button:nth-child(5)) button>span:last-child{font-size:10px;white-space:nowrap;}
 }
+
+/* Account management detail panel */
+.accountOpenDetail{min-width:0;display:flex;gap:12px;align-items:center;flex:1;text-align:left;border:0;background:transparent;color:inherit;cursor:pointer;padding:0;}
+.accountOpenDetail:hover strong{text-decoration:underline;}
+.managedAccountOverlay{position:fixed;inset:0;z-index:1100;display:flex;justify-content:center;align-items:center;padding:18px;background:rgba(0,0,0,.56);backdrop-filter:blur(4px);}
+.managedAccountModal{width:min(100%,550px);max-height:calc(100dvh - 36px);overflow-y:auto;background:var(--surface);color:var(--text);border:1px solid var(--line);border-radius:18px;box-shadow:0 25px 70px rgba(0,0,0,.18);}
+.managedAccountModalHeader{position:sticky;top:0;z-index:1;background:var(--surface);display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:23px 23px 16px;border-bottom:1px solid var(--line);}
+.managedAccountModalHeader small{color:var(--muted);font-size:11px;}
+.managedAccountModalHeader h2{font-size:21px;letter-spacing:-.03em;margin:5px 0;}
+.managedAccountModalHeader p{color:var(--muted);font-size:12px;margin:0;}
+.managedAccountModalHeader button{background:var(--surface-2);border:1px solid var(--line);color:var(--text);border-radius:9px;width:34px;height:34px;font-size:23px;cursor:pointer;}
+.managedAccountForm{display:grid;gap:12px;padding:20px 23px 24px;}
+.managedAccountForm h3{font-size:14px;margin:14px 0 2px;padding-bottom:9px;border-bottom:1px solid var(--line);}
+.managedAccountForm label{font-size:12px;font-weight:700;color:var(--muted);display:grid;gap:7px;}
+.managedAccountForm input,.managedAccountForm select{width:100%;min-height:44px;background:var(--surface);border:1px solid var(--line-strong);color:var(--text);padding:0 12px;border-radius:9px;font-size:14px;}
+.managedAccountForm input[readonly]{opacity:.7;background:var(--surface-2);}
+.managedAccountForm>.primary{min-height:43px;border-radius:9px;}
+.managedAccountPermissions{border:1px solid var(--line);border-radius:12px;background:var(--surface-2);padding:15px;display:grid;gap:9px;}
+.managedAccountPermissions strong{font-size:13px;}
+.managedAccountPermissions span{font-size:12px;}
+.managedAccountPermissions small{color:var(--muted);font-size:11px;line-height:1.5;}
+.managedAccountStatus{display:flex!important;align-items:center;justify-content:space-between;}
+.managedAccountStatus button{border:1px solid var(--line-strong);background:var(--surface-2);border-radius:9px;padding:9px 12px;color:var(--text);cursor:pointer;}
+.managedAccountForm p{color:var(--muted);font-size:12px;line-height:1.65;margin:0;}
+@media(max-width:650px){.managedAccountOverlay{padding:7px;align-items:flex-end;}.managedAccountModal{max-height:94dvh;border-radius:18px 18px 9px 9px;}.managedAccountModalHeader{padding:19px 16px 13px;}.managedAccountForm{padding:14px 16px 22px;}.accountOpenDetail{min-width:145px;}}
