@@ -546,6 +546,7 @@ export default function Home() {
     }else{
       setCurrentBusinessDate(operatingDay.business_date);
       setSummaryDate(operatingDay.business_date);
+      setFnbDate(operatingDay.business_date);
     }
     setGameSessions((gs.data ?? []).map((x:any)=>({
       id:x.id,date:x.played_on,tableNo:x.table_no,gameNo:x.game_no ?? "",game:x.game_name,status:x.status
@@ -779,7 +780,7 @@ export default function Home() {
     return {date,label:["월","화","수","목","금","토","일"][index],revenue,buyIns};
   });
   const weeklyPeakRevenue=Math.max(1,...weeklyDayRevenue.map(day=>day.revenue));
-  const dashboardWeekStart=monday(today());
+  const dashboardWeekStart=monday(currentBusinessDate ?? today());
   const dashboardWeekRevenue=Array.from({length:7},(_,index)=>{
     const date=plusDays(dashboardWeekStart,index);
     const dayEntries=entries.filter(entry=>entry.date===date);
@@ -1230,6 +1231,7 @@ export default function Home() {
     const nextDate=String(data);
     setCurrentBusinessDate(nextDate);
     setSummaryDate(nextDate);
+    setFnbDate(nextDate);
     setMessage(`영업일 마감 완료. 다음 영업일: ${nextDate}`);
   }
 
@@ -2396,7 +2398,7 @@ export default function Home() {
   }
 
   const modeText=isSupabaseConfigured ? (syncing?"서버 동기화 중":"서버 DB 연결") : "브라우저 저장";
-  const todayEntries = entries.filter(e=>e.date===today());
+  const todayEntries = entries.filter(e=>e.date===(currentBusinessDate ?? today()));
   const thisWeekEntries = entries.filter(e=>e.date>=weekStart && e.date<=weekEnd);
   const activeAgentCount = agencies.filter(a=>a.active).length;
   const todaySettlement = total(todayEntries,"rakeback");
@@ -2540,7 +2542,7 @@ export default function Home() {
   const fnbDayEntries = fnbEntries.filter(item=>item.date===fnbDate);
   const fnbDayTotal = fnbDayEntries.reduce((sum,item)=>sum+item.totalAmount,0);
   const fnbDayOperatingTotal = fnbDayEntries.filter(isOperatingFnbExpense).reduce((sum,item)=>sum+item.totalAmount,0);
-  const fnbTodayEntries = fnbEntries.filter(item=>item.date===today());
+  const fnbTodayEntries = fnbEntries.filter(item=>item.date===(currentBusinessDate ?? today()));
   const fnbTodayAllTotal = fnbTodayEntries.reduce((sum,item)=>sum+item.totalAmount,0);
   const fnbTodayTotal = fnbTodayEntries.filter(isOperatingFnbExpense).reduce((sum,item)=>sum+item.totalAmount,0);
   const todayBuyinRevenue = todayEntries.reduce((sum,e)=>sum + revenuePerBuyIn(e.game)*e.buyIn,0);
