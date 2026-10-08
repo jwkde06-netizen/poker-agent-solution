@@ -3431,10 +3431,6 @@ export default function Home() {
             </div>
 
             <section className="weeklyStatementSheet weeklyInteractiveSheet">
-              <div className="weeklyStatementMeta">
-                <div><span>주 시작일 (월요일)</span><strong>{weekStart}</strong></div>
-                <div><span>주 종료일</span><strong>{weekEnd}</strong></div>
-              </div>
               <div className="weeklyStatementSplit">
                 <div className="weeklyStatementTable">
                   <div className="weeklyStatementHead"><span>항목</span><span>금액</span></div>
