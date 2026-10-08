@@ -16325,3 +16325,56 @@ html{scroll-behavior:smooth}
  .expenseEntryFields{grid-template-columns:repeat(3,minmax(0,1fr))!important}
  .expenseEntryFields .expenseEntryNameField,.expenseEntryFields .expenseEntryAmountField,.expenseEntryFields .expenseEntryCategoryField,.expenseEntryFields .expenseEntryPayerField,.expenseEntryFields .expenseEntrySaveButton{grid-column:auto!important}
 }
+
+
+/* Dashboard: fill available desktop viewport without clipping cards */
+@media(min-width:1100px) and (min-height:730px){
+ .contentArea:has(> .dashboardFinanceStrip){
+   min-height:calc(100dvh - 85px);
+   display:flex;flex-direction:column;
+ }
+ .contentArea:has(> .dashboardFinanceStrip) > .dashboardMainSplit{
+   flex:1;min-height:0;
+   display:grid;align-items:stretch;
+ }
+ .contentArea:has(> .dashboardFinanceStrip) .dashboardLivePanel,
+ .contentArea:has(> .dashboardFinanceStrip) .dashboardTrendPanel{
+   height:100%;min-height:0;display:flex;flex-direction:column;
+ }
+ .contentArea:has(> .dashboardFinanceStrip) .dashboardLiveBoard{flex:1;min-height:0}
+ .contentArea:has(> .dashboardFinanceStrip) .dashboardTrendChart{flex:1;min-height:180px}
+}
+@media(max-height:729px),(max-width:1099px){
+ .contentArea:has(> .dashboardFinanceStrip) > .dashboardMainSplit{min-height:unset}
+}
+/* Consistent typography, spacing, and control hierarchy for Game Input */
+@media(min-width:821px){
+ .buyinPage .floorSelectorHeader,
+ .buyinPage .selectedTableTop{display:flex;align-items:center;justify-content:space-between;gap:16px}
+ .buyinPage .floorSelectorHeader h2{font-size:21px!important;line-height:1.25;font-weight:800;margin:0}
+ .buyinPage .floorSelectorActions{display:flex;align-items:center;gap:12px}
+ .buyinPage .liveTableCount{display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:0 14px;font-size:13px!important;font-weight:800;letter-spacing:.02em;border-radius:11px}
+ .buyinPage .tableAddControl{display:flex;align-items:center;gap:8px}
+ .buyinPage .tableAddControl>span{font-size:13px!important;font-weight:750;color:var(--muted)}
+ .buyinPage .tableAddControl input{height:40px!important;width:66px!important;min-width:0;font-size:14px!important;text-align:center;border-radius:10px!important}
+ .buyinPage .tableAddControl button,
+ .buyinPage .sessionTopActions button{
+   height:40px!important;min-height:40px!important;padding:0 15px!important;
+   font-size:13px!important;font-weight:750!important;line-height:1!important;
+   border-radius:10px!important;white-space:nowrap;
+ }
+ .buyinPage .sessionTopActions{display:flex;align-items:center;gap:8px}
+ .buyinPage .simpleSessionHeader .sessionTitlePlain{align-items:baseline}
+ .buyinPage .simpleSessionHeader .sessionTitlePlain strong{font-size:25px!important}
+ .buyinPage .simpleSessionHeader .sessionTitlePlain span,
+ .buyinPage .simpleSessionHeader .sessionTitlePlain b{font-size:23px!important}
+ .buyinPage .selectedCloseButton,.buyinPage .tableDeleteButton{opacity:.85}
+ .buyinPage .selectedCloseButton:hover,.buyinPage .tableDeleteButton:not(:disabled):hover{opacity:1}
+}
+.buyinPage .floorSelectorActions button,
+.buyinPage .sessionTopActions button{transition:background-color .22s ease,border-color .22s ease,box-shadow .22s ease,transform .18s ease}
+.buyinPage .floorSelectorActions button:not(:disabled):active,
+.buyinPage .sessionTopActions button:not(:disabled):active{transform:scale(.97)}
+@media(prefers-reduced-motion:reduce){
+ .buyinPage .floorSelectorActions button,.buyinPage .sessionTopActions button{transition:none!important}
+}
