@@ -3708,13 +3708,14 @@ export default function Home() {
             <section className="weeklyStatementSheet weeklyInteractiveSheet">
               <div className="weeklyStatementSplit">
                 <div className="weeklyStatementTable">
-                  <div className="weeklyStatementHead"><span>항목</span><span>금액</span></div>
+                  <div className="weeklyStatementHead"><span>항목</span><span>금액 {profile?.role==="admin" && <button type="button" className="weeklyAddLineButton" onClick={()=>setAddingAdjustment(v=>!v)} title="사용자 지정 항목 추가">＋</button>}</span></div>
                   <button type="button" className={`weeklyStatementRow gross weeklyDetailPick ${weeklyDetailKey==="overview"?"chosen":""}`} onClick={()=>setWeeklyDetailKey("overview")}><span>TOTAL RAKE BACK</span><b>{vnd(weeklyEntryFee)}</b></button>
                   <button type="button" className={`weeklyStatementRow weeklyDetailPick ${weeklyDetailKey==="fnb"?"chosen":""}`} onClick={()=>setWeeklyDetailKey("fnb")}><span>F&amp;B</span><b>{vnd(weeklyFnbTotal)}</b></button>
                   {weeklyStatementAgencies.map(agent=><button type="button" className={`weeklyStatementRow weeklyDetailPick ${weeklyDetailKey===agent.id?"chosen":""}`} key={agent.id} onClick={()=>setWeeklyDetailKey(agent.id)}>
                     <span>{agent.code} RAKE BACK</span><b>{vnd(weeklyAgentRows.find(row=>row.id===agent.id)?.amount ?? 0)}</b>
                   </button>)}
-                  <button type="button" className={`weeklyStatementRow totalExpense weeklyDetailPick ${weeklyDetailKey==="expense"?"chosen":""}`} onClick={()=>setWeeklyDetailKey("expense")}><span>TOTAL EXPENSE</span><b>{vnd(weeklyRakeback+weeklyFnbTotal)}</b></button>
+                  {weekAdjustments.filter(item=>item.kind==="expense").map(item=><button key={item.id} type="button" className={`weeklyStatementRow weeklyDetailPick ${weeklyDetailKey===item.id?"chosen":""}`} onClick={()=>setWeeklyDetailKey(item.id)}><span>{item.label}</span><b>{vnd(item.amount)}</b></button>)}
+                  <button type="button" className={`weeklyStatementRow totalExpense weeklyDetailPick ${weeklyDetailKey==="expense"?"chosen":""}`} onClick={()=>setWeeklyDetailKey("expense")}><span>TOTAL EXPENSE</span><b>{vnd(weeklyRakeback+weeklyFnbTotal+weekExtraExpenses)}</b></button>
                   <button type="button" className={`weeklyStatementRow netProfit weeklyDetailPick ${weeklyDetailKey==="profit"?"chosen":""}`} onClick={()=>setWeeklyDetailKey("profit")}><span>NET PROFIT / LOSS</span><b>{vnd(weeklyProfit)}</b></button>
                 </div>
                 <aside className="weeklyStatementDetail">
@@ -3725,6 +3726,11 @@ export default function Home() {
                       <span><strong>{row.playerName}</strong><small>바이인 {row.buyIn}회 · 엔트리피 {vnd(row.rake)}</small></span>
                       <b>{vnd(row.rakeback)}</b>
                     </div>)}
+                  </section>)}
+                  {weekAdjustments.filter(x=>x.id===weeklyDetailKey).map(item=><section key={item.id}>
+                    <h3>{item.label}</h3><div className="weeklyDetailLine"><span>{item.kind==="expense"?"추가 지출":item.kind==="mm"?"MM 타임어택 정산":"캐시게임 레이크백 청구"}</span><b>{vnd(item.amount)}</b></div>
+                    {item.note && <p>{item.note}</p>}
+                    {profile?.role==="admin" && <button type="button" className="weeklyAdjustDelete" onClick={()=>deleteWeeklyAdjustment(item)}>항목 삭제</button>}
                   </section>)}
                   {weeklyDetailKey==="fnb" && <section>
                     <h3>F&B 운영 경비</h3>
@@ -3737,10 +3743,44 @@ export default function Home() {
                     <div><span>총 엔트리피</span><b>{vnd(weeklyEntryFee)}</b></div>
                     <div><span>에이전트 레이크백</span><b>{vnd(weeklyRakeback)}</b></div>
                     <div><span>F&B 비용</span><b>{vnd(weeklyFnbTotal)}</b></div>
+                    <div><span>추가 지출</span><b>{vnd(weekExtraExpenses)}</b></div>
                     <div><span>순이익</span><b>{vnd(weeklyProfit)}</b></div>
                   </div>}
                 </aside>
               </div>
+            </section>
+
+            {addingAdjustment && profile?.role==="admin" && <section className="weeklyAdjustmentForm">
+              <h3>주간 정산 항목 추가</h3>
+              <div className="weeklyAdjustmentFields">
+                <label>항목 종류<select value={adjustmentKind} onChange={e=>setAdjustmentKind(e.target.value as WeeklyAdjustment["kind"])}>
+                  <option value="expense">드림 추가 비용 (NET 차감)</option>
+                  <option value="mm">MM 주간 정산금 (70:30 배분)</option>
+                  <option value="cash">캐시게임 레이크백 청구</option>
+                </select></label>
+                <label>항목 이름<input value={adjustmentLabel} onChange={e=>setAdjustmentLabel(e.target.value)} placeholder={adjustmentKind==="expense"?"예: 베트남 직원 급여":adjustmentKind==="mm"?"예: MM 9/30~10/4 정산":"예: 한국팀 캐시 레이크백"}/></label>
+                <label>전체 금액 (VND)<input inputMode="numeric" value={adjustmentAmount?Number(adjustmentAmount).toLocaleString("en-US"):""} onChange={e=>setAdjustmentAmount(e.target.value.replace(/\D/g,""))} placeholder="0"/></label>
+                {adjustmentKind==="mm" && <label>우리 지분 (%)<input type="number" min="0" max="100" value={adjustmentShareRate} onChange={e=>setAdjustmentShareRate(e.target.value)}/></label>}
+                <label>메모<input value={adjustmentNote} onChange={e=>setAdjustmentNote(e.target.value)} placeholder="정산 기간 또는 상세 내역"/></label>
+                <button type="button" className="primary" disabled={savingAdjustment} onClick={saveWeeklyAdjustment}>{savingAdjustment?"저장 중...":"＋ 추가 저장"}</button>
+              </div>
+            </section>}
+            <section className="weeklyExternalSettlements">
+              <div className="weeklyExternalHeader"><div><h3>MM · 캐시게임 정산 및 청구</h3><p>드림 정산과 구분하여 대표님 수령·청구액 관리</p></div></div>
+              <div className="weeklyExternalSummary">
+                <div><span>MM 전체 정산금</span><b>{vnd(weekMMGross)}</b></div>
+                <div><span>우리 지분</span><b>{vnd(weekMMOurShare)}</b></div>
+                <div><span>에이전트 지분</span><b>{vnd(weekMMAgentShare)}</b></div>
+                <div className="claim"><span>대표님께 청구할 미수령 금액</span><strong>{vnd(weekTotalClaim)}</strong></div>
+              </div>
+              {weekAdjustments.filter(x=>x.kind!=="expense").length===0 && <p className="weeklyExternalEmpty">MM 및 캐시게임 청구 내역이 없습니다. 회계표의 ＋ 버튼으로 추가하세요.</p>}
+              {weekAdjustments.filter(x=>x.kind!=="expense").map(item=><div className="weeklyExternalRow" key={item.id}>
+                <div><strong>{item.label}</strong><small>{item.kind==="mm"?"MM 정산": "캐시게임 레이크백"} · {item.kind==="mm"?`우리 ${item.shareRate}% / 에이전트 ${100-item.shareRate}%`:"청구 100%"}{item.note?" · "+item.note:""}</small></div>
+                <b>{vnd(item.kind==="mm"?Math.round(item.amount*item.shareRate/100):item.amount)}</b>
+                <span className={item.received?"weeklyReceived yes":"weeklyReceived"}>{item.received?"수령 완료":"미수령"}</span>
+                {profile?.role==="admin" && <div className="weeklyExternalActions"><button type="button" onClick={()=>setWeeklyAdjustmentReceived(item)}>{item.received?"수령 취소":"수령 처리"}</button><button type="button" onClick={()=>deleteWeeklyAdjustment(item)} aria-label={item.label+" 삭제"}>×</button></div>}
+              </div>)}
+              <p className="weeklyExternalHint">구글 시트의 MM 금액은 참고용이며 자동으로 입금 처리되지 않습니다. 70%는 우리 지분, 30%는 파트너 지분입니다. 수령 처리 시 미수령 합계에서만 제외됩니다.</p>
             </section>
 
             <div className="weeklyReportGrid">
