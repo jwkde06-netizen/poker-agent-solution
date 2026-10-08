@@ -826,7 +826,7 @@ export default function Home() {
     return [...map.values()].sort((a,b)=>Number(b.operating)-Number(a.operating) || b.amount-a.amount);
   },[weeklyFnbEntries]);
   const weeklyAgentRows = agencyTotals(weeklyEntries).filter(a=>a.amount>0).sort((a,b)=>b.amount-a.amount);
-  const weeklyStatementAgencies=agencies.filter(a=>a.rate>0);
+  const weeklyStatementAgencies=agencies.filter(a=>weeklyAgentRows.some(row=>row.id===a.id && row.amount!==0));
 
   const weeklyPlayerRows = useMemo(()=>{
     const map = new Map<string,{playerId:string;playerName:string;agency:string;buyIn:number;rake:number;rakeback:number}>();
@@ -1947,7 +1947,7 @@ export default function Home() {
     const width=1400;
     // Calculate the actual last content position before creating the canvas.
     // A fixed-height estimate can cut off player rows and the report footer.
-    const statementRowCount=4+weeklyStatementAgencies.length+weekAdjustments.filter(x=>x.kind==="expense").length;
+    const statementRowCount=(weeklyEntryFee!==0?1:0)+(weeklyFnbTotal!==0?1:0)+weeklyStatementAgencies.length+weekAdjustments.filter(x=>x.kind==="expense"&&x.amount!==0).length+((weeklyRakeback+weeklyFnbTotal+weekExtraExpenses)!==0?1:0)+1;
     const statementBottom=154+42+statementRowCount*46;
     const agentStart=Math.max(318,statementBottom+38)+30;
     const agentBottom=agentStart+(weeklyAgentRows.length===0?60:weeklyAgentRows.length*48+34);
@@ -1989,15 +1989,15 @@ export default function Home() {
     const labelW=500;
     const rowH=46;
     const statementRows=[
-      ["TOTAL RAKE BACK",weeklyEntryFee,"normal"],
-      ["F&B",weeklyFnbTotal,"normal"],
+      ...(weeklyEntryFee!==0?[["TOTAL RAKE BACK",weeklyEntryFee,"normal"] as [string,number,string]]:[]),
+      ...(weeklyFnbTotal!==0?[["F&B",weeklyFnbTotal,"normal"] as [string,number,string]]:[]),
       ...weeklyStatementAgencies.map(agent=>[
         agent.code+" RAKE BACK",
         weeklyAgentRows.find(row=>row.id===agent.id)?.amount ?? 0,
         "normal"
       ] as [string,number,string]),
-      ...weekAdjustments.filter(item=>item.kind==="expense").map(item=>[item.label,item.amount,"normal"] as [string,number,string]),
-      ["TOTAL EXPENSE",weeklyRakeback+weeklyFnbTotal+weekExtraExpenses,"expense"],
+      ...weekAdjustments.filter(item=>item.kind==="expense" && item.amount!==0).map(item=>[item.label,item.amount,"normal"] as [string,number,string]),
+      ...((weeklyRakeback+weeklyFnbTotal+weekExtraExpenses)!==0?[["TOTAL EXPENSE",weeklyRakeback+weeklyFnbTotal+weekExtraExpenses,"expense"] as [string,number,string]]:[]),
       ["NET PROFIT / LOSS",weeklyProfit,"profit"]
     ] as [string,number,string][];
 
@@ -2064,14 +2064,14 @@ export default function Home() {
     text("대표님 정산 청구 요약",80,mmSectionTop+30,23,800,"#17191c");
     text("Dream Poker 운영 순수익",92,mmSectionTop+76,15,600,"#3c4650");
     text(money.format(weeklyProfit),width-92,mmSectionTop+76,17,750,"#202328","right");
-    text("MM 전체 정산금 / 우리 지분 / 파트너 지분",92,mmSectionTop+118,14,600,"#59616a");
+    text("MM 전체 정산금 / 우리 정산금 / 파트너 정산금",92,mmSectionTop+118,14,600,"#59616a");
     text(`${money.format(weekMMGross)} / ${money.format(weekMMOurShare)} / ${money.format(weekMMAgentShare)}`,width-92,mmSectionTop+118,15,700,"#202328","right");
-    text("MM 미수령분 (우리 지분)",92,mmSectionTop+158,15,600,"#59616a");
+    text("MM 미수령분 (우리 정산금)",92,mmSectionTop+158,15,600,"#59616a");
     text(money.format(weekMMOutstanding),width-92,mmSectionTop+158,16,700,"#202328","right");
     text("캐시게임 레이크백 미수령",92,mmSectionTop+198,15,600,"#59616a");
     text(money.format(weekCashOutstanding),width-92,mmSectionTop+198,16,700,"#202328","right");
     roundRect(80,mmSectionTop+218,width-160,66,9,"#f5f7fa","#dfe3e9");
-    text("대표님께 받을 총 미수령 청구액",102,mmSectionTop+251,20,800,"#17191c");
+    text("총 청구금액",102,mmSectionTop+251,20,800,"#17191c");
     text(money.format(weekTotalClaim),width-104,mmSectionTop+251,25,850,"#9a6410","right");
         line(80,height-105,width-80,height-105);
     text("Dream Poker",80,height-72,14,700,"#9aa1a8");
@@ -3753,15 +3753,15 @@ export default function Home() {
               <div className="weeklyStatementSplit">
                 <div className="weeklyStatementTable">
                   <div className="weeklyStatementHead"><span>항목</span><span>금액</span></div>
-                  <button type="button" className={`weeklyStatementRow gross weeklyDetailPick ${weeklyDetailKey==="overview"?"chosen":""}`} onClick={()=>setWeeklyDetailKey("overview")}><span>TOTAL RAKE BACK</span><b>{vnd(weeklyEntryFee)}</b></button>
-                  <button type="button" className={`weeklyStatementRow weeklyDetailPick ${weeklyDetailKey==="fnb"?"chosen":""}`} onClick={()=>setWeeklyDetailKey("fnb")}><span>F&amp;B</span><b>{vnd(weeklyFnbTotal)}</b></button>
+                  {weeklyEntryFee!==0 && <button type="button" className={`weeklyStatementRow gross weeklyDetailPick ${weeklyDetailKey==="overview"?"chosen":""}`} onClick={()=>setWeeklyDetailKey("overview")}><span>TOTAL RAKE BACK</span><b>{vnd(weeklyEntryFee)}</b></button>}
+                  {weeklyFnbTotal!==0 && <button type="button" className={`weeklyStatementRow weeklyDetailPick ${weeklyDetailKey==="fnb"?"chosen":""}`} onClick={()=>setWeeklyDetailKey("fnb")}><span>F&amp;B</span><b>{vnd(weeklyFnbTotal)}</b></button>}
                   {weeklyStatementAgencies.map(agent=><button type="button" className={`weeklyStatementRow weeklyDetailPick ${weeklyDetailKey===agent.id?"chosen":""}`} key={agent.id} onClick={()=>setWeeklyDetailKey(agent.id)}>
                     <span>{agent.code} RAKE BACK</span><b>{vnd(weeklyAgentRows.find(row=>row.id===agent.id)?.amount ?? 0)}</b>
                   </button>)}
-                  {weekAdjustments.filter(item=>item.kind==="expense").map(item=><button key={item.id} type="button" className={`weeklyStatementRow weeklyDetailPick ${weeklyDetailKey===item.id?"chosen":""}`} onClick={()=>setWeeklyDetailKey(item.id)}><span>{item.label}</span><b>{vnd(item.amount)}</b></button>)}
-                  <button type="button" className={`weeklyStatementRow totalExpense weeklyDetailPick ${weeklyDetailKey==="expense"?"chosen":""}`} onClick={()=>setWeeklyDetailKey("expense")}><span>TOTAL EXPENSE</span><b>{vnd(weeklyRakeback+weeklyFnbTotal+weekExtraExpenses)}</b></button>
+                  {weekAdjustments.filter(item=>item.kind==="expense" && item.amount!==0).map(item=><button key={item.id} type="button" className={`weeklyStatementRow weeklyDetailPick ${weeklyDetailKey===item.id?"chosen":""}`} onClick={()=>setWeeklyDetailKey(item.id)}><span>{item.label}</span><b>{vnd(item.amount)}</b></button>)}
+                  {(weeklyRakeback+weeklyFnbTotal+weekExtraExpenses)!==0 && <button type="button" className={`weeklyStatementRow totalExpense weeklyDetailPick ${weeklyDetailKey==="expense"?"chosen":""}`} onClick={()=>setWeeklyDetailKey("expense")}><span>TOTAL EXPENSE</span><b>{vnd(weeklyRakeback+weeklyFnbTotal+weekExtraExpenses)}</b></button>}
                   <button type="button" className={`weeklyStatementRow netProfit weeklyDetailPick ${weeklyDetailKey==="profit"?"chosen":""}`} onClick={()=>setWeeklyDetailKey("profit")}><span>NET PROFIT / LOSS</span><b>{vnd(weeklyProfit)}</b></button>
-                  {profile?.role==="admin" && <button type="button" className="weeklyBottomAddButton" onClick={()=>setAddingAdjustment(v=>!v)}>{addingAdjustment?"− 항목 입력 닫기":"＋ 정산 항목 추가"}</button>}
+                  {profile?.role==="admin" && <button type="button" className="weeklyBottomAddButton" onClick={()=>{setAdjustmentKind("expense");setAddingAdjustment(v=>!v);}}>{addingAdjustment?"− 항목 입력 닫기":"＋ 정산 항목 추가"}</button>}
                 </div>
                 <aside className="weeklyStatementDetail">
                   <div className="weeklyDetailTitle"><h3>상세 내역</h3></div>
@@ -3796,29 +3796,24 @@ export default function Home() {
             </section>
 
             {addingAdjustment && profile?.role==="admin" && <section className="weeklyAdjustmentForm">
-              <h3>주간 정산 항목 추가</h3>
+              <h3>{adjustmentKind==="expense"?"주간 정산 항목 추가":adjustmentKind==="mm"?"MM 정산금 추가":"캐시게임 청구액 추가"}</h3>
               <div className="weeklyAdjustmentFields">
-                <label>항목 종류<select value={adjustmentKind} onChange={e=>setAdjustmentKind(e.target.value as WeeklyAdjustment["kind"])}>
-                  <option value="expense">드림 추가 비용 (NET 차감)</option>
-                  <option value="mm">MM 주간 정산금 (70:30 배분)</option>
-                  <option value="cash">캐시게임 레이크백 청구</option>
-                </select></label>
-                <label>항목 이름<input value={adjustmentLabel} onChange={e=>setAdjustmentLabel(e.target.value)} placeholder={adjustmentKind==="expense"?"예: 베트남 직원 급여":adjustmentKind==="mm"?"예: MM 9/30~10/4 정산":"예: 한국팀 캐시 레이크백"}/></label>
+                <label>항목 이름<input value={adjustmentLabel} onChange={e=>setAdjustmentLabel(e.target.value)} placeholder={adjustmentKind==="expense"?"예: 베트남 직원 급여":adjustmentKind==="mm"?"예: MM 정산금":"예: 캐시게임 레이크백"}/></label>
                 <label>전체 금액 (VND)<input inputMode="numeric" value={adjustmentAmount?Number(adjustmentAmount).toLocaleString("en-US"):""} onChange={e=>setAdjustmentAmount(e.target.value.replace(/\D/g,""))} placeholder="0"/></label>
                 {adjustmentKind==="mm" && <label>우리 지분 (%)<input type="number" min="0" max="100" value={adjustmentShareRate} onChange={e=>setAdjustmentShareRate(e.target.value)}/></label>}
-                <label>메모<input value={adjustmentNote} onChange={e=>setAdjustmentNote(e.target.value)} placeholder="정산 기간 또는 상세 내역"/></label>
+
                 <button type="button" className="primary" disabled={savingAdjustment} onClick={saveWeeklyAdjustment}>{savingAdjustment?"저장 중...":"＋ 추가 저장"}</button>
               </div>
             </section>}
             <section className="weeklyExternalSettlements">
-              <div className="weeklyExternalHeader"><div><h3>MM · 캐시게임 정산 및 청구</h3><p>드림 정산과 구분하여 대표님 수령·청구액 관리</p></div></div>
+              <div className="weeklyExternalHeader"><div><h3>MM · 캐시게임 정산 및 청구</h3><p>드림 정산과 별도로 청구·수령 내역을 관리합니다.</p></div>{profile?.role==="admin"&&<div className="weeklyExternalAddControls"><button type="button" onClick={()=>{setAdjustmentKind("mm");setAddingAdjustment(true);}}>＋ MM 정산</button><button type="button" onClick={()=>{setAdjustmentKind("cash");setAddingAdjustment(true);}}>＋ 캐시 청구</button></div>}</div>
               <div className="weeklyExternalSummary">
                 <div><span>MM 전체 정산금</span><b>{vnd(weekMMGross)}</b></div>
-                <div><span>우리 지분</span><b>{vnd(weekMMOurShare)}</b></div>
-                <div><span>에이전트 지분</span><b>{vnd(weekMMAgentShare)}</b></div>
-                <div className="claim"><span>대표님께 청구할 미수령 금액</span><strong>{vnd(weekTotalClaim)}</strong></div>
+                <div><span>우리 정산금</span><b>{vnd(weekMMOurShare)}</b></div>
+                <div><span>에이전트 정산금</span><b>{vnd(weekMMAgentShare)}</b></div>
+                <div className="claim"><span>총 청구금액</span><strong>{vnd(weekTotalClaim)}</strong></div>
               </div>
-              {weekAdjustments.filter(x=>x.kind!=="expense").length===0 && <p className="weeklyExternalEmpty">MM 및 캐시게임 청구 내역이 없습니다. 회계표의 ＋ 버튼으로 추가하세요.</p>}
+              {weekAdjustments.filter(x=>x.kind!=="expense").length===0 && <p className="weeklyExternalEmpty">MM 및 캐시게임 청구 내역이 없습니다. 아래 ＋ 버튼으로 추가하세요.</p>}
               {weekAdjustments.filter(x=>x.kind!=="expense").map(item=><div className="weeklyExternalRow" key={item.id}>
                 <div><strong>{item.label}</strong><small>{item.kind==="mm"?"MM 정산": "캐시게임 레이크백"} · {item.kind==="mm"?`우리 ${item.shareRate}% / 에이전트 ${100-item.shareRate}%`:"청구 100%"}{item.note?" · "+item.note:""}</small></div>
                 <b>{vnd(item.kind==="mm"?Math.round(item.amount*item.shareRate/100):item.amount)}</b>
