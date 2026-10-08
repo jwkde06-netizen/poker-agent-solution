@@ -280,6 +280,10 @@ export default function Home() {
   const [message, setMessage] = useState("");
   const [theme, setTheme] = useState<"light"|"dark">("light");
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
+  const [accountCreateOpen,setAccountCreateOpen]=useState(false);
+  const [preferencesOpen,setPreferencesOpen]=useState(false);
+  const [compactLayout,setCompactLayout]=useState(false);
+  const [motionEnabled,setMotionEnabled]=useState(true);
   const [mobileSideMenuOpen, setMobileSideMenuOpen] = useState(false);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [accountProfiles, setAccountProfiles] = useState<UserProfile[]>([]);
@@ -2721,8 +2725,11 @@ export default function Home() {
               <span>{theme==="dark"?"☀":"☾"}</span><div><strong>{theme==="dark"?"라이트 모드":"다크 모드"}</strong></div>
             </button>
 
-            <button onClick={()=>setAccountMenuOpen(false)}>
-              <span>⇄</span><div><strong>에이전트 보기</strong></div>
+            <button onClick={()=>{setPreferencesOpen(true);setAccountMenuOpen(false)}}>
+              <span>⚙</span><div><strong>설정 · 화면 옵션</strong></div>
+            </button>
+            <button onClick={signOut}>
+              <span>⇄</span><div><strong>계정 전환</strong><small>로그아웃 후 다른 계정으로 로그인</small></div>
             </button>
 
             <div className="accountDropdownDivider"/>
@@ -2760,9 +2767,11 @@ export default function Home() {
               <span className={`sideThemeSwitch ${theme==="dark"?"on":""}`}><i/></span>
             </button>
 
-            <button onClick={()=>setMobileSideMenuOpen(false)}>
-              <span className="sideMenuIcon">⇄</span>
-              <div><strong>에이전트 보기</strong></div>
+            <button onClick={()=>{setPreferencesOpen(true);setMobileSideMenuOpen(false)}}>
+              <span className="sideMenuIcon">⚙</span><div><strong>설정 · 화면 옵션</strong></div>
+            </button>
+            <button onClick={signOut}>
+              <span className="sideMenuIcon">⇄</span><div><strong>계정 전환</strong></div>
             </button>
           </nav>
 
@@ -2774,7 +2783,16 @@ export default function Home() {
         </aside>
       </>}
 
-      <div className="contentArea">
+      {preferencesOpen && <div className="managedAccountOverlay" onMouseDown={e=>{if(e.target===e.currentTarget)setPreferencesOpen(false);}}>
+        <section className="managedAccountModal opsPreferences" role="dialog" aria-modal="true" aria-label="화면 설정">
+          <div className="managedAccountModalHeader"><div><small>DISPLAY OPTIONS</small><h2>설정</h2><p>현재 화면의 표시 옵션</p></div><button onClick={()=>setPreferencesOpen(false)} aria-label="닫기">×</button></div>
+          <div className="opsSettingRow"><div><strong>화면 밀도</strong><small>목록을 더 촘촘하게 표시</small></div><label><input type="checkbox" checked={compactLayout} onChange={e=>setCompactLayout(e.target.checked)}/> 컴팩트</label></div>
+          <div className="opsSettingRow"><div><strong>운영 애니메이션</strong><small>진행 중 테이블 회전 상태 표시</small></div><label><input type="checkbox" checked={motionEnabled} onChange={e=>setMotionEnabled(e.target.checked)}/> 사용</label></div>
+          <div className="opsSettingRow"><div><strong>테마</strong><small>라이트 / 다크 모드</small></div><button onClick={()=>applyTheme(theme==="dark"?"light":"dark")}>{theme==="dark"?"라이트 모드":"다크 모드"}</button></div>
+          <button className="primary" onClick={()=>setPreferencesOpen(false)}>완료</button>
+        </section>
+      </div>}
+      <div className={compactLayout?"contentArea opsCompact":"contentArea"} data-motion={motionEnabled?"on":"off"}>
         {message && <div className="note globalNote">{message}</div>}
 
         {tab==="dashboard" && <>
@@ -3223,7 +3241,7 @@ export default function Home() {
                   onClick={()=>setSelectedTableNo(no)}
                 >
                   <strong>{no}</strong>
-                  <small>{liveSession?`${liveEntries.length}명 · LIVE`:"대기"}</small>
+                  <small>{liveSession?<><i className="opsLiveSpinner" aria-hidden="true"/>{liveEntries.length}명 · LIVE</>:"대기"}</small>
                 </button>
               })}
             </div>
@@ -4206,6 +4224,8 @@ export default function Home() {
           </section>
 
           <section className="panel accountCreatePanel">
+            <div className="opsAccountToolbar"><div><h2>계정 관리</h2><p>전체 {accountProfiles.length}개 · 직원 {accountProfiles.filter(a=>a.role==="staff").length} · 에이전트 {accountProfiles.filter(a=>a.role==="agent").length}</p></div><button className="primary" onClick={()=>setAccountCreateOpen(v=>!v)}>{accountCreateOpen?"× 닫기":"＋ 계정 생성"}</button></div>
+            {accountCreateOpen && <>
             <div className="sectionTitle">
               <div><h2>직원·에이전트 계정 생성</h2><p>아이디와 임시 비밀번호를 입력해 새 로그인 계정을 만듭니다.</p></div>
             </div>
@@ -4231,6 +4251,7 @@ export default function Home() {
                 {creatingAccount?"계정 생성 중...":"＋ 계정 생성"}
               </button>
             </div>
+            </>}
           </section>
 
           <section className="panel accountListPanel">
