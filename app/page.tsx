@@ -3981,6 +3981,7 @@ export default function Home() {
           </div>}
         </div>
 
+        <button className="primary manageApplyButton" onClick={()=>{setManageEntryId(null);setManagePlayerSearch("");setMessage("수정사항 적용 완료");}}>수정사항 적용</button>
         <button className="manageDeleteButton" onClick={async()=>{await removePlayerFromSession(managedEntry);setManageEntryId(null);setManagePlayerSearch("")}}>
           플레이어 삭제
         </button>
