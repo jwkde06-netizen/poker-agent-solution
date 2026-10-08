@@ -16072,3 +16072,11 @@ button.reportIntelRanking:hover{background:var(--surface-2);}
 @keyframes opsSpin{to{transform:rotate(360deg)}}
 @media(prefers-reduced-motion:reduce){.opsLiveSpinner{animation:none}}
 @media(max-width:720px){.opsAccountToolbar{align-items:flex-start}.accountCreateGrid{grid-template-columns:1fr}.opsSettingRow{align-items:flex-start;flex-direction:column}}
+
+
+.opsUndoToolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 4px 14px}
+.opsUndoToolbar>div{display:flex;gap:7px}
+.opsUndoToolbar button{border:1px solid var(--line);border-radius:9px;background:var(--surface);color:var(--text);font-size:13px;font-weight:650;padding:8px 12px}
+.opsUndoToolbar button:disabled{opacity:.38;cursor:not-allowed;transform:none}
+.opsUndoToolbar small{color:var(--muted)}
+@media(max-width:520px){.opsUndoToolbar{flex-wrap:wrap}.opsUndoToolbar button{padding:8px}}
