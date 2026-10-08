@@ -662,6 +662,12 @@ export default function Home() {
   const weeklyFnbAllTotal = weeklyFnbEntries.reduce((sum,e)=>sum+e.totalAmount,0);
   const weeklyFnbTotal = weeklyFnbEntries.filter(isOperatingFnbExpense).reduce((sum,e)=>sum+e.totalAmount,0);
   const weeklyProfit = weeklyEntryFee-weeklyRakeback-weeklyFnbTotal;
+  const lastWeekStart=plusDays(monday(today()),-7);
+  const lastWeekEnd=plusDays(lastWeekStart,6);
+  const lastWeekGameEntries=entries.filter(e=>e.date>=lastWeekStart && e.date<=lastWeekEnd);
+  const lastWeekFnb=fnbEntries.filter(e=>e.date>=lastWeekStart && e.date<=lastWeekEnd && isOperatingFnbExpense(e)).reduce((sum,e)=>sum+e.totalAmount,0);
+  const lastWeekProfit=lastWeekGameEntries.reduce((sum,e)=>sum+e.rake-e.rakeback,0)-lastWeekFnb;
+  const lastWeekDistribution=weeklyDistributions.find(x=>x.weekStart===lastWeekStart) ?? null;
   const pendingExpenseRows=expenseItems.filter(x=>x.processedAmount<x.amount);
   const pendingExpenseTotal=pendingExpenseRows.reduce((sum,x)=>sum+(x.amount-x.processedAmount),0);
   const processedExpenseRows=expenseItems.filter(x=>x.processedAmount>=x.amount);
@@ -1557,21 +1563,21 @@ export default function Home() {
 
   async function finalizeSelectedWeek(){
     if(!supabase || !session || profile?.role!=="admin")return;
-    if(weeklyDistributions.some(x=>x.weekStart===weekStart)){
-      setMessage("이 주차 정산금은 이미 Deposit으로 반영되었습니다.");
+    if(weeklyDistributions.some(x=>x.lastWeekStart===lastWeekStart)){
+      setMessage("지난주 정산금은 이미 Deposit으로 반영되었습니다.");
       return;
     }
-    if(!confirm(`${weekStart} ~ ${weekEnd} 주간 수익 ${vnd(weeklyProfit)}을 실제 수령했나요? 확인하면 지출 장부에 Deposit으로 기록됩니다.`))return;
+    if(!confirm(`${lastWeekStart} ~ ${lastWeekEnd} 주간 수익 ${vnd(lastWeekProfit)}을 실제 수령했나요? 확인하면 지출 장부에 Deposit으로 기록됩니다.`))return;
     setFinalizingDistribution(true);
     const {error}=await supabase.rpc("finalize_weekly_distribution",{
-      p_week_start:weekStart,
-      p_week_end:weekEnd,
-      p_operating_profit:weeklyProfit
+      p_week_start:lastWeekStart,
+      p_week_end:lastWeekEnd,
+      p_operating_profit:lastWeekProfit
     });
     setFinalizingDistribution(false);
     if(error){setMessage(error.message);return;}
     await loadFromDatabase();
-    setMessage("이번 주 정산금 수령을 기록하고 장부에 Deposit을 반영했습니다.");
+    setMessage("지난주 정산금 수령을 기록하고 장부에 Deposit을 반영했습니다.");
   }
 
   async function markShareholderPayoutPaid(payout:ShareholderPayout){
@@ -3672,35 +3678,23 @@ export default function Home() {
         </section>}
 
         {tab==="expenses" && profile?.role==="admin" && <section className="expenseWorkflowPage compactExpensePage">
-          <section className="expenseCompactTop">
-            <div className="expenseCompactTitle">
-              <span>운영 경비 장부</span>
-              <h2>지출 내역서</h2>
-            </div>
+          <section className="expenseCompactTop expenseUnifiedHeader">
+            <div className="expenseCompactTitle"><h2>지출 내역서</h2></div>
             <div className="expenseCompactSummary singleBalanceSummary">
               <div className={ledgerBalance<0?"primary negative":"primary positive"}>
                 <span>현재 장부 잔액</span>
                 <strong>{ledgerBalance>0?"+":""}{vnd(ledgerBalance)}</strong>
               </div>
             </div>
+            {lastWeekDistribution
+              ? <span className="weeklyDepositApplied">{lastWeekStart} ~ {lastWeekEnd} 수령 완료</span>
+              : <button className="weeklyDepositButton" onClick={finalizeSelectedWeek} disabled={finalizingDistribution}>
+                  {finalizingDistribution?"처리 중...":"지난주 정산금 수령"}
+                </button>}
+            <button type="button" className="expenseLedgerPngButton" onClick={exportExpenseLedgerPng} title="전체 지출내역서 PNG 다운로드">↓ PNG 다운로드</button>
           </section>
 
           <section className="panel expenseLedgerPanel">
-            <div className="expenseLedgerHeader simpleLedgerHeader">
-              <div>
-                <h2>입출금 장부</h2>
-                <p>Deposit은 들어온 돈, Withdrawal은 나간 돈이며 Balance는 누적 잔액입니다.</p>
-              </div>
-              <button type="button" className="expenseLedgerPngButton" onClick={exportExpenseLedgerPng} title="전체 입출금 장부 PNG 다운로드">↓ PNG 다운로드</button>
-              {profile?.role==="admin" && (
-                selectedWeekDistribution
-                  ? <span className="weeklyDepositApplied">{weekStart} ~ {weekEnd} 정산금 수령 완료</span>
-                  : <button className="weeklyDepositButton" onClick={finalizeSelectedWeek} disabled={finalizingDistribution}>
-                      {finalizingDistribution?"반영 중...":"이번 주 정산금 수령"}
-                    </button>
-              )}
-            </div>
-
             <div className={expenseEntryType==="deposit"?"expenseQuickAdd depositMode":"expenseQuickAdd"}>
               <select className="ledgerTypeSelect" value={expenseEntryType} onChange={e=>setExpenseEntryType(e.target.value as "expense"|"deposit")} aria-label="장부 유형">
                 <option value="expense">Withdrawal</option>
