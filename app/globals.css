@@ -15699,3 +15699,8 @@ html[data-theme="dark"] .weeklyStatementRow.totalExpense{
     padding:0 10px
   }
 }
+
+/* User-arranged table cards in the game entry screen. */
+.pokerFloorMap{grid-template-columns:repeat(auto-fit,minmax(120px,1fr)) !important;grid-template-rows:auto !important;}
+.pokerFloorMap .floorTableButton{grid-column:auto !important;grid-row:auto !important;align-self:stretch !important;min-height:68px;cursor:grab;touch-action:pan-y;}
+.pokerFloorMap .floorTableButton:active{cursor:grabbing;}
