@@ -3773,30 +3773,6 @@ export default function Home() {
             </div>
           </section>
 
-          <section className="panel shareholderSettingsPanel">
-            <div className="sectionTitle">
-              <div><h2>사업 지분 설정</h2><p>주간 경비 상계 후 발생한 실제 수익을 이 지분율로 배당합니다.</p></div>
-              <strong className={Math.abs(shareholderRateTotal-100)<0.001?"shareTotal ok":"shareTotal"}>{shareholderRateTotal}%</strong>
-            </div>
-            <div className="shareholderRows">
-              {shareholders.map(holder=><div key={holder.id}>
-                <span><strong>{holder.name}</strong><small>{holder.active?"배당 대상":"비활성"}</small></span>
-                <div>
-                  <input
-                    type="number"
-                    min="0"
-                    max="100"
-                    step="0.5"
-                    value={holder.rate}
-                    onChange={e=>setShareholders(prev=>prev.map(x=>x.id===holder.id?{...x,rate:Number(e.target.value)}:x))}
-                    onBlur={e=>updateShareholderRate(holder,Number(e.target.value))}
-                  />
-                  <em>%</em>
-                </div>
-              </div>)}
-            </div>
-          </section>
-
           <section className="panel accountCreatePanel">
             <div className="sectionTitle">
               <div><h2>직원·에이전트 계정 생성</h2><p>아이디와 임시 비밀번호를 입력해 새 로그인 계정을 만듭니다.</p></div>
