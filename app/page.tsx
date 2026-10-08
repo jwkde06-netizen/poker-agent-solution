@@ -723,6 +723,7 @@ export default function Home() {
     return [...map.values()].sort((a,b)=>Number(b.operating)-Number(a.operating) || b.amount-a.amount);
   },[weeklyFnbEntries]);
   const weeklyAgentRows = agencyTotals(weeklyEntries).filter(a=>a.amount>0).sort((a,b)=>b.amount-a.amount);
+  const weeklyStatementAgencies = agencies.filter(agent=>Number.isFinite(agent.rate) && agent.rate>0);
 
   const weeklyPlayerRows = useMemo(()=>{
     const map = new Map<string,{playerId:string;playerName:string;agency:string;buyIn:number;rake:number;rakeback:number}>();
@@ -1811,7 +1812,7 @@ export default function Home() {
     const statementRows=[
       ["TOTAL RAKE BACK",weeklyEntryFee,"normal"],
       ["F&B",weeklyFnbTotal,"normal"],
-      ...agencies.map(agent=>[
+      ...weeklyStatementAgencies.map(agent=>[
         agent.code+" RAKE BACK",
         weeklyAgentRows.find(row=>row.id===agent.id)?.amount ?? 0,
         "normal"
@@ -3442,7 +3443,7 @@ export default function Home() {
                   <b>{vnd(weeklyFnbTotal)}</b>
                 </div>
 
-                {agencies.map(agent=>{
+                {weeklyStatementAgencies.map(agent=>{
                   const amount=weeklyAgentRows.find(row=>row.id===agent.id)?.amount ?? 0;
                   return <div className="weeklyStatementRow" key={agent.id}>
                     <span>{agent.code} RAKE BACK</span>
