@@ -1832,28 +1832,22 @@ export default function Home() {
       ["NET PROFIT / LOSS",weeklyProfit,"profit"]
     ] as [string,number,string][];
 
-    roundRect(tableX,tableY,tableW,42,8,"#3d3d3d","#3d3d3d");
-    text("항목",tableX+18,tableY+21,14,800,"#ffffff");
-    text("금액",tableX+tableW-18,tableY+21,14,800,"#ffffff","right");
+    roundRect(tableX,tableY,tableW,42,8,"#ffffff","#d9dee3");
+    text("항목",tableX+18,tableY+21,14,800,"#4b5560");
+    text("금액",tableX+tableW-18,tableY+21,14,800,"#4b5560","right");
 
     let tableRowY=tableY+42;
     statementRows.forEach(([label,value,type])=>{
-      const fill=type==="expense"?"#7a1b06":type==="profit"?"#3d3d3d":"#ffffff";
-      const color=type==="normal"?"#202328":"#ffffff";
-      ctx.fillStyle=fill;
+      const isSummary=type==="expense" || type==="profit";
+      ctx.fillStyle="#ffffff";
       ctx.fillRect(tableX,tableRowY,tableW,rowH);
-      ctx.strokeStyle="#c9ccd0";
+      ctx.strokeStyle="#d9dee3";
       ctx.strokeRect(tableX,tableRowY,tableW,rowH);
-      text(label,tableX+18,tableRowY+rowH/2,14,type==="normal"?650:800,color);
-      text(money.format(value),tableX+tableW-18,tableRowY+rowH/2,15,type==="normal"?700:850,color,"right");
+      text(label,tableX+18,tableRowY+rowH/2,14,isSummary?800:650,"#202328");
+      text(money.format(value),tableX+tableW-18,tableRowY+rowH/2,15,isSummary?850:700,type==="profit"?"#9a6410":"#202328","right");
       tableRowY+=rowH;
     });
 
-    roundRect(880,154,440,94,12,"#fafbfc","#e1e4e8");
-    text("주 시작일 (월요일)",900,182,13,700,"#6d747c");
-    text(weekStart,1300,182,15,750,"#202328","right");
-    text("주 종료일",900,220,13,700,"#6d747c");
-    text(weekEnd,1300,220,15,750,"#202328","right");
 
     let y=Math.max(318,tableRowY+38);
     text("에이전트별 레이크백",80,y,22,800,"#17191c");
