@@ -281,6 +281,9 @@ export default function Home() {
   const [theme, setTheme] = useState<"light"|"dark">("light");
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const [accountCreateOpen,setAccountCreateOpen]=useState(false);
+  const [undoBuyIn,setUndoBuyIn]=useState<{id:string;before:number;after:number}|null>(null);
+  const [redoBuyIn,setRedoBuyIn]=useState<{id:string;before:number;after:number}|null>(null);
+  const [undoBusy,setUndoBusy]=useState(false);
   const [preferencesOpen,setPreferencesOpen]=useState(false);
   const [compactLayout,setCompactLayout]=useState(false);
   const [motionEnabled,setMotionEnabled]=useState(true);
@@ -1224,6 +1227,26 @@ export default function Home() {
     setSelectedSearchIndex(0);
   }
 
+  async function restoreBuyIn(mode:"undo"|"redo"){
+    const action=mode==="undo"?undoBuyIn:redoBuyIn;
+    if(!action||undoBusy)return;
+    const entry=entries.find(e=>e.id===action.id);
+    const expected=mode==="undo"?action.after:action.before;
+    const target=mode==="undo"?action.before:action.after;
+    if(!entry||entry.buyIn!==expected){setMessage("현재 데이터가 변경되어 실행취소할 수 없습니다.");setUndoBuyIn(null);setRedoBuyIn(null);return;}
+    const rake=rakePerBuyIn(entry.game)*target;
+    const rakeback=Math.round(rake*(entry.rateSnapshot/100));
+    setUndoBusy(true);
+    if(isSupabaseConfigured&&supabase&&session){
+      const {data,error}=await supabase.from("game_entries").update({buy_in:target,rake,rakeback}).eq("id",entry.id).eq("buy_in",expected).select("id");
+      if(error||!data?.length){setMessage("기록이 다른 기기에서 변경되었거나 수정 권한이 없습니다.");setUndoBusy(false);return;}
+    }
+    setEntries(prev=>prev.map(e=>e.id===entry.id?{...e,buyIn:target,rake,rakeback}:e));
+    if(mode==="undo"){setUndoBuyIn(null);setRedoBuyIn(action);}else{setRedoBuyIn(null);setUndoBuyIn(action);}
+    setMessage(mode==="undo"?"바이인 변경을 실행취소했습니다.":"바이인 변경을 다시 실행했습니다.");
+    setUndoBusy(false);
+  }
+
   async function changeSessionBuyIn(entry:GameEntry,delta:number){
     if(entry.buyIn+delta<1){
       if(window.confirm(`${getPlayerName(entry.playerId)} 플레이어를 이 게임에서 삭제할까요? 바이인 및 레이크백 기록도 제거됩니다.`)){
@@ -1244,6 +1267,8 @@ export default function Home() {
       if(error){setMessage(error.message);return;}
     }
     setEntries(prev=>prev.map(e=>e.id===entry.id?{...e,buyIn:nextBuyIn,rake:nextRake,rakeback:nextRakeback}:e));
+    setUndoBuyIn({id:entry.id,before:entry.buyIn,after:nextBuyIn});
+    setRedoBuyIn(null);
   }
 
   async function setSessionBuyInCount(entry:GameEntry,count:number){
@@ -3193,6 +3218,7 @@ export default function Home() {
         </section>}
 
         {tab==="games" && <section className={isStaff?"buyinPage floorBuyinPage staffMobileBuyinPage":"buyinPage floorBuyinPage"}>
+          <div className="opsUndoToolbar"><strong>게임 입력</strong><div><button type="button" disabled={!undoBuyIn||undoBusy} onClick={()=>restoreBuyIn("undo")}>↶ 실행취소</button><button type="button" disabled={!redoBuyIn||undoBusy} onClick={()=>restoreBuyIn("redo")}>↷ 다시실행</button></div></div>
           <div className="mobileSectionSwitcher buyinModeSwitcher">
             <button className={gamesView==="live"?"active":""} onClick={()=>setGamesView("live")}>진행 중</button>
             <button className={gamesView==="logs"?"active":""} onClick={()=>setGamesView("logs")}>게임 로그</button>
@@ -3521,6 +3547,7 @@ export default function Home() {
         </section>}
 
         {!isStaff && tab==="daily" && <section className="compactDailyPage">
+          <div className="opsUndoToolbar"><small>바이인 변경 내역은 여기서도 되돌릴 수 있습니다.</small><button type="button" disabled={!undoBuyIn||undoBusy} onClick={()=>restoreBuyIn("undo")}>↶ 바이인 실행취소</button></div>
           <div className="mobileSectionSwitcher settlementSwitcher">
             <button className="active">일일정산</button>
             <button onClick={()=>navigateTab("weekly")}>주간정산</button>
