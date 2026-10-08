@@ -15966,3 +15966,13 @@ button.reportIntelRanking:hover{background:var(--surface-2);}
 .reportWeekdayTrack i{display:block;height:100%;background:#b88938;border-radius:6px;}
 @media(max-width:900px){.reportIntelligenceGrid{grid-template-columns:1fr;}.reportIntelWide{grid-column:auto;}}
 @media(max-width:550px){.reportIntelCard{padding:14px;}.reportWeekdayHeading,.reportWeekdayRow{grid-template-columns:55px 45px 50px minmax(0,1fr);gap:7px;font-size:11px;}.reportWeekdayHeading{font-size:10px;padding-left:4px;padding-right:4px;}.reportWeekdayRow{padding-left:4px;padding-right:4px;}.reportWeekdayRow>b{font-size:11px;}.reportWeekdayTrack{left:4px;right:4px;}}
+
+/* Player nationality and per-player rate settings */
+.playerClassificationEditor{padding:16px;margin-top:14px;border:1px solid var(--line);border-radius:12px;background:var(--surface-2);}
+.playerClassificationEditor h4{font-size:13px;margin:0 0 12px;color:var(--text);}
+.playerClassificationFields{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto;gap:10px;align-items:end;}
+.playerClassificationFields label{display:grid;gap:6px;font-size:11px;color:var(--muted);font-weight:700;}
+.playerClassificationFields input{width:100%;min-width:0;min-height:40px;border:1px solid var(--line-strong);background:var(--surface);color:var(--text);padding:0 10px;border-radius:8px;font-size:13px;}
+.playerClassificationFields button{min-height:40px;padding:0 16px;border-radius:8px;}
+.playerClassificationEditor>small{display:block;color:var(--muted);line-height:1.6;font-size:11px;margin-top:12px;}
+@media(max-width:610px){.playerClassificationFields{grid-template-columns:1fr;}.playerClassificationFields button{width:100%;}}
