@@ -726,7 +726,8 @@ export default function Home() {
   const lastWeekEnd=plusDays(lastWeekStart,6);
   const lastWeekGameEntries=entries.filter(e=>e.date>=lastWeekStart && e.date<=lastWeekEnd);
   const lastWeekFnb=fnbEntries.filter(e=>e.date>=lastWeekStart && e.date<=lastWeekEnd && isOperatingFnbExpense(e)).reduce((sum,e)=>sum+e.totalAmount,0);
-  const lastWeekProfit=lastWeekGameEntries.reduce((sum,e)=>sum+e.rake-e.rakeback,0)-lastWeekFnb;
+  const lastWeekExtraExpenses=weeklyAdjustments.filter(x=>x.weekStart===lastWeekStart&&x.kind==="expense").reduce((sum,x)=>sum+x.amount,0);
+  const lastWeekProfit=lastWeekGameEntries.reduce((sum,e)=>sum+e.rake-e.rakeback,0)-lastWeekFnb-lastWeekExtraExpenses;
   const lastWeekDistribution=weeklyDistributions.find(x=>x.weekStart===lastWeekStart) ?? null;
   const pendingExpenseRows=expenseItems.filter(x=>x.processedAmount<x.amount);
   const pendingExpenseTotal=pendingExpenseRows.reduce((sum,x)=>sum+(x.amount-x.processedAmount),0);
@@ -1891,7 +1892,21 @@ export default function Home() {
     }
 
     // Footer
-    line(80,height-105,width-80,height-105);
+    const mmSectionTop=height-351;
+    line(80,mmSectionTop,width-80,mmSectionTop);
+    text("대표님 정산 청구 요약",80,mmSectionTop+30,23,800,"#17191c");
+    text("Dream Poker 운영 순수익",92,mmSectionTop+76,15,600,"#3c4650");
+    text(money.format(weeklyProfit),width-92,mmSectionTop+76,17,750,"#202328","right");
+    text("MM 전체 정산금 / 우리 지분 / 파트너 지분",92,mmSectionTop+118,14,600,"#59616a");
+    text(`${money.format(weekMMGross)} / ${money.format(weekMMOurShare)} / ${money.format(weekMMAgentShare)}`,width-92,mmSectionTop+118,15,700,"#202328","right");
+    text("MM 미수령분 (우리 지분)",92,mmSectionTop+158,15,600,"#59616a");
+    text(money.format(weekMMOutstanding),width-92,mmSectionTop+158,16,700,"#202328","right");
+    text("캐시게임 레이크백 미수령",92,mmSectionTop+198,15,600,"#59616a");
+    text(money.format(weekCashOutstanding),width-92,mmSectionTop+198,16,700,"#202328","right");
+    roundRect(80,mmSectionTop+218,width-160,66,9,"#f5f7fa","#dfe3e9");
+    text("대표님께 받을 총 미수령 청구액",102,mmSectionTop+251,20,800,"#17191c");
+    text(money.format(weekTotalClaim),width-104,mmSectionTop+251,25,850,"#9a6410","right");
+        line(80,height-105,width-80,height-105);
     text("Dream Poker",80,height-72,14,700,"#9aa1a8");
     text("정산 데이터는 시스템 입력 내역을 기준으로 생성되었습니다.",width-80,height-72,12,500,"#9aa1a8","right");
     return canvas;
@@ -1929,7 +1944,7 @@ export default function Home() {
     const width=1400;
     // Calculate the actual last content position before creating the canvas.
     // A fixed-height estimate can cut off player rows and the report footer.
-    const statementRowCount=4+weeklyStatementAgencies.length;
+    const statementRowCount=4+weeklyStatementAgencies.length+weekAdjustments.filter(x=>x.kind==="expense").length;
     const statementBottom=154+42+statementRowCount*46;
     const agentStart=Math.max(318,statementBottom+38)+30;
     const agentBottom=agentStart+(weeklyAgentRows.length===0?60:weeklyAgentRows.length*48+34);
@@ -1938,7 +1953,7 @@ export default function Home() {
       ? 60
       : weeklyPlayerGroups.reduce((sum,group)=>sum+46+group.rows.length*46+16,0);
     const contentBottom=playerStart+playerContentHeight;
-    const height=Math.ceil(Math.max(980,contentBottom+160));
+    const height=Math.ceil(Math.max(1130,contentBottom+445));
     const canvas=document.createElement("canvas");
     canvas.width=width; canvas.height=height;
     const ctx=canvas.getContext("2d");
@@ -1978,7 +1993,8 @@ export default function Home() {
         weeklyAgentRows.find(row=>row.id===agent.id)?.amount ?? 0,
         "normal"
       ] as [string,number,string]),
-      ["TOTAL EXPENSE",weeklyRakeback+weeklyFnbTotal,"expense"],
+      ...weekAdjustments.filter(item=>item.kind==="expense").map(item=>[item.label,item.amount,"normal"] as [string,number,string]),
+      ["TOTAL EXPENSE",weeklyRakeback+weeklyFnbTotal+weekExtraExpenses,"expense"],
       ["NET PROFIT / LOSS",weeklyProfit,"profit"]
     ] as [string,number,string][];
 
