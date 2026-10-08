@@ -1814,7 +1814,7 @@ export default function Home() {
     const statementRows=[
       ["TOTAL RAKE BACK",weeklyEntryFee,"normal"],
       ["F&B",weeklyFnbTotal,"normal"],
-      ...agencies.map(agent=>[
+      ...weeklyStatementAgencies.map(agent=>[
         agent.code+" RAKE BACK",
         weeklyAgentRows.find(row=>row.id===agent.id)?.amount ?? 0,
         "normal"
