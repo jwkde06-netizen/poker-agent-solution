@@ -3691,37 +3691,25 @@ export default function Home() {
               : <button className="weeklyDepositButton" onClick={finalizeSelectedWeek} disabled={finalizingDistribution}>
                   {finalizingDistribution?"처리 중...":"지난주 정산금 수령"}
                 </button>}
-            <button type="button" className="expenseLedgerPngButton" onClick={exportExpenseLedgerPng} title="전체 지출내역서 PNG 다운로드">↓ PNG 다운로드</button>
+            <button type="button" className="expenseLedgerPngButton" onClick={exportExpenseLedgerPng} title="지출내역서 PNG 다운로드" aria-label="지출내역서 PNG 다운로드"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M4 17v3h16v-3"/></svg></button>
           </section>
 
           <section className="panel expenseLedgerPanel">
-            <div className={expenseEntryType==="deposit"?"expenseQuickAdd depositMode":"expenseQuickAdd"}>
-              <select className="ledgerTypeSelect" value={expenseEntryType} onChange={e=>setExpenseEntryType(e.target.value as "expense"|"deposit")} aria-label="장부 유형">
-                <option value="expense">Withdrawal</option>
-                <option value="deposit">Deposit</option>
-              </select>
-              <input type="date" value={expenseDate} onChange={e=>setExpenseDate(e.target.value)} aria-label="날짜"/>
-              {expenseEntryType==="expense"
-                ? <select value={expenseCategory} onChange={e=>setExpenseCategory(e.target.value)} aria-label="지출 구분">
-                    <option value="OTHER">기타</option>
-                    <option value="HOUSING">숙소 / 임대</option>
-                    <option value="LODGING">호텔</option>
-                    <option value="MEAL">식대</option>
-                    <option value="ENTERTAINMENT">접대비</option>
-                    <option value="SUPPLIES">비품</option>
-                    <option value="INCIDENT">사고비</option>
-                    <option value="SALARY">급여</option>
-                    <option value="TRANSPORT">교통</option>
-                  </select>
-                : <div className="depositAutoLabel">주간 정산금</div>}
-              <input value={expenseDescription} onChange={e=>setExpenseDescription(e.target.value)} placeholder={expenseEntryType==="deposit"?"예: 9/28~10/4 정산금":"경비 항목"} aria-label="항목"/>
-              {expenseEntryType==="expense"
-                ? <input value={expensePrepaidBy} onChange={e=>setExpensePrepaidBy(e.target.value)} placeholder="선지급자" aria-label="선지급자"/>
-                : <div className="depositAutoLabel">＋ 입금</div>}
-              <input inputMode="numeric" value={expenseAmount} onChange={e=>setExpenseAmount(e.target.value.replace(/[^0-9]/g,""))} placeholder="금액(VND)" aria-label="금액"/>
-              <input value={expenseNote} onChange={e=>setExpenseNote(e.target.value)} placeholder="메모" aria-label="메모"/>
-              <button className="primary" onClick={addLedgerItem}>＋ 추가</button>
-            </div>
+            <form className={expenseEntryType==="deposit"?"expenseQuickAdd expenseEntryForm depositMode":"expenseQuickAdd expenseEntryForm"} onSubmit={e=>{e.preventDefault();void addLedgerItem();}}>
+              <div className="expenseEntryFormHeading"><strong>새 장부 항목</strong><span>금액은 VND 기준 · 필수 정보부터 입력</span></div>
+              <div className="expenseEntryFields">
+                <label className="expenseEntryTypeField"><span>입출금 유형</span><select className="ledgerTypeSelect" value={expenseEntryType} onChange={e=>setExpenseEntryType(e.target.value as "expense"|"deposit")}><option value="expense">− 출금</option><option value="deposit">＋ 입금</option></select></label>
+                <label className="expenseEntryDateField"><span>날짜</span><input type="date" value={expenseDate} onChange={e=>setExpenseDate(e.target.value)}/></label>
+                <label className="expenseEntryNameField"><span>항목 *</span><input value={expenseDescription} onChange={e=>setExpenseDescription(e.target.value)} placeholder={expenseEntryType==="deposit"?"예: 지난주 정산금 수령":"예: 숙소비, 직원 식대"} required={expenseEntryType==="expense"}/></label>
+                <label className="expenseEntryAmountField"><span>금액 (VND) *</span><input inputMode="numeric" value={expenseAmount?Number(expenseAmount).toLocaleString("en-US"):""} onChange={e=>setExpenseAmount(e.target.value.replace(/[^0-9]/g,""))} placeholder="0" required/></label>
+                {expenseEntryType==="expense" && <label className="expenseEntryCategoryField"><span>지출 구분</span><select value={expenseCategory} onChange={e=>setExpenseCategory(e.target.value)}>
+                  <option value="OTHER">기타</option><option value="HOUSING">숙소 / 임대</option><option value="LODGING">호텔</option><option value="MEAL">식대</option><option value="ENTERTAINMENT">접대비</option><option value="SUPPLIES">비품</option><option value="INCIDENT">사고비</option><option value="SALARY">급여</option><option value="TRANSPORT">교통</option>
+                </select></label>}
+                {expenseEntryType==="expense" && <label className="expenseEntryPayerField"><span>선지급자</span><input value={expensePrepaidBy} onChange={e=>setExpensePrepaidBy(e.target.value)} placeholder="선지급자 이름 (선택)"/></label>}
+                <label className="expenseEntryNoteField"><span>메모</span><input value={expenseNote} onChange={e=>setExpenseNote(e.target.value)} placeholder="추가 설명 (선택)"/></label>
+                <button className="primary expenseEntrySaveButton" type="submit">＋ 장부에 추가</button>
+              </div>
+            </form>
 
             <div className="expenseLedgerScroll">
               <div className="expenseLedgerTable">
