@@ -3086,7 +3086,7 @@ export default function Home() {
 
                     <div className="playerValueToolbar">
                       <span>플레이어 {selectedTableEntries.length}명</span>
-                      {!isStaff && <div className="playerValueFilter" role="group" aria-label="플레이어 금액 표시 기준">
+                      {!isStaff && <div className="playerValueToggle" role="group" aria-label="플레이어 금액 표시 기준">
                         <button className={playerValueView==="amount"?"active":""} onClick={()=>setPlayerValueView("amount")} aria-pressed={playerValueView==="amount"}>금액</button>
                         <button className={playerValueView==="rakeback"?"active":""} onClick={()=>setPlayerValueView("rakeback")} aria-pressed={playerValueView==="rakeback"}>레이크백</button>
                       </div>}
