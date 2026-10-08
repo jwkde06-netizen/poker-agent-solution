@@ -222,6 +222,8 @@ export default function Home() {
   const [editSessionGameNo, setEditSessionGameNo] = useState("");
   const [extraTableNos, setExtraTableNos] = useState<string[]>([]);
   const [removedTableNos, setRemovedTableNos] = useState<string[]>([]);
+  const [tableDisplayOrder, setTableDisplayOrder] = useState<string[]>([]);
+  const [draggedTableNo, setDraggedTableNo] = useState<string | null>(null);
   const [selectedSearchIndex, setSelectedSearchIndex] = useState(0);
   const [playerValueView, setPlayerValueView] = useState<"amount"|"rakeback">("amount");
   const [sessionSearch, setSessionSearch] = useState<Record<string,string>>({});
@@ -364,6 +366,8 @@ export default function Home() {
       const removed=JSON.parse(localStorage.getItem("dream-poker-removed-tables") || "[]");
       if(Array.isArray(saved)) setExtraTableNos(saved.map(String).filter(Boolean));
       if(Array.isArray(removed)) setRemovedTableNos(removed.map(String).filter(Boolean));
+      const order=JSON.parse(localStorage.getItem("dream-poker-table-order") || "[]");
+      if(Array.isArray(order)) setTableDisplayOrder(order.map(String).filter(Boolean));
     }catch{}
   }, []);
 
@@ -2050,6 +2054,18 @@ export default function Home() {
   const activeGameSessions = gameSessions.filter(s=>s.status==="active" && s.date===today());
   const availableTableNos = Array.from(new Set(["4","12","13","5","2",...extraTableNos,...gameSessions.map(s=>s.tableNo).filter(Boolean)]))
     .filter(no=>!removedTableNos.includes(no) || activeGameSessions.some(s=>s.tableNo===no));
+  const orderedTableNos = [...availableTableNos].sort((a,b)=>{
+    const ai=tableDisplayOrder.indexOf(a),bi=tableDisplayOrder.indexOf(b);
+    return (ai<0?10000+availableTableNos.indexOf(a):ai)-(bi<0?10000+availableTableNos.indexOf(b):bi);
+  });
+  function moveTableCard(source:string,target:string){
+    if(source===target || !availableTableNos.includes(source) || !availableTableNos.includes(target))return;
+    const next=[...orderedTableNos];
+    next.splice(next.indexOf(source),1);
+    next.splice(next.indexOf(target),0,source);
+    setTableDisplayOrder(next);
+    localStorage.setItem("dream-poker-table-order",JSON.stringify(next));
+  }
   const selectedGameSession = activeGameSessions.find(s=>s.tableNo===selectedTableNo) ?? null;
 
   const globalFeatureItems = [
@@ -2880,11 +2896,17 @@ export default function Home() {
             </div>
 
             <div className="pokerFloorMap">
-              {availableTableNos.map(no=>{
+              {orderedTableNos.map(no=>{
                 const liveSession=activeGameSessions.find(s=>s.tableNo===no);
                 const liveEntries=liveSession ? entries.filter(e=>e.sessionId===liveSession.id) : [];
                 return <button
                   key={no}
+                  draggable
+                  onDragStart={e=>{setDraggedTableNo(no);e.dataTransfer.effectAllowed="move";e.dataTransfer.setData("text/plain",no);}}
+                  onDragOver={e=>{e.preventDefault();e.dataTransfer.dropEffect="move";}}
+                  onDrop={e=>{e.preventDefault();const source=e.dataTransfer.getData("text/plain") || draggedTableNo;if(source)moveTableCard(source,no);setDraggedTableNo(null);}}
+                  onDragEnd={()=>setDraggedTableNo(null)}
+                  title="드래그해서 테이블 위치 변경"
                   className={`floorTableButton table${no} ${selectedTableNo===no?"selected":""} ${liveSession?"live":""}`}
                   onClick={()=>setSelectedTableNo(no)}
                 >
