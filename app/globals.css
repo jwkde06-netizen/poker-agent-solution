@@ -16490,3 +16490,51 @@ html{scroll-behavior:smooth}
  .contentArea:has(> .dashboardFinanceStrip) .weeklyDayAmount strong{font-size:10px!important}
  .floorTableButton strong{font-size:22px!important}
 }
+
+
+/* Single weekly sales chart replaces trend panel; slim vertical columns */
+.dashboardWeekdayPanel{display:flex;flex-direction:column;min-height:0}
+.dashboardWeekdayPanel .dashboardEmbeddedWeekday{border:0!important;background:transparent!important;box-shadow:none!important;padding:3px 2px!important;margin:0!important;flex:1;display:flex;flex-direction:column;min-height:0}
+.dashboardWeekdayPanel .weeklyDailyRevenueHeader{margin-bottom:12px!important}
+.dashboardWeekdayPanel .weeklyDayRevenueList{flex:1;min-height:150px!important;height:auto!important;align-items:stretch!important}
+.dashboardWeekdayPanel .weeklyDayRevenueRow{justify-content:flex-start!important;min-height:0!important}
+.dashboardWeekdayPanel .weeklyDayBarTrack{flex:1;min-height:64px;max-height:230px;width:100%!important;max-width:none!important;display:flex;justify-content:center;align-items:flex-end!important}
+.dashboardWeekdayPanel .weeklyDayBarFill{flex:none;width:clamp(9px,1.1vw,16px)!important;max-width:16px!important;min-height:2px;border-radius:5px 5px 1px 1px!important}
+@media(max-width:820px){
+ .dashboardWeekdayPanel .weeklyDayBarFill{width:10px!important}
+ .dashboardWeekdayPanel .weeklyDayRevenueList{min-height:125px!important}
+ .dashboardWeekdayPanel .weeklyDayBarTrack{max-height:150px}
+}
+
+
+/* Unified game input toolbar: balanced table number and aligned actions */
+.floorBuyinPage .floorTableButton strong{
+  font-size:clamp(19px,1.45vw,24px)!important;
+  font-weight:750!important;
+  line-height:1.15!important;
+}
+.floorBuyinPage .floorTableButton small{font-size:11px!important;line-height:1.25}
+.floorBuyinPage .floorSelectorActions{gap:10px!important;flex-wrap:wrap;justify-content:flex-end}
+.floorBuyinPage .opsInlineUndo{
+  display:inline-flex;gap:6px;align-items:center;
+  padding-left:10px;border-left:1px solid var(--line);
+}
+.floorBuyinPage .opsInlineUndo button{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  height:40px!important;min-height:40px;white-space:nowrap;
+  padding:0 11px!important;border:1px solid var(--line-strong);
+  border-radius:10px;background:var(--surface);color:var(--text);
+  font-size:12px!important;font-weight:700!important;
+  transition:border-color .2s,background-color .2s,transform .15s;
+}
+.floorBuyinPage .opsInlineUndo button svg{width:15px;height:15px;flex:none}
+.floorBuyinPage .opsInlineUndo button:disabled{opacity:.4;cursor:not-allowed}
+.floorBuyinPage .opsInlineUndo button:not(:disabled):hover{border-color:#b99a58;background:var(--surface-2)}
+.floorBuyinPage .opsInlineUndo button:not(:disabled):active{transform:scale(.97)}
+@media(max-width:820px){
+ .floorBuyinPage .floorTableButton strong{font-size:20px!important}
+ .floorBuyinPage .floorSelectorActions{gap:7px!important}
+ .floorBuyinPage .opsInlineUndo{padding-left:0;border-left:0;margin-left:auto}
+ .floorBuyinPage .opsInlineUndo button{height:32px!important;min-height:32px;padding:0 8px!important;font-size:11px!important}
+}
+@media(prefers-reduced-motion:reduce){.floorBuyinPage .opsInlineUndo button{transition:none}}
