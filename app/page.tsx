@@ -758,14 +758,24 @@ export default function Home() {
 
     let authEmail=cleanId;
     if(!cleanId.includes("@")){
-      const {data:resolvedEmail}=await supabase.rpc("resolve_login_email",{p_username:cleanId});
-      authEmail=(typeof resolvedEmail==="string" && resolvedEmail)
-        ? resolvedEmail.toLowerCase()
-        : `${cleanId}@dream-poker.local`;
+      const {data:resolvedEmail,error:resolveError}=await supabase.rpc("resolve_login_email",{p_username:cleanId});
+      if(resolveError){
+        setMessage("로그인 아이디 조회에 실패했습니다. 관리자에게 DB 마이그레이션 상태 확인을 요청해주세요.");
+        return;
+      }
+      if(typeof resolvedEmail!=="string" || !resolvedEmail){
+        setMessage("등록된 활성 계정을 찾을 수 없습니다. 관리자 계정의 아이디 설정을 확인해주세요.");
+        return;
+      }
+      authEmail=resolvedEmail.toLowerCase();
     }
 
     const { error } = await supabase.auth.signInWithPassword({ email: authEmail, password });
-    if (error) setMessage("아이디 또는 비밀번호가 올바르지 않습니다.");
+    if(error){
+      setMessage(error.message.toLowerCase().includes("invalid login credentials")
+        ? "비밀번호가 일치하지 않습니다. 기존 계정의 비밀번호를 확인하거나 재설정해주세요."
+        : "로그인 인증에 실패했습니다: "+error.message);
+    }
   }
 
   async function updateOwnLogin() {
