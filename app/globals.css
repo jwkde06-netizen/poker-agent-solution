@@ -16047,3 +16047,6 @@ button.reportIntelRanking:hover{background:var(--surface-2);}
 @media(max-width:620px){.dashboardLiveBoardHead,.dashboardLiveBoardRow{grid-template-columns:minmax(96px,1.4fr) 43px 54px minmax(78px,1fr) 12px;gap:5px;}.dashboardLiveBoardHead{padding:9px 8px;font-size:9px;}.dashboardLiveBoardRow{padding:11px 8px;min-height:54px;}.dashboardLiveBoardIdentity{gap:5px;}.dashboardLiveBoardIdentity>strong{font-size:14px;min-width:26px;}.dashboardLivePulse{width:6px;height:6px;flex-basis:6px;box-shadow:0 0 0 3px rgba(40,163,102,.12);}.dashboardLiveGame{font-size:10px;gap:2px;}.dashboardLiveGame small{font-size:9px;}.dashboardLiveFigure{font-size:12px;}.dashboardLiveRevenue{font-size:11px;}.dashboardLiveGo{font-size:17px;}.dashboardLiveBoardFoot{padding:9px 8px;font-size:9px;}}
 /* Staff board has no financial column. */
 .dashboardLivePanel:has(.dashboardLiveBoardHead span:nth-child(4):last-of-type) .dashboardLiveBoardHead{min-width:0;}
+
+.dashboardLiveBoard.staffLiveBoard .dashboardLiveBoardHead,.dashboardLiveBoard.staffLiveBoard .dashboardLiveBoardRow{grid-template-columns:minmax(140px,1.7fr) minmax(60px,.65fr) minmax(70px,.65fr) 20px;}
+@media(max-width:620px){.dashboardLiveBoard.staffLiveBoard .dashboardLiveBoardHead,.dashboardLiveBoard.staffLiveBoard .dashboardLiveBoardRow{grid-template-columns:minmax(110px,1.5fr) 48px 60px 12px;}}
