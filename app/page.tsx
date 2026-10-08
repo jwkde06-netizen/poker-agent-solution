@@ -3600,7 +3600,7 @@ export default function Home() {
         </section>}
 
         {!isStaff && tab==="daily" && <section className="compactDailyPage">
-          <div className="opsUndoToolbar"><small>바이인 변경 내역은 여기서도 되돌릴 수 있습니다.</small><button type="button" disabled={!undoBuyIn||undoBusy} onClick={()=>restoreBuyIn("undo")}>↶ 바이인 실행취소</button></div>
+          
           <div className="mobileSectionSwitcher settlementSwitcher">
             <button className="active">일일정산</button>
             <button onClick={()=>navigateTab("weekly")}>주간정산</button>
@@ -3614,6 +3614,10 @@ export default function Home() {
               </div>
 
               <div className="dailyTopActions compactExportActions">
+                <button type="button" className="dailyInlineUndo" disabled={!undoBuyIn||undoBusy} onClick={()=>restoreBuyIn("undo")} title="마지막 바이인 증감 취소 (가능할 때만)" aria-label="바이인 변경 실행취소">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h9a7 7 0 0 1 0 14h-2"/></svg>
+                  <span>실행취소</span>
+                </button>
                 <button
                   className="dailyIconDownload"
                   onClick={()=>exportSettlementPng(summaryDate,summaryDate)}
