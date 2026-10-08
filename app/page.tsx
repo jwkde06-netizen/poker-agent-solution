@@ -1219,7 +1219,7 @@ export default function Home() {
   async function startGameSession(){
     const tableNo=(selectedTableNo || newTableNo).trim();
     if(!tableNo){setMessage("테이블 번호를 입력해주세요.");return;}
-    if(activeGameSessions.some(s=>s.tableNo===tableNo)){
+    if(gameSessions.some(s=>s.status==="active" && s.tableNo.trim()===tableNo)){
       setMessage("해당 테이블에서 게임이 아직 진행 중입니다. 경기 종료 후 새 게임을 시작해주세요.");
       return;
     }
@@ -2386,26 +2386,29 @@ export default function Home() {
   const todayPlayerCount = new Set(todayEntries.map(e=>e.playerId)).size;
   const weekSettlement = total(thisWeekEntries,"rakeback");
   const recentEntries = [...entries].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,6);
-  const currentBusinessDate=pokerBusinessDate();
-  const allOpenSessions=gameSessions.filter(s=>s.status==="active");
-  // Old "active" rows are not proof of a running table. Preserve overnight
-  // sessions from the current business date and only show one per physical table.
-  const eligibleSessions=allOpenSessions.filter(s=>
-    s.date===currentBusinessDate ||
-    // If a started game is still running after the morning boundary,
-    // do not silently drop it. Empty, stale old sessions stay excluded.
-    (s.date===plusDays(currentBusinessDate,-1) &&
-      entries.some(entry=>entry.sessionId===s.id && entry.buyIn>0))
+  // A poker game remains live until its status is explicitly closed,
+  // independent of calendar date or how many buy-ins it currently has.
+  const allOpenSessions=gameSessions.filter(game=>game.status==="active");
+  const openByTable=new Map<string,GameSession[]>();
+  for(const game of allOpenSessions){
+    const table=game.tableNo.trim();
+    if(!table)continue;
+    const sessions=openByTable.get(table)??[];
+    sessions.push(game);
+    openByTable.set(table,sessions);
+  }
+  // A physical table can only host one live game. Existing duplicate active
+  // rows are data conflicts, NOT additional live tables; preserve all records.
+  const activeGameSessions=[...openByTable.values()].map(sessions=>
+    [...sessions].sort((a,b)=>{
+      const byDate=b.date.localeCompare(a.date);
+      if(byDate!==0)return byDate;
+      const aBuyIns=entries.filter(entry=>entry.sessionId===a.id).reduce((n,e)=>n+e.buyIn,0);
+      const bBuyIns=entries.filter(entry=>entry.sessionId===b.id).reduce((n,e)=>n+e.buyIn,0);
+      return bBuyIns-aBuyIns || b.id.localeCompare(a.id);
+    })[0]
   );
-  const activeByTable=new Map<string,GameSession>();
-  eligibleSessions.forEach(gameSession=>{
-    const key=gameSession.tableNo.trim();
-    if(key)activeByTable.set(key,gameSession);
-  });
-  const activeGameSessions=[...activeByTable.values()];
-  const visibleIds=new Set(eligibleSessions.map(s=>s.id));
-  const unresolvedOldSessions=allOpenSessions.filter(s=>!visibleIds.has(s.id));
-  const duplicateCurrentSessions=eligibleSessions.length-activeGameSessions.length;
+  const duplicateOpenTables=[...openByTable.entries()].filter(([,sessions])=>sessions.length>1);
   const availableTableNos = Array.from(new Set(["4","12","13","5","2",...extraTableNos,...gameSessions.map(s=>s.tableNo).filter(Boolean)]))
     .filter(no=>!removedTableNos.includes(no) || activeGameSessions.some(s=>s.tableNo===no));
   const orderedTableNos = [...availableTableNos].sort((a,b)=>{
@@ -3302,7 +3305,10 @@ export default function Home() {
               </div>
             </div>
 
-            {(unresolvedOldSessions.length>0||duplicateCurrentSessions>0)&&<p className="opsStaleNotice" role="status">미종료 과거 게임 {unresolvedOldSessions.length}건{duplicateCurrentSessions>0?` · 같은 테이블 중복 ${duplicateCurrentSessions}건`:""}은 LIVE 집계에서 제외했습니다. 과거 게임은 게임 로그에서 확인하고 마감해주세요.</p>}
+            {duplicateOpenTables.length>0 && <p className="opsStaleNotice" role="alert">
+              중복된 미종료 게임 기록이 있는 테이블: {duplicateOpenTables.map(([table,sessions])=>`T${table} (${sessions.length}건)`).join(", ")}.
+              LIVE 숫자는 테이블당 1개만 표시합니다. 중복된 게임은 게임 로그에서 기록을 확인한 후 개별 종료해주세요.
+            </p>}
             <div className="pokerFloorMap">
               {orderedTableNos.map(no=>{
                 const liveSession=activeGameSessions.find(s=>s.tableNo===no);
