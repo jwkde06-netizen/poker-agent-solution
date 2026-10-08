@@ -3874,7 +3874,7 @@ export default function Home() {
                     </div>)}
                   </section>)}
                   {weekAdjustments.filter(x=>x.id===weeklyDetailKey).map(item=><section key={item.id}>
-                    <h3>{item.label}</h3><div className="weeklyDetailLine"><span>{item.kind==="expense"?"추가 지출":item.kind==="mm"?"MM 타임어택 정산":"캐시게임 레이크백 청구"}</span><b>{vnd(item.amount)}</b></div>
+                    <h3>{item.label}</h3><div className="weeklyDetailLine"><span>{item.kind==="expense"?"추가 지출":item.kind==="mm"?"MM 타임어택 정산":"VIP 레이크백 청구"}</span><b>{vnd(item.amount)}</b></div>
                     {item.note && <p>{item.note}</p>}
                     {profile?.role==="admin" && <button type="button" className="weeklyAdjustDelete" onClick={()=>deleteWeeklyAdjustment(item)}>항목 삭제</button>}
                   </section>)}
@@ -3907,14 +3907,14 @@ export default function Home() {
               </div>
             </section>}
             <section className="weeklyExternalSettlements">
-              <div className="weeklyExternalHeader"><div><h3>MM · 캐시게임 정산 및 청구</h3><p>드림 정산과 별도로 청구·수령 내역을 관리합니다.</p></div>{profile?.role==="admin"&&<div className="weeklyExternalAddControls"><button type="button" onClick={()=>{setAdjustmentKind("mm");setAddingAdjustment(true);}}>＋ MM 정산</button><button type="button" onClick={()=>{setAdjustmentKind("cash");setAddingAdjustment(true);}}>＋ VIP 레이크백 청구</button></div>}</div>
+              <div className="weeklyExternalHeader"><div><h3>MM · VIP 레이크백 정산 및 청구</h3><p>드림 정산과 별도로 청구·수령 내역을 관리합니다.</p></div>{profile?.role==="admin"&&<div className="weeklyExternalAddControls"><button type="button" onClick={()=>{setAdjustmentKind("mm");setAddingAdjustment(true);}}>＋ MM 정산</button><button type="button" onClick={()=>{setAdjustmentKind("cash");setAddingAdjustment(true);}}>＋ VIP 레이크백 청구</button></div>}</div>
               <div className="weeklyExternalSummary">
                 <div><span>MM 전체 정산금</span><b>{vnd(weekMMGross)}</b></div>
                 <div><span>Partner 1</span><b>{vnd(weekMMOurShare)}</b></div>
                 <div><span>Partner 2</span><b>{vnd(weekMMAgentShare)}</b></div>
                 <div className="claim"><span>총 청구금액</span><strong>{vnd(weekTotalClaim)}</strong></div>
               </div>
-              {weekAdjustments.filter(x=>x.kind!=="expense").length===0 && <p className="weeklyExternalEmpty">MM 및 캐시게임 청구 내역이 없습니다. 아래 ＋ 버튼으로 추가하세요.</p>}
+              {weekAdjustments.filter(x=>x.kind!=="expense").length===0 && <p className="weeklyExternalEmpty">MM 및 VIP 레이크백 청구 내역이 없습니다. 아래 ＋ 버튼으로 추가하세요.</p>}
               {weekAdjustments.filter(x=>x.kind!=="expense").map(item=><div className="weeklyExternalRow" key={item.id}>
                 <div><strong>{item.label}</strong><small>{item.kind==="mm"?"MM 정산": "캐시게임 레이크백"} · {item.kind==="mm"?`Partner 1 ${item.shareRate}% / Partner 2 ${100-item.shareRate}%`:"청구 100%"}{item.note?" · "+item.note:""}</small></div>
                 <b>{vnd(item.kind==="mm"?Math.round(item.amount*item.shareRate/100):item.amount)}</b>
