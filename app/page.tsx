@@ -1777,9 +1777,18 @@ export default function Home() {
 
   function buildWeeklySettlementCanvas(){
     const width=1400;
-    const playerRows=weeklyPlayerRows.length;
-    const agentRows=weeklyAgentRows.length;
-    const height=Math.max(980,500 + agentRows*48 + playerRows*48 + weeklyPlayerGroups.length*58);
+    // Calculate the actual last content position before creating the canvas.
+    // A fixed-height estimate can cut off player rows and the report footer.
+    const statementRowCount=4+weeklyStatementAgencies.length;
+    const statementBottom=154+42+statementRowCount*46;
+    const agentStart=Math.max(318,statementBottom+38)+30;
+    const agentBottom=agentStart+(weeklyAgentRows.length===0?60:weeklyAgentRows.length*48+34);
+    const playerStart=agentBottom+32;
+    const playerContentHeight=weeklyPlayerGroups.length===0
+      ? 60
+      : weeklyPlayerGroups.reduce((sum,group)=>sum+46+group.rows.length*46+16,0);
+    const contentBottom=playerStart+playerContentHeight;
+    const height=Math.ceil(Math.max(980,contentBottom+160));
     const canvas=document.createElement("canvas");
     canvas.width=width; canvas.height=height;
     const ctx=canvas.getContext("2d");
