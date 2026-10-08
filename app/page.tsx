@@ -1892,21 +1892,7 @@ export default function Home() {
     }
 
     // Footer
-    const mmSectionTop=height-440;
-    line(80,mmSectionTop,width-80,mmSectionTop);
-    text("대표님 정산 청구 요약",80,mmSectionTop+30,23,800,"#17191c");
-    text("Dream Poker 운영 순수익",92,mmSectionTop+76,15,600,"#3c4650");
-    text(money.format(weeklyProfit),width-92,mmSectionTop+76,17,750,"#202328","right");
-    text("MM 전체 정산금 / 우리 지분 / 파트너 지분",92,mmSectionTop+118,14,600,"#59616a");
-    text(`${money.format(weekMMGross)} / ${money.format(weekMMOurShare)} / ${money.format(weekMMAgentShare)}`,width-92,mmSectionTop+118,15,700,"#202328","right");
-    text("MM 미수령분 (우리 지분)",92,mmSectionTop+158,15,600,"#59616a");
-    text(money.format(weekMMOutstanding),width-92,mmSectionTop+158,16,700,"#202328","right");
-    text("캐시게임 레이크백 미수령",92,mmSectionTop+198,15,600,"#59616a");
-    text(money.format(weekCashOutstanding),width-92,mmSectionTop+198,16,700,"#202328","right");
-    roundRect(80,mmSectionTop+218,width-160,66,9,"#f5f7fa","#dfe3e9");
-    text("대표님께 받을 총 미수령 청구액",102,mmSectionTop+251,20,800,"#17191c");
-    text(money.format(weekTotalClaim),width-104,mmSectionTop+251,25,850,"#9a6410","right");
-        line(80,height-105,width-80,height-105);
+    line(80,height-105,width-80,height-105);
     text("Dream Poker",80,height-72,14,700,"#9aa1a8");
     text("정산 데이터는 시스템 입력 내역을 기준으로 생성되었습니다.",width-80,height-72,12,500,"#9aa1a8","right");
     return canvas;
@@ -2056,7 +2042,21 @@ export default function Home() {
       });
     }
 
-    line(80,height-105,width-80,height-105);
+    const mmSectionTop=height-440;
+    line(80,mmSectionTop,width-80,mmSectionTop);
+    text("대표님 정산 청구 요약",80,mmSectionTop+30,23,800,"#17191c");
+    text("Dream Poker 운영 순수익",92,mmSectionTop+76,15,600,"#3c4650");
+    text(money.format(weeklyProfit),width-92,mmSectionTop+76,17,750,"#202328","right");
+    text("MM 전체 정산금 / 우리 지분 / 파트너 지분",92,mmSectionTop+118,14,600,"#59616a");
+    text(`${money.format(weekMMGross)} / ${money.format(weekMMOurShare)} / ${money.format(weekMMAgentShare)}`,width-92,mmSectionTop+118,15,700,"#202328","right");
+    text("MM 미수령분 (우리 지분)",92,mmSectionTop+158,15,600,"#59616a");
+    text(money.format(weekMMOutstanding),width-92,mmSectionTop+158,16,700,"#202328","right");
+    text("캐시게임 레이크백 미수령",92,mmSectionTop+198,15,600,"#59616a");
+    text(money.format(weekCashOutstanding),width-92,mmSectionTop+198,16,700,"#202328","right");
+    roundRect(80,mmSectionTop+218,width-160,66,9,"#f5f7fa","#dfe3e9");
+    text("대표님께 받을 총 미수령 청구액",102,mmSectionTop+251,20,800,"#17191c");
+    text(money.format(weekTotalClaim),width-104,mmSectionTop+251,25,850,"#9a6410","right");
+        line(80,height-105,width-80,height-105);
     text("Dream Poker",80,height-72,14,700,"#9aa1a8");
     text("Dream Poker 주간 운영 정산 자료",width-80,height-72,12,500,"#9aa1a8","right");
     return canvas;
@@ -3724,7 +3724,7 @@ export default function Home() {
             <section className="weeklyStatementSheet weeklyInteractiveSheet">
               <div className="weeklyStatementSplit">
                 <div className="weeklyStatementTable">
-                  <div className="weeklyStatementHead"><span>항목</span><span>금액 {profile?.role==="admin" && <button type="button" className="weeklyAddLineButton" onClick={()=>setAddingAdjustment(v=>!v)} title="사용자 지정 항목 추가">＋</button>}</span></div>
+                  <div className="weeklyStatementHead"><span>항목</span><span>금액</span></div>
                   <button type="button" className={`weeklyStatementRow gross weeklyDetailPick ${weeklyDetailKey==="overview"?"chosen":""}`} onClick={()=>setWeeklyDetailKey("overview")}><span>TOTAL RAKE BACK</span><b>{vnd(weeklyEntryFee)}</b></button>
                   <button type="button" className={`weeklyStatementRow weeklyDetailPick ${weeklyDetailKey==="fnb"?"chosen":""}`} onClick={()=>setWeeklyDetailKey("fnb")}><span>F&amp;B</span><b>{vnd(weeklyFnbTotal)}</b></button>
                   {weeklyStatementAgencies.map(agent=><button type="button" className={`weeklyStatementRow weeklyDetailPick ${weeklyDetailKey===agent.id?"chosen":""}`} key={agent.id} onClick={()=>setWeeklyDetailKey(agent.id)}>
@@ -3733,6 +3733,7 @@ export default function Home() {
                   {weekAdjustments.filter(item=>item.kind==="expense").map(item=><button key={item.id} type="button" className={`weeklyStatementRow weeklyDetailPick ${weeklyDetailKey===item.id?"chosen":""}`} onClick={()=>setWeeklyDetailKey(item.id)}><span>{item.label}</span><b>{vnd(item.amount)}</b></button>)}
                   <button type="button" className={`weeklyStatementRow totalExpense weeklyDetailPick ${weeklyDetailKey==="expense"?"chosen":""}`} onClick={()=>setWeeklyDetailKey("expense")}><span>TOTAL EXPENSE</span><b>{vnd(weeklyRakeback+weeklyFnbTotal+weekExtraExpenses)}</b></button>
                   <button type="button" className={`weeklyStatementRow netProfit weeklyDetailPick ${weeklyDetailKey==="profit"?"chosen":""}`} onClick={()=>setWeeklyDetailKey("profit")}><span>NET PROFIT / LOSS</span><b>{vnd(weeklyProfit)}</b></button>
+                  {profile?.role==="admin" && <button type="button" className="weeklyBottomAddButton" onClick={()=>setAddingAdjustment(v=>!v)}>{addingAdjustment?"− 항목 입력 닫기":"＋ 정산 항목 추가"}</button>}
                 </div>
                 <aside className="weeklyStatementDetail">
                   <div className="weeklyDetailTitle"><h3>상세 내역</h3></div>
