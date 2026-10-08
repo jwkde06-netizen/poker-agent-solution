@@ -2836,24 +2836,27 @@ export default function Home() {
                     <strong>진행 중인 테이블이 없습니다.</strong>
                     <span>테이블을 오픈하려면 클릭하세요.</span>
                   </button>
-                : <div className="dashboardLiveCardGrid">
+                : <div className="dashboardLiveBoard">
+                    <div className="dashboardLiveBoardHead">
+                      <span>테이블 / 게임</span><span>플레이어</span><span>BUY-IN</span>{!isStaff && <span>엔트리피</span>}<span aria-hidden="true"></span>
+                    </div>
                     {activeGameSessions.map(gs=>{
                       const tableEntries=entries.filter(e=>e.sessionId===gs.id);
                       const buyins=tableEntries.reduce((sum,e)=>sum+e.buyIn,0);
                       const rake=tableEntries.reduce((sum,e)=>sum+e.rake,0);
-                      return <button className="dashboardLiveCard" key={gs.id} onClick={()=>{setSelectedTableNo(gs.tableNo);navigateTab("games")}}>
-                        <div className="dashboardLiveCardTop">
-                          <strong>Table {gs.tableNo}</strong>
-                          <span><i/>LIVE</span>
-                        </div>
-                        <p>{gs.game} <span>{gs.gameNo?`No.${gs.gameNo}`:"No.-"}</span></p>
-                        <div className="dashboardLiveMetrics">
-                          <div><small>플레이어</small><b>{tableEntries.length}명</b></div>
-                          <div><small>BUY-IN</small><b>{buyins}</b></div>
-                          {!isStaff && <div className="rake"><small>엔트리피</small><b>{vnd(rake)}</b></div>}
-                        </div>
-                      </button>
+                      return <button type="button" className="dashboardLiveBoardRow" key={gs.id} onClick={()=>{setSelectedTableNo(gs.tableNo);navigateTab("games");}} title={`Table ${gs.tableNo} 게임 관리`}>
+                        <span className="dashboardLiveBoardIdentity">
+                          <span className="dashboardLivePulse" aria-label="진행 중"/>
+                          <strong>T{gs.tableNo}</strong>
+                          <span className="dashboardLiveGame">{gs.game}<small>{gs.gameNo?`No.${gs.gameNo}`:""}</small></span>
+                        </span>
+                        <span className="dashboardLiveFigure">{tableEntries.length}<small>명</small></span>
+                        <span className="dashboardLiveFigure">{buyins}</span>
+                        {!isStaff && <strong className="dashboardLiveRevenue">{vnd(rake)}</strong>}
+                        <span className="dashboardLiveGo" aria-hidden="true">›</span>
+                      </button>;
                     })}
+                    <div className="dashboardLiveBoardFoot"><span><i/> 진행 중</span><span>테이블을 선택하면 바로 게임을 관리할 수 있습니다.</span></div>
                   </div>}
             </section>
 
