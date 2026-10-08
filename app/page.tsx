@@ -195,8 +195,8 @@ function DesktopNavIcon({type}:{type:"dashboard"|"players"|"agencies"|"games"|"f
 
 
 export default function Home() {
-  const [tab, setTab] = useState<"dashboard"|"agencies"|"players"|"games"|"daily"|"weekly"|"expenses"|"reports"|"settings"|"fnb">("dashboard");
-  const validTabs = ["dashboard","agencies","players","games","daily","weekly","expenses","reports","settings","fnb"] as const;
+  const [tab, setTab] = useState<"dashboard"|"agencies"|"players"|"games"|"daily"|"weekly"|"expenses"|"reports"|"settings"|"fnb"|"staffDaily">("dashboard");
+  const validTabs = ["dashboard","agencies","players","games","daily","weekly","expenses","reports","settings","fnb","staffDaily"] as const;
   type TabKey = (typeof validTabs)[number];
 
   function navigateTab(next:TabKey){
