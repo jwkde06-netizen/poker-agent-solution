@@ -766,6 +766,14 @@ export default function Home() {
     return {date,label:["월","화","수","목","금","토","일"][index],revenue,buyIns};
   });
   const weeklyPeakRevenue=Math.max(1,...weeklyDayRevenue.map(day=>day.revenue));
+  const dashboardWeekStart=monday(today());
+  const dashboardWeekRevenue=Array.from({length:7},(_,index)=>{
+    const date=plusDays(dashboardWeekStart,index);
+    const dayEntries=entries.filter(entry=>entry.date===date);
+    return {date,label:["월","화","수","목","금","토","일"][index],revenue:dayEntries.reduce((sum,entry)=>sum+entry.rake,0),buyIns:dayEntries.reduce((sum,entry)=>sum+entry.buyIn,0)};
+  });
+  const dashboardWeekPeak=Math.max(1,...dashboardWeekRevenue.map(day=>day.revenue));
+  const dashboardWeekTotal=dashboardWeekRevenue.reduce((sum,day)=>sum+day.revenue,0);
   const weeklyEntryFee = total(weeklyEntries,"rake");
   const weeklyRakeback = total(weeklyEntries,"rakeback");
   const weeklyFnbAllTotal = weeklyFnbEntries.reduce((sum,e)=>sum+e.totalAmount,0);
@@ -1201,8 +1209,8 @@ export default function Home() {
   async function startGameSession(){
     const tableNo=(selectedTableNo || newTableNo).trim();
     if(!tableNo){setMessage("테이블 번호를 입력해주세요.");return;}
-    if(gameSessions.some(s=>s.status==="active" && s.tableNo===tableNo && s.date===today())){
-      setMessage("오늘 이미 진행 중인 테이블입니다.");
+    if(gameSessions.some(s=>s.status==="active" && s.tableNo===tableNo)){
+      setMessage("해당 테이블에서 게임이 아직 진행 중입니다. 경기 종료 후 새 게임을 시작해주세요.");
       return;
     }
 
@@ -2368,7 +2376,7 @@ export default function Home() {
   const todayPlayerCount = new Set(todayEntries.map(e=>e.playerId)).size;
   const weekSettlement = total(thisWeekEntries,"rakeback");
   const recentEntries = [...entries].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,6);
-  const activeGameSessions = gameSessions.filter(s=>s.status==="active" && s.date===today());
+  const activeGameSessions = gameSessions.filter(s=>s.status==="active");
   const availableTableNos = Array.from(new Set(["4","12","13","5","2",...extraTableNos,...gameSessions.map(s=>s.tableNo).filter(Boolean)]))
     .filter(no=>!removedTableNos.includes(no) || activeGameSessions.some(s=>s.tableNo===no));
   const orderedTableNos = [...availableTableNos].sort((a,b)=>{
@@ -2887,6 +2895,16 @@ export default function Home() {
                 </div>}
           </section>
 
+            <section className="weeklyDailyRevenuePanel" aria-label="요일별 엔트리피 매출">
+              <div className="weeklyDailyRevenueHeader"><div><h3>요일별 매출 현황</h3><p>월요일부터 일요일까지 · 엔트리피 기준</p></div><strong>합계 {vnd(dashboardWeekTotal)}</strong></div>
+              <div className="weeklyDayRevenueList">
+                {dashboardWeekRevenue.map(day=><div className="weeklyDayRevenueRow" key={day.date}>
+                  <div className="weeklyDayLabel"><strong>{day.label}</strong><small>{day.date.slice(5)}</small></div>
+                  <div className="weeklyDayBarTrack"><div className="weeklyDayBarFill" style={{width:`${day.revenue?Math.max(3,100*day.revenue/dashboardWeekPeak):0}%`}}/></div>
+                  <div className="weeklyDayAmount"><strong>{vnd(day.revenue)}</strong><small>{day.buyIns} BUY-IN</small></div>
+                </div>)}
+              </div>
+            </section>
           <section className="dashboardMainSplit">
             <section className="dashboardLivePanel">
               <div className="dashboardPanelHeader">
@@ -3451,6 +3469,7 @@ export default function Home() {
 
                     <div className="playerValueToolbar">
                       <span>플레이어 {selectedTableEntries.length}명</span>
+                      {!isStaff && <div className="opsPlayerColumnLabels"><span>매출</span><span>레이크백</span></div>}
 
                     </div>
 
@@ -3479,11 +3498,11 @@ export default function Home() {
 
                               {!isStaff && <div className="playerSingleValue dualPlayerValues">
                                 <span>
-                                  <small>금액</small>
+                                  
                                   <b>{vnd(perEntryRevenue * entry.buyIn)}</b>
                                 </span>
                                 <span>
-                                  <small>레이크백</small>
+                                  
                                   <b>{vnd(entry.rakeback)}</b>
                                 </span>
                               </div>}
@@ -3820,16 +3839,6 @@ export default function Home() {
               </div>
             </div>
 
-            <section className="weeklyDailyRevenuePanel" aria-label="요일별 엔트리피 매출">
-              <div className="weeklyDailyRevenueHeader"><div><h3>요일별 매출 현황</h3><p>월요일부터 일요일까지 · 엔트리피 기준</p></div><strong>합계 {vnd(weeklyEntryFee)}</strong></div>
-              <div className="weeklyDayRevenueList">
-                {weeklyDayRevenue.map(day=><div className="weeklyDayRevenueRow" key={day.date}>
-                  <div className="weeklyDayLabel"><strong>{day.label}</strong><small>{day.date.slice(5)}</small></div>
-                  <div className="weeklyDayBarTrack"><div className="weeklyDayBarFill" style={{width:`${day.revenue?Math.max(3,100*day.revenue/weeklyPeakRevenue):0}%`}}/></div>
-                  <div className="weeklyDayAmount"><strong>{vnd(day.revenue)}</strong><small>{day.buyIns} BUY-IN</small></div>
-                </div>)}
-              </div>
-            </section>
             <section className="weeklyStatementSheet weeklyInteractiveSheet">
               <div className="weeklyStatementSplit">
                 <div className="weeklyStatementTable">
