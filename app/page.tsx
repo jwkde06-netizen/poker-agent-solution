@@ -1082,7 +1082,13 @@ export default function Home() {
   }
 
   async function changeSessionBuyIn(entry:GameEntry,delta:number){
-    const nextBuyIn=Math.max(1,entry.buyIn+delta);
+    if(entry.buyIn+delta<1){
+      if(window.confirm(`${getPlayerName(entry.playerId)} 플레이어를 이 게임에서 삭제할까요? 바이인 및 레이크백 기록도 제거됩니다.`)){
+        await removePlayerFromSession(entry);
+      }
+      return;
+    }
+    const nextBuyIn=entry.buyIn+delta;
     if(nextBuyIn===entry.buyIn)return;
     const perBuyIn=rakePerBuyIn(entry.game);
     const nextRake=perBuyIn*nextBuyIn;
@@ -1098,6 +1104,13 @@ export default function Home() {
   }
 
   async function setSessionBuyInCount(entry:GameEntry,count:number){
+    if(count<1){
+      if(window.confirm(`${getPlayerName(entry.playerId)} 플레이어를 이 게임에서 삭제할까요? 바이인 및 레이크백 기록도 제거됩니다.`)){
+        const removed=await removePlayerFromSession(entry);
+        if(removed){setManageEntryId(null);setManagePlayerSearch("");}
+      }
+      return;
+    }
     const nextBuyIn=Math.max(1,Math.floor(count)||1);
     const perBuyIn=rakePerBuyIn(entry.game);
     const nextRake=perBuyIn*nextBuyIn;
@@ -1184,13 +1197,14 @@ export default function Home() {
     setMessage("삭제한 기록을 복원했습니다.");
   }
 
-  async function removePlayerFromSession(entry:GameEntry){
+  async function removePlayerFromSession(entry:GameEntry):Promise<boolean>{
     if(isSupabaseConfigured && supabase && session){
       const {error}=await supabase.from("game_entries").delete().eq("id",entry.id);
-      if(error){setMessage(error.message);return;}
+      if(error){setMessage(error.message);return false;}
     }
     setEntries(prev=>prev.filter(e=>e.id!==entry.id));
     setLastDeletedEntry(entry);
+    return true;
   }
 
   function addAvailableTable(){
@@ -3092,7 +3106,7 @@ export default function Home() {
                               </button>
 
                               <div className="quickBuyinControl" aria-label="바이인 빠른 수정">
-                                <button onClick={()=>changeSessionBuyIn(entry,-1)} disabled={entry.buyIn<=1}>−</button>
+                                <button onClick={()=>changeSessionBuyIn(entry,-1)} title={entry.buyIn===1?"플레이어 삭제":"바이인 1회 감소"}>−</button>
                                 <b>{entry.buyIn}</b>
                                 <button onClick={()=>changeSessionBuyIn(entry,1)}>＋</button>
                               </div>
@@ -3940,7 +3954,7 @@ export default function Home() {
         <div className="manageBuyinSection">
           <span>바이인 수</span>
           <div className="manageBuyinControl">
-            <button onClick={()=>setSessionBuyInCount(managedEntry,managedEntry.buyIn-1)} disabled={managedEntry.buyIn<=1}>−</button>
+            <button onClick={()=>setSessionBuyInCount(managedEntry,managedEntry.buyIn-1)} title={managedEntry.buyIn===1?"플레이어 삭제":"바이인 1회 감소"}>−</button>
             <strong>{managedEntry.buyIn}회</strong>
             <button onClick={()=>setSessionBuyInCount(managedEntry,managedEntry.buyIn+1)}>＋</button>
           </div>
