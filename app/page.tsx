@@ -204,13 +204,6 @@ function plusDays(dateString: string, days: number) {
 /** Dream Poker operates past midnight. 06:00 is only a fallback boundary,
  * not permission to close a live game. Live sessions are additionally grouped
  * by the latest operating date and by table number. */
-function pokerBusinessDate(now=new Date()){
-  const parts=new Intl.DateTimeFormat("en-GB",{timeZone:"Asia/Ho_Chi_Minh",year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",hourCycle:"h23"}).formatToParts(now);
-  const field=(name:string)=>parts.find(part=>part.type===name)?.value??"";
-  const date=`${field("year")}-${field("month")}-${field("day")}`;
-  return Number(field("hour"))<6?plusDays(date,-1):date;
-}
-
 function MobileBottomIcon({type}:{type:"dashboard"|"players"|"games"|"fnb"|"settlement"}) {
   const common={width:"100%",height:"100%",viewBox:"0 0 24 24",fill:"none",stroke:"currentColor",strokeWidth:2.2,strokeLinecap:"round" as const,strokeLinejoin:"round" as const,ariaHidden:true};
   if(type==="dashboard") return <svg {...common}><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>;
@@ -254,6 +247,8 @@ export default function Home() {
   const [players, setPlayers] = useState<Player[]>([]);
   const [entries, setEntries] = useState<GameEntry[]>([]);
   const [gameSessions, setGameSessions] = useState<GameSession[]>([]);
+  const [currentBusinessDate,setCurrentBusinessDate]=useState<string|null>(null);
+  const [closingBusinessDay,setClosingBusinessDay]=useState(false);
   const [newTableNo, setNewTableNo] = useState("");
   const [selectedTableNo, setSelectedTableNo] = useState("5");
   const [newGameNo, setNewGameNo] = useState("");
@@ -544,6 +539,17 @@ export default function Home() {
       rake:Number(x.rake),agencyId:x.agency_id,agencyCodeSnapshot:x.agency_code_snapshot,
       rateSnapshot:Number(x.rate_snapshot),rakeback:Number(x.rakeback),sessionId:x.session_id ?? undefined
     })));
+    const {data:operatingDay,error:dayError}=await supabase.from("operating_state").select("business_date").eq("id",1).single();
+    if(dayError || !operatingDay){
+      setCurrentBusinessDate(null);
+      setMessage("영업일 설정을 확인할 수 없습니다. 관리자는 Supabase 영업일 설정을 먼저 적용해주세요. 새 게임 생성은 중단됩니다.");
+    }else{
+      setCurrentBusinessDate(operatingDay.business_date);
+      setSummaryDate(operatingDay.business_date);
+      setFnbDate(operatingDay.business_date);
+      setWeekStart(monday(operatingDay.business_date));
+      setWeekEnd(plusDays(monday(operatingDay.business_date),6));
+    }
     setGameSessions((gs.data ?? []).map((x:any)=>({
       id:x.id,date:x.played_on,tableNo:x.table_no,gameNo:x.game_no ?? "",game:x.game_name,status:x.status
     })));
@@ -776,7 +782,7 @@ export default function Home() {
     return {date,label:["월","화","수","목","금","토","일"][index],revenue,buyIns};
   });
   const weeklyPeakRevenue=Math.max(1,...weeklyDayRevenue.map(day=>day.revenue));
-  const dashboardWeekStart=monday(today());
+  const dashboardWeekStart=monday(currentBusinessDate ?? today());
   const dashboardWeekRevenue=Array.from({length:7},(_,index)=>{
     const date=plusDays(dashboardWeekStart,index);
     const dayEntries=entries.filter(entry=>entry.date===date);
@@ -1216,7 +1222,26 @@ export default function Home() {
     return Math.round(rakePerBuyIn(game)*0.5);
   }
 
+  async function closeVenueBusinessDay(){
+    if(profile?.role!=="admin"||closingBusinessDay||!supabase)return;
+    if(gameSessions.some(game=>game.status==="active")){setMessage("운영 중인 테이블이 남아 있습니다. 모든 게임 종료 후 매장 영업일을 마감해주세요.");return;}
+    if(!window.confirm(`${currentBusinessDate} 영업을 마감하고 다음 영업일로 넘기시겠습니까? 이 작업은 모든 직원의 정산 기준일에 반영됩니다.`))return;
+    setClosingBusinessDay(true);
+    const {data,error}=await supabase.rpc("close_operating_business_day");
+    setClosingBusinessDay(false);
+    if(error){setMessage("영업일 마감 실패: "+error.message);return;}
+    const nextDate=String(data);
+    setCurrentBusinessDate(nextDate);
+    setSummaryDate(nextDate);
+    setFnbDate(nextDate);
+    setWeekStart(monday(nextDate));
+    setWeekEnd(plusDays(monday(nextDate),6));
+    setMessage(`영업일 마감 완료. 다음 영업일: ${nextDate}`);
+  }
+
   async function startGameSession(){
+    if(isSupabaseConfigured && !currentBusinessDate){setMessage("서버 영업일 정보가 없어 게임을 만들 수 없습니다. 기존 진행 게임은 유지됩니다.");return;}
+    const businessDate=currentBusinessDate ?? today();
     const tableNo=(selectedTableNo || newTableNo).trim();
     if(!tableNo){setMessage("테이블 번호를 입력해주세요.");return;}
     if(gameSessions.some(s=>s.status==="active" && s.tableNo.trim()===tableNo)){
@@ -1225,12 +1250,12 @@ export default function Home() {
     }
 
     if(isSupabaseConfigured && supabase && session){
-      const payload={played_on:pokerBusinessDate(),table_no:tableNo,game_no:newGameNo.trim() || null,game_name:newSessionGame,status:"active"};
-      const {data,error}=await supabase.from("game_sessions").insert(payload).select().single();
+      const {data,error}=await supabase.rpc("start_operating_game",{p_table_no:tableNo,p_game_name:newSessionGame,p_game_no:newGameNo.trim() || null});
       if(error){setMessage(error.message);return;}
       setGameSessions(prev=>[...prev,{id:data.id,date:data.played_on,tableNo:data.table_no,gameNo:data.game_no ?? "",game:data.game_name,status:data.status}]);
+      if(data.played_on!==currentBusinessDate){setCurrentBusinessDate(data.played_on);setSummaryDate(data.played_on);setFnbDate(data.played_on);}
     }else{
-      setGameSessions(prev=>[...prev,{id:uid("session"),date:pokerBusinessDate(),tableNo,gameNo:newGameNo.trim(),game:newSessionGame,status:"active"}]);
+      setGameSessions(prev=>[...prev,{id:uid("session"),date:businessDate,tableNo,gameNo:newGameNo.trim(),game:newSessionGame,status:"active"}]);
     }
     setSelectedTableNo(tableNo);
     setNewTableNo("");
@@ -2377,7 +2402,7 @@ export default function Home() {
   }
 
   const modeText=isSupabaseConfigured ? (syncing?"서버 동기화 중":"서버 DB 연결") : "브라우저 저장";
-  const todayEntries = entries.filter(e=>e.date===today());
+  const todayEntries = entries.filter(e=>e.date===(currentBusinessDate ?? today()));
   const thisWeekEntries = entries.filter(e=>e.date>=weekStart && e.date<=weekEnd);
   const activeAgentCount = agencies.filter(a=>a.active).length;
   const todaySettlement = total(todayEntries,"rakeback");
@@ -2521,7 +2546,7 @@ export default function Home() {
   const fnbDayEntries = fnbEntries.filter(item=>item.date===fnbDate);
   const fnbDayTotal = fnbDayEntries.reduce((sum,item)=>sum+item.totalAmount,0);
   const fnbDayOperatingTotal = fnbDayEntries.filter(isOperatingFnbExpense).reduce((sum,item)=>sum+item.totalAmount,0);
-  const fnbTodayEntries = fnbEntries.filter(item=>item.date===today());
+  const fnbTodayEntries = fnbEntries.filter(item=>item.date===(currentBusinessDate ?? today()));
   const fnbTodayAllTotal = fnbTodayEntries.reduce((sum,item)=>sum+item.totalAmount,0);
   const fnbTodayTotal = fnbTodayEntries.filter(isOperatingFnbExpense).reduce((sum,item)=>sum+item.totalAmount,0);
   const todayBuyinRevenue = todayEntries.reduce((sum,e)=>sum + revenuePerBuyIn(e.game)*e.buyIn,0);
@@ -3275,6 +3300,8 @@ export default function Home() {
             <div className="floorSelectorHeader">
               <div><h2>테이블 선택</h2></div>
               <div className="floorSelectorActions">
+                {currentBusinessDate && <span className="opsBusinessDate" title="매장 영업일. 자정이 지나도 자동 변경되지 않습니다.">영업일 {currentBusinessDate}</span>}
+                {profile?.role==="admin" && currentBusinessDate && <button type="button" className="opsCloseVenue" disabled={closingBusinessDay || gameSessions.some(game=>game.status==="active")} onClick={closeVenueBusinessDay} title="모든 게임을 종료한 후 영업일을 마감합니다.">영업일 마감</button>}
                 <span className="liveTableCount">{activeGameSessions.length} TABLE LIVE</span>
                 <div className="tableAddControl">
                   <span>Table</span>
