@@ -3261,7 +3261,7 @@ export default function Home() {
         </section>}
 
         {tab==="games" && <section className={isStaff?"buyinPage floorBuyinPage staffMobileBuyinPage":"buyinPage floorBuyinPage"}>
-          <div className="opsUndoToolbar"><span className="opsToolbarSpacer" aria-hidden="true"/><div><button type="button" disabled={!undoBuyIn||undoBusy} onClick={()=>restoreBuyIn("undo")}><span aria-hidden="true">⟲</span> 실행취소</button><button type="button" disabled={!redoBuyIn||undoBusy} onClick={()=>restoreBuyIn("redo")}><span aria-hidden="true">⟳</span> 다시실행</button></div></div>
+          
           <div className="mobileSectionSwitcher buyinModeSwitcher">
             <button className={gamesView==="live"?"active":""} onClick={()=>setGamesView("live")}>진행 중</button>
             <button className={gamesView==="logs"?"active":""} onClick={()=>setGamesView("logs")}>게임 로그</button>
@@ -3290,6 +3290,14 @@ export default function Home() {
                     disabled={!selectedTableNo || activeGameSessions.some(s=>s.tableNo===selectedTableNo)}
                     title={activeGameSessions.some(s=>s.tableNo===selectedTableNo)?"진행 중인 테이블은 삭제할 수 없습니다.":"현재 선택한 테이블 삭제"}
                   >삭제</button>
+                </div>
+                <div className="opsInlineUndo" role="group" aria-label="게임 입력 실행 취소 및 다시 실행">
+                  <button type="button" disabled={!undoBuyIn||undoBusy} onClick={()=>restoreBuyIn("undo")} title="바이인 증감 실행취소">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h9a7 7 0 0 1 0 14h-2"/></svg><span>실행취소</span>
+                  </button>
+                  <button type="button" disabled={!redoBuyIn||undoBusy} onClick={()=>restoreBuyIn("redo")} title="바이인 증감 다시실행">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m15 14 5-5-5-5"/><path d="M20 9h-9a7 7 0 0 0 0 14h2"/></svg><span>다시실행</span>
+                  </button>
                 </div>
               </div>
             </div>
