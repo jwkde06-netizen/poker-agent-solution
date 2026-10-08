@@ -98,10 +98,12 @@ type ShareholderPayout = {
   paidAt:string;
 };
 
+const FNB_QUICK_NAMES = ["Americano","Latte","White Coffee","Salted Coffee","Orange","Coca"];
+
 const FNB_MENU = [
   {name:"Americano", label:"아메리카노", price:60000},
   {name:"Coconut Coffee", label:"코코넛커피", price:70000},
-  {name:"Salted Coffee", label:"소금커피", price:60000},
+  {name:"Salted Coffee", label:"소금커피", price:65000},
   {name:"White Coffee", label:"박시우", price:60000},
   {name:"Black Coffee", label:"블랙커피", price:50000},
   {name:"Condensed Milk Coffee", label:"연유커피", price:55000},
@@ -3669,7 +3671,7 @@ export default function Home() {
             </div>
 
             <div className="fnbQuickMenu">
-              {FNB_MENU.slice(0,8).map(item=><button
+              {FNB_QUICK_NAMES.map(name=>FNB_MENU.find(item=>item.name===name)!).map(item=><button
                 key={item.name}
                 className={fnbMenuName===item.name?"active":""}
                 onClick={()=>setFnbMenuName(item.name)}
