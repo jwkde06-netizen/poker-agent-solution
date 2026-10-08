@@ -15884,3 +15884,30 @@ html[data-theme="dark"] .weeklyStatementRow.totalExpense{
 .expenseLedgerHeader .expenseLedgerPngButton{display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;height:40px;padding:0 15px;border:1px solid var(--line-strong);background:var(--surface);color:var(--text);border-radius:10px;font-size:12px;font-weight:750;cursor:pointer;margin-left:auto;}
 .expenseLedgerHeader .expenseLedgerPngButton:hover{background:var(--surface-2);}
 @media(max-width:700px){.expenseLedgerHeader .expenseLedgerPngButton{margin-left:0;width:100%;}}
+
+/* Prepaid-by reimbursement summary at the end of the ledger */
+.prepaidSummary{margin:22px 14px 16px;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--surface);}
+.prepaidSummaryHead{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:18px 19px;border-bottom:1px solid var(--line);background:var(--surface-2);}
+.prepaidSummaryHead h3{font-size:16px;margin:0 0 5px;}
+.prepaidSummaryHead p{font-size:11px;margin:0;color:var(--muted);}
+.prepaidSummaryHead>strong{font-size:19px;white-space:nowrap;font-variant-numeric:tabular-nums;}
+.prepaidSummaryList{display:grid;}
+.prepaidSummaryGroup{border-bottom:1px solid var(--line);}
+.prepaidSummaryGroup:last-child{border-bottom:0;}
+.prepaidSummaryGroup>summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:17px 20px;cursor:pointer;}
+.prepaidSummaryGroup>summary::-webkit-details-marker{display:none;}
+.prepaidSummaryGroup>summary:hover{background:var(--surface-2);}
+.prepaidSummaryGroup>summary>span:first-child{display:grid;gap:6px;}
+.prepaidSummaryGroup strong{font-size:14px;}
+.prepaidSummaryGroup small{display:block;font-size:11px;color:var(--muted);}
+.prepaidGroupAmount{text-align:right;display:grid;gap:6px;}
+.prepaidGroupAmount b{font-size:16px;font-variant-numeric:tabular-nums;}
+.prepaidGroupDetails{padding:0 20px 12px;background:var(--surface-2);}
+.prepaidGroupTotals{display:flex;gap:22px;padding:12px 0;color:var(--muted);font-size:12px;}
+.prepaidGroupItem{display:flex;justify-content:space-between;gap:12px;padding:11px 0;border-top:1px solid var(--line);}
+.prepaidGroupItem>span{display:grid;gap:5px;min-width:0;}
+.prepaidGroupItem strong{font-size:12px;}
+.prepaidGroupItem b{font-size:13px;white-space:nowrap;font-variant-numeric:tabular-nums;}
+.prepaidSummaryNote{margin:0;padding:14px 19px;color:var(--muted);font-size:11px;line-height:1.6;border-top:1px solid var(--line);}
+.prepaidSummaryEmpty{padding:22px 19px;color:var(--muted);font-size:13px;}
+@media(max-width:700px){.prepaidSummary{margin:16px 8px;}.prepaidSummaryHead{align-items:flex-start;flex-direction:column;padding:15px;}.prepaidSummaryGroup>summary{padding:14px;}.prepaidGroupDetails{padding:0 14px 12px;}.prepaidGroupTotals{flex-wrap:wrap;gap:8px;}}
