@@ -145,6 +145,10 @@ const DEFAULT_AGENCIES: Agency[] = [
   { id: "agency-korea2", code: "KOREA2", rate: 25, active: true },
 ];
 
+const NATIONALITY_CODES=["KOREA","MONGOLIA","JAPAN","CHINA","VIETNAM","RUSSIA","GERMANY","UNITED KINGDOM","INDIA","CANADA","FRANCE","PHILIPPINES","USA","OTHER"];
+const LEGACY_COUNTRY_CODES=["KOREA","MONGOL","INDIA","UK","VIETNAM","CANADA","CHINA","PHILIPPINES","FRANCE","GERMANY","RUSSIA"];
+const countryName=(code:string)=>({MONGOL:"MONGOLIA",UK:"UNITED KINGDOM"} as Record<string,string>)[code]??code;
+const isNationalityOnlyAgency=(a:Agency)=>LEGACY_COUNTRY_CODES.includes(a.code.toUpperCase()) && a.rate===0;
 const money = new Intl.NumberFormat("ko-KR", { maximumFractionDigits: 0 });
 const vnd = (value:number) => money.format(value);
 const isOperatingFnbExpense = (item:FnbEntry) => item.expenseGroup==="2FLOOR";
@@ -620,13 +624,26 @@ export default function Home() {
     return ()=>{active=false;if(timer)clearTimeout(timer);clearInterval(poll);window.removeEventListener("focus",onFocus);void client.removeChannel(channel);};
   },[session?.user.id]);
 
-  const activeAgencies = agencies.filter(a=>a.active);
+  const activeAgencies = agencies.filter(a=>a.active && !isNationalityOnlyAgency(a));
   const filteredPlayers = useMemo(()=>{
     const q = playerSearch.trim().toUpperCase();
     if (!q) return players;
     return players.filter(p=>p.name.toUpperCase().includes(q) || p.koreanName.includes(playerSearch.trim()));
   },[players,playerSearch]);
 
+  const playerLifetimeStats=useMemo(()=>{
+    const map=new Map<string,{games:number;buyIns:number;revenue:number}>();
+    const gameKeys=new Map<string,Set<string>>();
+    entries.forEach(e=>{
+      const row=map.get(e.playerId)??{games:0,buyIns:0,revenue:0};
+      row.buyIns+=e.buyIn;row.revenue+=e.rake;
+      map.set(e.playerId,row);
+      if(!gameKeys.has(e.playerId))gameKeys.set(e.playerId,new Set());
+      gameKeys.get(e.playerId)!.add(e.sessionId??e.date+":"+e.game+":"+e.id);
+    });
+    gameKeys.forEach((keys,id)=>{const row=map.get(id);if(row)row.games=keys.size;});
+    return map;
+  },[entries]);
   const selectedPlayer = players.find(p=>p.id===selectedPlayerId) ?? null;
   const selectedPlayerEntries = useMemo(
     ()=>selectedPlayerId ? entries.filter(e=>e.playerId===selectedPlayerId) : [],
@@ -1109,7 +1126,7 @@ export default function Home() {
     const player = players.find(p=>p.id===playerId);
     setSelectedPlayerId(playerId);
     setDetailAgencyId(player?.agencyId ?? "");
-    setDetailNationality(player?.nationality??"");setDetailCustomRate(player?.customRate==null?"":String(player.customRate));
+    setDetailNationality(player?.nationality || countryName(agencies.find(a=>a.id===player?.agencyId)?.code??""));setDetailCustomRate(player?.customRate==null?"":String(player.customRate));
   }
 
   async function savePlayerClassification(playerId:string){
@@ -2893,7 +2910,7 @@ export default function Home() {
             <div className="agencyManageHeader">
               <div>
                 <h2>에이전트 관리</h2>
-                <p>에이전트를 선택하면 상세 정보와 소속 플레이어를 확인할 수 있습니다.</p>
+                <p>국적은 플레이어에서 관리합니다. 이 화면은 실제 레이크백 정산 에이전트와 요율만 표시합니다.</p>
               </div>
             </div>
 
@@ -2906,7 +2923,7 @@ export default function Home() {
             </div>
 
             <div className="agencySimpleList">
-              {agencies.map(a=>{
+              {agencies.filter(a=>!isNationalityOnlyAgency(a)).map(a=>{
                 const memberCount=players.filter(p=>p.agencyId===a.id).length;
                 const agencyRakeback=entries.filter(e=>e.agencyId===a.id).reduce((sum,e)=>sum+e.rakeback,0);
                 return <button key={a.id} className="agencySimpleRow" onClick={()=>setEditingAgencyId(a.id)}>
@@ -2922,6 +2939,7 @@ export default function Home() {
                 </button>
               })}
             </div>
+            <div className="agencyLegacyNote">국가 전용 코드(KOREA, UK, RUSSIA 등)는 정산 에이전트 목록에서 숨겼습니다. 기존 소속과 과거 정산 기록은 변경하지 않았습니다.</div>
           </section> : (()=> {
             const agency=agencies.find(a=>a.id===editingAgencyId);
             if(!agency)return null;
@@ -3015,8 +3033,18 @@ export default function Home() {
 
 
 
-          <div className="tableWrap playerListTable"><table><thead><tr><th>플레이어</th><th>등록일</th><th>에이전트</th></tr></thead><tbody>{filteredPlayers.length===0?<tr><td colSpan={3} className="empty">{playerSearch?"검색 결과가 없습니다.":"등록된 플레이어가 없습니다."}</td></tr>:filteredPlayers.map(p=>{return <tr key={p.id} className="clickablePlayerRow" onClick={()=>openPlayerDetail(p.id)} tabIndex={0} role="button" onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();openPlayerDetail(p.id);}}}><td><div className="playerNameButton playerNameStack"><strong>{p.name}</strong>{p.koreanName && <span>{p.koreanName}</span>}</div></td><td>{p.createdAt?p.createdAt.slice(0,10):"-"}</td><td><span className="agencyCodeText">{agencies.find(x=>x.id===p.agencyId)?.code || "-"}</span></td></tr>})}</tbody></table></div>
-
+          <div className="tableWrap playerListTable"><table><thead><tr><th>플레이어</th><th>국적</th><th>에이전트</th><th>참여 게임</th><th>누적 BUY-IN</th><th>엔트리피</th><th>최근 플레이</th></tr></thead><tbody>{filteredPlayers.length===0?<tr><td colSpan={7} className="empty">{playerSearch?"검색 결과가 없습니다.":"등록된 플레이어가 없습니다."}</td></tr>:filteredPlayers.map(p=>{
+            const st=playerLifetimeStats.get(p.id);
+            const last=entries.filter(e=>e.playerId===p.id).reduce((day,e)=>e.date>day?e.date:day,"");
+            const legacyCode=agencies.find(x=>x.id===p.agencyId)?.code??"";
+            const nationality=p.nationality || (LEGACY_COUNTRY_CODES.includes(legacyCode)?countryName(legacyCode):"");
+            return <tr key={p.id} className="clickablePlayerRow" onClick={()=>openPlayerDetail(p.id)} tabIndex={0} role="button" onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();openPlayerDetail(p.id);}}}>
+              <td><div className="playerNameButton playerNameStack"><strong>{p.name}</strong>{p.koreanName && <span>{p.koreanName}</span>}</div></td>
+              <td>{nationality||"미등록"}</td>
+              <td><span className="agencyCodeText">{legacyCode && !isNationalityOnlyAgency(agencies.find(x=>x.id===p.agencyId)!)?legacyCode:"미지정"}</span></td>
+              <td>{st?.games??0}회</td><td><strong>{st?.buyIns??0}</strong></td><td>{isStaff?"—":vnd(st?.revenue??0)}</td><td>{last||"-"}</td>
+            </tr>;
+          })}</tbody></table></div>
 
 
 
@@ -3044,12 +3072,12 @@ export default function Home() {
                   <span>회원번호</span>
                   <input value={playerCard} onChange={e=>setPlayerCard(e.target.value)} placeholder="선택 입력"/>
                 </label>
-                <label><span>국적</span><input value={playerNationality} onChange={e=>setPlayerNationality(e.target.value)} placeholder="예: MONGOLIA, GERMANY"/></label>
+                <label><span>국적 · COUNTRY</span><input list="player-country-list" value={playerNationality} onChange={e=>setPlayerNationality(e.target.value)} placeholder="국가 선택 또는 직접 입력"/><datalist id="player-country-list">{NATIONALITY_CODES.map(c=><option key={c} value={c}/>)}</datalist></label>
                 <label><span>개인 레이크백 요율 (%)</span><input type="number" min="0" max="100" step="0.5" value={playerCustomRate} onChange={e=>setPlayerCustomRate(e.target.value)} placeholder="비워두면 에이전트 기본 요율"/></label>
                 <label>
-                  <span>에이전트 코드</span>
+                  <span>정산 에이전트 · AGENCY</span>
                   <select value={playerAgencyId} onChange={e=>setPlayerAgencyId(e.target.value)}>
-                    {activeAgencies.map(a=><option key={a.id} value={a.id}>{a.code} · {a.rate}%</option>)}
+                    {activeAgencies.map(a=><option key={a.id} value={a.id}>{a.code} · 기본 {a.rate}%</option>)}
                   </select>
                 </label>
                 <label>
