@@ -16009,3 +16009,10 @@ button.reportIntelRanking:hover{background:var(--surface-2);}
 /* Weekly accounting: add rows from the bottom of the statement, not its header. */
 .weeklyBottomAddButton{display:flex;width:100%;align-items:center;justify-content:center;min-height:42px;border:1px dashed var(--line-strong);border-top:0;border-radius:0 0 10px 10px;background:var(--surface-2);color:var(--text);font-size:13px;font-weight:750;cursor:pointer;}
 .weeklyBottomAddButton:hover{filter:brightness(.97);}
+
+/* Clear separation of country / settlement agency and richer player table */
+.agencyLegacyNote{font-size:12px;color:var(--muted);background:var(--surface-2);padding:12px 14px;border-radius:10px;margin-top:16px;line-height:1.6;}
+.playerListTable table{width:100%;min-width:800px;}
+.playerListTable th:nth-child(n+4),.playerListTable td:nth-child(n+4){text-align:right;font-variant-numeric:tabular-nums;}
+.playerListTable td{white-space:nowrap;}
+.playerModalForm label span{font-weight:750;}
