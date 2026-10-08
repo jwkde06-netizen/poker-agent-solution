@@ -2624,8 +2624,9 @@ export default function Home() {
         <div><strong>Dream Poker</strong><span>{profile?.role==="admin"?"관리자":profile?.role==="staff"?"직원":profile?.role==="agent"?"에이전트":"승인 대기"}</span></div>
       </div>
 
-      <nav className="sideNav">
-        {navItems.map(item=><button key={item.key} className={tab===item.key?"active":""} onClick={()=>navigateTab(item.key as TabKey)}>
+      <nav className="sideNav" aria-label="메인 메뉴">
+        <span className="sideNavActiveTrack" aria-hidden="true" style={{transform:`translate3d(0, ${Math.max(0,navItems.findIndex(item=>item.key===tab))*51}px, 0)`}}/>
+        {navItems.map(item=><button key={item.key} className={tab===item.key?"active":""} aria-current={tab===item.key?"page":undefined} onClick={()=>navigateTab(item.key as TabKey)}>
           <span className="navIcon"><DesktopNavIcon type={item.key}/></span><span>{item.label}</span>
         </button>)}
       </nav>
