@@ -1563,7 +1563,7 @@ export default function Home() {
 
   async function finalizeSelectedWeek(){
     if(!supabase || !session || profile?.role!=="admin")return;
-    if(weeklyDistributions.some(x=>x.lastWeekStart===lastWeekStart)){
+    if(weeklyDistributions.some(x=>x.weekStart===lastWeekStart)){
       setMessage("지난주 정산금은 이미 Deposit으로 반영되었습니다.");
       return;
     }
