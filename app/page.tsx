@@ -7,7 +7,7 @@ import { createProvisioningClient, isSupabaseConfigured, supabase } from "../lib
 import { jsPDF } from "jspdf";
 
 type Agency = { id: string; code: string; rate: number; active: boolean };
-type Player = { id: string; name: string; koreanName: string; cardNo: string; agencyId: string; note: string; createdAt: string };
+type Player = { id: string; name: string; koreanName: string; cardNo: string; agencyId: string; nationality: string; customRate: number|null; note: string; createdAt: string };
 type GameEntry = {
   id: string;
   date: string;
@@ -301,6 +301,10 @@ export default function Home() {
   const [playerCard, setPlayerCard] = useState("");
   const [playerNote, setPlayerNote] = useState("");
   const [playerAgencyId, setPlayerAgencyId] = useState("agency-korea2");
+  const [playerNationality,setPlayerNationality]=useState("");
+  const [playerCustomRate,setPlayerCustomRate]=useState("");
+  const [detailNationality,setDetailNationality]=useState("");
+  const [detailCustomRate,setDetailCustomRate]=useState("");
   const [gameDate, setGameDate] = useState(today());
   const [gameName, setGameName] = useState("5M");
   const [gamePlayerId, setGamePlayerId] = useState("");
@@ -477,7 +481,7 @@ export default function Home() {
     }
 
     setAgencies((a.data ?? []).map((x:any)=>({id:x.id,code:x.code,rate:Number(x.rate),active:x.active})));
-    setPlayers((p.data ?? []).map((x:any)=>({id:x.id,name:x.name,koreanName:x.korean_name ?? "",cardNo:x.card_no ?? "",agencyId:x.agency_id,note:x.note ?? "",createdAt:x.created_at ?? ""})));
+    setPlayers((p.data ?? []).map((x:any)=>({id:x.id,name:x.name,koreanName:x.korean_name ?? "",cardNo:x.card_no ?? "",agencyId:x.agency_id,nationality:x.nationality ?? "",customRate:x.custom_rate == null ? null : Number(x.custom_rate),note:x.note ?? "",createdAt:x.created_at ?? ""})));
     setEntries((g.data ?? []).map((x:any)=>({
       id:x.id,date:x.played_on,game:x.game_name,playerId:x.player_id,buyIn:Number(x.buy_in),
       rake:Number(x.rake),agencyId:x.agency_id,agencyCodeSnapshot:x.agency_code_snapshot,
@@ -1031,22 +1035,36 @@ export default function Home() {
   async function addPlayer() {
     const name=playerName.trim().toUpperCase();
     if(!name || !playerAgencyId) return;
+    if(playerCustomRate!=="" && (!Number.isFinite(Number(playerCustomRate))||Number(playerCustomRate)<0||Number(playerCustomRate)>100)){setMessage("요율은 0~100 사이로 입력해주세요.");return;}
     if(isSupabaseConfigured && supabase && session){
-      const { data,error }=await supabase.from("players").insert({name,korean_name:playerKoreanName.trim()||null,card_no:playerCard.trim()||null,agency_id:playerAgencyId,note:playerNote.trim()||null}).select().single();
+      const { data,error }=await supabase.from("players").insert({name,korean_name:playerKoreanName.trim()||null,card_no:playerCard.trim()||null,agency_id:playerAgencyId,nationality:playerNationality.trim().toUpperCase()||null,custom_rate:playerCustomRate===""?null:Number(playerCustomRate),note:playerNote.trim()||null}).select().single();
       if(error){setMessage(error.message);return;}
-      const p={id:data.id,name:data.name,koreanName:data.korean_name??"",cardNo:data.card_no??"",agencyId:data.agency_id,note:data.note??"",createdAt:data.created_at??new Date().toISOString()};
+      const p={id:data.id,name:data.name,koreanName:data.korean_name??"",cardNo:data.card_no??"",agencyId:data.agency_id,nationality:data.nationality??"",customRate:data.custom_rate==null?null:Number(data.custom_rate),note:data.note??"",createdAt:data.created_at??new Date().toISOString()};
       setPlayers(prev=>[...prev,p]); setGamePlayerId(p.id);
     } else {
-      const p={id:uid("player"),name,koreanName:playerKoreanName.trim(),cardNo:playerCard.trim(),agencyId:playerAgencyId,note:playerNote.trim(),createdAt:new Date().toISOString()};
+      const p={id:uid("player"),name,koreanName:playerKoreanName.trim(),cardNo:playerCard.trim(),agencyId:playerAgencyId,nationality:playerNationality.trim().toUpperCase(),customRate:playerCustomRate===""?null:Number(playerCustomRate),note:playerNote.trim(),createdAt:new Date().toISOString()};
       setPlayers(prev=>[...prev,p]); setGamePlayerId(p.id);
     }
-    setPlayerName(""); setPlayerKoreanName(""); setPlayerCard(""); setPlayerNote("");
+    setPlayerName(""); setPlayerKoreanName(""); setPlayerCard(""); setPlayerNote("");setPlayerNationality("");setPlayerCustomRate("");
   }
 
   function openPlayerDetail(playerId:string) {
     const player = players.find(p=>p.id===playerId);
     setSelectedPlayerId(playerId);
     setDetailAgencyId(player?.agencyId ?? "");
+    setDetailNationality(player?.nationality??"");setDetailCustomRate(player?.customRate==null?"":String(player.customRate));
+  }
+
+  async function savePlayerClassification(playerId:string){
+    const nationality=detailNationality.trim().toUpperCase();
+    const customRate=detailCustomRate.trim()===""?null:Number(detailCustomRate);
+    if(customRate!==null && (!Number.isFinite(customRate)||customRate<0||customRate>100)){setMessage("요율은 0~100 사이로 입력해주세요.");return;}
+    if(isSupabaseConfigured && supabase && session){
+      const {error}=await supabase.from("players").update({nationality:nationality||null,custom_rate:customRate}).eq("id",playerId);
+      if(error){setMessage("플레이어 정보 저장 실패: "+error.message);return;}
+    }
+    setPlayers(prev=>prev.map(p=>p.id===playerId?{...p,nationality,customRate}:p));
+    setMessage("국적과 개인 요율을 저장했습니다. 기존 게임 정산은 변경되지 않습니다.");
   }
 
   async function updatePlayerAgency(playerId:string, agencyId:string) {
@@ -1100,7 +1118,7 @@ export default function Home() {
     const agency=agencies.find(a=>a.id===player.agencyId);
     if(!agency)return;
     const perBuyIn=rakePerBuyIn(gameSession.game);
-    const rateSnapshot=agency.rate;
+    const rateSnapshot=player.customRate ?? agency.rate;
     const rakeback=Math.round(perBuyIn*(rateSnapshot/100));
 
     if(isSupabaseConfigured && supabase && session){
@@ -1177,21 +1195,21 @@ export default function Home() {
     if(!nextPlayer)return;
     const agency=agencies.find(a=>a.id===nextPlayer.agencyId);
     if(!agency)return;
-    const nextRakeback=Math.round(entry.rake*(agency.rate/100));
+    const nextRakeback=Math.round(entry.rake*((nextPlayer.customRate ?? agency.rate)/100));
 
     if(isSupabaseConfigured && supabase && session){
       const {error}=await supabase.from("game_entries").update({
         player_id:nextPlayer.id,
         agency_id:agency.id,
         agency_code_snapshot:agency.code,
-        rate_snapshot:agency.rate,
+        rate_snapshot:nextPlayer.customRate ?? agency.rate,
         rakeback:nextRakeback
       }).eq("id",entry.id);
       if(error){setMessage(error.message);return;}
     }
     setEntries(prev=>prev.map(e=>e.id===entry.id?{
       ...e,playerId:nextPlayer.id,agencyId:agency.id,agencyCodeSnapshot:agency.code,
-      rateSnapshot:agency.rate,rakeback:nextRakeback
+      rateSnapshot:nextPlayer.customRate ?? agency.rate,rakeback:nextRakeback
     }:e));
     setManagePlayerSearch("");
   }
@@ -2921,6 +2939,8 @@ export default function Home() {
                   <span>회원번호</span>
                   <input value={playerCard} onChange={e=>setPlayerCard(e.target.value)} placeholder="선택 입력"/>
                 </label>
+                <label><span>국적</span><input value={playerNationality} onChange={e=>setPlayerNationality(e.target.value)} placeholder="예: MONGOLIA, GERMANY"/></label>
+                <label><span>개인 레이크백 요율 (%)</span><input type="number" min="0" max="100" step="0.5" value={playerCustomRate} onChange={e=>setPlayerCustomRate(e.target.value)} placeholder="비워두면 에이전트 기본 요율"/></label>
                 <label>
                   <span>에이전트 코드</span>
                   <select value={playerAgencyId} onChange={e=>setPlayerAgencyId(e.target.value)}>
@@ -2960,7 +2980,7 @@ export default function Home() {
               <div className="playerAgencyEditor">
                 <div>
                   <span>에이전트</span>
-                  <small>{isStaff?"소속 에이전트 코드":`현재 정산 요율 ${agencies.find(a=>a.id===selectedPlayer.agencyId)?.rate ?? 0}%`}</small>
+                  <small>{isStaff?"소속 에이전트 코드":`적용 요율 ${selectedPlayer.customRate ?? agencies.find(a=>a.id===selectedPlayer.agencyId)?.rate ?? 0}%`}</small>
                 </div>
                 <div className="playerAgencyControls">
                   <select value={detailAgencyId || selectedPlayer.agencyId} onChange={e=>setDetailAgencyId(e.target.value)}>
@@ -2979,6 +2999,15 @@ export default function Home() {
                 </div>
               </div>
 
+              <div className="playerClassificationEditor">
+                <h4>국적 · 개인 레이크백 요율</h4>
+                <div className="playerClassificationFields">
+                  <label>국적<input value={detailNationality} onChange={e=>setDetailNationality(e.target.value)} placeholder="예: MONGOLIA, GERMANY"/></label>
+                  {!isStaff && <label>개인 요율 (%)<input type="number" min="0" max="100" step="0.5" value={detailCustomRate} onChange={e=>setDetailCustomRate(e.target.value)} placeholder="에이전트 기본 요율 사용"/></label>}
+                  <button className="primary" onClick={()=>savePlayerClassification(selectedPlayer.id)}>저장</button>
+                </div>
+                <small>국적은 에이전트와 별개입니다. 개인 요율을 비워두면 해당 에이전트의 기본 요율이 적용됩니다. 과거 정산 기록은 유지됩니다.</small>
+              </div>
               {selectedPlayer.note && <div className="playerNoteBox">
                 <span>메모 / 비고</span>
                 <p>{selectedPlayer.note}</p>
