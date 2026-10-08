@@ -2331,6 +2331,37 @@ export default function Home() {
   const reportPlayerCount=new Set(reportEntries.map(e=>e.playerId)).size;
   const reportBuyInCount=reportEntries.reduce((sum,e)=>sum+e.buyIn,0);
   const reportAgencyRanking=agencyTotals(reportEntries).filter(a=>a.amount>0).sort((a,b)=>b.amount-a.amount).slice(0,8);
+  const reportWeekdayNames=["일","월","화","수","목","금","토"];
+  const reportWeekdayStats=Array.from({length:7},(_,day)=>{
+    const dayRows=reportEntries.filter(e=>new Date(e.date+"T12:00:00").getDay()===day);
+    const distinctDates=new Set(dayRows.map(e=>e.date)).size;
+    return {day,label:reportWeekdayNames[day]+"요일",sessions:distinctDates,buyIns:dayRows.reduce((sum,e)=>sum+e.buyIn,0),revenue:dayRows.reduce((sum,e)=>sum+e.rake,0)};
+  });
+  const reportWeekdayMax=Math.max(1,...reportWeekdayStats.map(x=>x.revenue));
+  const reportPlayerLeaders=(()=>{
+    const map=new Map<string,{id:string;name:string;buyIns:number;revenue:number;visits:number;games:Set<string>}>();
+    reportEntries.forEach(e=>{
+      const row=map.get(e.playerId) ?? {id:e.playerId,name:getPlayerName(e.playerId),buyIns:0,revenue:0,visits:0,games:new Set<string>()};
+      row.buyIns+=e.buyIn;row.revenue+=e.rake;
+      row.games.add(e.sessionId || e.date+"-"+e.game);
+      map.set(e.playerId,row);
+    });
+    return [...map.values()].map(x=>({...x,visits:x.games.size})).sort((a,b)=>b.buyIns-a.buyIns||b.revenue-a.revenue);
+  })();
+  const reportVipCandidates=reportPlayerLeaders.slice(0,10);
+  const reportFnbLeaders=(()=>{
+    const map=new Map<string,{name:string;quantity:number;amount:number}>();
+    reportFnbEntries.forEach(e=>{
+      const prev=map.get(e.itemName) ?? {name:e.itemName,quantity:0,amount:0};
+      prev.quantity+=e.quantity;prev.amount+=e.totalAmount;map.set(e.itemName,prev);
+    });
+    return [...map.values()].sort((a,b)=>b.quantity-a.quantity);
+  })();
+  const reportLevelStats=(()=>{
+    const map=new Map<string,{game:string;buyIns:number;revenue:number}>();
+    reportEntries.forEach(e=>{const prev=map.get(e.game) ?? {game:e.game,buyIns:0,revenue:0};prev.buyIns+=e.buyIn;prev.revenue+=e.rake;map.set(e.game,prev);});
+    return [...map.values()].sort((a,b)=>b.buyIns-a.buyIns);
+  })();
   const dashboardTodayProfit = todayRevenue - todaySettlement - fnbTodayTotal;
   const dashboardDailyTrend = Array.from({length:7},(_,index)=>{
     const date=plusDays(today(),index-6);
@@ -3909,6 +3940,49 @@ export default function Home() {
                       <b>{vnd(a.amount)}</b>
                     </div>)}
               </section>
+            <div className="reportIntelligenceGrid">
+              <section className="reportIntelCard reportIntelWide">
+                <div className="reportSectionHead"><div><h3>요일별 바이인·매출</h3><p>선택 기간의 실제 기록 기준 · 일평균 비교도 가능</p></div></div>
+                <div className="reportWeekdayTable">
+                  <div className="reportWeekdayHeading"><span>요일</span><span>기록일</span><span>바이인</span><span>엔트리피</span></div>
+                  {reportWeekdayStats.map(day=><div className="reportWeekdayRow" key={day.day}>
+                    <strong>{day.label}</strong><span>{day.sessions}일</span><span>{day.buyIns}회</span><b>{vnd(day.revenue)}</b>
+                    <div className="reportWeekdayTrack"><i style={{width:`${day.revenue/reportWeekdayMax*100}%`}}/></div>
+                  </div>)}
+                </div>
+                <small className="reportIntelNote">* ‘기록일’은 해당 요일에 바이인이 입력된 날짜 수입니다. 시간대별 분석은 바이인 발생 시각을 별도로 저장해야 정확하게 제공할 수 있습니다.</small>
+              </section>
+              <section className="reportIntelCard">
+                <div className="reportSectionHead"><div><h3>플레이어 리더보드</h3><p>바이인 횟수 순 · 기록된 게임 참가 횟수 병기</p></div></div>
+                {reportPlayerLeaders.slice(0,12).map((player,i)=><button className="reportIntelRanking" type="button" key={player.id} onClick={()=>{openPlayerDetail(player.id);navigateTab("players");}}>
+                  <span className="reportRankNumber">{i+1}</span><span className="reportRankName">{player.name}<small>게임 {player.visits}회 · 엔트리피 {vnd(player.revenue)}</small></span><b>{player.buyIns} BUY-IN</b>
+                </button>)}
+                {reportPlayerLeaders.length===0 && <div className="weeklyEmpty">선택 기간 플레이어 기록이 없습니다.</div>}
+              </section>
+              <section className="reportIntelCard">
+                <div className="reportSectionHead"><div><h3>VIP 후보 리스트</h3><p>누적 바이인 상위 플레이어 · 실제 VIP 등급과는 별개</p></div></div>
+                {reportVipCandidates.map((player,i)=><div className="reportIntelRanking" key={player.id}>
+                  <span className="reportRankNumber">{i+1}</span><span className="reportRankName">{player.name}<small>{player.visits}개 게임 참여</small></span><b>{player.buyIns}회</b>
+                </div>)}
+                {reportVipCandidates.length===0 && <div className="weeklyEmpty">VIP 후보를 산출할 기록이 없습니다.</div>}
+                <small className="reportIntelNote">자동 선정 후보입니다. 수동 VIP 지정·특전·담당자 정보는 별도 관리 기능이 필요합니다.</small>
+              </section>
+              <section className="reportIntelCard">
+                <div className="reportSectionHead"><div><h3>F&B 인기 메뉴</h3><p>판매·입력 수량 기준 순위</p></div></div>
+                {reportFnbLeaders.slice(0,12).map((item,i)=><div className="reportIntelRanking" key={item.name}>
+                  <span className="reportRankNumber">{i+1}</span><span className="reportRankName">{item.name}<small>기록 금액 {vnd(item.amount)}</small></span><b>{item.quantity}개</b>
+                </div>)}
+                {reportFnbLeaders.length===0 && <div className="weeklyEmpty">해당 기간 F&B 입력이 없습니다.</div>}
+              </section>
+              <section className="reportIntelCard">
+                <div className="reportSectionHead"><div><h3>게임 금액대별 비교</h3><p>게임 구분별 바이인·엔트리피</p></div></div>
+                {reportLevelStats.map(item=><div className="reportIntelRanking" key={item.game}>
+                  <span className="reportRankName"><strong>{item.game}</strong><small>엔트리피 {vnd(item.revenue)}</small></span><b>{item.buyIns}회</b>
+                </div>)}
+                {reportLevelStats.length===0 && <div className="weeklyEmpty">해당 기간 게임 기록이 없습니다.</div>}
+                <small className="reportIntelNote">레벨4 도달 여부와 실제 플레이 시간은 현재 입력 데이터에 별도 기록되지 않아 집계하지 않았습니다.</small>
+              </section>
+            </div>
             </div>
           </section>
         </section>}
