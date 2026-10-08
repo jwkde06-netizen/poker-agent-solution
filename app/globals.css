@@ -15717,3 +15717,6 @@ html[data-theme="dark"] .weeklyStatementRow.totalExpense{
   .selectedPlayerList .dualPlayerValues small{font-size:9px!important;}
   .selectedPlayerList .dualPlayerValues b{font-size:12px!important;}
 }
+
+/* Clear confirmation action above the destructive player delete button. */
+.playerManageModal .manageApplyButton{display:block;width:100%;min-height:52px;margin:18px 0 10px;border-radius:12px;font-size:16px;font-weight:800;cursor:pointer;}
