@@ -15942,3 +15942,27 @@ html[data-theme="dark"] .weeklyStatementRow.totalExpense{
 @media(min-width:1100px){.expenseEntryFields .expenseEntrySaveButton{grid-column:4;}}
 @media(max-width:1100px){.expenseEntryFields{grid-template-columns:125px 160px minmax(170px,1fr);}.expenseEntryFields .expenseEntryNameField{grid-column:3;}.expenseEntryFields .expenseEntryAmountField{grid-column:1 / 3;}.expenseEntryFields .expenseEntryCategoryField{grid-column:3;}.expenseEntryFields .expenseEntryNoteField{grid-column:span 2;}.expenseEntryFields .expenseEntrySaveButton{grid-column:3;}}
 @media(max-width:700px){.compactExpensePage .expenseEntryForm{padding:14px!important;}.expenseEntryFormHeading{align-items:flex-start;flex-direction:column;gap:5px;}.expenseEntryFields{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:11px;}.expenseEntryFields .expenseEntryTypeField,.expenseEntryFields .expenseEntryDateField{grid-column:auto;}.expenseEntryFields .expenseEntryNameField,.expenseEntryFields .expenseEntryAmountField,.expenseEntryFields .expenseEntryCategoryField,.expenseEntryFields .expenseEntryPayerField,.expenseEntryFields .expenseEntryNoteField,.expenseEntryFields .expenseEntrySaveButton{grid-column:1/-1;}.expenseEntryFields .expenseEntrySaveButton{width:100%;margin-top:3px;}}
+
+/* Operational intelligence — responsive reports */
+.reportIntelligenceGrid{grid-column:1/-1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:3px;min-width:0;}
+.reportIntelCard{min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;}
+.reportIntelWide{grid-column:1/-1;}
+.reportIntelCard .reportSectionHead{margin-bottom:14px;}
+.reportIntelCard h3{margin:0;font-size:17px;}
+.reportIntelCard .reportSectionHead p{margin-top:5px;font-size:12px;color:var(--muted);}
+.reportIntelRanking{display:flex;align-items:center;gap:12px;border:0;border-top:1px solid var(--line);width:100%;min-height:60px;text-align:left;background:transparent;color:var(--text);padding:11px 0;}
+button.reportIntelRanking{cursor:pointer;}
+button.reportIntelRanking:hover{background:var(--surface-2);}
+.reportRankNumber{width:25px;flex:0 0 25px;font-size:13px;font-weight:850;color:var(--muted);}
+.reportRankName{flex:1;min-width:0;font-size:13px;font-weight:750;overflow-wrap:anywhere;}
+.reportRankName small{display:block;font-size:11px;font-weight:400;color:var(--muted);margin-top:5px;}
+.reportIntelRanking>b{font-size:13px;white-space:nowrap;font-variant-numeric:tabular-nums;}
+.reportIntelNote{display:block;margin-top:13px;line-height:1.65;font-size:11px;color:var(--muted);}
+.reportWeekdayHeading,.reportWeekdayRow{display:grid;grid-template-columns:1fr 85px 100px minmax(125px,1fr);gap:12px;align-items:center;}
+.reportWeekdayHeading{border-bottom:1px solid var(--line);padding:10px 12px;font-weight:800;font-size:12px;color:var(--muted);}
+.reportWeekdayRow{padding:13px 12px 16px;border-bottom:1px solid var(--line);position:relative;font-size:13px;min-height:61px;}
+.reportWeekdayRow>b{text-align:right;font-variant-numeric:tabular-nums;}
+.reportWeekdayTrack{position:absolute;bottom:4px;left:12px;right:12px;height:3px;background:var(--surface-2);border-radius:6px;overflow:hidden;}
+.reportWeekdayTrack i{display:block;height:100%;background:#b88938;border-radius:6px;}
+@media(max-width:900px){.reportIntelligenceGrid{grid-template-columns:1fr;}.reportIntelWide{grid-column:auto;}}
+@media(max-width:550px){.reportIntelCard{padding:14px;}.reportWeekdayHeading,.reportWeekdayRow{grid-template-columns:55px 45px 50px minmax(0,1fr);gap:7px;font-size:11px;}.reportWeekdayHeading{font-size:10px;padding-left:4px;padding-right:4px;}.reportWeekdayRow{padding-left:4px;padding-right:4px;}.reportWeekdayRow>b{font-size:11px;}.reportWeekdayTrack{left:4px;right:4px;}}
