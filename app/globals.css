@@ -16080,3 +16080,88 @@ button.reportIntelRanking:hover{background:var(--surface-2);}
 .opsUndoToolbar button:disabled{opacity:.38;cursor:not-allowed;transform:none}
 .opsUndoToolbar small{color:var(--muted)}
 @media(max-width:520px){.opsUndoToolbar{flex-wrap:wrap}.opsUndoToolbar button{padding:8px}}
+
+
+/* Dream Poker motion system — subtle feedback, no layout-shifting animations */
+@keyframes dpEnter{from{opacity:.35;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes dpLiveBreath{0%,100%{box-shadow:0 0 0 0 rgba(38,190,129,.06)}50%{box-shadow:0 0 0 5px rgba(38,190,129,.12)}}
+@keyframes dpShimmer{from{background-position:120% 0}to{background-position:-120% 0}}
+@keyframes dpPressFlash{0%{opacity:.28;transform:scale(.94)}100%{opacity:0;transform:scale(1.12)}}
+
+/* Stable tab transitions: limited to the content panes rather than the shell */
+.contentArea[data-motion="on"] > section,
+.contentArea[data-motion="on"] > .compactDailyPage,
+.contentArea[data-motion="on"] > .buyinPage{
+  animation:dpEnter .32s cubic-bezier(.2,.7,.2,1) both;
+}
+.contentArea[data-motion="on"] .panel,
+.contentArea[data-motion="on"] .dashboardFinanceStrip,
+.contentArea[data-motion="on"] .reportIntelCard{
+  transition:border-color .22s ease,box-shadow .24s ease,background-color .24s ease;
+}
+.contentArea[data-motion="on"] :is(.floorTableButton,.accountRow,.agencySimpleRow,.dashboardLiveStatus,.dailyTopBar button,.playerValueToolbar button,.selectedTablePanel button,.opsUndoToolbar button){
+  transition:transform .18s cubic-bezier(.2,.7,.2,1),box-shadow .22s ease,border-color .2s ease,background-color .2s ease,color .2s ease,opacity .2s ease;
+}
+.contentArea[data-motion="on"] :is(.floorTableButton,.agencySimpleRow,.accountRow):hover{
+  transform:translateY(-2px);
+  box-shadow:0 10px 24px rgba(0,0,0,.13);
+}
+.contentArea[data-motion="on"] .floorTableButton.live{
+  position:relative;
+  isolation:isolate;
+  border-color:rgba(49,190,130,.48);
+}
+.contentArea[data-motion="on"] .floorTableButton.live::after{
+  content:"";pointer-events:none;position:absolute;inset:1px;border-radius:inherit;
+  border:1px solid rgba(49,190,130,.17);
+  animation:dpLiveBreath 3.8s ease-in-out infinite;
+}
+.contentArea[data-motion="on"] .floorTableButton.selected{
+  box-shadow:0 0 0 2px rgba(68,178,232,.26),0 12px 27px rgba(0,0,0,.2);
+}
+.contentArea[data-motion="on"] :is(.floorTableButton,.selectedTablePanel button,.dailyTopBar button,.opsUndoToolbar button):not(:disabled):active{
+  transform:translateY(1px) scale(.975);
+  transition-duration:.08s;
+}
+/* Focus feedback for keyboard navigation and reliable data entry */
+.contentArea :is(button,input,select,textarea):focus-visible{
+  outline:2px solid #5cafd5;
+  outline-offset:3px;
+}
+.contentArea[data-motion="on"] :is(input,select,textarea){
+  transition:border-color .2s ease,box-shadow .2s ease,background-color .2s ease;
+}
+.contentArea[data-motion="on"] :is(input,select,textarea):focus{
+  border-color:#57a3cc;
+  box-shadow:0 0 0 3px rgba(67,152,207,.13);
+}
+/* Reports and live snapshots should feel tactile but remain readable */
+.contentArea[data-motion="on"] :is(.dashboardFinanceStrip,.redesignedDailyPanel,.selectedTablePanel,.accountListPanel):hover{
+  border-color:var(--line-strong);
+}
+.contentArea[data-motion="on"] :is(.accountRow,.reportIntelRanking,.agencySimpleRow):hover{
+  background-color:var(--surface-2);
+}
+.contentArea[data-motion="on"] .dashboardLiveStatus.on i{
+  animation:dpLiveBreath 2.8s ease-in-out infinite;
+  border-radius:50%;
+}
+.contentArea[data-motion="on"] :is(.dailyTopBar,.floorSelectorHeader,.selectedTableTop){
+  transition:background-color .22s ease;
+}
+.contentArea[data-motion="on"] .opsUndoToolbar button:not(:disabled):hover,
+.contentArea[data-motion="on"] .dailyTopBar button:not(:disabled):hover{
+  border-color:#6b9eb5;
+  box-shadow:0 4px 14px rgba(45,120,155,.1);
+}
+.contentArea[data-motion="off"] *,
+.contentArea[data-motion="off"] *::before,
+.contentArea[data-motion="off"] *::after{
+  animation:none!important;
+  transition:none!important;
+}
+@media(prefers-reduced-motion:reduce){
+  .contentArea *, .contentArea *::before,.contentArea *::after{
+    animation:none!important;transition:none!important;scroll-behavior:auto!important;
+  }
+}
