@@ -16685,3 +16685,31 @@ html{scroll-behavior:smooth}
  }
  .compactDailyPage .dailySummaryCard b{font-size:19px!important}
 }
+
+
+/* Player directory: balanced columns, bilingual names, neutral typography */
+.playerListTable table{width:100%;table-layout:fixed}
+@media(min-width:821px){
+ .playerListTable table{min-width:900px}
+ .playerListTable th:nth-child(1),.playerListTable td:nth-child(1){width:24%!important;text-align:left!important}
+ .playerListTable th:nth-child(2),.playerListTable td:nth-child(2){width:11%!important;text-align:left!important}
+ .playerListTable th:nth-child(3),.playerListTable td:nth-child(3){width:13%!important;text-align:left!important}
+ .playerListTable th:nth-child(4),.playerListTable td:nth-child(4){width:12%!important;text-align:center!important}
+ .playerListTable th:nth-child(5),.playerListTable td:nth-child(5){width:12%!important;text-align:center!important}
+ .playerListTable th:nth-child(6),.playerListTable td:nth-child(6){width:15%!important;text-align:center!important}
+ .playerListTable th:nth-child(7),.playerListTable td:nth-child(7){width:13%!important;text-align:center!important}
+}
+.playerListTable th{font-weight:540!important;color:var(--muted)!important;font-size:12px}
+.playerListTable td{font-weight:480!important;color:var(--text)!important;font-variant-numeric:tabular-nums}
+.playerListTable td strong{font-weight:550!important;color:inherit!important}
+.playerListTable .playerNameStack{display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-width:0}
+.playerListTable .playerEnglishName{font-size:14px;font-weight:560!important;line-height:1.35;color:var(--text)!important;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.playerListTable .playerKoreanName{font-size:12px;font-weight:440!important;line-height:1.3;color:var(--muted)!important;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.playerListTable .agencyCodeText{font-weight:520!important;color:var(--text)!important;background:var(--surface-2)!important;border-color:var(--line)!important}
+.playerSearchSection .searchCount{font-weight:500!important;color:var(--muted)!important}
+.playerListTable .clickablePlayerRow:hover .playerEnglishName{color:var(--text)!important}
+@media(max-width:820px){
+ .playerListTable table{min-width:690px}
+ .playerListTable .playerEnglishName{font-size:13px}
+ .playerListTable .playerKoreanName{font-size:11px}
+}
