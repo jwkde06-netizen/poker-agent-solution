@@ -16378,3 +16378,44 @@ html{scroll-behavior:smooth}
 @media(prefers-reduced-motion:reduce){
  .buyinPage .floorSelectorActions button,.buyinPage .sessionTopActions button{transition:none!important}
 }
+
+
+/* Weekly reporting: weekday-first, large readable revenue numbers */
+.weeklyDailyRevenuePanel{border:1px solid var(--line);border-radius:15px;padding:17px 19px;margin:14px 0;background:var(--surface)}
+.weeklyDailyRevenueHeader{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:17px}
+.weeklyDailyRevenueHeader h3{margin:0;font-size:19px;font-weight:850}
+.weeklyDailyRevenueHeader p{margin:5px 0 0;color:var(--muted);font-size:12px}
+.weeklyDailyRevenueHeader>strong{font-size:17px;white-space:nowrap}
+.weeklyDayRevenueList{display:grid;gap:10px}
+.weeklyDayRevenueRow{display:grid;grid-template-columns:70px minmax(0,1fr) 145px;align-items:center;gap:14px;min-height:38px}
+.weeklyDayLabel{display:flex;align-items:center;gap:7px}
+.weeklyDayLabel strong{font-size:17px}
+.weeklyDayLabel small{color:var(--muted);font-size:11px}
+.weeklyDayBarTrack{height:16px;background:var(--surface-2);border-radius:99px;overflow:hidden;border:1px solid var(--line)}
+.weeklyDayBarFill{height:100%;border-radius:99px;background:linear-gradient(90deg,#c79a40,#e8bf65);transition:width .35s ease}
+.weeklyDayAmount{text-align:right;display:grid;gap:2px}
+.weeklyDayAmount strong{font-size:16px;font-variant-numeric:tabular-nums}
+.weeklyDayAmount small{font-size:10px;color:var(--muted)}
+/* Admin mobile: prioritize clear daily sales and avoid repeated financial overview */
+@media(max-width:820px){
+ .weeklyReportPage .weeklyReportPanel{padding:12px!important}
+ .weeklyDailyRevenuePanel{padding:15px 12px;margin:12px 0}
+ .weeklyDailyRevenueHeader{display:block;margin-bottom:14px}
+ .weeklyDailyRevenueHeader h3{font-size:19px}
+ .weeklyDailyRevenueHeader>strong{display:block;margin-top:10px;font-size:21px}
+ .weeklyDayRevenueRow{grid-template-columns:48px minmax(0,1fr) 112px;gap:8px;min-height:43px}
+ .weeklyDayLabel{display:grid;gap:0}
+ .weeklyDayLabel strong{font-size:17px}
+ .weeklyDayLabel small{font-size:10px}
+ .weeklyDayBarTrack{height:13px}
+ .weeklyDayAmount strong{font-size:15px}
+ .weeklyReportPage .weeklyStatementDetail.weeklyDetailOverview{display:none!important}
+ .weeklyReportPage .weeklyStatementRow{min-height:44px}
+ .weeklyReportPage .weeklyStatementRow span{font-size:12px}
+ .weeklyReportPage .weeklyStatementRow b{font-size:15px;font-variant-numeric:tabular-nums}
+ .weeklyReportPage .weeklyExternalSummary{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ .weeklyReportPage .weeklyExternalSummary>div{padding:12px!important}
+ .weeklyReportPage .weeklyExternalSummary b{font-size:17px!important}
+ .weeklyReportPage .weeklyTopControls{flex-wrap:wrap;gap:8px}
+}
+@media(prefers-reduced-motion:reduce){.weeklyDayBarFill{transition:none}}
