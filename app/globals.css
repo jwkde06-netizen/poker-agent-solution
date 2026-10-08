@@ -16005,3 +16005,7 @@ button.reportIntelRanking:hover{background:var(--surface-2);}
 .weeklyExternalHint{margin:12px 0 0;}
 @media(max-width:1050px){.weeklyExternalSummary{grid-template-columns:repeat(2,minmax(0,1fr));}.weeklyAdjustmentFields{grid-template-columns:repeat(2,minmax(0,1fr));}}
 @media(max-width:650px){.weeklyAdjustmentForm,.weeklyExternalSettlements{padding:14px;}.weeklyAdjustmentFields{grid-template-columns:1fr;}.weeklyExternalSummary{grid-template-columns:repeat(2,minmax(0,1fr));}.weeklyExternalSummary b,.weeklyExternalSummary strong{font-size:16px;}.weeklyExternalRow{flex-wrap:wrap;gap:8px;}.weeklyExternalRow>div:first-child{flex-basis:100%;}}
+
+/* Weekly accounting: add rows from the bottom of the statement, not its header. */
+.weeklyBottomAddButton{display:flex;width:100%;align-items:center;justify-content:center;min-height:42px;border:1px dashed var(--line-strong);border-top:0;border-radius:0 0 10px 10px;background:var(--surface-2);color:var(--text);font-size:13px;font-weight:750;cursor:pointer;}
+.weeklyBottomAddButton:hover{filter:brightness(.97);}
