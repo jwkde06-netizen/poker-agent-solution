@@ -15704,3 +15704,16 @@ html[data-theme="dark"] .weeklyStatementRow.totalExpense{
 .pokerFloorMap{grid-template-columns:repeat(auto-fit,minmax(120px,1fr)) !important;grid-template-rows:auto !important;}
 .pokerFloorMap .floorTableButton{grid-column:auto !important;grid-row:auto !important;align-self:stretch !important;min-height:68px;cursor:grab;touch-action:pan-y;}
 .pokerFloorMap .floorTableButton:active{cursor:grabbing;}
+
+/* Game entry: keep amount (left) and rakeback (right) visible together. */
+.selectedPlayerList .quickBuyinRow:not(.staffPlayerRow){grid-template-columns:minmax(155px,1.2fr) auto minmax(210px,1fr) 28px!important;}
+.selectedPlayerList .dualPlayerValues{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important;align-items:center;text-align:right!important;}
+.selectedPlayerList .dualPlayerValues>span{display:flex!important;flex-direction:column!important;align-items:flex-end!important;min-width:0;gap:3px!important;}
+.selectedPlayerList .dualPlayerValues small{font-size:10px!important;white-space:nowrap;}
+.selectedPlayerList .dualPlayerValues b{font-size:15px!important;font-variant-numeric:tabular-nums;}
+@media(max-width:820px){
+  .selectedPlayerList .quickBuyinRow:not(.staffPlayerRow){grid-template-columns:minmax(0,1fr) auto minmax(124px,.85fr) 24px!important;gap:5px!important;}
+  .selectedPlayerList .dualPlayerValues{gap:5px!important;}
+  .selectedPlayerList .dualPlayerValues small{font-size:9px!important;}
+  .selectedPlayerList .dualPlayerValues b{font-size:12px!important;}
+}
