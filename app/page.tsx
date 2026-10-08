@@ -8,6 +8,32 @@ import { jsPDF } from "jspdf";
 
 type Agency = { id: string; code: string; rate: number; active: boolean };
 type Player = { id: string; name: string; koreanName: string; cardNo: string; agencyId: string; nationality: string; customRate: number|null; note: string; createdAt: string };
+// Search Korean names and tolerate small romanization differences without auto-selecting a player.
+function normalizePlayerSearch(text:string){return text.normalize("NFKC").toUpperCase().replace(/[^A-Z0-9가-힣]/g,"");}
+function playerDistance(a:string,b:string){
+  if(!a||!b)return Math.max(a.length,b.length);
+  let prev=Array.from({length:b.length+1},(_,i)=>i);
+  for(let i=1;i<=a.length;i++){
+    const next=[i];
+    for(let j=1;j<=b.length;j++)next[j]=Math.min(next[j-1]+1,prev[j]+1,prev[j-1]+(a[i-1]===b[j-1]?0:1));
+    prev=next;
+  }
+  return prev[b.length];
+}
+function playerSearchRank(player:Player,search:string):number{
+  const query=normalizePlayerSearch(search);
+  if(!query)return -1;
+  const names=[player.name,player.koreanName,player.cardNo].map(normalizePlayerSearch).filter(Boolean);
+  if(names.some(name=>name===query))return 100;
+  if(names.some(name=>name.startsWith(query)))return 90;
+  if(names.some(name=>name.includes(query)))return 80;
+  // Match at most two typographical characters for longer romanized names.
+  if(query.length<4||/[가-힣]/.test(query))return -1;
+  const allowed=query.length>=9?2:1;
+  const best=Math.min(...names.filter(name=>/[A-Z]/.test(name) && Math.abs(name.length-query.length)<=allowed).map(name=>playerDistance(name,query)));
+  return Number.isFinite(best)&&best<=allowed?60-best:-1;
+}
+
 type GameEntry = {
   id: string;
   date: string;
@@ -2435,21 +2461,10 @@ export default function Home() {
   const selectedTableSearch = selectedGameSession ? (sessionSearch[selectedGameSession.id]||"") : "";
   const selectedTableQuery = selectedTableSearch.trim().toUpperCase();
   const selectedTableMatches = selectedGameSession && selectedTableQuery
-    ? players
-        .filter(p=>
-          p.name.toUpperCase().includes(selectedTableQuery) ||
-          p.koreanName.includes(selectedTableSearch) ||
-          p.cardNo.toUpperCase().includes(selectedTableQuery)
-        )
-        .sort((a,b)=>{
-          const aName=a.name.toUpperCase();
-          const bName=b.name.toUpperCase();
-          const aStarts=aName.startsWith(selectedTableQuery) || a.koreanName.startsWith(selectedTableSearch) || a.cardNo.toUpperCase().startsWith(selectedTableQuery);
-          const bStarts=bName.startsWith(selectedTableQuery) || b.koreanName.startsWith(selectedTableSearch) || b.cardNo.toUpperCase().startsWith(selectedTableQuery);
-          if(aStarts!==bStarts)return aStarts?-1:1;
-          return aName.localeCompare(bName);
-        })
-        .slice(0,8)
+    ? players.map(player=>({player,rank:playerSearchRank(player,selectedTableSearch)}))
+        .filter(result=>result.rank>=0)
+        .sort((a,b)=>b.rank-a.rank || a.player.name.localeCompare(b.player.name))
+        .slice(0,8).map(result=>result.player)
     : [];
   const managedEntry = manageEntryId ? entries.find(e=>e.id===manageEntryId) ?? null : null;
   const managedPlayer = managedEntry ? players.find(p=>p.id===managedEntry.playerId) ?? null : null;
@@ -3115,11 +3130,11 @@ export default function Home() {
 
               <div className="modalForm playerModalForm">
                 <label>
-                  <span>영문성함</span>
+                  <span>영문 이름 (필수)</span>
                   <input autoFocus value={playerName} onChange={e=>setPlayerName(e.target.value)} placeholder="예: KIM JI WON"/>
                 </label>
                 <label>
-                  <span>한글성함</span>
+                  <span>한글 이름 (검색 가능)</span>
                   <input value={playerKoreanName} onChange={e=>setPlayerKoreanName(e.target.value)} placeholder="예: 김지원"/>
                 </label>
                 <label>
@@ -3275,7 +3290,7 @@ export default function Home() {
                   onClick={()=>setSelectedTableNo(no)}
                 >
                   <strong>{no}</strong>
-                  <small>{liveSession?<><i className="opsLiveSpinner" aria-hidden="true"/>{liveEntries.length}명 · LIVE</>:"대기"}</small>
+                  <small>{liveSession?<><i className="opsLivePulse" aria-hidden="true"/>{liveEntries.length}명 · LIVE</>:"대기"}</small>
                 </button>
               })}
             </div>
@@ -3409,7 +3424,7 @@ export default function Home() {
                               setSelectedSearchIndex(0);
                             }
                           }}
-                          placeholder="이름 · 한글명 · 회원번호 검색"
+                          placeholder="한글·영문 이름 검색 (비슷한 철자도 추천)"
                           autoComplete="off"
                         />
                       </div>
@@ -3425,7 +3440,7 @@ export default function Home() {
                           >
                             <span>
                               <strong>{p.name}</strong>
-                              <small>{p.koreanName || p.cardNo || "회원번호 없음"}</small>
+                              <small>{p.koreanName || "한글명 미등록"}{p.cardNo?` · ${p.cardNo}`:""}</small>
                             </span>
                             <em>{agency?.code || "-"}</em>
                             <b>{already?"+1 리바인":"추가"}</b>
