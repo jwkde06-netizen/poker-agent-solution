@@ -16016,3 +16016,9 @@ button.reportIntelRanking:hover{background:var(--surface-2);}
 .playerListTable th:nth-child(n+4),.playerListTable td:nth-child(n+4){text-align:right;font-variant-numeric:tabular-nums;}
 .playerListTable td{white-space:nowrap;}
 .playerModalForm label span{font-weight:750;}
+
+/* Separate MM/cash actions from the two-field custom-cost editor */
+.weeklyExternalHeader{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.weeklyExternalAddControls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.weeklyExternalAddControls button{border:1px solid var(--line-strong);border-radius:9px;background:var(--surface-2);color:var(--text);font-size:12px;font-weight:750;padding:10px 13px;cursor:pointer}
+.weeklyExternalAddControls button:hover{filter:brightness(.97)}
