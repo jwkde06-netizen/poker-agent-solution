@@ -1219,7 +1219,7 @@ export default function Home() {
   async function startGameSession(){
     const tableNo=(selectedTableNo || newTableNo).trim();
     if(!tableNo){setMessage("테이블 번호를 입력해주세요.");return;}
-    if(gameSessions.some(s=>s.status==="active" && s.tableNo===tableNo && s.date===pokerBusinessDate())){
+    if(activeGameSessions.some(s=>s.tableNo===tableNo)){
       setMessage("해당 테이블에서 게임이 아직 진행 중입니다. 경기 종료 후 새 게임을 시작해주세요.");
       return;
     }
@@ -2390,14 +2390,21 @@ export default function Home() {
   const allOpenSessions=gameSessions.filter(s=>s.status==="active");
   // Old "active" rows are not proof of a running table. Preserve overnight
   // sessions from the current business date and only show one per physical table.
-  const eligibleSessions=allOpenSessions.filter(s=>s.date===currentBusinessDate);
+  const eligibleSessions=allOpenSessions.filter(s=>
+    s.date===currentBusinessDate ||
+    // If a started game is still running after the morning boundary,
+    // do not silently drop it. Empty, stale old sessions stay excluded.
+    (s.date===plusDays(currentBusinessDate,-1) &&
+      entries.some(entry=>entry.sessionId===s.id && entry.buyIn>0))
+  );
   const activeByTable=new Map<string,GameSession>();
   eligibleSessions.forEach(gameSession=>{
     const key=gameSession.tableNo.trim();
     if(key)activeByTable.set(key,gameSession);
   });
   const activeGameSessions=[...activeByTable.values()];
-  const unresolvedOldSessions=allOpenSessions.filter(s=>s.date!==currentBusinessDate);
+  const visibleIds=new Set(eligibleSessions.map(s=>s.id));
+  const unresolvedOldSessions=allOpenSessions.filter(s=>!visibleIds.has(s.id));
   const duplicateCurrentSessions=eligibleSessions.length-activeGameSessions.length;
   const availableTableNos = Array.from(new Set(["4","12","13","5","2",...extraTableNos,...gameSessions.map(s=>s.tableNo).filter(Boolean)]))
     .filter(no=>!removedTableNos.includes(no) || activeGameSessions.some(s=>s.tableNo===no));
