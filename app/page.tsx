@@ -279,7 +279,7 @@ export default function Home() {
   const [ownPassword, setOwnPassword] = useState("");
   const [updatingOwnLogin, setUpdatingOwnLogin] = useState(false);
   const isStaff = profile?.role==="staff";
-  const staffAllowedTabs = ["dashboard","players","games","fnb"] as const;
+  const staffAllowedTabs = ["dashboard","players","games","fnb","staffDaily"] as const;
 
   const [loginId, setLoginId] = useState("");
   const [password, setPassword] = useState("");
@@ -2320,6 +2320,7 @@ export default function Home() {
     {key:"games",label:"바이인"},
     {key:"fnb",label:"F&B"},
     {key:"settlement",label:"정산"},
+    {key:"staffDaily",label:"오늘 정산"},
   ] as const;
 
   return <main className={`appShell theme-${theme}`}>
@@ -3183,6 +3184,34 @@ export default function Home() {
           </section>}
         </section>}
 
+        {isStaff && tab==="staffDaily" && <section className="staffDailyPage panel">
+          <header className="staffDailyHeader">
+            <div><span>직원 전용 · DAILY OPERATIONS</span><h2>오늘 일일 정산</h2><p>{today()} 진행 게임 및 바이인 현황</p></div>
+            <button type="button" onClick={()=>navigateTab("games")}>바이인 입력 →</button>
+          </header>
+          <div className="staffDailyKpis">
+            <div><span>오늘 진행 게임</span><strong>{gameSessions.filter(gs=>gs.date===today()).length}개</strong></div>
+            <div><span>현재 진행 중</span><strong>{activeGameSessions.length}개</strong></div>
+            <div><span>참여 플레이어</span><strong>{todayPlayerCount}명</strong></div>
+            <div><span>총 바이인</span><strong>{todayEntries.reduce((sum,e)=>sum+e.buyIn,0)}회</strong></div>
+          </div>
+          <div className="staffDailySectionTitle"><h3>오늘 게임별 현황</h3><span>{today()}</span></div>
+          {gameSessions.filter(gs=>gs.date===today()).length===0
+            ? <p className="staffDailyEmpty">오늘 등록된 게임이 없습니다.</p>
+            : <div className="staffDailyGames">
+              {gameSessions.filter(gs=>gs.date===today()).map(gs=>{
+                const gameEntries=todayEntries.filter(e=>e.sessionId===gs.id);
+                const buyIns=gameEntries.reduce((sum,e)=>sum+e.buyIn,0);
+                const participants=new Set(gameEntries.map(e=>e.playerId)).size;
+                return <article className="staffDailyGameCard" key={gs.id}>
+                  <div className="staffDailyGameTop"><div><strong>{gs.gameNo || gs.game || "게임"}</strong><small>테이블 {gs.tableNo || "-"} · {gs.game}</small></div><span className={gs.status==="active"?"live":""}>{gs.status==="active"?"진행 중":"종료"}</span></div>
+                  <div className="staffDailyGameStats"><div><span>플레이어</span><b>{participants}명</b></div><div><span>바이인</span><b>{buyIns}회</b></div><div><span>엔트리피 합계</span><b>{vnd(gameEntries.reduce((sum,e)=>sum+e.rake,0))}</b></div></div>
+                </article>;
+              })}
+            </div>}
+          <p className="staffDailyFootnote">직원 화면에는 에이전트별 레이크백, 순이익 등 관리자 전용 정산 정보가 표시되지 않습니다.</p>
+        </section>}
+
         {!isStaff && tab==="daily" && <section className="compactDailyPage">
           <div className="mobileSectionSwitcher settlementSwitcher">
             <button className="active">일일정산</button>
@@ -4015,7 +4044,7 @@ export default function Home() {
     </div>}
 
     <nav className="mobileBottomNav" aria-label="모바일 메뉴">
-      {mobileNavItems.filter(item=>!isStaff || item.key!=="settlement").map(item=>{
+      {mobileNavItems.filter(item=>isStaff ? item.key!=="settlement" : item.key!=="staffDaily").map(item=>{
         const isActive =
           item.key==="settlement" ? (tab==="daily" || tab==="weekly") :
           item.key==="players" ? (tab==="players" || tab==="agencies") :
@@ -4028,7 +4057,7 @@ export default function Home() {
             else navigateTab(item.key as TabKey);
           }}
         >
-          <span className="mobileNavIcon"><MobileBottomIcon type={item.key}/></span>
+          <span className="mobileNavIcon"><MobileBottomIcon type={item.key==="staffDaily"?"settlement":item.key}/></span>
           <span>{item.label}</span>
         </button>
       })}
