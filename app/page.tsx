@@ -1892,7 +1892,7 @@ export default function Home() {
     }
 
     // Footer
-    const mmSectionTop=height-351;
+    const mmSectionTop=height-440;
     line(80,mmSectionTop,width-80,mmSectionTop);
     text("대표님 정산 청구 요약",80,mmSectionTop+30,23,800,"#17191c");
     text("Dream Poker 운영 순수익",92,mmSectionTop+76,15,600,"#3c4650");
@@ -1953,7 +1953,7 @@ export default function Home() {
       ? 60
       : weeklyPlayerGroups.reduce((sum,group)=>sum+46+group.rows.length*46+16,0);
     const contentBottom=playerStart+playerContentHeight;
-    const height=Math.ceil(Math.max(1130,contentBottom+445));
+    const height=Math.ceil(Math.max(1220,contentBottom+540));
     const canvas=document.createElement("canvas");
     canvas.width=width; canvas.height=height;
     const ctx=canvas.getContext("2d");
