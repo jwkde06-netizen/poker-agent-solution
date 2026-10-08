@@ -16022,3 +16022,28 @@ button.reportIntelRanking:hover{background:var(--surface-2);}
 .weeklyExternalAddControls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .weeklyExternalAddControls button{border:1px solid var(--line-strong);border-radius:9px;background:var(--surface-2);color:var(--text);font-size:12px;font-weight:750;padding:10px 13px;cursor:pointer}
 .weeklyExternalAddControls button:hover{filter:brightness(.97)}
+
+/* Dashboard running tables: compact comparison board instead of repeated cards */
+.dashboardLiveBoard{width:100%;min-width:0;border:1px solid var(--line);border-radius:13px;overflow:hidden;background:var(--surface);}
+.dashboardLiveBoardHead,.dashboardLiveBoardRow{display:grid;grid-template-columns:minmax(148px,1.7fr) minmax(60px,.65fr) minmax(70px,.65fr) minmax(105px,1fr) 20px;gap:12px;align-items:center;}
+.dashboardLiveBoardHead{padding:11px 15px;background:var(--surface-2);font-size:11px;font-weight:750;color:var(--muted);}
+.dashboardLiveBoardHead span:not(:first-child){text-align:right;}
+.dashboardLiveBoardRow{width:100%;padding:14px 15px;min-height:62px;border:0;border-top:1px solid var(--line);background:var(--surface);color:var(--text);text-align:left;cursor:pointer;transition:background .16s ease;}
+.dashboardLiveBoardRow:hover,.dashboardLiveBoardRow:focus-visible{background:var(--surface-2);}
+.dashboardLiveBoardIdentity{display:flex;align-items:center;gap:10px;min-width:0;}
+.dashboardLiveBoardIdentity>strong{font-size:17px;font-weight:850;min-width:38px;white-space:nowrap;}
+.dashboardLivePulse{width:9px;height:9px;flex:0 0 9px;border-radius:50%;background:#28a366;box-shadow:0 0 0 4px rgba(40,163,102,.14);animation:dashboardLiveBeat 2s ease-in-out infinite;}
+.dashboardLiveGame{display:flex;flex-wrap:wrap;align-items:center;gap:5px;font-size:12px;font-weight:700;color:var(--muted);}
+.dashboardLiveGame small{font-size:10px;font-weight:500;color:var(--muted);}
+.dashboardLiveFigure{text-align:right;font-size:15px;font-weight:800;font-variant-numeric:tabular-nums;}
+.dashboardLiveFigure small{margin-left:3px;font-size:10px;font-weight:500;color:var(--muted);}
+.dashboardLiveRevenue{text-align:right;font-size:14px;font-weight:850;font-variant-numeric:tabular-nums;white-space:nowrap;}
+.dashboardLiveGo{text-align:right;font-size:22px;color:var(--muted);}
+.dashboardLiveBoardFoot{display:flex;justify-content:space-between;gap:10px;padding:10px 15px;border-top:1px solid var(--line);font-size:10px;color:var(--muted);}
+.dashboardLiveBoardFoot>span:first-child{display:flex;align-items:center;gap:7px;white-space:nowrap;}
+.dashboardLiveBoardFoot i{width:6px;height:6px;border-radius:50%;background:#28a366;}
+@keyframes dashboardLiveBeat{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.78)}}
+@media(prefers-reduced-motion:reduce){.dashboardLivePulse{animation:none}}
+@media(max-width:620px){.dashboardLiveBoardHead,.dashboardLiveBoardRow{grid-template-columns:minmax(96px,1.4fr) 43px 54px minmax(78px,1fr) 12px;gap:5px;}.dashboardLiveBoardHead{padding:9px 8px;font-size:9px;}.dashboardLiveBoardRow{padding:11px 8px;min-height:54px;}.dashboardLiveBoardIdentity{gap:5px;}.dashboardLiveBoardIdentity>strong{font-size:14px;min-width:26px;}.dashboardLivePulse{width:6px;height:6px;flex-basis:6px;box-shadow:0 0 0 3px rgba(40,163,102,.12);}.dashboardLiveGame{font-size:10px;gap:2px;}.dashboardLiveGame small{font-size:9px;}.dashboardLiveFigure{font-size:12px;}.dashboardLiveRevenue{font-size:11px;}.dashboardLiveGo{font-size:17px;}.dashboardLiveBoardFoot{padding:9px 8px;font-size:9px;}}
+/* Staff board has no financial column. */
+.dashboardLivePanel:has(.dashboardLiveBoardHead span:nth-child(4):last-of-type) .dashboardLiveBoardHead{min-width:0;}
