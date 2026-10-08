@@ -572,6 +572,39 @@ export default function Home() {
     localStorage.setItem("poker-agent-solution-v1", JSON.stringify({ agencies, players, entries, fnbEntries }));
   }, [agencies, players, entries, fnbEntries, loaded]);
 
+  // Refresh game and buy-in data across staff/mobile and manager/PC sessions.
+  // Realtime events are idempotent: always reload the authoritative table snapshot.
+  useEffect(()=>{
+    if(!supabase || !session)return;
+    const client=supabase;
+    let active=true, timer:ReturnType<typeof setTimeout>|undefined;
+    const refresh=async()=>{
+      const [gameResult,sessionResult]=await Promise.all([
+        client.from("game_entries").select("*").order("played_on"),
+        client.from("game_sessions").select("*").order("created_at")
+      ]);
+      if(!active)return;
+      if(!gameResult.error)setEntries((gameResult.data??[]).map((x:any)=>({
+        id:x.id,date:x.played_on,game:x.game_name,playerId:x.player_id,buyIn:Number(x.buy_in),
+        rake:Number(x.rake),agencyId:x.agency_id,agencyCodeSnapshot:x.agency_code_snapshot,
+        rateSnapshot:Number(x.rate_snapshot),rakeback:Number(x.rakeback),sessionId:x.session_id??undefined
+      })));
+      if(!sessionResult.error)setGameSessions((sessionResult.data??[]).map((x:any)=>({
+        id:x.id,date:x.played_on,tableNo:x.table_no,gameNo:x.game_no??"",game:x.game_name,status:x.status
+      })));
+    };
+    const queueRefresh=()=>{if(timer)clearTimeout(timer);timer=setTimeout(()=>{void refresh();},350);};
+    const channel=client.channel("dream-live-games")
+      .on("postgres_changes",{event:"*",schema:"public",table:"game_entries"},queueRefresh)
+      .on("postgres_changes",{event:"*",schema:"public",table:"game_sessions"},queueRefresh)
+      .subscribe();
+    // Also recover missed updates when the browser returns to the foreground.
+    const onFocus=()=>queueRefresh();
+    window.addEventListener("focus",onFocus);
+    const poll=setInterval(()=>{if(document.visibilityState==="visible")queueRefresh();},12000);
+    return ()=>{active=false;if(timer)clearTimeout(timer);clearInterval(poll);window.removeEventListener("focus",onFocus);void client.removeChannel(channel);};
+  },[session?.user.id]);
+
   const activeAgencies = agencies.filter(a=>a.active);
   const filteredPlayers = useMemo(()=>{
     const q = playerSearch.trim().toUpperCase();
