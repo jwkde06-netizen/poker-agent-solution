@@ -3637,12 +3637,12 @@ export default function Home() {
               </div>
               <div className="dailySummaryCard expense">
                 <span>레이크백</span>
-                <b>− {vnd(dailyAgentTotal)}</b>
+                <b>−{vnd(dailyAgentTotal)}</b>
                 <small>{dailyAgentRows.length}개 에이전트</small>
               </div>
               <button className="dailySummaryCard expense" onClick={()=>setFnbDetailOpen(true)}>
                 <span>F&B</span>
-                <b>− {vnd(dailyFnbTotal)}</b>
+                <b>−{vnd(dailyFnbTotal)}</b>
                 <small>비용 상세 ›</small>
               </button>
               <div className="dailySummaryCard profit">
@@ -3770,11 +3770,11 @@ export default function Home() {
                     </div>
                     <div className="expense">
                       <span>레이크백</span>
-                      <b>− {vnd(dailyAgentTotal)}</b>
+                      <b>−{vnd(dailyAgentTotal)}</b>
                     </div>
                     <button className="expense" onClick={()=>setFnbDetailOpen(true)}>
                       <span>F&B</span>
-                      <b>− {vnd(dailyFnbTotal)}</b>
+                      <b>−{vnd(dailyFnbTotal)}</b>
                     </button>
                     <div className="profit">
                       <span>오늘 수익</span>
