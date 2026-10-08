@@ -15814,3 +15814,43 @@ html[data-theme="dark"] .weeklyStatementRow.totalExpense{
  .agencyPage .agencySimpleList{grid-template-columns:1fr;}
  .weeklyInteractiveSheet .weeklyStatementDetail{max-height:none;padding:14px!important;}
 }
+
+/* Staff-only mobile daily settlement dashboard */
+.staffDailyPage{max-width:1100px;margin:0 auto 110px;padding:20px;}
+.staffDailyHeader{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding-bottom:19px;border-bottom:1px solid var(--line);}
+.staffDailyHeader span{display:block;color:var(--muted);font-size:11px;font-weight:750;letter-spacing:.04em;}
+.staffDailyHeader h2{margin:6px 0;font-size:23px;letter-spacing:-.04em;}
+.staffDailyHeader p{margin:0;color:var(--muted);font-size:12px;}
+.staffDailyHeader button{flex-shrink:0;padding:10px 13px;border-radius:10px;background:var(--surface-2);border:1px solid var(--line);color:var(--text);font-size:12px;font-weight:750;cursor:pointer;}
+.staffDailyKpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:18px 0 24px;}
+.staffDailyKpis>div{padding:15px 13px;background:var(--surface-2);border:1px solid var(--line);border-radius:12px;display:grid;gap:8px;}
+.staffDailyKpis span{font-size:11px;color:var(--muted);}
+.staffDailyKpis strong{font-size:22px;letter-spacing:-.03em;font-variant-numeric:tabular-nums;}
+.staffDailySectionTitle{display:flex;align-items:center;justify-content:space-between;margin:0 0 13px;gap:10px;}
+.staffDailySectionTitle h3{font-size:16px;margin:0;}
+.staffDailySectionTitle span{font-size:11px;color:var(--muted);}
+.staffDailyGames{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:11px;}
+.staffDailyGameCard{background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:15px;min-width:0;}
+.staffDailyGameTop{display:flex;justify-content:space-between;gap:10px;align-items:center;padding-bottom:14px;border-bottom:1px solid var(--line);}
+.staffDailyGameTop strong{display:block;font-size:15px;}
+.staffDailyGameTop small{display:block;margin-top:5px;font-size:11px;color:var(--muted);}
+.staffDailyGameTop>span{white-space:nowrap;font-size:11px;background:var(--surface-2);border-radius:100px;padding:6px 9px;color:var(--muted);font-weight:750;}
+.staffDailyGameTop>span.live{color:#18885f;background:rgba(33,160,107,.1);}
+.staffDailyGameStats{display:grid;grid-template-columns:1fr 1fr;gap:13px 8px;padding-top:15px;}
+.staffDailyGameStats>div{display:grid;gap:5px;min-width:0;}
+.staffDailyGameStats span{font-size:11px;color:var(--muted);}
+.staffDailyGameStats b{font-size:16px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere;}
+.staffDailyGameStats>div:last-child{grid-column:1/-1;}
+.staffDailyEmpty{padding:34px 15px;text-align:center;background:var(--surface-2);border-radius:12px;color:var(--muted);font-size:13px;}
+.staffDailyFootnote{font-size:11px;color:var(--muted);margin-top:20px;line-height:1.65;}
+@media(max-width:700px){
+ .staffDailyPage{padding:16px 12px 22px;margin-bottom:95px;}
+ .staffDailyHeader h2{font-size:21px;}
+ .staffDailyHeader button{padding:9px 10px;font-size:11px;}
+ .staffDailyKpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;}
+ .staffDailyKpis>div{padding:14px;}
+ .staffDailyKpis strong{font-size:20px;}
+ .staffDailyGames{grid-template-columns:1fr;}
+ .mobileBottomNav:has(button:nth-child(5)) button{min-width:0;flex:1;padding-left:2px;padding-right:2px;}
+ .mobileBottomNav:has(button:nth-child(5)) button>span:last-child{font-size:10px;white-space:nowrap;}
+}
