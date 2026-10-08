@@ -15879,3 +15879,8 @@ html[data-theme="dark"] .weeklyStatementRow.totalExpense{
 .managedAccountStatus button{border:1px solid var(--line-strong);background:var(--surface-2);border-radius:9px;padding:9px 12px;color:var(--text);cursor:pointer;}
 .managedAccountForm p{color:var(--muted);font-size:12px;line-height:1.65;margin:0;}
 @media(max-width:650px){.managedAccountOverlay{padding:7px;align-items:flex-end;}.managedAccountModal{max-height:94dvh;border-radius:18px 18px 9px 9px;}.managedAccountModalHeader{padding:19px 16px 13px;}.managedAccountForm{padding:14px 16px 22px;}.accountOpenDetail{min-width:145px;}}
+
+/* Expense ledger export is always available without obscuring weekly deposit action. */
+.expenseLedgerHeader .expenseLedgerPngButton{display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;height:40px;padding:0 15px;border:1px solid var(--line-strong);background:var(--surface);color:var(--text);border-radius:10px;font-size:12px;font-weight:750;cursor:pointer;margin-left:auto;}
+.expenseLedgerHeader .expenseLedgerPngButton:hover{background:var(--surface-2);}
+@media(max-width:700px){.expenseLedgerHeader .expenseLedgerPngButton{margin-left:0;width:100%;}}
