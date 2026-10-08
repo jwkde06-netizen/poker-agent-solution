@@ -3820,7 +3820,7 @@ export default function Home() {
                 <span className={item.received?"weeklyReceived yes":"weeklyReceived"}>{item.received?"수령 완료":"미수령"}</span>
                 {profile?.role==="admin" && <div className="weeklyExternalActions"><button type="button" onClick={()=>setWeeklyAdjustmentReceived(item)}>{item.received?"수령 취소":"수령 처리"}</button><button type="button" onClick={()=>deleteWeeklyAdjustment(item)} aria-label={item.label+" 삭제"}>×</button></div>}
               </div>)}
-              <p className="weeklyExternalHint">구글 시트의 MM 금액은 참고용이며 자동으로 입금 처리되지 않습니다. 70%는 우리 지분, 30%는 파트너 지분입니다. 수령 처리 시 미수령 합계에서만 제외됩니다.</p>
+              <p className="weeklyExternalHint">구글 시트의 MM 금액은 참고용이며 자동으로 입금 처리되지 않습니다. 70%는 우리 정산금, 30%는 파트너 정산금입니다. 수령 처리 시 미수령 합계에서만 제외됩니다.</p>
             </section>
 
             <div className="weeklyReportGrid">
