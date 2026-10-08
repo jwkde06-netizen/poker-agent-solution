@@ -16606,3 +16606,38 @@ html{scroll-behavior:smooth}
   transition:none!important;
  }
 }
+
+
+/* Softer operational typography: a clear hierarchy rather than bold everywhere */
+.floorBuyinPage .floorSelectorHeader h2{font-size:20px!important;font-weight:680!important;letter-spacing:-.025em}
+.floorBuyinPage .liveTableCount{font-weight:650!important;letter-spacing:0!important}
+.floorBuyinPage .tableAddControl>span{font-weight:500!important}
+.floorBuyinPage .tableAddControl button,
+.floorBuyinPage .opsInlineUndo button,
+.floorBuyinPage .sessionTopActions button{font-weight:560!important}
+.floorBuyinPage .floorTableButton strong{font-size:22px!important;font-weight:660!important;letter-spacing:-.025em}
+.floorBuyinPage .floorTableButton small{font-weight:480!important}
+.floorBuyinPage .sessionTitlePlain strong,
+.floorBuyinPage .simpleSessionHeader .sessionTitlePlain strong{font-weight:680!important;font-size:23px!important}
+.floorBuyinPage .sessionTitlePlain span,
+.floorBuyinPage .sessionTitlePlain b,
+.floorBuyinPage .simpleSessionHeader .sessionTitlePlain span,
+.floorBuyinPage .simpleSessionHeader .sessionTitlePlain b{font-size:21px!important;font-weight:620!important}
+.floorBuyinPage .selectedTableStats span{font-weight:500!important;font-size:12px!important}
+.floorBuyinPage .selectedTableStats b{font-weight:650!important}
+.floorBuyinPage .playerAddHeader h2,
+.floorBuyinPage .selectedPlayerSearchHeader h2{font-weight:650!important}
+.floorBuyinPage .selectedPlayerIdentity strong,
+.floorBuyinPage .inlinePlayerIdentity strong{font-weight:620!important;letter-spacing:-.02em}
+.floorBuyinPage .inlineAgencyCode{font-weight:530!important}
+.floorBuyinPage .quickBuyinControl b{font-weight:640!important}
+.floorBuyinPage .selectedPlayerList .dualPlayerValues b{font-weight:630!important}
+.floorBuyinPage .playerValueToolbar,
+.floorBuyinPage .opsPlayerColumnLabels{font-weight:540!important;color:var(--muted)}
+.floorBuyinPage .selectedPlayerRow{box-shadow:none!important}
+.floorBuyinPage .selectedPlayerRow:hover{box-shadow:0 5px 14px rgba(0,0,0,.045)!important}
+@media(max-width:820px){
+ .floorBuyinPage .floorSelectorHeader h2{font-size:17px!important}
+ .floorBuyinPage .floorTableButton strong{font-size:20px!important}
+ .floorBuyinPage .selectedPlayerIdentity strong{font-weight:620!important}
+}
