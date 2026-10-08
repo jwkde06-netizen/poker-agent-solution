@@ -3128,7 +3128,7 @@ export default function Home() {
             const legacyCode=agencies.find(x=>x.id===p.agencyId)?.code??"";
             const nationality=p.nationality || (LEGACY_COUNTRY_CODES.includes(legacyCode)?countryName(legacyCode):"");
             return <tr key={p.id} className="clickablePlayerRow" onClick={()=>openPlayerDetail(p.id)} tabIndex={0} role="button" onKeyDown={e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();openPlayerDetail(p.id);}}}>
-              <td><div className="playerNameButton playerNameStack"><strong>{p.name}</strong>{p.koreanName && <span>{p.koreanName}</span>}</div></td>
+              <td><div className="playerNameButton playerNameStack"><span className="playerEnglishName">{p.name}</span>{p.koreanName && <span className="playerKoreanName" lang="ko">{p.koreanName}</span>}</div></td>
               <td>{nationality||"미등록"}</td>
               <td><span className="agencyCodeText">{legacyCode && !isNationalityOnlyAgency(agencies.find(x=>x.id===p.agencyId)!)?legacyCode:"미지정"}</span></td>
               <td>{st?.games??0}회</td><td><strong>{st?.buyIns??0}</strong></td><td>{isStaff?"—":vnd(st?.revenue??0)}</td><td>{last||"-"}</td>
