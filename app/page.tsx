@@ -98,7 +98,7 @@ type ShareholderPayout = {
   paidAt:string;
 };
 
-const FNB_QUICK_NAMES = ["Americano","Latte","White Coffee","Salted Coffee","Orange","Coca"];
+const FNB_QUICK_NAMES = ["Americano","Latte","White Coffee","Salted Coffee","Orange","Coca","Coconut Coffee"];
 
 const FNB_MENU = [
   {name:"Americano", label:"아메리카노", price:60000},
