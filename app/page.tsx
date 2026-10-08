@@ -2922,7 +2922,7 @@ export default function Home() {
               <div className="weeklyDayRevenueList">
                 {dashboardWeekRevenue.map(day=><div className="weeklyDayRevenueRow" key={day.date}>
                   <div className="weeklyDayLabel"><strong>{day.label}</strong><small>{day.date.slice(5)}</small></div>
-                  <div className="weeklyDayBarTrack"><div className="weeklyDayBarFill" style={{width:`${day.revenue?Math.max(3,100*day.revenue/dashboardWeekPeak):0}%`}}/></div>
+                  <div className="weeklyDayBarTrack"><div className="weeklyDayBarFill" style={{["--day-height" as string]:`${day.revenue?Math.max(3,100*day.revenue/dashboardWeekPeak):0}%`}}/></div>
                   <div className="weeklyDayAmount"><strong>{vnd(day.revenue)}</strong><small>{day.buyIns} BUY-IN</small></div>
                 </div>)}
               </div>
