@@ -76,6 +76,7 @@ type Shareholder = {
   sortOrder:number;
 };
 
+type WeeklyAdjustment = {id:string;weekStart:string;kind:"expense"|"mm"|"cash";label:string;amount:number;shareRate:number;received:boolean;note:string};
 type WeeklyDistribution = {
   id:string;
   weekStart:string;
@@ -241,6 +242,15 @@ export default function Home() {
   const [expenseDeposits,setExpenseDeposits]=useState<ExpenseDeposit[]>([]);
   const [shareholders,setShareholders]=useState<Shareholder[]>([]);
   const [weeklyDistributions,setWeeklyDistributions]=useState<WeeklyDistribution[]>([]);
+  const [weeklyAdjustments,setWeeklyAdjustments]=useState<WeeklyAdjustment[]>([]);
+  const [adjustmentKind,setAdjustmentKind]=useState<WeeklyAdjustment["kind"]>("expense");
+  const [adjustmentLabel,setAdjustmentLabel]=useState("");
+  const [adjustmentAmount,setAdjustmentAmount]=useState("");
+  const [adjustmentShareRate,setAdjustmentShareRate]=useState("70");
+  const [adjustmentNote,setAdjustmentNote]=useState("");
+  const [addingAdjustment,setAddingAdjustment]=useState(false);
+  const [savingAdjustment,setSavingAdjustment]=useState(false);
+
   const [shareholderPayouts,setShareholderPayouts]=useState<ShareholderPayout[]>([]);
   const [expenseDate,setExpenseDate]=useState(today());
   const [expenseCategory,setExpenseCategory]=useState("OTHER");
@@ -505,6 +515,11 @@ export default function Home() {
         supabase.from("weekly_distributions").select("*").order("week_start",{ascending:false}),
         supabase.from("shareholder_payouts").select("*").order("created_at")
       ]);
+      const {data:adjustmentsData,error:adjustmentsError}=await supabase.from("weekly_adjustments").select("*").order("created_at");
+      if(!adjustmentsError)setWeeklyAdjustments((adjustmentsData??[]).map((x:any)=>({
+        id:x.id,weekStart:x.week_start,kind:x.kind,label:x.label,amount:Number(x.amount),
+        shareRate:Number(x.share_rate),received:Boolean(x.received),note:x.note??""
+      })));
       const profiles=profilesResult.data;
       setAccountProfiles((profiles ?? []).map((x:any)=>({
         userId:x.user_id,username:x.username ?? "",email:x.email ?? "",displayName:x.display_name ?? "",
@@ -698,7 +713,15 @@ export default function Home() {
   const weeklyRakeback = total(weeklyEntries,"rakeback");
   const weeklyFnbAllTotal = weeklyFnbEntries.reduce((sum,e)=>sum+e.totalAmount,0);
   const weeklyFnbTotal = weeklyFnbEntries.filter(isOperatingFnbExpense).reduce((sum,e)=>sum+e.totalAmount,0);
-  const weeklyProfit = weeklyEntryFee-weeklyRakeback-weeklyFnbTotal;
+  const weekAdjustments=weeklyAdjustments.filter(x=>x.weekStart===weekStart);
+  const weekExtraExpenses=weekAdjustments.filter(x=>x.kind==="expense").reduce((sum,x)=>sum+x.amount,0);
+  const weekMMGross=weekAdjustments.filter(x=>x.kind==="mm").reduce((sum,x)=>sum+x.amount,0);
+  const weekMMOurShare=weekAdjustments.filter(x=>x.kind==="mm").reduce((sum,x)=>sum+Math.round(x.amount*x.shareRate/100),0);
+  const weekMMAgentShare=weekMMGross-weekMMOurShare;
+  const weekMMOutstanding=weekAdjustments.filter(x=>x.kind==="mm"&&!x.received).reduce((sum,x)=>sum+Math.round(x.amount*x.shareRate/100),0);
+  const weekCashOutstanding=weekAdjustments.filter(x=>x.kind==="cash"&&!x.received).reduce((sum,x)=>sum+x.amount,0);
+  const weekTotalClaim=weekMMOutstanding+weekCashOutstanding;
+  const weeklyProfit = weeklyEntryFee-weeklyRakeback-weeklyFnbTotal-weekExtraExpenses;
   const lastWeekStart=plusDays(monday(today()),-7);
   const lastWeekEnd=plusDays(lastWeekStart,6);
   const lastWeekGameEntries=entries.filter(e=>e.date>=lastWeekStart && e.date<=lastWeekEnd);
@@ -1610,6 +1633,39 @@ export default function Home() {
     const {error}=await supabase.from("shareholders").update({ownership_rate:next,updated_at:new Date().toISOString()}).eq("id",holder.id);
     if(error){setMessage(error.message);return;}
     setShareholders(prev=>prev.map(x=>x.id===holder.id?{...x,rate:next}:x));
+  }
+
+  async function saveWeeklyAdjustment(){
+    if(!supabase || profile?.role!=="admin")return;
+    const amount=Number(adjustmentAmount.replace(/,/g,""));
+    const shareRate=adjustmentKind==="mm"?Number(adjustmentShareRate):100;
+    if(!adjustmentLabel.trim()||!Number.isFinite(amount)||amount<=0){setMessage("항목명과 0보다 큰 금액을 입력해주세요.");return;}
+    if(!Number.isFinite(shareRate)||shareRate<0||shareRate>100){setMessage("MM 정산 지분은 0~100%로 설정해주세요.");return;}
+    setSavingAdjustment(true);
+    const {data,error}=await supabase.from("weekly_adjustments").insert({
+      week_start:weekStart,kind:adjustmentKind,label:adjustmentLabel.trim(),amount,share_rate:shareRate,
+      received:false,note:adjustmentNote.trim()||null
+    }).select().single();
+    setSavingAdjustment(false);
+    if(error){setMessage("주간 정산 항목 저장 실패: "+error.message);return;}
+    setWeeklyAdjustments(prev=>[...prev,{id:data.id,weekStart:data.week_start,kind:data.kind,label:data.label,amount:Number(data.amount),shareRate:Number(data.share_rate),received:Boolean(data.received),note:data.note??""}]);
+    setAdjustmentLabel("");setAdjustmentAmount("");setAdjustmentNote("");setAddingAdjustment(false);
+    setMessage("주간 정산 항목 저장 완료");
+  }
+
+  async function setWeeklyAdjustmentReceived(item:WeeklyAdjustment){
+    if(!supabase || profile?.role!=="admin")return;
+    const {error}=await supabase.from("weekly_adjustments").update({received:!item.received}).eq("id",item.id);
+    if(error){setMessage(error.message);return;}
+    setWeeklyAdjustments(prev=>prev.map(x=>x.id===item.id?{...x,received:!item.received}:x));
+  }
+
+  async function deleteWeeklyAdjustment(item:WeeklyAdjustment){
+    if(!supabase||profile?.role!=="admin")return;
+    if(!confirm(`"${item.label}" 항목을 삭제할까요?`))return;
+    const {error}=await supabase.from("weekly_adjustments").delete().eq("id",item.id);
+    if(error){setMessage(error.message);return;}
+    setWeeklyAdjustments(prev=>prev.filter(x=>x.id!==item.id));
   }
 
   async function finalizeSelectedWeek(){
