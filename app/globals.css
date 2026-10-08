@@ -16733,3 +16733,10 @@ html{scroll-behavior:smooth}
  .compactDailyPage .dailyInlineUndo span{display:none}
 }
 @media(prefers-reduced-motion:reduce){.compactDailyPage .dailyInlineUndo{transition:none}}
+
+
+/* Explicit operating-day status; no automatic midnight rollover */
+.floorBuyinPage .opsBusinessDate{white-space:nowrap;font-size:12px;color:var(--muted);font-weight:550}
+.floorBuyinPage .opsCloseVenue{height:36px;padding:0 12px;border:1px solid var(--line);border-radius:9px;background:var(--surface);font:inherit;font-size:12px;font-weight:550;color:var(--text)}
+.floorBuyinPage .opsCloseVenue:disabled{opacity:.4;cursor:not-allowed}
+.floorBuyinPage .opsCloseVenue:not(:disabled):hover{background:var(--surface-2);border-color:var(--line-strong)}
