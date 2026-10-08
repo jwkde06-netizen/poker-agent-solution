@@ -201,6 +201,16 @@ function plusDays(dateString: string, days: number) {
   return formatLocalDate(d);
 }
 
+/** Dream Poker operates past midnight. 06:00 is only a fallback boundary,
+ * not permission to close a live game. Live sessions are additionally grouped
+ * by the latest operating date and by table number. */
+function pokerBusinessDate(now=new Date()){
+  const parts=new Intl.DateTimeFormat("en-GB",{timeZone:"Asia/Ho_Chi_Minh",year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",hourCycle:"h23"}).formatToParts(now);
+  const field=(name:string)=>parts.find(part=>part.type===name)?.value??"";
+  const date=`${field("year")}-${field("month")}-${field("day")}`;
+  return Number(field("hour"))<6?plusDays(date,-1):date;
+}
+
 function MobileBottomIcon({type}:{type:"dashboard"|"players"|"games"|"fnb"|"settlement"}) {
   const common={width:"100%",height:"100%",viewBox:"0 0 24 24",fill:"none",stroke:"currentColor",strokeWidth:2.2,strokeLinecap:"round" as const,strokeLinejoin:"round" as const,ariaHidden:true};
   if(type==="dashboard") return <svg {...common}><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>;
@@ -1209,18 +1219,18 @@ export default function Home() {
   async function startGameSession(){
     const tableNo=(selectedTableNo || newTableNo).trim();
     if(!tableNo){setMessage("테이블 번호를 입력해주세요.");return;}
-    if(gameSessions.some(s=>s.status==="active" && s.tableNo===tableNo)){
+    if(gameSessions.some(s=>s.status==="active" && s.tableNo===tableNo && s.date===pokerBusinessDate())){
       setMessage("해당 테이블에서 게임이 아직 진행 중입니다. 경기 종료 후 새 게임을 시작해주세요.");
       return;
     }
 
     if(isSupabaseConfigured && supabase && session){
-      const payload={played_on:today(),table_no:tableNo,game_no:newGameNo.trim() || null,game_name:newSessionGame,status:"active"};
+      const payload={played_on:pokerBusinessDate(),table_no:tableNo,game_no:newGameNo.trim() || null,game_name:newSessionGame,status:"active"};
       const {data,error}=await supabase.from("game_sessions").insert(payload).select().single();
       if(error){setMessage(error.message);return;}
       setGameSessions(prev=>[...prev,{id:data.id,date:data.played_on,tableNo:data.table_no,gameNo:data.game_no ?? "",game:data.game_name,status:data.status}]);
     }else{
-      setGameSessions(prev=>[...prev,{id:uid("session"),date:today(),tableNo,gameNo:newGameNo.trim(),game:newSessionGame,status:"active"}]);
+      setGameSessions(prev=>[...prev,{id:uid("session"),date:pokerBusinessDate(),tableNo,gameNo:newGameNo.trim(),game:newSessionGame,status:"active"}]);
     }
     setSelectedTableNo(tableNo);
     setNewTableNo("");
@@ -2376,7 +2386,19 @@ export default function Home() {
   const todayPlayerCount = new Set(todayEntries.map(e=>e.playerId)).size;
   const weekSettlement = total(thisWeekEntries,"rakeback");
   const recentEntries = [...entries].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,6);
-  const activeGameSessions = gameSessions.filter(s=>s.status==="active");
+  const currentBusinessDate=pokerBusinessDate();
+  const allOpenSessions=gameSessions.filter(s=>s.status==="active");
+  // Old "active" rows are not proof of a running table. Preserve overnight
+  // sessions from the current business date and only show one per physical table.
+  const eligibleSessions=allOpenSessions.filter(s=>s.date===currentBusinessDate);
+  const activeByTable=new Map<string,GameSession>();
+  eligibleSessions.forEach(gameSession=>{
+    const key=gameSession.tableNo.trim();
+    if(key)activeByTable.set(key,gameSession);
+  });
+  const activeGameSessions=[...activeByTable.values()];
+  const unresolvedOldSessions=allOpenSessions.filter(s=>s.date!==currentBusinessDate);
+  const duplicateCurrentSessions=eligibleSessions.length-activeGameSessions.length;
   const availableTableNos = Array.from(new Set(["4","12","13","5","2",...extraTableNos,...gameSessions.map(s=>s.tableNo).filter(Boolean)]))
     .filter(no=>!removedTableNos.includes(no) || activeGameSessions.some(s=>s.tableNo===no));
   const orderedTableNos = [...availableTableNos].sort((a,b)=>{
@@ -3259,7 +3281,7 @@ export default function Home() {
         </section>}
 
         {tab==="games" && <section className={isStaff?"buyinPage floorBuyinPage staffMobileBuyinPage":"buyinPage floorBuyinPage"}>
-          <div className="opsUndoToolbar"><strong>게임 입력</strong><div><button type="button" disabled={!undoBuyIn||undoBusy} onClick={()=>restoreBuyIn("undo")}>↶ 실행취소</button><button type="button" disabled={!redoBuyIn||undoBusy} onClick={()=>restoreBuyIn("redo")}>↷ 다시실행</button></div></div>
+          <div className="opsUndoToolbar"><span className="opsToolbarSpacer" aria-hidden="true"/><div><button type="button" disabled={!undoBuyIn||undoBusy} onClick={()=>restoreBuyIn("undo")}><span aria-hidden="true">⟲</span> 실행취소</button><button type="button" disabled={!redoBuyIn||undoBusy} onClick={()=>restoreBuyIn("redo")}><span aria-hidden="true">⟳</span> 다시실행</button></div></div>
           <div className="mobileSectionSwitcher buyinModeSwitcher">
             <button className={gamesView==="live"?"active":""} onClick={()=>setGamesView("live")}>진행 중</button>
             <button className={gamesView==="logs"?"active":""} onClick={()=>setGamesView("logs")}>게임 로그</button>
@@ -3292,6 +3314,7 @@ export default function Home() {
               </div>
             </div>
 
+            {(unresolvedOldSessions.length>0||duplicateCurrentSessions>0)&&<p className="opsStaleNotice" role="status">미종료 과거 게임 {unresolvedOldSessions.length}건{duplicateCurrentSessions>0?` · 같은 테이블 중복 ${duplicateCurrentSessions}건`:""}은 LIVE 집계에서 제외했습니다. 과거 게임은 게임 로그에서 확인하고 마감해주세요.</p>}
             <div className="pokerFloorMap">
               {orderedTableNos.map(no=>{
                 const liveSession=activeGameSessions.find(s=>s.tableNo===no);
