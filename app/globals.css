@@ -16275,3 +16275,29 @@ html{scroll-behavior:smooth}
 }
 @media(hover:none){.contentArea[data-motion="on"] .playerListTable .clickablePlayerRow:hover{box-shadow:none}}
 @media(prefers-reduced-motion:reduce){.playerListTable .clickablePlayerRow,.playerListTable .agencyCodeText{transition:none!important;transform:none!important}}
+
+
+/* Player directory verified layout override: no legacy 52% name column on tablet */
+.playerListTable{width:100%;max-width:100%;overflow-x:auto;overscroll-behavior-x:contain}
+.playerListTable table{width:100%;table-layout:fixed;border-collapse:separate;border-spacing:0}
+.playerListTable th,.playerListTable td{box-sizing:border-box;vertical-align:middle}
+.playerListTable th:first-child,.playerListTable td:first-child{min-width:0}
+.playerListTable .playerNameStack{width:100%;min-width:0}
+.playerListTable .playerNameStack strong{display:block}
+@media(min-width:821px){
+ .playerListTable table{min-width:860px}
+ .playerListTable th:nth-child(1),.playerListTable td:nth-child(1){width:22%!important}
+ .playerListTable th:nth-child(2),.playerListTable td:nth-child(2){width:12%!important}
+ .playerListTable th:nth-child(3),.playerListTable td:nth-child(3){width:14%!important}
+ .playerListTable th:nth-child(4),.playerListTable td:nth-child(4){width:11%!important}
+ .playerListTable th:nth-child(5),.playerListTable td:nth-child(5){width:12%!important}
+ .playerListTable th:nth-child(6),.playerListTable td:nth-child(6){width:16%!important}
+ .playerListTable th:nth-child(7),.playerListTable td:nth-child(7){width:13%!important}
+}
+@media(max-width:820px){
+ .playerListTable table{min-width:620px}
+ .playerListTable th:nth-child(1),.playerListTable td:nth-child(1){width:36%!important;text-align:left!important}
+ .playerListTable th:nth-child(3),.playerListTable td:nth-child(3){width:21%!important;text-align:left!important}
+ .playerListTable th:nth-child(4),.playerListTable td:nth-child(4){width:21%!important;text-align:center!important}
+ .playerListTable th:nth-child(5),.playerListTable td:nth-child(5){width:22%!important;text-align:center!important}
+}
