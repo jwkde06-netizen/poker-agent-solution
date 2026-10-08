@@ -16713,3 +16713,23 @@ html{scroll-behavior:smooth}
  .playerListTable .playerEnglishName{font-size:13px}
  .playerListTable .playerKoreanName{font-size:11px}
 }
+
+
+/* Daily settlement: undo belongs to the existing header, not a separate full-width row. */
+.compactDailyPage .dailyTopBar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.compactDailyPage .dailyTopActions{display:flex;align-items:center;gap:8px;flex:0 0 auto}
+.compactDailyPage .dailyInlineUndo{
+  height:38px;min-height:38px;padding:0 11px;display:inline-flex;align-items:center;justify-content:center;
+  gap:7px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--text);
+  font:inherit;font-size:12px;font-weight:540;white-space:nowrap;transition:border-color .18s ease,background-color .18s ease;
+}
+.compactDailyPage .dailyInlineUndo svg{width:15px;height:15px;flex:none}
+.compactDailyPage .dailyInlineUndo:disabled{opacity:.4;cursor:not-allowed}
+.compactDailyPage .dailyInlineUndo:not(:disabled):hover{border-color:var(--line-strong);background:var(--surface-2)}
+.compactDailyPage .dailyInlineUndo:focus-visible{outline:2px solid #6c9dc5;outline-offset:2px}
+@media(max-width:500px){
+ .compactDailyPage .dailyTopActions{gap:5px}
+ .compactDailyPage .dailyInlineUndo{width:38px;padding:0}
+ .compactDailyPage .dailyInlineUndo span{display:none}
+}
+@media(prefers-reduced-motion:reduce){.compactDailyPage .dailyInlineUndo{transition:none}}
