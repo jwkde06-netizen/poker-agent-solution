@@ -1919,6 +1919,57 @@ export default function Home() {
     return canvas;
   }
 
+  function exportExpenseLedgerPng(){
+    // Export the entire ledger, not the viewport. Running balances are calculated chronologically.
+    const rows=[...ledgerRows].reverse();
+    const width=1520, headerHeight=262, rowHeight=54, bottomPadding=108;
+    const height=headerHeight+Math.max(1,rows.length)*rowHeight+bottomPadding;
+    const canvas=document.createElement("canvas");
+    canvas.width=width;canvas.height=height;
+    const ctx=canvas.getContext("2d");
+    if(!ctx){setMessage("PNG 생성에 실패했습니다.");return;}
+    const font=(size:number,bold=false)=>{ctx.font=`${bold?750:500} ${size}px Arial, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif`;};
+    const label=(value:string,x:number,y:number,size=16,bold=false,color="#252a31",align:"left"|"right"="left",maxWidth?:number)=>{
+      font(size,bold);ctx.fillStyle=color;ctx.textAlign=align;ctx.textBaseline="middle";
+      if(maxWidth)ctx.fillText(value,x,y,maxWidth);else ctx.fillText(value,x,y);
+    };
+    ctx.fillStyle="#ffffff";ctx.fillRect(0,0,width,height);
+    label("DREAM POKER",54,49,16,true,"#aa7522");
+    label("지출 내역서",54,92,36,true);
+    label("입출금 장부 · 최신순",54,126,15,false,"#6c7782");
+    label(`출력일 ${today()}`,width-54,64,15,false,"#6c7782","right");
+    label("현재 장부 잔액",width-54,103,15,true,"#6c7782","right");
+    label(`${ledgerBalance>0?"+":""}${vnd(ledgerBalance)} VND`,width-54,143,29,true,ledgerBalance<0?"#bb5045":"#37814a","right");
+    ctx.strokeStyle="#dce1e6";ctx.beginPath();ctx.moveTo(54,173);ctx.lineTo(width-54,173);ctx.stroke();
+    const xs=[54,205,790,955,1135,1450];
+    ctx.fillStyle="#f3f5f7";ctx.fillRect(54,194,width-108,55);
+    label("날짜",xs[0]+13,222,15,true,"#4c5661");
+    label("항목",xs[1]+13,222,15,true,"#4c5661");
+    label("선지급자",xs[2],222,15,true,"#4c5661");
+    label("Deposit",xs[3],222,15,true,"#4c5661","right");
+    label("Withdrawal",xs[4],222,15,true,"#4c5661","right");
+    label("Balance",xs[5],222,15,true,"#4c5661","right");
+    if(rows.length===0)label("기록된 입출금 내역이 없습니다.",70,280,17,false,"#6c7782");
+    rows.forEach((row,i)=>{
+      const y=headerHeight+i*rowHeight;
+      if(i%2===1){ctx.fillStyle="#fafbfc";ctx.fillRect(54,y-5,width-108,rowHeight);}
+      ctx.strokeStyle="#e5e8ec";ctx.beginPath();ctx.moveTo(54,y+rowHeight-5);ctx.lineTo(width-54,y+rowHeight-5);ctx.stroke();
+      label(row.date,xs[0]+13,y+20,15);
+      label(row.description,xs[1]+13,y+20,15,true,"#252a31","left",560);
+      label(row.expense?.prepaidBy || "-",xs[2],y+20,14,false,"#697480","left",148);
+      label(row.kind==="deposit" ? "+"+vnd(row.amount) : "-",xs[3],y+20,15,row.kind==="deposit",row.kind==="deposit"?"#37814a":"#697480","right");
+      label(row.kind==="expense" ? "-"+vnd(row.amount) : "-",xs[4],y+20,15,row.kind==="expense",row.kind==="expense"?"#ba5447":"#697480","right");
+      label(`${row.balance>0?"+":""}${vnd(row.balance)}`,xs[5],y+20,15,true,row.balance<0?"#b64b3e":"#37814a","right");
+    });
+    ctx.strokeStyle="#dce1e6";ctx.beginPath();ctx.moveTo(54,height-75);ctx.lineTo(width-54,height-75);ctx.stroke();
+    label("Dream Poker · 운영 경비 입출금 장부",54,height-46,14,false,"#818b95");
+    label(`총 ${rows.length}건 · 단위 VND`,width-54,height-46,14,false,"#818b95","right");
+    canvas.toBlob(blob=>{
+      if(!blob){setMessage("PNG 파일을 생성하지 못했습니다.");return;}
+      downloadBlob(`드림포커_지출내역서_${today()}.png`,blob);
+    },"image/png");
+  }
+
   function exportWeeklyPng(){
     const canvas=buildWeeklySettlementCanvas();
     if(!canvas)return;
@@ -3626,6 +3677,7 @@ export default function Home() {
                 <h2>입출금 장부</h2>
                 <p>Deposit은 들어온 돈, Withdrawal은 나간 돈이며 Balance는 누적 잔액입니다.</p>
               </div>
+              <button type="button" className="expenseLedgerPngButton" onClick={exportExpenseLedgerPng} title="전체 입출금 장부 PNG 다운로드">↓ PNG 다운로드</button>
               {profile?.role==="admin" && (
                 selectedWeekDistribution
                   ? <span className="weeklyDepositApplied">{weekStart} ~ {weekEnd} 정산금 반영 완료</span>
