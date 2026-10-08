@@ -15774,3 +15774,43 @@ html[data-theme="dark"] .weeklyStatementRow.totalExpense{
 .weeklyInteractiveSheet .weeklyStatementSplit{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;gap:18px!important;align-items:start!important;width:100%!important;}
 .weeklyInteractiveSheet .weeklyStatementTable,.weeklyInteractiveSheet .weeklyStatementDetail{width:100%!important;min-width:0!important;max-width:none!important;}
 @media(max-width:900px){.weeklyInteractiveSheet .weeklyStatementSplit{grid-template-columns:minmax(0,1fr)!important;gap:12px!important;}}
+
+/* Consistent administrator workspace: weekly financial statement */
+.weeklyInteractiveSheet .weeklyStatementTable{overflow:hidden;border:1px solid var(--line);border-radius:13px;background:var(--surface);}
+.weeklyInteractiveSheet .weeklyStatementHead{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;min-height:44px;background:var(--surface-2)!important;color:var(--text)!important;border-bottom:1px solid var(--line);font-size:12px;letter-spacing:.02em;}
+.weeklyInteractiveSheet .weeklyStatementHead span{padding:0 17px;}
+.weeklyInteractiveSheet .weeklyStatementRow.weeklyDetailPick{min-height:49px;grid-template-columns:minmax(0,1fr) auto!important;background:transparent!important;color:var(--text)!important;border:0!important;border-bottom:1px solid var(--line)!important;border-left:3px solid transparent!important;border-radius:0!important;box-shadow:none!important;padding:0!important;white-space:normal;}
+.weeklyInteractiveSheet .weeklyStatementRow.weeklyDetailPick:last-child{border-bottom:0!important;}
+.weeklyInteractiveSheet .weeklyDetailPick span{padding:11px 14px;font-size:12px;font-weight:650;letter-spacing:.005em;overflow-wrap:anywhere;}
+.weeklyInteractiveSheet .weeklyDetailPick b{padding:11px 16px 11px 5px;font-size:14px;font-weight:750;white-space:nowrap;color:var(--text)!important;font-variant-numeric:tabular-nums;}
+.weeklyInteractiveSheet .weeklyDetailPick.totalExpense span,.weeklyInteractiveSheet .weeklyDetailPick.netProfit span{font-weight:850;}
+.weeklyInteractiveSheet .weeklyDetailPick.netProfit b{color:#bc892c!important;}
+.weeklyInteractiveSheet .weeklyDetailPick:hover{background:var(--surface-2)!important;}
+.weeklyInteractiveSheet .weeklyDetailPick.chosen{background:rgba(188,137,44,.09)!important;border-left-color:#bc892c!important;}
+.weeklyInteractiveSheet .weeklyStatementDetail{border-radius:13px!important;border:1px solid var(--line)!important;background:var(--surface)!important;padding:20px!important;min-height:280px;max-height:670px;}
+.weeklyInteractiveSheet .weeklyDetailTitle{padding-bottom:14px;margin-bottom:6px;}
+.weeklyInteractiveSheet .weeklyDetailLine{min-height:55px;}
+/* Agency directory: fixed, readable controls and compact, scannable rows */
+.agencyPage .agencyManagePanel{width:100%;max-width:none;min-width:0;}
+.agencyPage .agencyManageHeader{margin-bottom:16px;}
+.agencyPage .agencyAddRow{display:grid;grid-template-columns:minmax(180px,320px) 112px 116px;gap:10px;align-items:center;margin-top:16px;margin-bottom:19px;}
+.agencyPage .agencyAddRow input,.agencyPage .agencyAddRow select{height:44px!important;min-width:0;background:var(--surface)!important;color:var(--text)!important;border:1px solid var(--line-strong)!important;border-radius:10px!important;font-size:13px!important;padding:0 13px;}
+.agencyPage .agencyAddRow .primary{height:44px!important;min-width:0!important;border-radius:10px;font-size:13px;font-weight:750;}
+.agencyPage .agencySimpleList{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,330px),1fr));gap:10px;align-items:stretch;margin-top:8px;}
+.agencyPage .agencySimpleRow{width:100%;min-width:0;min-height:79px;padding:15px 16px;border:1px solid var(--line)!important;border-radius:12px!important;background:var(--surface)!important;color:var(--text)!important;gap:15px;transition:background .16s,border-color .16s,transform .16s;}
+.agencyPage .agencySimpleRow:hover{background:var(--surface-2)!important;border-color:var(--line-strong)!important;transform:translateY(-1px);}
+.agencyPage .agencySimpleRow>div:first-child{min-width:0;flex:1;}
+.agencyPage .agencySimpleRow strong{font-size:15px;line-height:1.35;overflow-wrap:anywhere;}
+.agencyPage .agencySimpleRow small{font-size:11px!important;line-height:1.5;margin-top:5px;color:var(--muted)!important;}
+.agencyPage .agencyRateDisplay{flex-shrink:0;display:flex;align-items:flex-end;flex-direction:column;gap:3px;}
+.agencyPage .agencyRateDisplay small{font-size:11px!important;margin:0!important;font-variant-numeric:tabular-nums;}
+.agencyPage .agencyRateDisplay b{font-size:17px;font-variant-numeric:tabular-nums;color:#bc892c;}
+.agencyPage .agencyRateDisplay span{display:none;}
+.agencyPage .agencyDetailKpis{gap:12px;}
+.agencyPage .agencyDetailSettings input,.agencyPage .agencyDetailSettings select{min-height:44px;}
+@media(max-width:650px){
+ .agencyPage .agencyAddRow{grid-template-columns:minmax(0,1fr) 94px;gap:8px;}
+ .agencyPage .agencyAddRow .primary{grid-column:1/-1;}
+ .agencyPage .agencySimpleList{grid-template-columns:1fr;}
+ .weeklyInteractiveSheet .weeklyStatementDetail{max-height:none;padding:14px!important;}
+}
