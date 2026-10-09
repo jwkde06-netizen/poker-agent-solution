@@ -38,6 +38,8 @@ export default function StatusPosterBuilder({onSave,sessions=[]}:{onSave?:(title
  const [rows,setRows]=useState<GameRow[]>([]);
  const [loaded,setLoaded]=useState(false);
  const [time,setTime]=useState("17:15");
+ const [clock,setClock]=useState("");
+ useEffect(()=>{const tick=()=>setClock(new Intl.DateTimeFormat("en-GB",{timeZone:"Asia/Ho_Chi_Minh",hour:"2-digit",minute:"2-digit",hour12:false}).format(new Date()));tick();const timer=window.setInterval(tick,15000);return()=>window.clearInterval(timer)},[]);
  const [footer,setFooter]=useState(initial.footer);
  const [contact,setContact]=useState(initial.contact);
 
@@ -62,19 +64,36 @@ export default function StatusPosterBuilder({onSave,sessions=[]}:{onSave?:(title
  const updateRow=(id:string,change:Partial<GameRow>)=>setRows(prev=>prev.map(r=>r.id===id?{...r,...change}:r));
  const gameText=(r:GameRow)=>`${r.game} · ${getStatus(r)}${r.waiting>0?` · ${r.waiting}명 대기`:""}`;
  const sections=([{id:"dream" as const,name:"DREAM POKER"},{id:"mm" as const,name:"MILLION MAKER"}]);
- const text=useMemo(()=>["📢 실시간 테이블 현황",time+" 기준","",...sections.flatMap(section=>[section.id==="dream"?"♠️ "+section.name:"♣️ "+section.name,...rows.filter(r=>r.venue===section.id).map(r=>"• "+gameText(r)),""]),footer,"",contact].join("\n"),[rows,time,footer,contact]);
+ const displayTime=clock||time;
+ const text=useMemo(()=>["📢 실시간 테이블 현황",displayTime+" 기준","",...sections.flatMap(section=>[section.id==="dream"?"♠️ "+section.name:"♣️ "+section.name,...rows.filter(r=>r.venue===section.id).map(r=>"• "+gameText(r)),""]),footer,"",contact].join("\n"),[rows,displayTime,footer,contact]);
  const applyLive=()=>{
-   const active=sessions.filter(s=>s.status==="active");
+   // Count physical tables, not historical session rows. The store has five
+   // registered physical tables; invalid/duplicate rows must never inflate the poster.
+   const knownTables=new Set(["2","4","5","12","13"]);
+   const active=sessions.filter(session=>session.status==="active"&&knownTables.has(session.tableNo.trim()));
+   const byTable=new Map<string,string>();
+   for(const session of active){
+     const table=session.tableNo.trim();
+     const game=session.game.trim().toUpperCase();
+     if(!game)continue;
+     if(byTable.has(table)&&byTable.get(table)!==game){
+       flash("테이블별 진행 경기 데이터가 중복됩니다. 자동 반영하지 않았습니다.");
+       return;
+     }
+     byTable.set(table,game);
+   }
    const groups=new Map<string,number>();
-   for(const session of active){const game=session.game.trim();if(game)groups.set(game,(groups.get(game)||0)+1)}
+   for(const game of byTable.values())groups.set(game,(groups.get(game)||0)+1);
+   if(sessions.some(session=>session.status==="active"&&!knownTables.has(session.tableNo.trim()))){
+     flash("미등록 테이블 데이터가 있어 자동 반영하지 않았습니다. 게임 입력을 확인해주세요.");
+     return;
+   }
    setRows(prev=>{
-     const next=[...prev];
-     for(const [game,count] of groups){const idx=next.findIndex(r=>r.venue==="dream"&&r.game.toLowerCase()===game.toLowerCase());
-       if(idx>=0)next[idx]={...next[idx],tables:count};else next.push(makeRow("dream",game,count,0))}
+     const next=prev.map(row=>row.venue==="dream"?{...row,tables:groups.get(row.game.trim().toUpperCase())||0}:row);
+     for(const [game,count] of groups)if(!next.some(row=>row.venue==="dream"&&row.game.trim().toUpperCase()===game))next.push(makeRow("dream",game,count,0));
      return next;
    });
-   setTime(nowTime());
-   flash("운영 시스템의 게임 수를 반영했습니다. 대기 인원은 기존 값을 유지합니다.");
+   flash("실제 테이블 번호 기준으로 중복 없이 반영했습니다. 예약·대기는 유지됩니다.");
  };
  const applyMonitor=()=>{
    if(!monitor||!monitorFresh){flash("최신 전광판 데이터가 없습니다.");return}
@@ -88,26 +107,26 @@ export default function StatusPosterBuilder({onSave,sessions=[]}:{onSave?:(title
   const canvas=canvasRef.current;if(!canvas)throw new Error("Canvas unavailable");
   const ctx=canvas.getContext("2d");if(!ctx)throw new Error("Canvas unavailable");
   const W=1080,pad=76,usable=W-pad*2;
-  const groupHeights=sections.map(section=>Math.max(185,rows.filter(r=>r.venue===section.id).length*108+185));
+  const groupHeights=sections.map(section=>Math.max(185,rows.filter(r=>r.venue===section.id).length*79+170));
   const H=Math.max(1100,380+groupHeights.reduce((a,b)=>a+b,0)+220);
   canvas.width=W;canvas.height=H;
   const bg=ctx.createLinearGradient(0,0,W,H);bg.addColorStop(0,"#26303c");bg.addColorStop(1,"#101419");ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
   ctx.fillStyle="#d2ac61";ctx.fillRect(pad,69,110,6);
   ctx.fillStyle="#fff";ctx.font="bold 62px sans-serif";ctx.fillText("LIVE TABLE STATUS",pad,162);
-  ctx.fillStyle="#c9cfda";ctx.font="32px sans-serif";ctx.fillText(time+" 기준",pad,226);
+  ctx.fillStyle="#c9cfda";ctx.font="32px sans-serif";ctx.fillText(displayTime+" 기준 (베트남 현지시각)",pad,226);
   let y=290;
   sections.forEach((section,index)=>{
    const current=rows.filter(r=>r.venue===section.id);
    const height=groupHeights[index];
    ctx.fillStyle="#202935";ctx.beginPath();ctx.roundRect(pad,y,usable,height,20);ctx.fill();
    ctx.fillStyle="#e2bb73";ctx.font="bold 40px sans-serif";ctx.fillText(section.name,pad+25,y+62);
-   ctx.fillStyle="#abb4c1";ctx.font="24px sans-serif";ctx.fillText("GAME TYPE",pad+25,y+108);ctx.fillText("TABLES",pad+385,y+108);ctx.fillText("WAITING",pad+555,y+108);ctx.fillText("BOOKED",pad+755,y+108);
+   ctx.fillStyle="#abb4c1";ctx.font="24px sans-serif";ctx.fillText("GAME",pad+22,y+108);ctx.fillText("TABLE",pad+244,y+108);ctx.fillText("WAIT",pad+385,y+108);ctx.fillText("BOOK",pad+523,y+108);ctx.fillText("STATUS",pad+658,y+108);
    current.forEach((r,i)=>{
-     const yy=y+158+i*108;
-     ctx.fillStyle="#fafafa";ctx.font="bold 38px sans-serif";ctx.fillText(r.game.slice(0,16),pad+25,yy);
-     ctx.font="bold 36px sans-serif";ctx.fillText(String(r.tables),pad+410,yy);ctx.fillText(String(r.waiting),pad+580,yy);
-     ctx.fillStyle="#e2bb73";ctx.font="bold 27px sans-serif";ctx.fillText(String(r.reserved||0),pad+770,yy);
-     ctx.fillStyle="#d8bd88";ctx.font="23px sans-serif";ctx.fillText(getStatus(r),pad+25,yy+36);ctx.fillStyle="#414b57";ctx.fillRect(pad+25,yy+51,usable-50,1);
+     const yy=y+158+i*79;
+     ctx.fillStyle="#fafafa";ctx.font="bold 31px sans-serif";ctx.fillText(r.game.slice(0,10),pad+22,yy);
+     ctx.font="bold 31px sans-serif";ctx.fillText(String(r.tables),pad+260,yy);ctx.fillText(String(r.waiting),pad+395,yy);
+     ctx.fillStyle="#e2bb73";ctx.font="bold 27px sans-serif";ctx.fillText(String(r.reserved||0),pad+537,yy);
+     ctx.fillStyle="#d8bd88";ctx.font="20px sans-serif";ctx.fillText(getStatus(r).replace(/ · /g," ").slice(0,16),pad+660,yy);ctx.fillStyle="#414b57";ctx.fillRect(pad+22,yy+22,usable-44,1);
    });
    y+=height+22;
   });
@@ -116,9 +135,9 @@ export default function StatusPosterBuilder({onSave,sessions=[]}:{onSave?:(title
   return canvas;
  }
  const getPng=async()=>{const canvas=renderPoster();return await new Promise<Blob>((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(new Error("PNG 변환 실패")),"image/png"))};
- const download=async()=>{try{const blob=await getPng();const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="Dream-LIVE-"+time.replace(":","")+".png";a.click();setTimeout(()=>URL.revokeObjectURL(url),2000);flash("PNG 저장 완료")}catch(e){flash(String(e))}};
+ const download=async()=>{try{const blob=await getPng();const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="Dream-LIVE-"+displayTime.replace(":","")+".png";a.click();setTimeout(()=>URL.revokeObjectURL(url),2000);flash("PNG 저장 완료")}catch(e){flash(String(e))}};
  const copyPoster=async()=>{try{if(!navigator.clipboard?.write||typeof ClipboardItem==="undefined"){flash("이 브라우저는 이미지 복사를 지원하지 않습니다. PNG 다운로드를 이용해주세요.");return}await navigator.clipboard.write([new ClipboardItem({"image/png":getPng()})]);flash("포스터 이미지 복사 완료 · Ctrl+V로 붙여넣으세요")}catch(e){flash("이미지 복사 실패 · 브라우저 권한을 확인하거나 PNG를 다운로드하세요")}};
- const save=async()=>{if(!onSave)return;try{await onSave("Dream & MM 현황 "+time,text,await getPng());flash("자료실 저장 완료")}catch(e){flash("저장 실패: "+String(e))}};
+ const save=async()=>{if(!onSave)return;try{await onSave("Dream & MM 현황 "+displayTime,text,await getPng());flash("자료실 저장 완료")}catch(e){flash("저장 실패: "+String(e))}};
  const listEditor=(venue:"dream"|"mm",name:string)=><section className="statusVenue" key={venue}>
   <div className="statusVenueTitle"><strong>{name}</strong><span>{rows.filter(r=>r.venue===venue).length}종류</span></div>
   <div className="statusTableScroll"><table className="statusEditTable"><thead><tr><th>게임 종류</th><th>테이블</th><th>대기</th><th>예약</th><th aria-label="삭제"></th></tr></thead><tbody>
@@ -140,5 +159,5 @@ export default function StatusPosterBuilder({onSave,sessions=[]}:{onSave?:(title
  <label>문의 문구<input value={contact} onChange={e=>setContact(e.target.value)}/></label></details>
  <div className="builderActions"><button onClick={()=>void navigator.clipboard.writeText(text).then(()=>flash("문구 복사 완료")).catch(()=>flash("복사 실패"))}>문구 복사</button><button onClick={()=>void download()}>PNG 다운로드</button>{onSave&&<button onClick={()=>void save()}>자료실 저장</button>}</div>
  {feedback&&<p role="status">{feedback}</p>}
- </div><div className="builderPreview"><div className="builderPreviewBar"><strong>포스터 미리보기</strong><span>{time} 기준</span></div><div className="statusPosterPreview"><h2>LIVE TABLE STATUS</h2>{sections.map(section=><div className="statusPosterSection" key={section.id}><h3>{section.name}</h3><div className="statusPosterLabels"><span>GAME TYPE</span><span>TABLES</span><span>WAITING</span><span>BOOKED</span></div>{rows.filter(r=>r.venue===section.id).map(r=><div key={r.id}><div className="statusPosterRow"><strong>{r.game}</strong><b>{r.tables}</b><b>{r.waiting}</b><b>{r.reserved||0}</b></div><div className="statusDerivedState">{getStatus(r)}</div></div>)}</div>)}<p className="statusPosterFooter">{footer}<br/>{contact}</p></div></div></div><canvas ref={canvasRef} style={{display:"none"}}/></div>;
+ </div><div className="builderPreview"><div className="builderPreviewBar"><strong>포스터 미리보기</strong><span>{displayTime} 기준</span></div><div className="statusPosterPreview"><h2>LIVE TABLE STATUS</h2>{sections.map(section=><div className="statusPosterSection" key={section.id}><h3>{section.name}</h3><div className="statusPosterLabels"><span>GAME TYPE</span><span>TABLES</span><span>WAITING</span><span>BOOKED</span><span>STATUS</span></div>{rows.filter(r=>r.venue===section.id).map(r=><div key={r.id}><div className="statusPosterRow"><strong>{r.game}</strong><b>{r.tables}</b><b>{r.waiting}</b><b>{r.reserved||0}</b><span className="statusInlineState">{getStatus(r)}</span></div></div>)}</div>)}<p className="statusPosterFooter">{footer}<br/>{contact}</p></div></div></div><canvas ref={canvasRef} style={{display:"none"}}/></div>;
 }
