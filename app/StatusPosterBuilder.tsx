@@ -108,7 +108,7 @@ export default function StatusPosterBuilder({onSave,sessions=[]}:{onSave?:(title
   const ctx=canvas.getContext("2d");if(!ctx)throw new Error("Canvas unavailable");
   const W=1080,pad=76,usable=W-pad*2;
   const groupHeights=sections.map(section=>160+Math.max(1,rows.filter(r=>r.venue===section.id).length)*124);
-  const H=Math.max(1050,315+groupHeights.reduce((a,b)=>a+b,0)+175);
+  const H=Math.max(1050,290+groupHeights.reduce((a,b)=>a+b+20,0)+270);
   canvas.width=W;canvas.height=H;
   const bg=ctx.createLinearGradient(0,0,W,H);bg.addColorStop(0,"#26303c");bg.addColorStop(1,"#101419");ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
   ctx.fillStyle="#d2ac61";ctx.fillRect(pad,69,110,6);
@@ -123,8 +123,7 @@ export default function StatusPosterBuilder({onSave,sessions=[]}:{onSave?:(title
    const col=[pad+28,pad+315,pad+505,pad+704];
    ctx.fillStyle="#aab5c6";ctx.font="bold 24px sans-serif";
    ["GAME","TABLE","WAITING","STATUS"].forEach((name,i)=>ctx.fillText(name,col[i],y+125));
-   const show=current.length?current:[];
-   show.forEach((r,i)=>{
+   current.forEach((r,i)=>{
      const yy=y+203+i*124;
      ctx.fillStyle="#f8fafc";ctx.font="bold 63px sans-serif";ctx.fillText(r.game.slice(0,10),col[0],yy);
      ctx.fillText(String(r.tables),col[1]+15,yy);ctx.fillText(String(r.waiting),col[2]+16,yy);
