@@ -2,6 +2,17 @@
 
 전광판 URL: `http://192.168.1.9:5855/MEDIA`
 
+## Windows 매장 PC 빠른 실행
+
+1. 매장 PC가 `http://192.168.1.9:5855/MEDIA`를 열 수 있는지 확인합니다.
+2. Python 3.10 이상을 설치합니다.
+3. 이 저장소의 `tools/START_LIVE_MONITOR_WINDOWS.bat`를 **저장소 폴더 안에서** 더블클릭합니다.
+4. 첫 실행 시 라이브러리 및 Chromium이 자동 설치됩니다.
+5. Supabase 프로젝트 URL과 service-role 키를 입력합니다. 키는 별도로 저장되지 않으며 화면에 표시되지 않습니다. 키를 공개하거나 채팅으로 보내지 마세요.
+6. 수집 프로그램 창을 계속 켜 둡니다. 종료하려면 Ctrl+C를 누릅니다.
+
+**주의:** DB 테이블 생성 SQL (`supabase/live_monitor_snapshot.sql`)은 관리자가 최초 1회 실행해야 합니다. 실제 Events 팝업 제어 및 LEVEL·ENTRIES 추출은 아직 매장 장치에서 검증되지 않았습니다. `Ready` 배포는 매장 내 수집기 실행을 의미하지 않습니다.
+
 ## 준비
 
 1. 전광판과 같은 매장 Wi-Fi/LAN에 연결된 **항상 켜져 있는 PC**를 사용합니다.
