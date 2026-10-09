@@ -2981,14 +2981,16 @@ export default function Home() {
                 </section>
               : <section className="dashboardTrendPanel dashboardWeekdayPanel">
 <section className="weeklyDailyRevenuePanel dashboardEmbeddedWeekday" aria-label="요일별 엔트리피 매출">
-              <div className="weeklyDailyRevenueHeader"><div><h3>요일별 매출 현황</h3><p>월요일부터 일요일까지 · 엔트리피 기준</p></div><strong>합계 {vnd(dashboardWeekTotal)}</strong></div>
+              <div className="weeklyDailyRevenueHeader"><div><h3>요일별 매출 현황</h3><p>월요일부터 일요일까지 · 엔트리피 기준</p></div><div className="premiumWeekTotal"><span>이번 주 합계</span><strong>{vnd(dashboardWeekTotal)}</strong></div></div>
+              <div className="premiumWeekChartFrame"><div className="premiumChartGrid" aria-hidden="true"><i/><i/><i/><i/></div>
               <div className="weeklyDayRevenueList">
-                {dashboardWeekRevenue.map(day=><div className="weeklyDayRevenueRow" key={day.date}>
+                {dashboardWeekRevenue.map(day=><div className="weeklyDayRevenueRow" key={day.date} title={`${day.label}요일 · ${vnd(day.revenue)} VND · ${day.buyIns} BUY-IN`}>
                   <div className="weeklyDayLabel"><strong>{day.label}</strong><small>{day.date.slice(5)}</small></div>
                   <div className="weeklyDayBarTrack"><div className="weeklyDayBarFill" style={{["--day-height" as string]:`${day.revenue?Math.max(3,100*day.revenue/dashboardWeekPeak):0}%`}}/></div>
                   <div className="weeklyDayAmount"><strong>{vnd(day.revenue)}</strong><small>{day.buyIns} BUY-IN</small></div>
                 </div>)}
-              </div>
+              </div></div>
+              <div className="premiumWeekSummary"><span>최고 매출 <b>{dashboardWeekRevenue.reduce((best,day)=>day.revenue>best.revenue?day:best,dashboardWeekRevenue[0]).label}요일</b></span><span>일평균 <b>{vnd(Math.round(dashboardWeekTotal/7))}</b></span><span>매출 발생 <b>{dashboardWeekRevenue.filter(day=>day.revenue>0).length}일</b></span></div>
             </section>
                 </section>}
           </section>
