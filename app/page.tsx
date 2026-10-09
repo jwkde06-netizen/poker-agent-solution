@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { createProvisioningClient, isSupabaseConfigured, supabase } from "../lib/supabase";
 import { jsPDF } from "jspdf";
+import PromotionLibrary from "./PromotionLibrary";
 
 type Agency = { id: string; code: string; rate: number; active: boolean };
 type Player = { id: string; name: string; koreanName: string; cardNo: string; agencyId: string; nationality: string; customRate: number|null; note: string; createdAt: string };
@@ -220,7 +221,7 @@ function MobileBottomIcon({type}:{type:"dashboard"|"players"|"games"|"fnb"|"sett
   return <svg {...common}><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8"/><path d="M8 12h8"/><path d="M8 16h5"/></svg>;
 }
 
-function DesktopNavIcon({type}:{type:"dashboard"|"players"|"agencies"|"games"|"fnb"|"daily"|"weekly"|"expenses"|"reports"|"settings"}) {
+function DesktopNavIcon({type}:{type:"dashboard"|"players"|"agencies"|"games"|"fnb"|"daily"|"weekly"|"promotions"|"expenses"|"reports"|"settings"}) {
   const common={width:"100%",height:"100%",viewBox:"0 0 24 24",fill:"none",stroke:"currentColor",strokeWidth:2,strokeLinecap:"round" as const,strokeLinejoin:"round" as const,ariaHidden:true};
   if(type==="dashboard") return <svg {...common}><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>;
   if(type==="players") return <svg {...common}><circle cx="9" cy="8" r="3"/><path d="M3.5 19c.7-3.2 2.6-5 5.5-5s4.8 1.8 5.5 5"/><path d="M16 7h5"/><path d="M16 11h5"/><path d="M16 15h5"/></svg>;
@@ -236,8 +237,8 @@ function DesktopNavIcon({type}:{type:"dashboard"|"players"|"agencies"|"games"|"f
 
 
 export default function Home() {
-  const [tab, setTab] = useState<"dashboard"|"agencies"|"players"|"games"|"daily"|"weekly"|"expenses"|"reports"|"settings"|"fnb"|"staffDaily">("dashboard");
-  const validTabs = ["dashboard","agencies","players","games","daily","weekly","expenses","reports","settings","fnb","staffDaily"] as const;
+  const [tab, setTab] = useState<"dashboard"|"agencies"|"players"|"games"|"daily"|"weekly"|"expenses"|"reports"|"settings"|"fnb"|"staffDaily"|"promotions">("dashboard");
+  const validTabs = ["dashboard","agencies","players","games","daily","weekly","promotions","expenses","reports","settings","fnb","staffDaily"] as const;
   type TabKey = (typeof validTabs)[number];
 
   function navigateTab(next:TabKey){
@@ -2659,13 +2660,14 @@ export default function Home() {
     {key:"fnb",label:"F&B"},
     {key:"daily",label:"일일 정산"},
     {key:"weekly",label:"주간 정산"},
+    {key:"promotions",label:"홍보 자료실"},
     {key:"expenses",label:"지출 내역서"},
     {key:"reports",label:"리포트"},
     {key:"settings",label:"계정 관리"},
   ] as const;
   const navItems = allNavItems.filter(item=>{
     if(profile?.role==="admin") return true;
-    if(profile?.role==="staff") return ["dashboard","players","games","fnb"].includes(item.key);
+    if(profile?.role==="staff") return ["dashboard","players","games","fnb","promotions"].includes(item.key);
     if(profile?.role==="agent") return ["dashboard","players","daily","weekly","reports"].includes(item.key);
     return item.key==="dashboard";
   });
@@ -4016,6 +4018,8 @@ export default function Home() {
             </section>
           </section>
         </section>}
+
+        {tab==="promotions" && <PromotionLibrary sessions={gameSessions} canEdit={profile?.role==="admin"}/>}
 
         {tab==="expenses" && profile?.role==="admin" && <section className="expenseWorkflowPage compactExpensePage">
           <section className="expenseCompactTop expenseUnifiedHeader">
