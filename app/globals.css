@@ -16995,3 +16995,34 @@ html{scroll-behavior:smooth}
 .statusDirectBottom{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;margin-top:15px}
 .statusDirectBottom .statusAdvanced{flex:1}
 @media(max-width:600px){.statusDirectCanvas .statusPosterPreview{padding:18px 12px}.statusDirectEditRow input{font-size:24px}.statusEditableSectionHeading button{font-size:10px!important}.statusInlineRemove{opacity:1;right:-7px;top:-12px}}
+
+/* Inline editable poster values: override global light form controls */
+.statusDirectBuilder .statusDirectCanvas .statusDirectEditRow input,
+.statusDirectBuilder .statusDirectCanvas .statusDirectEditRow input[type="number"],
+.statusDirectBuilder .statusDirectCanvas .statusDirectEditRow input[type="text"]{
+ color:#ffffff!important;-webkit-text-fill-color:#ffffff!important;
+ background:transparent!important;border:1px solid transparent!important;
+ font-size:clamp(23px,3.2vw,38px)!important;font-weight:800!important;
+ text-shadow:none!important;opacity:1!important;
+}
+.statusDirectBuilder .statusDirectCanvas .statusDirectEditRow input:focus{
+ background:#152032!important;border-color:#e0b66d!important;
+ outline:none!important;
+}
+.statusDirectBuilder .statusDirectCanvas .statusDirectEditRow input:hover{border-color:#ffffff33!important}
+.statusDirectBuilder .statusInlineNumber{display:flex;align-items:center;justify-content:center;min-width:0;gap:3px}
+.statusDirectBuilder .statusInlineNumber input{flex:1;min-width:0;max-width:84px;text-align:center}
+.statusDirectBuilder .statusNumberSteppers{display:flex;flex-direction:column;gap:3px;flex:none}
+.statusDirectBuilder .statusNumberSteppers button{
+ display:flex;align-items:center;justify-content:center;width:24px;height:23px;
+ border:1px solid #5a6a7c!important;border-radius:5px!important;
+ background:#334155!important;color:#f9fafb!important;
+ padding:0!important;cursor:pointer;font-size:11px!important;
+}
+.statusDirectBuilder .statusNumberSteppers button:hover{background:#55667a!important}
+.promotionWorkspaceHeader{margin-bottom:10px}
+.promotionWorkspaceHeader h2{font-size:21px}
+.promotionPrimary{padding-top:11px}
+.statusDirectBuilder .builderHead{margin-bottom:12px}
+.statusDirectBuilder .builderHead>div:first-child p{font-size:12px;color:var(--muted);margin:0}
+@media(max-width:600px){.statusDirectBuilder .statusNumberSteppers button{width:20px;height:21px}.statusDirectBuilder .statusInlineNumber{gap:1px}}
