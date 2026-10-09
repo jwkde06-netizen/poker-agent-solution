@@ -17272,3 +17272,44 @@ html{scroll-behavior:smooth}
 }
 .statusDirectBuilder .statusSummaryRow:has(.statusSummaryTables input[value="0"]) .statusSummaryPlainState{color:#f0c879!important}
 @media(max-width:550px){.statusDirectBuilder .statusDirectCanvas .statusSummaryRow{grid-template-columns:minmax(0,.7fr) minmax(84px,.8fr) minmax(75px,1fr)!important}.statusDirectBuilder .statusSummaryRow .statusSummaryPlainState{font-size:12px!important}}
+
+/* Keep the live status poster table count and label visually unified. */
+.statusDirectBuilder .statusDirectCanvas .statusSummaryRow .statusSummaryTables,
+.statusDirectBuilder .statusDirectCanvas .statusSummaryRow .statusSummaryTables > span{
+  color:#f8fafc!important;
+  font-size:clamp(20px,2.5vw,36px)!important;
+  font-weight:800!important;
+  line-height:1.15!important;
+  white-space:nowrap;
+}
+.statusDirectBuilder .statusDirectCanvas .statusSummaryRow .statusSummaryTables{
+  gap:6px!important;
+  justify-content:center!important;
+}
+.statusDirectBuilder .statusDirectCanvas .statusSummaryRow .statusSummaryTables .statusInlineNumber input{
+  color:#f8fafc!important;
+  font-size:inherit!important;
+  font-weight:800!important;
+  line-height:1.15!important;
+  text-align:right!important;
+  width:2.3ch!important;
+  min-width:2.3ch!important;
+  max-width:2.3ch!important;
+  padding:0!important;
+}
+.statusDirectBuilder .statusDirectCanvas .statusSummaryRow .statusSummaryPlainState{
+  font-size:clamp(20px,2.5vw,36px)!important;
+  line-height:1.15!important;
+  text-align:center!important;
+}
+@media(max-width:550px){
+ .statusDirectBuilder .statusDirectCanvas .statusSummaryRow .statusSummaryTables,
+ .statusDirectBuilder .statusDirectCanvas .statusSummaryRow .statusSummaryTables > span,
+ .statusDirectBuilder .statusDirectCanvas .statusSummaryRow .statusSummaryPlainState{
+   font-size:clamp(13px,3.6vw,20px)!important;
+ }
+ .statusDirectBuilder .statusDirectCanvas .statusSummaryRow{
+   grid-template-columns:minmax(0,.65fr) minmax(105px,1fr) minmax(78px,.8fr)!important;
+   gap:4px!important;
+ }
+}
