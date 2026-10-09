@@ -108,45 +108,51 @@ export default function StatusPosterBuilder({onSave,sessions=[]}:{onSave?:(title
  function renderPoster(){
   const canvas=canvasRef.current;if(!canvas)throw new Error("Canvas unavailable");
   const ctx=canvas.getContext("2d");if(!ctx)throw new Error("Canvas unavailable");
-  const W=1080,pad=58,usable=W-pad*2;
-  const lineH=136,headerH=146;
-  const groupHeights=sections.map(section=>headerH+Math.max(1,rows.filter(r=>r.venue===section.id).length)*lineH);
-  // Reserve only the actual space necessary for the headings, groups and footer.
-  const H=216+groupHeights.reduce((a,b)=>a+b+17,0)+180;
+  const W=1080,pad=54,usable=W-pad*2,rowH=132;
+  const sizes=sections.map(section=>146+Math.max(1,rows.filter(r=>r.venue===section.id).length)*rowH);
+  // Footer is a single close-set block, never separated by the height of the canvas.
+  const footerHeight=168;
+  const H=220+sizes.reduce((total,h)=>total+h+22,0)+footerHeight;
   canvas.width=W;canvas.height=H;
-  const bg=ctx.createLinearGradient(0,0,W,H);bg.addColorStop(0,"#253247");bg.addColorStop(1,"#151c27");ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
-  ctx.fillStyle="#e1b96f";ctx.fillRect(pad,35,95,5);
-  ctx.fillStyle="#fff";ctx.font="bold 66px sans-serif";ctx.fillText("실시간 테이블 현황",pad,117);
-  ctx.fillStyle="#d4dce8";ctx.font="bold 28px sans-serif";ctx.textAlign="right";ctx.fillText(displayTime+" 기준",W-pad,116);ctx.textAlign="left";
-  let y=170;
+  const bg=ctx.createLinearGradient(0,0,0,H);bg.addColorStop(0,"#16283e");bg.addColorStop(.65,"#0b1726");bg.addColorStop(1,"#101e30");
+  ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+  ctx.fillStyle="#e8c271";ctx.fillRect(pad,42,120,5);
+  // The condensed header leaves room for a readable timestamp.
+  ctx.textAlign="left";ctx.fillStyle="#f5f7fb";ctx.font="bold 63px sans-serif";ctx.fillText("실시간",pad,122);
+  ctx.fillStyle="#f1c776";ctx.font="bold 67px sans-serif";ctx.fillText("테이블 현황",pad,194);
+  ctx.textAlign="right";ctx.fillStyle="#d1d9e5";ctx.font="bold 29px sans-serif";ctx.fillText(displayTime+" 기준",W-pad,186);ctx.textAlign="left";
+  let y=240;
   sections.forEach((section,index)=>{
-    const current=rows.filter(r=>r.venue===section.id);
-    const height=groupHeights[index];
-    ctx.fillStyle="#202b3a";ctx.beginPath();ctx.roundRect(pad,y,usable,height,19);ctx.fill();
-    ctx.strokeStyle="#3f5065";ctx.lineWidth=2;ctx.stroke();
-    ctx.fillStyle="#f0c67d";ctx.font="bold 42px sans-serif";ctx.fillText(section.name,pad+23,y+57);
-    const col=[pad+28,pad+333,pad+510,pad+700];
-    ctx.fillStyle="#bfcbda";ctx.font="bold 23px sans-serif";
-    ["GAME","TABLE","WAITING","STATUS"].forEach((name,i)=>ctx.fillText(name,col[i],y+112));
-    current.forEach((r,i)=>{
-      const yy=y+193+i*lineH;
-      ctx.fillStyle="#ffffff";ctx.font="bold 73px sans-serif";
-      ctx.fillText(r.game.slice(0,9),col[0],yy,275);
-      ctx.fillText(String(r.tables),col[1]+9,yy);
-      ctx.fillText(String(r.waiting),col[2]+11,yy);
-      ctx.font="bold 40px sans-serif";ctx.fillStyle=r.tables>0?"#f3cc8c":"#f2f5f9";
-      ctx.fillText(getStatus(r),col[3],yy-12,usable-(col[3]-pad)-24);
-      if(i<current.length-1){ctx.fillStyle="#475569";ctx.fillRect(pad+25,yy+36,usable-50,2)}
+    const list=rows.filter(r=>r.venue===section.id);
+    const height=sizes[index],x=pad;
+    ctx.fillStyle="#122237";ctx.beginPath();ctx.roundRect(x,y,usable,height,24);ctx.fill();
+    ctx.strokeStyle="#d6aa5b";ctx.lineWidth=2;ctx.stroke();
+    ctx.fillStyle="#ecc477";ctx.font="bold 44px sans-serif";ctx.fillText(section.name,x+28,y+63);
+    ctx.fillStyle="#1b2b40";ctx.beginPath();ctx.roundRect(x+22,y+80,usable-44,48,12);ctx.fill();
+    ctx.fillStyle="#c1cad7";ctx.font="bold 24px sans-serif";
+    const cols=[x+40,x+342,x+529,x+713];
+    ["GAME","TABLE","WAITING","STATUS"].forEach((label,i)=>ctx.fillText(label,cols[i],y+111));
+    list.forEach((r,i)=>{
+      const baseline=y+215+i*rowH;
+      ctx.font="bold 77px sans-serif";ctx.fillStyle="#f8fafc";
+      ctx.fillText(r.game.slice(0,12),cols[0],baseline,265);
+      ctx.fillText(String(r.tables),cols[1]+10,baseline);
+      ctx.fillText(String(r.waiting),cols[2]+12,baseline);
+      const state=getStatus(r),running=r.tables>0;
+      const bx=cols[3]-8,by=baseline-69,bw=usable-(bx-x)-26,bh=82;
+      ctx.fillStyle=running?"#103f39":"#44351d";ctx.beginPath();ctx.roundRect(bx,by,bw,bh,35);ctx.fill();
+      ctx.strokeStyle=running?"#47d0b0":"#e8bb57";ctx.lineWidth=2;ctx.stroke();
+      ctx.fillStyle=running?"#91f4dc":"#ffe29a";ctx.font="bold 38px sans-serif";ctx.textAlign="center";ctx.fillText(state,bx+bw/2,by+53,bw-12);ctx.textAlign="left";
+      if(i<list.length-1){ctx.fillStyle="#405063";ctx.fillRect(x+34,baseline+30,usable-68,2)}
     });
-    y+=height+17;
+    y+=height+22;
   });
-  // Keep supporting copy concise and move the contact CTA to the very bottom.
-  const bottom=H-35;
-  ctx.fillStyle="#4c5b6d";ctx.fillRect(pad,y+8,usable,2);
-  ctx.fillStyle="#e4eaf2";ctx.font="bold 27px sans-serif";
-  drawLines(ctx,footer,pad,y+47,usable,38);
-  ctx.fillStyle="#f2c57d";ctx.font="bold 34px sans-serif";
-  ctx.fillText(contact,pad,bottom,usable);
+  const footerY=y+19;
+  ctx.fillStyle="#e8c271";ctx.fillRect(pad,footerY-15,86,5);
+  ctx.fillStyle="#e9eef5";ctx.font="bold 26px sans-serif";
+  const after=drawLines(ctx,footer,pad,footerY+34,usable,38);
+  ctx.fillStyle="#f0c879";ctx.font="bold 32px sans-serif";
+  drawLines(ctx,contact,pad,after+5,usable,42);
   return canvas;
  }
  const getPng=async()=>{const canvas=renderPoster();return await new Promise<Blob>((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(new Error("PNG 변환 실패")),"image/png"))};
