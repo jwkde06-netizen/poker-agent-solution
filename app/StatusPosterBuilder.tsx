@@ -23,7 +23,7 @@ export default function StatusPosterBuilder({onSave,sessions=[]}:{onSave?:(title
    flash("현재 Dream 게임 현황을 적용했습니다. MM과 예약 항목은 별도로 확인해주세요.");
  };
  const [feedback,setFeedback]=useState("");
- const [monitor,setMonitor]=useState<{observed_at:string;tables:Array<{table_no:string;game:string;level:number|null;entries:number|null}>}|null>(null);
+ const [monitor,setMonitor]=useState<{observed_at:string;tables:Array<{table_no:string|null;event_name?:string;game:string;level:number|null;entries:number|null;entries_display?:string;blinds?:string|null;rebuys_addons?:string|null}>}|null>(null);
  const [monitorError,setMonitorError]=useState("");
  useEffect(()=>{
    if(!supabase)return;
@@ -42,10 +42,10 @@ export default function StatusPosterBuilder({onSave,sessions=[]}:{onSave?:(title
  const monitorFresh=monitorAge>=0&&monitorAge<120000;
  const applyMonitor=()=>{
    if(!monitor||!monitorFresh){flash("최신 전광판 동기화 데이터가 없습니다.");return}
-   const entries=monitor.tables.filter(t=>t.game&&t.table_no);
+   const entries=monitor.tables.filter(t=>t.game);
    const fives=entries.filter(t=>/^5\s*M\b/i.test(t.game));
    const summary=fives.length?`5M 타임어택 ${fives.length}테이블 진행 중 🔥`:"5M 진행 테이블 없음";
-   const details=entries.map(t=>`T${t.table_no} · ${t.game}${t.level===null?"":` · Lv.${t.level}`}${t.entries===null?"":` · Entry ${t.entries}`}`);
+   const details=entries.map(t=>`${t.table_no?`T${t.table_no} · `:""}${t.event_name||t.game}${t.level===null?"":` · Lv.${t.level}`}${t.entries===null?"":` · Entry ${t.entries_display||t.entries}`}${t.blinds?` · ${t.blinds}`:""}`);
    const time=new Intl.DateTimeFormat("en-GB",{timeZone:"Asia/Ho_Chi_Minh",hour:"2-digit",minute:"2-digit",hour12:false}).format(new Date());
    setData(p=>({...p,time,dream:[summary,...details]}));
    flash("전광판 최신 데이터 적용 완료");
