@@ -123,10 +123,6 @@ export default function PromotionLibrary({sessions,canEdit}:{sessions:LiveSessio
   const buttonStyle={padding:"9px 13px",borderRadius:9,border:"1px solid var(--border-color, #7775)",cursor:"pointer"};
   const clearForm=()=>{setTitle("");setBody("");setImageUrl("");setEditingId("")};
   return <section className="panel promotionWorkspace">
-    <header className="promotionWorkspaceHeader">
-      <div><h2>실시간 테이블 현황</h2></div>
-      <span className={"promotionConnection"+(connected?" isConnected":"")}>{connected?"● 공유 자료실 연결":"○ 이 기기 임시 저장"}</span>
-    </header>
     {notice&&<p className="promotionNotice" role="status">{notice}</p>}
     <div className="promotionMainSplit">
     <section className="promotionPrimary" aria-label="현황 포스터 제작">
