@@ -142,19 +142,24 @@ export default function StatusPosterBuilder({onSave,sessions=[]}:{onSave?:(title
  const download=async()=>{try{const blob=await getPng();const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="Dream-LIVE-"+displayTime.replace(":","")+".png";a.click();setTimeout(()=>URL.revokeObjectURL(url),2000);flash("PNG 저장 완료")}catch(e){flash(String(e))}};
  const copyPoster=async()=>{try{if(!navigator.clipboard?.write||typeof ClipboardItem==="undefined"){flash("이 브라우저는 이미지 복사를 지원하지 않습니다. PNG 다운로드를 이용해주세요.");return}await navigator.clipboard.write([new ClipboardItem({"image/png":getPng()})]);flash("포스터 이미지 복사 완료 · Ctrl+V로 붙여넣으세요")}catch(e){flash("이미지 복사 실패 · 브라우저 권한을 확인하거나 PNG를 다운로드하세요")}};
  const save=async()=>{if(!onSave)return;try{await onSave("Dream & MM 현황 "+displayTime,text,await getPng());flash("자료실 저장 완료")}catch(e){flash("저장 실패: "+String(e))}};
+ const adjustNumber=(id:string,field:"tables"|"waiting",delta:number)=>setRows(prev=>prev.map(row=>row.id===id?{...row,[field]:Math.max(0,(row[field]||0)+delta)}:row));
+ const numberEditor=(r:GameRow,field:"tables"|"waiting",label:string)=><div className="statusInlineNumber">
+   <input type="number" min="0" step="1" aria-label={r.game+" "+label} value={r[field]} onChange={e=>updateRow(r.id,{[field]:Math.max(0,Number(e.target.value)||0)})}/>
+   <div className="statusNumberSteppers"><button type="button" aria-label={r.game+" "+label+" 증가"} onClick={()=>adjustNumber(r.id,field,1)}>▲</button><button type="button" aria-label={r.game+" "+label+" 감소"} onClick={()=>adjustNumber(r.id,field,-1)}>▼</button></div>
+ </div>;
  const posterSection=(venue:"dream"|"mm",name:string)=><section className="statusPosterSection statusEditableSection" key={venue}>
   <div className="statusEditableSectionHeading"><h3>{name}</h3><button type="button" onClick={()=>setRows(prev=>[...prev,makeRow(venue,"5M",0,0)])}>+ 경기 추가</button></div>
   <div className="statusPosterLabels"><span>GAME</span><span>TABLE</span><span>WAITING</span><span>STATUS</span></div>
   {rows.filter(r=>r.venue===venue).map(r=><div className="statusPosterRow statusDirectEditRow" key={r.id}>
     <input type="text" aria-label={r.game+" 게임명"} value={r.game} onChange={e=>updateRow(r.id,{game:e.target.value})} spellCheck={false}/>
-    <input type="number" min="0" aria-label={r.game+" 테이블 수"} value={r.tables} onChange={e=>updateRow(r.id,{tables:Math.max(0,Number(e.target.value)||0)})}/>
-    <input type="number" min="0" aria-label={r.game+" 대기 인원"} value={r.waiting} onChange={e=>updateRow(r.id,{waiting:Math.max(0,Number(e.target.value)||0)})}/>
+    {numberEditor(r,"tables","테이블 수")}
+    {numberEditor(r,"waiting","대기 인원")}
     <span className="statusInlineState">{getStatus(r)}</span>
     <button type="button" className="statusInlineRemove" aria-label={r.game+" 경기 삭제"} title="경기 삭제" onClick={()=>setRows(prev=>prev.filter(x=>x.id!==r.id))}>×</button>
   </div>)}
  </section>;
  return <div className="builderShell statusBuilder statusDirectBuilder">
-  <div className="builderHead"><div><h2>실시간 게임 현황</h2><p>포스터에서 숫자와 게임명을 직접 누르고 수정하세요.</p></div>
+  <div className="builderHead"><div><p>포스터를 직접 클릭해 게임명·숫자를 수정하세요.</p></div>
    <div className="statusTopActions"><button type="button" className="statusCopyImage" onClick={()=>void copyPoster()}>이미지 복사</button><button type="button" className="statusQuickDownload" aria-label="PNG 다운로드" title="PNG 다운로드" onClick={()=>void download()}>↓</button><button type="button" onClick={applyLive}>운영 현황 불러오기</button></div>
   </div>
   <div className="statusDirectCanvas">
