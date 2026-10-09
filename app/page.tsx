@@ -549,7 +549,7 @@ export default function Home() {
       rateSnapshot:Number(x.rate_snapshot),rakeback:Number(x.rakeback),sessionId:x.session_id ?? undefined
     })));
     const {data:operatingDay}=await supabase.from("poker_operating_day").select("business_date").eq("id",1).maybeSingle();
-    if(operatingDay?.business_date){setOperatingDate(operatingDay.business_date);setSummaryDate(operatingDay.business_date);}
+    if(operatingDay?.business_date){setOperatingDate(operatingDay.business_date);setSummaryDate(operatingDay.business_date);setFnbDate(operatingDay.business_date);setGameDate(operatingDay.business_date);}
     setGameSessions((gs.data ?? []).map((x:any)=>({
       id:x.id,date:x.played_on,tableNo:x.table_no,gameNo:x.game_no ?? "",game:x.game_name,status:x.status
     })));
@@ -1234,7 +1234,7 @@ export default function Home() {
       const {data,error}=await supabase.rpc("close_poker_operating_day");
       if(error){setMessage("영업 마감 실패: "+error.message);return;}
       const nextDay=String(data);
-      setOperatingDate(nextDay);setSummaryDate(nextDay);setNewGameNo("");setDailyLogSearch("");
+      setOperatingDate(nextDay);setSummaryDate(nextDay);setFnbDate(nextDay);setGameDate(nextDay);setNewGameNo("");setDailyLogSearch("");
       setMessage(`영업 마감 완료 · ${nextDay} 영업 시작 (No.1)`);
     }finally{setClosingOperatingDay(false);}
   }
@@ -4226,7 +4226,7 @@ export default function Home() {
 
           <section className="panel fnbHistoryPanel">
             <div className="sectionTitle">
-              <div><h2>{fnbDate===today()?"오늘":"선택 날짜"} 입력 내역</h2><p>{fnbDayEntries.length}건 입력</p></div>
+              <div><h2>{fnbDate===operatingDate?"오늘":"선택 날짜"} 입력 내역</h2><p>{fnbDayEntries.length}건 입력</p></div>
               <div className="fnbDayTotals"><strong className="fnbDayTotal">{vnd(fnbDayTotal)}</strong><small>경비 반영 {vnd(fnbDayOperatingTotal)}</small></div>
             </div>
             {fnbDayEntries.length===0
