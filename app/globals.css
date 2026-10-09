@@ -16921,3 +16921,15 @@ html{scroll-behavior:smooth}
 .statusPosterRow strong{overflow-wrap:anywhere}.statusPosterRow b{text-align:center;font-size:19px}.statusPosterRow span{color:#e2bb73;text-align:center;font-size:11px}
 .statusPosterFooter{color:#c8ced7;font-size:11px;line-height:1.7;margin-top:18px}
 @media(max-width:600px){.statusVenue{padding:8px}.statusEditTable input,.statusEditTable select{font-size:11px}.statusEditTable .statusNumberInput{font-size:17px}.statusPosterPreview{padding:13px}.statusPosterRow{font-size:10px}.statusPosterRow b{font-size:16px}}
+
+
+/* Faster PNG export and automatic booking-state summaries */
+.statusBuilder .builderHead>div:first-child{display:flex;align-items:center;column-gap:12px;flex-wrap:wrap}
+.statusBuilder .builderHead>div:first-child>p{flex-basis:100%;margin-left:46px}
+.statusQuickDownload{width:35px;height:35px;display:flex;align-items:center;justify-content:center;border:1px solid var(--line,#9995)!important;border-radius:9px!important;background:var(--surface,#fff)!important;color:var(--text)!important;cursor:pointer;flex:none}
+.statusQuickDownload:hover{background:#d7b573!important;color:#181818!important}
+.statusEditTable th:nth-child(4){width:19%}.statusEditTable th:first-child{width:35%}.statusEditTable th:last-child{width:10%}
+.statusPosterRow{border-bottom:0;padding-bottom:3px}
+.statusPosterRow>span,.statusPosterRow>b:last-child{text-align:center}
+.statusDerivedState{color:#d8bd88;font-size:11px;line-height:1.5;padding:0 0 10px;border-bottom:1px solid #414b57}
+.statusPosterSection>div:last-child .statusDerivedState{border-bottom:0}
