@@ -17108,3 +17108,12 @@ html{scroll-behavior:smooth}
 .promotionPosterTile:hover .promotionPosterDelete,.promotionPosterDelete:focus-visible{opacity:1}
 @media(hover:none){.promotionPosterDelete{opacity:1}}
 @media(max-width:480px){.promotionPosterCopy img{height:155px}}
+
+/* Single-line live status toolbar */
+.statusDirectBuilder .builderHead{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:14px!important;flex-wrap:nowrap!important;margin:0 0 12px!important}
+.statusDirectBuilder .statusToolbarTitle{min-width:0;white-space:nowrap}
+.statusDirectBuilder .statusToolbarTitle strong{font-size:18px;font-weight:800;letter-spacing:-.04em}
+.statusDirectBuilder .statusTopActions{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:nowrap}
+.statusDirectBuilder .statusTopActions button{white-space:nowrap}
+.statusDirectBuilder .statusAutoSyncButton{font-size:12px!important;border:1px solid #a4d8bf!important;border-radius:8px!important;background:#e7f6ee!important;color:#287e58!important;opacity:1!important;cursor:default!important;padding:9px 12px!important;font-weight:650}
+@media(max-width:680px){.statusDirectBuilder .builderHead{flex-wrap:wrap!important}.statusDirectBuilder .statusToolbarTitle strong{font-size:16px}.statusDirectBuilder .statusTopActions{width:100%;justify-content:flex-start}}
