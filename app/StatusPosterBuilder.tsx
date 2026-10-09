@@ -161,8 +161,8 @@ export default function StatusPosterBuilder({onSave,sessions=[]}:{onSave?:(title
   </div>)}
  </section>;
  return <div className="builderShell statusBuilder statusDirectBuilder">
-  <div className="builderHead"><div><p>포스터를 직접 클릭해 게임명·숫자를 수정하세요.</p></div>
-   <div className="statusTopActions"><button type="button" className="statusCopyImage" onClick={()=>void copyPoster()}>이미지 복사</button><button type="button" className="statusQuickDownload" aria-label="PNG 다운로드" title="PNG 다운로드" onClick={()=>void download()}>↓</button><span className="statusAutoSyncLabel">테이블 자동 연동</span></div>
+  <div className="builderHead"><div className="statusToolbarTitle"><strong>실시간 테이블 현황</strong></div>
+   <div className="statusTopActions"><button type="button" className="statusCopyImage" onClick={()=>void copyPoster()}>이미지 복사</button><button type="button" className="statusQuickDownload" aria-label="PNG 다운로드" title="PNG 다운로드" onClick={()=>void download()}>↓</button><button type="button" className="statusAutoSyncButton" title="게임 입력의 진행 중 테이블을 자동 반영합니다" disabled>● 실시간 연동</button></div>
   </div>
   <div className="statusDirectCanvas">
    <div className="statusPosterPreview"><div className="statusPosterGoldLine"/><div className="statusPosterTitleLine"><h2>실시간 테이블 현황</h2><p className="statusPosterTime">{displayTime} 기준</p></div>
