@@ -17247,3 +17247,15 @@ html{scroll-behavior:smooth}
 .dailyPcGameLogDetails button{margin-left:auto;border:1px solid #c59146;background:#fff5e8;color:#8b581c;border-radius:8px;padding:8px 10px;font-weight:700;cursor:pointer}
 .dailyPcGameLogEmpty{padding:20px;font-size:13px;color:var(--muted);text-align:center}
 @media(max-width:800px){.dailyPcGameLog{padding:10px}.dailyPcGameLogItem summary{grid-template-columns:40px minmax(60px,1fr) 78px 70px 18px;gap:5px}.dailyPcGameLogItem summary small{display:none}.dailyPcGameLogHead{align-items:flex-start}.dailyPcGameLogHead span{display:none}}
+
+/* Live time-attack poster: one-row summaries, no waiting column */
+.statusDirectBuilder .statusDirectCanvas .statusSummaryRow{
+ display:grid!important;grid-template-columns:minmax(0,1fr) minmax(110px,1.2fr) minmax(120px,1fr)!important;
+ gap:8px!important;align-items:center!important;
+}
+.statusDirectBuilder .statusSummaryTables{display:flex;align-items:center;justify-content:center;gap:5px;min-width:0;color:#f8fafc;font-size:15px;font-weight:800}
+.statusDirectBuilder .statusSummaryTables .statusInlineNumber{width:auto;max-width:120px}
+.statusDirectBuilder .statusSummaryTables .statusInlineNumber input{max-width:72px!important;text-align:right!important}
+.statusDirectBuilder .statusSummaryRow .statusInlineState{display:flex!important;align-items:center;justify-content:center;min-width:0}
+.statusDirectBuilder .statusDirectCanvas .statusSummaryRow input:first-child{text-align:left!important}
+@media(max-width:550px){.statusDirectBuilder .statusDirectCanvas .statusSummaryRow{grid-template-columns:minmax(0,.9fr) minmax(86px,1fr) minmax(90px,1.1fr)!important;gap:3px!important}.statusDirectBuilder .statusSummaryTables{font-size:11px!important}.statusDirectBuilder .statusSummaryTables .statusInlineNumber input{max-width:45px!important}}
