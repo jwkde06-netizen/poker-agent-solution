@@ -16941,3 +16941,11 @@ html{scroll-behavior:smooth}
 .statusCopyImage{display:inline-flex;align-items:center;justify-content:center;gap:7px;background:#bf9546!important;color:#161616!important;border-color:#bf9546!important;font-weight:750!important}
 .statusTopActions .statusQuickDownload{width:38px;height:38px;padding:0!important}
 @media(max-width:600px){.statusBuilder .builderHead{gap:12px}.statusCopyImage{flex:1}.statusTopActions{width:100%}}
+
+/* Single-row poster status, 5 columns */
+.statusPosterLabels,.statusPosterRow{grid-template-columns:minmax(0,1.25fr) .5fr .55fr .6fr minmax(0,1.25fr);gap:6px}
+.statusPosterLabels{font-size:9px}
+.statusPosterRow{padding:13px 0;border-bottom:1px solid #414b57;min-height:45px}
+.statusPosterRow>span.statusInlineState{font-size:11px;line-height:1.35;text-align:right;color:#e2bb73;overflow-wrap:anywhere}
+.statusPosterSection>div:last-child .statusPosterRow{border-bottom:0}
+@media(max-width:600px){.statusPosterLabels,.statusPosterRow{gap:4px}.statusPosterRow>span.statusInlineState{font-size:9px}.statusPosterLabels{font-size:8px}}
