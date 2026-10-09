@@ -16890,3 +16890,34 @@ html{scroll-behavior:smooth}
 .promotionNotice{font-size:12px;padding:9px 12px;border-radius:9px;background:var(--surface-2,#8881)}
 @media(max-width:950px){.promotionSecondary{grid-template-columns:1fr}.promotionPrimary .builderPreview{position:static}}
 @media(max-width:600px){.promotionWorkspace{padding:12px!important}.promotionPrimary,.promotionUtility,.promotionArchive{padding:13px}.promotionWorkspaceHeader h2{font-size:21px}}
+
+
+/* Newport-inspired fast game status editing */
+.statusBuilder .builderHead{align-items:center}.statusTopActions{display:flex;gap:8px;flex-wrap:wrap}
+.statusTopActions button{padding:9px 12px;border-radius:9px;border:1px solid var(--line,#9994);font-size:12px}
+.statusBuilder .statusQuickHead{display:none}
+.statusVenue{border:1px solid var(--line,#9994);border-radius:13px;padding:12px;min-width:0}
+.statusVenueTitle{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.statusVenueTitle strong{font-size:14px}.statusVenueTitle span{font-size:11px;color:var(--muted)}
+.statusTableScroll{width:100%;overflow-x:auto}.statusEditTable{width:100%;border-collapse:separate;border-spacing:0 6px;table-layout:fixed}
+.statusEditTable th{text-transform:uppercase;font-size:10px;letter-spacing:.04em;color:var(--muted);text-align:center;padding:0 2px 4px}
+.statusEditTable th:first-child{width:29%;text-align:left}.statusEditTable th:nth-child(2),.statusEditTable th:nth-child(3){width:16%}.statusEditTable th:nth-child(4){width:29%}.statusEditTable th:last-child{width:10%}
+.statusEditTable td{padding:2px;vertical-align:middle}
+.statusEditTable input,.statusEditTable select{background:var(--surface,#fff);color:var(--text);border:1px solid var(--line,#9995);border-radius:8px;font:inherit;font-size:13px;width:100%;min-width:0;box-sizing:border-box;height:39px;padding:0 7px}
+.statusEditTable .statusNumberInput{font-weight:800;font-size:20px;text-align:center;padding:0 2px;font-variant-numeric:tabular-nums}
+.statusEditTable .statusGameInput{font-weight:650}.statusEditTable select{font-size:12px;cursor:pointer;padding:0 3px}
+.statusRemove{border:0!important;background:transparent!important;color:var(--muted)!important;font-size:20px;cursor:pointer;padding:5px!important}
+.statusAdd{margin-top:9px;width:100%;border:1px dashed var(--line,#9996)!important;border-radius:9px;background:transparent!important;color:var(--text)!important;font-size:12px;padding:10px}
+.statusAdvanced{border:1px solid var(--line,#9994);border-radius:10px;padding:11px 13px}
+.statusAdvanced summary{cursor:pointer;font-weight:600;font-size:12px}.statusAdvanced label{display:grid;gap:6px;font-size:12px;margin-top:12px}
+.statusAdvanced input,.statusAdvanced textarea{padding:9px;border:1px solid var(--line,#9995);border-radius:8px;background:var(--surface);color:var(--text)}
+.statusPosterPreview{background:#141b24;color:#f8fafc;padding:27px;border-radius:12px;min-height:380px}
+.statusPosterPreview>h2{color:#e1b76c;font-size:22px;letter-spacing:.05em;margin:0 0 25px}
+.statusPosterSection{border:1px solid #344052;border-radius:12px;padding:14px;margin-bottom:15px;background:#202935}
+.statusPosterSection h3{font-size:16px;color:#e2bb73;margin:0 0 13px}
+.statusPosterLabels,.statusPosterRow{display:grid;grid-template-columns:minmax(0,1.8fr) .65fr .75fr 1.15fr;align-items:center;gap:8px}
+.statusPosterLabels{color:#9da9b7;font-size:9px;letter-spacing:.035em;padding-bottom:8px;border-bottom:1px solid #414b57}
+.statusPosterRow{font-size:12px;padding:11px 0;border-bottom:1px solid #414b57}.statusPosterRow:last-child{border-bottom:0}
+.statusPosterRow strong{overflow-wrap:anywhere}.statusPosterRow b{text-align:center;font-size:19px}.statusPosterRow span{color:#e2bb73;text-align:center;font-size:11px}
+.statusPosterFooter{color:#c8ced7;font-size:11px;line-height:1.7;margin-top:18px}
+@media(max-width:600px){.statusVenue{padding:8px}.statusEditTable input,.statusEditTable select{font-size:11px}.statusEditTable .statusNumberInput{font-size:17px}.statusPosterPreview{padding:13px}.statusPosterRow{font-size:10px}.statusPosterRow b{font-size:16px}}
