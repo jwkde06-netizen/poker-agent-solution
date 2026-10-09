@@ -132,9 +132,12 @@ export default function StatusPosterBuilder({onSave,sessions=[]}:{onSave?:(title
       const baseline=y+151+i*rowH;
       ctx.fillStyle="#f8fafc";ctx.font="bold 65px sans-serif";
       ctx.fillText(r.game.slice(0,12),x+40,baseline,240);
-      if(r.tables>0){ctx.font="bold 50px sans-serif";ctx.fillText(String(r.tables),x+340,baseline,100)}
-      ctx.fillStyle=r.tables>0?"#f8fafc":"#f0c879";ctx.font="bold 48px sans-serif";
-      ctx.fillText(r.tables>0?"테이블 진행 중":"예약 중",x+475,baseline,usable-515);
+       // Export the status as one sentence so spaces match natural typography.
+       const statusText=r.tables>0?`${r.tables} 테이블 진행 중`:"예약 중";
+       ctx.fillStyle=r.tables>0?"#f8fafc":"#f0c879";
+       ctx.font="bold 48px sans-serif";
+       ctx.textAlign="left";
+       ctx.fillText(statusText,x+340,baseline,usable-380);
       if(i<list.length-1){ctx.fillStyle="#405063";ctx.fillRect(x+32,baseline+26,usable-64,2)}
     });
     y+=height+22;
