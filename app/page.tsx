@@ -7,6 +7,7 @@ import type { Session } from "@supabase/supabase-js";
 import { createProvisioningClient, isSupabaseConfigured, supabase } from "../lib/supabase";
 import { jsPDF } from "jspdf";
 import PromotionLibrary from "./PromotionLibrary";
+import ReservationOverview from "./ReservationOverview";
 
 type Agency = { id: string; code: string; rate: number; active: boolean };
 type Player = { id: string; name: string; koreanName: string; cardNo: string; agencyId: string; nationality: string; customRate: number|null; note: string; createdAt: string };
@@ -2939,6 +2940,7 @@ export default function Home() {
         {message && <div className="note globalNote">{message}</div>}
 
         {tab==="dashboard" && <>
+          <ReservationOverview />
           <section className={isStaff?"dashboardFinanceStrip staffDashboardStrip":"dashboardFinanceStrip"}>
             <div className="dashboardFinanceHeader">
               <div>
