@@ -33,7 +33,7 @@ export default function StatusPosterBuilder({onSave,sessions=[]}:{onSave?:(title
  type GameRow={id:string;venue:"dream"|"mm";game:string;tables:number;waiting:number;reserved:number};
  const rowKey="dream-poker-status-rows-v3";
  const reservationTarget=9;
- const getStatus=(r:GameRow)=>r.tables>0?"진행 중":r.waiting>=reservationTarget?"예약 완료":r.waiting>=8?"곧 스타트":"예약 중";
+ const getStatus=(r:GameRow)=>r.tables>0?"진행 중":"예약 중";
  const makeRow=(venue:"dream"|"mm",game:string,tables=0,waiting=0,reserved=0):GameRow=>({id:crypto.randomUUID(),venue,game,tables,waiting,reserved});
  const [rows,setRows]=useState<GameRow[]>([]);
  const [loaded,setLoaded]=useState(false);
@@ -62,7 +62,7 @@ export default function StatusPosterBuilder({onSave,sessions=[]}:{onSave?:(title
  },[]);
  useEffect(()=>{if(loaded)localStorage.setItem(rowKey,JSON.stringify({rows,time,footer,contact}))},[rows,time,footer,contact,loaded]);
  const updateRow=(id:string,change:Partial<GameRow>)=>setRows(prev=>prev.map(r=>r.id===id?{...r,...change}:r));
- const gameText=(r:GameRow)=>`${r.game} · ${getStatus(r)}${r.waiting>0?` · ${r.waiting}명 대기`:""}`;
+ const gameText=(r:GameRow)=>`${r.game} · ${r.tables>0?`${r.tables}테이블 · `:""}${getStatus(r)}`;
  const sections=([{id:"dream" as const,name:"DREAM POKER"},{id:"mm" as const,name:"MILLION MAKER"}]);
  const displayTime=clock||time;
  const text=useMemo(()=>["📢 실시간 테이블 현황",displayTime+" 기준","",...sections.flatMap(section=>[section.id==="dream"?"♠️ "+section.name:"♣️ "+section.name,...rows.filter(r=>r.venue===section.id).map(r=>"• "+gameText(r)),""]),footer,"",contact].join("\n"),[rows,displayTime,footer,contact]);
@@ -108,8 +108,8 @@ export default function StatusPosterBuilder({onSave,sessions=[]}:{onSave?:(title
  function renderPoster(){
   const canvas=canvasRef.current;if(!canvas)throw new Error("Canvas unavailable");
   const ctx=canvas.getContext("2d");if(!ctx)throw new Error("Canvas unavailable");
-  const W=1080,pad=54,usable=W-pad*2,rowH=132;
-  const sizes=sections.map(section=>146+Math.max(1,rows.filter(r=>r.venue===section.id).length)*rowH);
+  const W=1080,pad=54,usable=W-pad*2,rowH=118;
+  const sizes=sections.map(section=>102+Math.max(1,rows.filter(r=>r.venue===section.id).length)*rowH);
   // Footer is a single close-set block, never separated by the height of the canvas.
   const footerHeight=168;
   const H=220+sizes.reduce((total,h)=>total+h+22,0)+footerHeight;
@@ -128,22 +128,17 @@ export default function StatusPosterBuilder({onSave,sessions=[]}:{onSave?:(title
     ctx.fillStyle="#122237";ctx.beginPath();ctx.roundRect(x,y,usable,height,24);ctx.fill();
     ctx.strokeStyle="#d6aa5b";ctx.lineWidth=2;ctx.stroke();
     ctx.fillStyle="#ecc477";ctx.font="bold 44px sans-serif";ctx.fillText(section.name,x+28,y+63);
-    ctx.fillStyle="#1b2b40";ctx.beginPath();ctx.roundRect(x+22,y+80,usable-44,48,12);ctx.fill();
-    ctx.fillStyle="#c1cad7";ctx.font="bold 24px sans-serif";
-    const cols=[x+40,x+342,x+529,x+713];
-    ["GAME","TABLE","WAITING","STATUS"].forEach((label,i)=>ctx.fillText(label,cols[i],y+111));
     list.forEach((r,i)=>{
-      const baseline=y+215+i*rowH;
-      ctx.font="bold 77px sans-serif";ctx.fillStyle="#f8fafc";
-      ctx.fillText(r.game.slice(0,12),cols[0],baseline,265);
-      ctx.fillText(String(r.tables),cols[1]+10,baseline);
-      ctx.fillText(String(r.waiting),cols[2]+12,baseline);
-      const state=getStatus(r),running=r.tables>0;
-      const bx=cols[3]-8,by=baseline-69,bw=usable-(bx-x)-26,bh=82;
-      ctx.fillStyle=running?"#103f39":"#44351d";ctx.beginPath();ctx.roundRect(bx,by,bw,bh,35);ctx.fill();
+      const baseline=y+151+i*rowH;
+      ctx.fillStyle="#f8fafc";ctx.font="bold 65px sans-serif";
+      ctx.fillText(r.game.slice(0,12),x+40,baseline,240);
+      if(r.tables>0){ctx.font="bold 50px sans-serif";ctx.fillText(r.tables+"테이블",x+306,baseline,290)}
+      const running=r.tables>0,state=getStatus(r);
+      const bx=x+690,by=baseline-67,bw=usable-724,bh=77;
+      ctx.fillStyle=running?"#103f39":"#44351d";ctx.beginPath();ctx.roundRect(bx,by,bw,bh,30);ctx.fill();
       ctx.strokeStyle=running?"#47d0b0":"#e8bb57";ctx.lineWidth=2;ctx.stroke();
-      ctx.fillStyle=running?"#91f4dc":"#ffe29a";ctx.font="bold 38px sans-serif";ctx.textAlign="center";ctx.fillText(state,bx+bw/2,by+53,bw-12);ctx.textAlign="left";
-      if(i<list.length-1){ctx.fillStyle="#405063";ctx.fillRect(x+34,baseline+30,usable-68,2)}
+      ctx.fillStyle=running?"#91f4dc":"#ffe29a";ctx.font="bold 37px sans-serif";ctx.textAlign="center";ctx.fillText(state,bx+bw/2,by+50,bw-12);ctx.textAlign="left";
+      if(i<list.length-1){ctx.fillStyle="#405063";ctx.fillRect(x+32,baseline+26,usable-64,2)}
     });
     y+=height+22;
   });
@@ -166,11 +161,9 @@ export default function StatusPosterBuilder({onSave,sessions=[]}:{onSave?:(title
  </div>;
  const posterSection=(venue:"dream"|"mm",name:string)=><section className="statusPosterSection statusEditableSection" key={venue}>
   <div className="statusEditableSectionHeading"><h3>{name}</h3><button type="button" onClick={()=>setRows(prev=>[...prev,makeRow(venue,"5M",0,0)])}>+ 경기 추가</button></div>
-  <div className="statusPosterLabels"><span>GAME</span><span>TABLE</span><span>WAITING</span><span>STATUS</span></div>
-  {rows.filter(r=>r.venue===venue).map(r=><div className="statusPosterRow statusDirectEditRow" key={r.id}>
+  {rows.filter(r=>r.venue===venue).map(r=><div className="statusPosterRow statusDirectEditRow statusSummaryRow" key={r.id}>
     <input type="text" aria-label={r.game+" 게임명"} value={r.game} onChange={e=>updateRow(r.id,{game:e.target.value})} spellCheck={false}/>
-    {numberEditor(r,"tables","테이블 수")}
-    {numberEditor(r,"waiting","대기 인원")}
+    <div className="statusSummaryTables">{numberEditor(r,"tables","테이블 수")}<span>{r.tables>0?"테이블":""}</span></div>
     <span className={"statusInlineState"+(r.tables>0?" statusRunning":"")}>{getStatus(r)}</span>
     <button type="button" className="statusInlineRemove" aria-label={r.game+" 경기 삭제"} title="경기 삭제" onClick={()=>setRows(prev=>prev.filter(x=>x.id!==r.id))}>×</button>
   </div>)}
