@@ -44,7 +44,7 @@ def read_scoreboard(page,name):
 def event_names(page):
     # The event menu shown in the provided screenshot is headed Events / Description.
     # Clicking its header or menu trigger may vary between installations.
-    if not page.get_by_text("Description",exact=True).count():
+    if not page.get_by_text("Description",exact=True).first.is_visible():
         menu=page.get_by_text("Events",exact=True)
         if menu.count(): menu.first.click(timeout=2000)
         else:
@@ -75,7 +75,7 @@ def collect(page):
     for name in names:
         try:
             # Menu can disappear after selection. Open it on every iteration.
-            if not page.get_by_text("Description",exact=True).count():event_names(page)
+            if not page.get_by_text("Description",exact=True).first.is_visible():event_names(page)
             candidate=page.get_by_text(name,exact=True)
             if not candidate.count():
                 logging.warning("Event %s not in current list",name);continue
