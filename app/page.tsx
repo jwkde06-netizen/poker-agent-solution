@@ -3679,6 +3679,32 @@ export default function Home() {
               </div>
             </div>
 
+            <section className="dailyPcGameLog" aria-label="게임 로그">
+              <div className="dailyPcGameLogHead">
+                <div><h3>게임 로그</h3><span>선택한 정산일의 게임과 미종료 기록을 확인합니다.</span></div>
+                <button type="button" onClick={()=>{setGamesView("logs");navigateTab("games")}}>전체 게임 로그 보기 →</button>
+              </div>
+              <div className="dailyPcGameLogList">
+                {[...gameSessions].filter(gs=>gs.date===summaryDate||gs.status==="active").sort((a,b)=>{
+                  if(a.status!==b.status)return a.status==="active"?-1:1;
+                  return b.date.localeCompare(a.date)||Number(a.tableNo)-Number(b.tableNo);
+                }).map(gs=>{
+                  const related=entries.filter(e=>e.sessionId===gs.id);
+                  const buyins=related.reduce((total,e)=>total+e.buyIn,0);
+                  const duplicates=gs.status==="active"&&gameSessions.filter(other=>other.status==="active"&&other.tableNo===gs.tableNo).length>1;
+                  return <details className={"dailyPcGameLogItem"+(duplicates?" isDuplicate":"")} key={gs.id}>
+                    <summary><strong>T{gs.tableNo}</strong><span>{gs.gameNo?"No."+gs.gameNo:"No.-"} · {gs.game}</span><small>{gs.date}</small><b className={gs.status==="active"?"isLive":""}>{gs.status==="active"?(duplicates?"미종료 · 중복":"진행 중"):"종료"}</b><em>{buyins} BUY-IN</em><span className="dailyPcLogExpand">⌄</span></summary>
+                    <div className="dailyPcGameLogDetails">
+                      <span>참여 플레이어 {related.length}명</span>
+                      <span>총 엔트리피 {vnd(related.reduce((sum,e)=>sum+revenuePerBuyIn(e.game)*e.buyIn,0))}</span>
+                      {gs.status==="active"&&<button type="button" onClick={()=>{if(window.confirm(`T${gs.tableNo} · ${gs.game} (No.${gs.gameNo||"-"}) 기록을 종료할까요?`))void closeGameSession(gs.id)}}>이 기록 경기 종료</button>}
+                    </div>
+                  </details>;
+                })}
+                {!gameSessions.some(gs=>gs.date===summaryDate||gs.status==="active")&&<p className="dailyPcGameLogEmpty">선택한 날짜의 게임 기록이 없습니다.</p>}
+              </div>
+            </section>
+
             <div className="dailySummaryGrid dailySummaryGridCompact restoredDailySummary">
               <div className="dailySummaryCard">
                 <span>총 엔트리피</span>
