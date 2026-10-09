@@ -92,6 +92,32 @@ export default function PromotionLibrary({sessions,canEdit}:{sessions:LiveSessio
     }catch{flash("이 브라우저는 이미지 복사를 지원하지 않습니다. 다운로드를 이용해주세요.")}
   }
 
+  async function pastePoster(file:File){
+    if(!canEdit){flash("포스터 저장 권한이 없습니다.");return}
+    if(!["image/png","image/jpeg","image/webp"].includes(file.type)){flash("PNG, JPG, WEBP 이미지만 가능합니다.");return}
+    if(file.size>10*1024*1024){flash("10MB 이하 이미지만 붙여넣을 수 있습니다.");return}
+    setUploading(true);
+    try{
+      let url="";
+      if(supabase&&connected){
+        const path=crypto.randomUUID()+"."+(file.type==="image/jpeg"?"jpg":file.type==="image/webp"?"webp":"png");
+        const result=await supabase.storage.from("promotion-posters").upload(path,file,{contentType:file.type});
+        if(result.error)throw result.error;
+        url=supabase.storage.from("promotion-posters").getPublicUrl(path).data.publicUrl;
+      }else{
+        url=await new Promise<string>((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result));reader.onerror=()=>reject(new Error("이미지 읽기 실패"));reader.readAsDataURL(file)});
+      }
+      const item:Item={id:crypto.randomUUID(),title:"포스터 "+new Intl.DateTimeFormat("ko-KR",{timeZone:"Asia/Ho_Chi_Minh",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"}).format(new Date()),category:"poster",body:"",image_url:url};
+      if(connected&&supabase){const result=await supabase.from("promotion_items").insert(item);if(result.error)throw result.error}
+      setItems(old=>[item,...old]);
+      setQueue([item.id,...queueIds]);
+      flash("포스터가 추가됐습니다. 이미지 복사로 바로 공유하세요.");
+    }catch(e){flash("붙여넣기 저장 실패: "+String(e))}finally{setUploading(false)}
+  }
+  const handlePosterPaste=(e:import("react").ClipboardEvent<HTMLElement>)=>{
+    const image=Array.from(e.clipboardData.items).find(item=>item.type.startsWith("image/"));
+    if(image){e.preventDefault();const file=image.getAsFile();if(file)void pastePoster(file)}
+  };
   const posters=items.filter(i=>i.category==="poster"&&(i.title+" "+i.body).toLowerCase().includes(query.toLowerCase()));
   const snippets=items.filter(i=>i.category==="notice"&&(i.title+" "+i.body).toLowerCase().includes(query.toLowerCase()));
   const buttonStyle={padding:"9px 13px",borderRadius:9,border:"1px solid var(--border-color, #7775)",cursor:"pointer"};
@@ -106,30 +132,21 @@ export default function PromotionLibrary({sessions,canEdit}:{sessions:LiveSessio
     <section className="promotionPrimary" aria-label="현황 포스터 제작">
       <StatusPosterBuilder sessions={sessions} onSave={canEdit?saveGenerated:undefined}/>
     </section>
-    <aside className="promotionQueue">
-      <div className="promotionQueueHeader"><h3>포스터 대기열</h3><span>{queueIds.length}개</span></div>
-      <p className="promotionUtilityHint">자주 공유할 포스터를 모아두고 한 번에 이미지 복사</p>
+    <aside className="promotionQueue" onPaste={handlePosterPaste}>
+      <div className="promotionQueueHeader"><h3>포스터</h3><span>{queueIds.length}개</span></div>
+      <p className="promotionUtilityHint">이미지를 붙여넣고, 필요할 때 바로 복사</p>
+      <div className="promotionPasteArea" tabIndex={0} role="button" aria-label="포스터 이미지 붙여넣기" onKeyDown={e=>{if(e.key==="Enter")e.currentTarget.focus()}}>
+       <strong>여기를 클릭하고 Ctrl+V / ⌘V</strong><span>스크린샷이나 복사한 이미지를 바로 추가</span>{uploading&&<span>저장 중...</span>}
+      </div>
       {queueIds.map(id=>items.find(item=>item.id===id)).filter((item):item is Item=>Boolean(item&&item.image_url)).map(item=><article className="promotionQueueItem" key={item.id}>
         <img src={item.image_url} alt={item.title}/>
         <div><strong>{item.title}</strong><button onClick={()=>void copyImage(item.image_url)}>이미지 복사</button><button onClick={()=>setQueue(queueIds.filter(id=>id!==item.id))}>제거</button></div>
       </article>)}
-      {!queueIds.some(id=>items.some(item=>item.id===id&&item.image_url))&&<p className="promotionQueueEmpty">저장된 자료에서 ‘대기열 추가’를 누르면 이곳에 나타납니다.</p>}
+      {!queueIds.some(id=>items.some(item=>item.id===id&&item.image_url))&&<p className="promotionQueueEmpty">위 영역에 이미지를 붙여넣거나 아래 최근 포스터에서 추가하세요.</p>}
       <div className="promotionQueueRecent"><h4>최근 포스터</h4>{items.filter(item=>item.image_url&&!queueIds.includes(item.id)).slice(0,5).map(item=><div className="promotionQueueRecentItem" key={item.id}><span>{item.title}</span><button onClick={()=>setQueue([item.id,...queueIds])}>+ 추가</button></div>)}</div>
     </aside>
     </div>
     <div className="promotionSecondary" id="promotion-library">
-      <section className="promotionUtility">
-        <div className="promotionUtilityHead"><div><h3>포스터 업로드</h3><p>이미지를 업로드하고 자료실에 저장하세요.</p></div><span>01</span></div>
-        {canEdit?<div className="promotionUtilityBody">
-          <div className={"posterDropZone"+(dragging?" dragging":"")} onDragEnter={e=>{e.preventDefault();setDragging(true)}} onDragOver={e=>{e.preventDefault();setDragging(true)}} onDragLeave={e=>{e.preventDefault();setDragging(false)}} onDrop={e=>{e.preventDefault();setDragging(false);void upload(e.dataTransfer.files[0])}}>
-            <label><strong>포스터 파일 선택 또는 드래그</strong><span>PNG · JPG · WEBP / 최대 10MB</span><input type="file" accept="image/png,image/jpeg,image/webp" onChange={e=>void upload(e.target.files?.[0])}/></label>
-            {imageUrl&&<img src={imageUrl} alt="업로드한 포스터" className="promotionUploadedPreview"/>}
-          </div>
-          <input className="promotionField" value={title} onChange={e=>setTitle(e.target.value)} placeholder="포스터 제목" aria-label="포스터 제목"/>
-          <textarea className="promotionField" rows={2} value={body} onChange={e=>setBody(e.target.value)} placeholder="설명 또는 함께 보낼 문구 (선택)" aria-label="포스터 설명"/>
-          <div className="promotionButtonRow"><button className="promotionMainButton" style={buttonStyle} disabled={uploading} onClick={()=>void save()}>{uploading?"업로드 중...":editingId?"수정 저장":"자료 저장"}</button>{editingId&&<button style={buttonStyle} onClick={clearForm}>취소</button>}</div>
-        </div>:<p className="promotionUtilityHint">포스터 업로드는 관리자 계정에서 사용할 수 있습니다.</p>}
-      </section>
       <section className="promotionUtility">
         <div className="promotionUtilityHead"><div><h3>공지문 클립보드</h3><p>현황 문구를 바로 복사하거나 자주 쓰는 문구를 관리합니다.</p></div><span>02</span></div>
         <div className="promotionUtilityBody">
@@ -149,7 +166,7 @@ export default function PromotionLibrary({sessions,canEdit}:{sessions:LiveSessio
           <div className="promotionCardActions">
             {item.body&&<button style={buttonStyle} onClick={()=>void copy(item.body)}>문구 복사</button>}
             {item.image_url&&<><button style={buttonStyle} onClick={()=>void copyImage(item.image_url)}>이미지 복사</button><button style={buttonStyle} onClick={()=>setQueue(queueIds.includes(item.id)?queueIds:[item.id,...queueIds])}>대기열 추가</button><a style={buttonStyle} href={item.image_url} target="_blank" rel="noreferrer">원본 보기</a></>}
-            {canEdit&&<><button style={buttonStyle} onClick={()=>{setEditingId(item.id);setTitle(item.title);setBody(item.body);setImageUrl(item.image_url);document.getElementById("promotion-library")?.scrollIntoView({behavior:"smooth"})}}>수정</button><button style={buttonStyle} onClick={()=>void remove(item)}>삭제</button></>}
+            {canEdit&&<><button style={buttonStyle} onClick={()=>{setEditingId(item.id);setTitle(item.title);setBody(item.body);setImageUrl(item.image_url);flash("이 자료는 포스터 영역에서 복사하거나 다시 등록할 수 있습니다.")}}>수정</button><button style={buttonStyle} onClick={()=>void remove(item)}>삭제</button></>}
           </div>
         </article>)}
       </div>
