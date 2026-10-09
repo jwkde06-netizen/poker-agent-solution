@@ -16968,3 +16968,30 @@ html{scroll-behavior:smooth}
 .statusBuilder .statusEditTable th:nth-child(2),.statusBuilder .statusEditTable th:nth-child(3){width:22%}
 .statusBuilder .statusEditTable th:last-child{width:12%}
 @media(max-width:600px){.statusBuilder .statusPosterPreview{padding:14px}.statusBuilder .statusPosterSection{padding:10px}.statusBuilder .statusPosterRow{gap:4px}.statusBuilder .statusPosterRow strong{font-size:23px}.statusBuilder .statusPosterRow b{font-size:27px}.statusBuilder .statusPosterRow .statusInlineState{font-size:10px;padding:8px 2px}.statusBuilder .statusPosterLabels{font-size:9px}}
+
+/* The poster itself is the editor: inputs match exported visual style */
+.statusDirectBuilder{max-width:920px;margin:auto}
+.statusDirectBuilder .builderHead{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:18px}
+.statusDirectCanvas{max-width:780px;margin:auto}
+.statusDirectCanvas .statusPosterPreview{padding:36px;background:linear-gradient(145deg,#233044,#151c26);border-radius:18px}
+.statusDirectCanvas .statusPosterTime{margin-bottom:22px}
+.statusEditableSection{position:relative}
+.statusEditableSectionHeading{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px}
+.statusEditableSectionHeading h3{margin:0!important}
+.statusEditableSectionHeading button{border:1px solid #475466!important;background:#293647!important;color:#eac17a!important;font-size:11px!important;padding:7px 10px!important;border-radius:8px}
+.statusDirectEditRow{position:relative}
+.statusDirectEditRow input{width:100%;min-width:0;border:1px solid transparent;background:transparent;color:#fff;text-align:center;font-size:clamp(22px,3vw,36px);font-weight:800;outline:none;border-radius:7px;padding:5px 2px;box-sizing:border-box;font-family:inherit}
+.statusDirectEditRow input:first-child{text-align:left}
+.statusDirectEditRow input:hover{background:#ffffff10;border-color:#ffffff22}
+.statusDirectEditRow input:focus{background:#152032;border-color:#e0b66d}
+.statusDirectEditRow input::-webkit-outer-spin-button,.statusDirectEditRow input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.statusDirectEditRow input[type=number]{-moz-appearance:textfield;appearance:textfield}
+.statusInlineRemove{position:absolute;right:-14px;top:-9px;border:0!important;border-radius:50%;background:#6b3440!important;color:white!important;font-size:14px!important;width:23px;height:23px;padding:0!important;opacity:0;cursor:pointer}
+.statusDirectEditRow:hover .statusInlineRemove,.statusInlineRemove:focus-visible{opacity:1}
+.statusDirectFooter{border-top:1px solid #415062;margin-top:20px;padding-top:16px;display:grid;gap:8px}
+.statusDirectFooter textarea,.statusDirectFooter input{resize:vertical;display:block;width:100%;border:1px solid transparent;border-radius:7px;background:transparent;color:#e1e6ec;font-size:13px;line-height:1.6;padding:6px 7px;font-family:inherit;box-sizing:border-box}
+.statusDirectFooter input{color:#eac17a;font-weight:700}
+.statusDirectFooter textarea:focus,.statusDirectFooter input:focus{outline:1px solid #eac17a;background:#152032}
+.statusDirectBottom{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;margin-top:15px}
+.statusDirectBottom .statusAdvanced{flex:1}
+@media(max-width:600px){.statusDirectCanvas .statusPosterPreview{padding:18px 12px}.statusDirectEditRow input{font-size:24px}.statusEditableSectionHeading button{font-size:10px!important}.statusInlineRemove{opacity:1;right:-7px;top:-12px}}
