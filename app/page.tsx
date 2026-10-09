@@ -370,6 +370,8 @@ export default function Home() {
   const [gameBuyIn, setGameBuyIn] = useState("1");
   const [gameRake, setGameRake] = useState("500000");
   const [summaryDate, setSummaryDate] = useState(today());
+  const [operatingDate,setOperatingDate]=useState(pokerBusinessDate());
+  const [closingOperatingDay,setClosingOperatingDay]=useState(false);
   const [dailyLogSearch, setDailyLogSearch] = useState("");
   const [dailyExportOpen, setDailyExportOpen] = useState(false);
   const [dailyEditingCell, setDailyEditingCell] = useState<{entryId:string;field:"agency"|"buyin"} | null>(null);
@@ -546,6 +548,8 @@ export default function Home() {
       rake:Number(x.rake),agencyId:x.agency_id,agencyCodeSnapshot:x.agency_code_snapshot,
       rateSnapshot:Number(x.rate_snapshot),rakeback:Number(x.rakeback),sessionId:x.session_id ?? undefined
     })));
+    const {data:operatingDay}=await supabase.from("poker_operating_day").select("business_date").eq("id",1).maybeSingle();
+    if(operatingDay?.business_date){setOperatingDate(operatingDay.business_date);setSummaryDate(operatingDay.business_date);}
     setGameSessions((gs.data ?? []).map((x:any)=>({
       id:x.id,date:x.played_on,tableNo:x.table_no,gameNo:x.game_no ?? "",game:x.game_name,status:x.status
     })));
@@ -643,11 +647,13 @@ export default function Home() {
     const client=supabase;
     let active=true, timer:ReturnType<typeof setTimeout>|undefined;
     const refresh=async()=>{
-      const [gameResult,sessionResult]=await Promise.all([
+      const [gameResult,sessionResult,dayResult]=await Promise.all([
         client.from("game_entries").select("*").order("played_on"),
-        client.from("game_sessions").select("*").order("created_at")
+        client.from("game_sessions").select("*").order("created_at"),
+        client.from("poker_operating_day").select("business_date").eq("id",1).maybeSingle()
       ]);
       if(!active)return;
+      if(!dayResult.error&&dayResult.data?.business_date)setOperatingDate(dayResult.data.business_date);
       if(!gameResult.error)setEntries((gameResult.data??[]).map((x:any)=>({
         id:x.id,date:x.played_on,game:x.game_name,playerId:x.player_id,buyIn:Number(x.buy_in),
         rake:Number(x.rake),agencyId:x.agency_id,agencyCodeSnapshot:x.agency_code_snapshot,
@@ -661,6 +667,7 @@ export default function Home() {
     const channel=client.channel("dream-live-games")
       .on("postgres_changes",{event:"*",schema:"public",table:"game_entries"},queueRefresh)
       .on("postgres_changes",{event:"*",schema:"public",table:"game_sessions"},queueRefresh)
+      .on("postgres_changes",{event:"*",schema:"public",table:"poker_operating_day"},queueRefresh)
       .subscribe();
     // Also recover missed updates when the browser returns to the foreground.
     const onFocus=()=>queueRefresh();
@@ -1218,6 +1225,20 @@ export default function Home() {
     return Math.round(rakePerBuyIn(game)*0.5);
   }
 
+  async function closeOperatingDay(){
+    if(gameSessions.some(s=>s.status==="active")){setMessage("진행 중인 게임을 모두 종료한 뒤 영업 마감해주세요.");return;}
+    if(!window.confirm(`${operatingDate} 영업을 마감할까요? 기존 기록은 보존되고 다음 영업일 집계가 시작됩니다.`))return;
+    if(!supabase||!session){setMessage("영업 마감은 서버 연결 상태에서만 가능합니다.");return;}
+    setClosingOperatingDay(true);
+    try{
+      const {data,error}=await supabase.rpc("close_poker_operating_day");
+      if(error){setMessage("영업 마감 실패: "+error.message);return;}
+      const nextDay=String(data);
+      setOperatingDate(nextDay);setSummaryDate(nextDay);setNewGameNo("");setDailyLogSearch("");
+      setMessage(`영업 마감 완료 · ${nextDay} 영업 시작 (No.1)`);
+    }finally{setClosingOperatingDay(false);}
+  }
+
   async function startGameSession(){
     const tableNo=(selectedTableNo || newTableNo).trim();
     if(!tableNo){setMessage("테이블 번호를 입력해주세요.");return;}
@@ -1226,13 +1247,15 @@ export default function Home() {
       return;
     }
 
+    const nextGameNo=String(Math.max(0,...gameSessions.filter(s=>s.date===operatingDate).map(s=>Number(s.gameNo)||0))+1);
+    const assignedNo=newGameNo.trim() || nextGameNo;
     if(isSupabaseConfigured && supabase && session){
-      const payload={played_on:pokerBusinessDate(),table_no:tableNo,game_no:newGameNo.trim() || null,game_name:newSessionGame,status:"active"};
+      const payload={played_on:operatingDate,table_no:tableNo,game_no:assignedNo,game_name:newSessionGame,status:"active"};
       const {data,error}=await supabase.from("game_sessions").insert(payload).select().single();
       if(error){setMessage(error.message);return;}
       setGameSessions(prev=>[...prev,{id:data.id,date:data.played_on,tableNo:data.table_no,gameNo:data.game_no ?? "",game:data.game_name,status:data.status}]);
     }else{
-      setGameSessions(prev=>[...prev,{id:uid("session"),date:pokerBusinessDate(),tableNo,gameNo:newGameNo.trim(),game:newSessionGame,status:"active"}]);
+      setGameSessions(prev=>[...prev,{id:uid("session"),date:operatingDate,tableNo,gameNo:assignedNo,game:newSessionGame,status:"active"}]);
     }
     setSelectedTableNo(tableNo);
     setNewTableNo("");
@@ -3414,7 +3437,7 @@ export default function Home() {
                           inputMode="numeric"
                           value={newGameNo}
                           onChange={e=>setNewGameNo(e.target.value.replace(/\D/g,""))}
-                          placeholder="-"
+                          placeholder={String(Math.max(0,...gameSessions.filter(gs=>gs.date===operatingDate).map(gs=>Number(gs.gameNo)||0))+1)}
                         />
                       </label>
                     </div>}
@@ -3570,11 +3593,12 @@ export default function Home() {
 
           <section className="dailyPcGameLog gameInputBottomLog" aria-label="게임 로그">
               <div className="dailyPcGameLogHead">
-                <div><h3>게임 로그</h3><span>전체 기록과 미종료 게임을 확인하고 개별 종료하세요.</span></div>
+                <div><h3>게임 로그 · {operatingDate}</h3><span>현재 영업일 기록 · 지난 기록은 일일 정산에서 날짜별로 확인하세요.</span></div>
+                {profile?.role==="admin"&&<button type="button" className="dailyInlineUndo" disabled={closingOperatingDay||gameSessions.some(s=>s.status==="active")} onClick={()=>void closeOperatingDay()}>{closingOperatingDay?"마감 처리 중…":"영업 마감 · 다음날 시작"}</button>}
                 
               </div>
               <div className="dailyPcGameLogList">
-                {[...gameSessions].filter(gs=>true).sort((a,b)=>{
+                {[...gameSessions].filter(gs=>gs.date===operatingDate).sort((a,b)=>{
                   if(a.status!==b.status)return a.status==="active"?-1:1;
                   return b.date.localeCompare(a.date)||Number(a.tableNo)-Number(b.tableNo);
                 }).map(gs=>{
@@ -3590,7 +3614,7 @@ export default function Home() {
                     </div>
                   </details>;
                 })}
-                {gameSessions.length===0&&<p className="dailyPcGameLogEmpty">게임 기록이 없습니다.</p>}
+                {!gameSessions.some(gs=>gs.date===operatingDate)&&<p className="dailyPcGameLogEmpty">이번 영업일 게임 기록이 없습니다. 다음 게임은 No.1부터 시작합니다.</p>}
               </div>
             </section>
 
@@ -3603,16 +3627,16 @@ export default function Home() {
             <button type="button" onClick={()=>navigateTab("games")}>바이인 입력 →</button>
           </header>
           <div className="staffDailyKpis">
-            <div><span>오늘 진행 게임</span><strong>{gameSessions.filter(gs=>gs.date===today()).length}개</strong></div>
+            <div><span>오늘 진행 게임</span><strong>{gameSessions.filter(gs=>gs.date===operatingDate).length}개</strong></div>
             <div><span>현재 진행 중</span><strong>{activeGameSessions.length}개</strong></div>
             <div><span>참여 플레이어</span><strong>{todayPlayerCount}명</strong></div>
             <div><span>총 바이인</span><strong>{todayEntries.reduce((sum,e)=>sum+e.buyIn,0)}회</strong></div>
           </div>
           <div className="staffDailySectionTitle"><h3>오늘 게임별 현황</h3><span>{today()}</span></div>
-          {gameSessions.filter(gs=>gs.date===today()).length===0
+          {gameSessions.filter(gs=>gs.date===operatingDate).length===0
             ? <p className="staffDailyEmpty">오늘 등록된 게임이 없습니다.</p>
             : <div className="staffDailyGames">
-              {gameSessions.filter(gs=>gs.date===today()).map(gs=>{
+              {gameSessions.filter(gs=>gs.date===operatingDate).map(gs=>{
                 const gameEntries=todayEntries.filter(e=>e.sessionId===gs.id);
                 const buyIns=gameEntries.reduce((sum,e)=>sum+e.buyIn,0);
                 const participants=new Set(gameEntries.map(e=>e.playerId)).size;
