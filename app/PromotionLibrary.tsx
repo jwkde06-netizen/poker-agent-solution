@@ -135,7 +135,7 @@ export default function PromotionLibrary({sessions,canEdit}:{sessions:LiveSessio
     <aside className="promotionQueue" onPaste={handlePosterPaste}>
       <div className="promotionQueueHeader"><h3>포스터</h3><span>{queueIds.length}개</span></div>
       <p className="promotionUtilityHint">이미지를 붙여넣고, 필요할 때 바로 복사</p>
-      <div className="promotionPasteArea" tabIndex={0} role="button" aria-label="포스터 이미지 붙여넣기" onKeyDown={e=>{if(e.key==="Enter")e.currentTarget.focus()}}>
+      <div className="promotionPasteArea" tabIndex={0} role="button" aria-label="포스터 이미지 붙여넣기" onClick={e=>e.currentTarget.focus()} onKeyDown={e=>{if(e.key==="Enter")e.currentTarget.focus()}}>
        <strong>여기를 클릭하고 Ctrl+V / ⌘V</strong><span>스크린샷이나 복사한 이미지를 바로 추가</span>{uploading&&<span>저장 중...</span>}
       </div>
       {queueIds.map(id=>items.find(item=>item.id===id)).filter((item):item is Item=>Boolean(item&&item.image_url)).map(item=><article className="promotionQueueItem" key={item.id}>
@@ -166,7 +166,7 @@ export default function PromotionLibrary({sessions,canEdit}:{sessions:LiveSessio
           <div className="promotionCardActions">
             {item.body&&<button style={buttonStyle} onClick={()=>void copy(item.body)}>문구 복사</button>}
             {item.image_url&&<><button style={buttonStyle} onClick={()=>void copyImage(item.image_url)}>이미지 복사</button><button style={buttonStyle} onClick={()=>setQueue(queueIds.includes(item.id)?queueIds:[item.id,...queueIds])}>대기열 추가</button><a style={buttonStyle} href={item.image_url} target="_blank" rel="noreferrer">원본 보기</a></>}
-            {canEdit&&<><button style={buttonStyle} onClick={()=>{setEditingId(item.id);setTitle(item.title);setBody(item.body);setImageUrl(item.image_url);flash("이 자료는 포스터 영역에서 복사하거나 다시 등록할 수 있습니다.")}}>수정</button><button style={buttonStyle} onClick={()=>void remove(item)}>삭제</button></>}
+            {canEdit&&<button style={buttonStyle} onClick={()=>void remove(item)}>삭제</button>}
           </div>
         </article>)}
       </div>
