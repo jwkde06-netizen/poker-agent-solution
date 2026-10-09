@@ -3524,7 +3524,7 @@ export default function Home() {
                       </div>}
                     </div>
 
-                    <div className="playerValueToolbar">
+                    <div className={"playerValueToolbar"+(!isStaff?" alignedFinancialToolbar":"")}>
                       <span>플레이어 {selectedTableEntries.length}명</span>
                       {!isStaff && <div className="opsPlayerColumnLabels"><span>엔트리피</span><span>레이크백</span></div>}
 
