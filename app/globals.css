@@ -17036,3 +17036,7 @@ html{scroll-behavior:smooth}
 .statusDirectBuilder .statusPosterTitleLine .statusPosterTime{margin:0!important;white-space:nowrap;font-size:clamp(12px,1.4vw,17px);font-weight:600;color:#c7d0df}
 @media(hover:none){.statusDirectBuilder .statusNumberSteppers{opacity:1;visibility:visible}}
 @media(max-width:550px){.statusDirectBuilder .statusPosterTitleLine{align-items:flex-start}.statusDirectBuilder .statusPosterTitleLine h2{font-size:21px}}
+
+/* Subtle running game indicator */
+.statusDirectBuilder .statusInlineState.statusRunning{color:#f1d29a!important;border-color:#927748!important;background:#3a352d!important}
+.statusDirectBuilder .statusFire{display:inline-block;font-size:.8em;margin-right:5px;vertical-align:baseline}
