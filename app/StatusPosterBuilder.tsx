@@ -33,7 +33,7 @@ export default function StatusPosterBuilder({onSave,sessions=[]}:{onSave?:(title
  type GameRow={id:string;venue:"dream"|"mm";game:string;tables:number;waiting:number;reserved:number};
  const rowKey="dream-poker-status-rows-v3";
  const reservationTarget=9;
- const getStatus=(r:GameRow)=>r.tables>0?`${r.tables}테이블 진행 중`:r.reserved>=reservationTarget?`예약 완료 · 곧 시작`:r.reserved>0?`${r.reserved}/${reservationTarget}명 예약 · 오픈 준비`:"예약 접수 중";
+ const getStatus=(r:GameRow)=>r.tables>0?"진행 중":r.waiting>=reservationTarget?"예약 완료":r.waiting>=8?"곧 스타트":"예약 중";
  const makeRow=(venue:"dream"|"mm",game:string,tables=0,waiting=0,reserved=0):GameRow=>({id:crypto.randomUUID(),venue,game,tables,waiting,reserved});
  const [rows,setRows]=useState<GameRow[]>([]);
  const [loaded,setLoaded]=useState(false);
@@ -107,31 +107,36 @@ export default function StatusPosterBuilder({onSave,sessions=[]}:{onSave?:(title
   const canvas=canvasRef.current;if(!canvas)throw new Error("Canvas unavailable");
   const ctx=canvas.getContext("2d");if(!ctx)throw new Error("Canvas unavailable");
   const W=1080,pad=76,usable=W-pad*2;
-  const groupHeights=sections.map(section=>Math.max(185,rows.filter(r=>r.venue===section.id).length*79+170));
-  const H=Math.max(1100,380+groupHeights.reduce((a,b)=>a+b,0)+220);
+  const groupHeights=sections.map(section=>160+Math.max(1,rows.filter(r=>r.venue===section.id).length)*124);
+  const H=Math.max(1050,315+groupHeights.reduce((a,b)=>a+b,0)+175);
   canvas.width=W;canvas.height=H;
   const bg=ctx.createLinearGradient(0,0,W,H);bg.addColorStop(0,"#26303c");bg.addColorStop(1,"#101419");ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
   ctx.fillStyle="#d2ac61";ctx.fillRect(pad,69,110,6);
   ctx.fillStyle="#fff";ctx.font="bold 62px sans-serif";ctx.fillText("LIVE TABLE STATUS",pad,162);
-  ctx.fillStyle="#c9cfda";ctx.font="32px sans-serif";ctx.fillText(displayTime+" 기준 (베트남 현지시각)",pad,226);
+  ctx.fillStyle="#c9cfda";ctx.font="32px sans-serif";ctx.fillText(displayTime+" 기준",pad,226);
   let y=290;
   sections.forEach((section,index)=>{
    const current=rows.filter(r=>r.venue===section.id);
    const height=groupHeights[index];
-   ctx.fillStyle="#202935";ctx.beginPath();ctx.roundRect(pad,y,usable,height,20);ctx.fill();
-   ctx.fillStyle="#e2bb73";ctx.font="bold 40px sans-serif";ctx.fillText(section.name,pad+25,y+62);
-   ctx.fillStyle="#abb4c1";ctx.font="24px sans-serif";ctx.fillText("GAME",pad+22,y+108);ctx.fillText("TABLE",pad+244,y+108);ctx.fillText("WAIT",pad+385,y+108);ctx.fillText("BOOK",pad+523,y+108);ctx.fillText("STATUS",pad+658,y+108);
-   current.forEach((r,i)=>{
-     const yy=y+158+i*79;
-     ctx.fillStyle="#fafafa";ctx.font="bold 31px sans-serif";ctx.fillText(r.game.slice(0,10),pad+22,yy);
-     ctx.font="bold 31px sans-serif";ctx.fillText(String(r.tables),pad+260,yy);ctx.fillText(String(r.waiting),pad+395,yy);
-     ctx.fillStyle="#e2bb73";ctx.font="bold 27px sans-serif";ctx.fillText(String(r.reserved||0),pad+537,yy);
-     ctx.fillStyle="#d8bd88";ctx.font="20px sans-serif";ctx.fillText(getStatus(r).replace(/ · /g," ").slice(0,16),pad+660,yy);ctx.fillStyle="#414b57";ctx.fillRect(pad+22,yy+22,usable-44,1);
+   ctx.fillStyle="#202935";ctx.beginPath();ctx.roundRect(pad,y,usable,height,22);ctx.fill();
+   ctx.fillStyle="#eac17a";ctx.font="bold 46px sans-serif";ctx.fillText(section.name,pad+26,y+66);
+   const col=[pad+28,pad+315,pad+505,pad+704];
+   ctx.fillStyle="#aab5c6";ctx.font="bold 24px sans-serif";
+   ["GAME","TABLE","WAITING","STATUS"].forEach((name,i)=>ctx.fillText(name,col[i],y+125));
+   const show=current.length?current:[];
+   show.forEach((r,i)=>{
+     const yy=y+203+i*124;
+     ctx.fillStyle="#f8fafc";ctx.font="bold 63px sans-serif";ctx.fillText(r.game.slice(0,10),col[0],yy);
+     ctx.fillText(String(r.tables),col[1]+15,yy);ctx.fillText(String(r.waiting),col[2]+16,yy);
+     const status=getStatus(r);
+     ctx.fillStyle=r.tables>0?"#e6bd73":"#e5eaf0";
+     ctx.font="bold 32px sans-serif";ctx.fillText(status,col[3],yy-8);
+     ctx.fillStyle="#46505d";ctx.fillRect(pad+24,yy+29,usable-48,1);
    });
-   y+=height+22;
+   y+=height+20;
   });
-  ctx.fillStyle="#dde3eb";ctx.font="26px sans-serif";y=drawLines(ctx,footer,pad,y+38,usable,43);
-  ctx.fillStyle="#e2bb73";ctx.font="bold 27px sans-serif";drawLines(ctx,contact,pad,y+24,usable,42);
+  ctx.fillStyle="#dde3eb";ctx.font="25px sans-serif";y=drawLines(ctx,footer,pad,y+27,usable,38);
+  ctx.fillStyle="#e2bb73";ctx.font="bold 29px sans-serif";drawLines(ctx,contact,pad,y+18,usable,42);
   return canvas;
  }
  const getPng=async()=>{const canvas=renderPoster();return await new Promise<Blob>((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(new Error("PNG 변환 실패")),"image/png"))};
@@ -140,15 +145,15 @@ export default function StatusPosterBuilder({onSave,sessions=[]}:{onSave?:(title
  const save=async()=>{if(!onSave)return;try{await onSave("Dream & MM 현황 "+displayTime,text,await getPng());flash("자료실 저장 완료")}catch(e){flash("저장 실패: "+String(e))}};
  const listEditor=(venue:"dream"|"mm",name:string)=><section className="statusVenue" key={venue}>
   <div className="statusVenueTitle"><strong>{name}</strong><span>{rows.filter(r=>r.venue===venue).length}종류</span></div>
-  <div className="statusTableScroll"><table className="statusEditTable"><thead><tr><th>게임 종류</th><th>테이블</th><th>대기</th><th>예약</th><th aria-label="삭제"></th></tr></thead><tbody>
+  <div className="statusTableScroll"><table className="statusEditTable"><thead><tr><th>게임 종류</th><th>테이블</th><th>대기</th><th aria-label="삭제"></th></tr></thead><tbody>
   {rows.filter(r=>r.venue===venue).map(row=><tr key={row.id}><td><input className="statusGameInput" value={row.game} aria-label="게임 종류" onChange={e=>updateRow(row.id,{game:e.target.value})}/></td>
    <td><input type="number" min="0" className="statusNumberInput" aria-label={row.game+" 테이블 수"} value={row.tables} onChange={e=>updateRow(row.id,{tables:Math.max(0,Number(e.target.value)||0)})}/></td>
    <td><input type="number" min="0" className="statusNumberInput" aria-label={row.game+" 대기 인원"} value={row.waiting} onChange={e=>updateRow(row.id,{waiting:Math.max(0,Number(e.target.value)||0)})}/></td>
-   <td><input type="number" min="0" className="statusNumberInput" aria-label={row.game+" 예약 인원"} value={row.reserved||0} onChange={e=>updateRow(row.id,{reserved:Math.max(0,Number(e.target.value)||0)})}/></td>
+   
    <td><button className="statusRemove" title="경기 삭제" aria-label={row.game+" 삭제"} onClick={()=>setRows(p=>p.filter(x=>x.id!==row.id))}>×</button></td></tr>)}
   </tbody></table></div><button className="statusAdd" onClick={()=>setRows(prev=>[...prev,makeRow(venue,"새 게임",0,0)])}>+ 경기 추가</button>
  </section>;
- return <div className="builderShell statusBuilder"><div className="builderHead"><div><h2>실시간 게임 현황</h2><p>테이블·대기·예약 숫자만 수정하세요. 9명 예약 시 곧 시작으로 자동 표시됩니다.</p></div><div className="statusTopActions"><button type="button" className="statusCopyImage" onClick={()=>void copyPoster()} title="포스터 이미지를 클립보드에 복사"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg> 이미지 복사</button><button type="button" className="statusQuickDownload" title="PNG 다운로드" aria-label="PNG 다운로드" onClick={()=>void download()}><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12m-4-4 4 4 4-4M5 17v4h14v-4"/></svg></button><button onClick={applyLive}>운영 현황 불러오기</button><button onClick={()=>{setTime(nowTime());flash("기준 시각 갱신")}}>현재 시각</button></div></div>
+ return <div className="builderShell statusBuilder"><div className="builderHead"><div><h2>실시간 게임 현황</h2><p>테이블과 대기 인원만 수정하면 포스터가 바로 완성됩니다.</p></div><div className="statusTopActions"><button type="button" className="statusCopyImage" onClick={()=>void copyPoster()} title="포스터 이미지를 클립보드에 복사"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg> 이미지 복사</button><button type="button" className="statusQuickDownload" title="PNG 다운로드" aria-label="PNG 다운로드" onClick={()=>void download()}><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12m-4-4 4 4 4-4M5 17v4h14v-4"/></svg></button><button onClick={applyLive}>운영 현황 불러오기</button><button onClick={()=>{setTime(nowTime());flash("기준 시각 갱신")}}>현재 시각</button></div></div>
  <div className="builderColumns"><div className="builderForm">
  
  {listEditor("dream","♠ DREAM POKER")}{listEditor("mm","♣ MILLION MAKER")}
@@ -159,5 +164,5 @@ export default function StatusPosterBuilder({onSave,sessions=[]}:{onSave?:(title
  <label>문의 문구<input value={contact} onChange={e=>setContact(e.target.value)}/></label></details>
  <div className="builderActions"><button onClick={()=>void navigator.clipboard.writeText(text).then(()=>flash("문구 복사 완료")).catch(()=>flash("복사 실패"))}>문구 복사</button><button onClick={()=>void download()}>PNG 다운로드</button>{onSave&&<button onClick={()=>void save()}>자료실 저장</button>}</div>
  {feedback&&<p role="status">{feedback}</p>}
- </div><div className="builderPreview"><div className="builderPreviewBar"><strong>포스터 미리보기</strong><span>{displayTime} 기준</span></div><div className="statusPosterPreview"><h2>LIVE TABLE STATUS</h2>{sections.map(section=><div className="statusPosterSection" key={section.id}><h3>{section.name}</h3><div className="statusPosterLabels"><span>GAME TYPE</span><span>TABLES</span><span>WAITING</span><span>BOOKED</span><span>STATUS</span></div>{rows.filter(r=>r.venue===section.id).map(r=><div key={r.id}><div className="statusPosterRow"><strong>{r.game}</strong><b>{r.tables}</b><b>{r.waiting}</b><b>{r.reserved||0}</b><span className="statusInlineState">{getStatus(r)}</span></div></div>)}</div>)}<p className="statusPosterFooter">{footer}<br/>{contact}</p></div></div></div><canvas ref={canvasRef} style={{display:"none"}}/></div>;
+ </div><div className="builderPreview"><div className="builderPreviewBar"><strong>포스터 미리보기</strong><span>{displayTime} 기준</span></div><div className="statusPosterPreview"><div className="statusPosterGoldLine"/><h2>LIVE TABLE STATUS</h2><p className="statusPosterTime">{displayTime} 기준</p>{sections.map(section=><div className="statusPosterSection" key={section.id}><h3>{section.name}</h3><div className="statusPosterLabels"><span>GAME</span><span>TABLE</span><span>WAITING</span><span>STATUS</span></div>{rows.filter(r=>r.venue===section.id).map(r=><div key={r.id}><div className="statusPosterRow"><strong>{r.game}</strong><b>{r.tables}</b><b>{r.waiting}</b><span className="statusInlineState">{getStatus(r)}</span></div></div>)}</div>)}<p className="statusPosterFooter">{footer}<br/>{contact}</p></div></div></div><canvas ref={canvasRef} style={{display:"none"}}/></div>;
 }
