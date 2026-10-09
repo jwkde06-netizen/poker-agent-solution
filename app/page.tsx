@@ -2354,6 +2354,31 @@ export default function Home() {
     downloadBlob(`드림포커_${agencyCode}_주간정산_${weekStart}_${weekEnd}.csv`,new Blob([csv],{type:"text/csv;charset=utf-8"}));
   }
 
+  // Keep all hooks above conditional login returns to preserve React hook order.
+  useEffect(()=>{
+    const role=profile?.role;
+    const available=(role==="admin"
+      ? ["dashboard","players","agencies","games","fnb","daily","weekly","promotions","expenses","reports","settings"]
+      : role==="staff"
+      ? ["dashboard","players","games","fnb","promotions"]
+      : role==="agent"
+      ? ["dashboard","players","daily","weekly","reports"]
+      : ["dashboard"]) as TabKey[];
+    const onArrow=(event:KeyboardEvent)=>{
+      if(event.key!=="ArrowUp"&&event.key!=="ArrowDown" || event.altKey||event.ctrlKey||event.metaKey||event.shiftKey)return;
+      const target=event.target as HTMLElement|null;
+      if(target?.closest('input,textarea,select,[contenteditable="true"],[role="textbox"],[role="combobox"],[role="dialog"]'))return;
+      const index=available.indexOf(tab);
+      if(index<0)return;
+      const next=Math.max(0,Math.min(available.length-1,index+(event.key==="ArrowDown"?1:-1)));
+      if(next===index)return;
+      event.preventDefault();
+      navigateTab(available[next]);
+    };
+    document.addEventListener("keydown",onArrow,true);
+    return ()=>document.removeEventListener("keydown",onArrow,true);
+  },[tab,profile?.role]);
+
   if (isSupabaseConfigured && !session) {
     return <main className="shell authShell">
       <section className="panel authPanel">
@@ -2672,23 +2697,6 @@ export default function Home() {
     return item.key==="dashboard";
   });
 
-  useEffect(()=>{
-    const onArrow=(event:KeyboardEvent)=>{
-      if(event.key!=="ArrowUp"&&event.key!=="ArrowDown")return;
-      if(event.altKey||event.ctrlKey||event.metaKey||event.shiftKey)return;
-      const el=event.target as HTMLElement|null;
-      // Global shortcut: ignore actual text-editing controls but handle focused menu/buttons.
-      if(el?.closest('input,textarea,select,[contenteditable="true"],[role="textbox"],[role="combobox"],[role="dialog"],[role="listbox"]'))return;
-      const keys:TabKey[]=navItems.map(item=>item.key);
-      const index=Math.max(0,keys.indexOf(tab));
-      const next=Math.max(0,Math.min(keys.length-1,index+(event.key==="ArrowDown"?1:-1)));
-      if(index===next)return;
-      event.preventDefault();
-      navigateTab(keys[next] as TabKey);
-    };
-    document.addEventListener("keydown",onArrow,true);
-    return()=>document.removeEventListener("keydown",onArrow,true);
-  },[tab,profile?.role]);
 
   const mobileNavItems = [
     {key:"dashboard",label:"대시보드"},
