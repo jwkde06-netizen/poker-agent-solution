@@ -785,7 +785,7 @@ export default function Home() {
     return {date,label:["월","화","수","목","금","토","일"][index],revenue,buyIns};
   });
   const weeklyPeakRevenue=Math.max(1,...weeklyDayRevenue.map(day=>day.revenue));
-  const dashboardWeekStart=monday(today());
+  const dashboardWeekStart=monday(operatingDate);
   const dashboardWeekRevenue=Array.from({length:7},(_,index)=>{
     const date=plusDays(dashboardWeekStart,index);
     const dayEntries=entries.filter(entry=>entry.date===date);
@@ -2427,7 +2427,7 @@ export default function Home() {
   }
 
   const modeText=isSupabaseConfigured ? (syncing?"서버 동기화 중":"서버 DB 연결") : "브라우저 저장";
-  const todayEntries = entries.filter(e=>e.date===today());
+  const todayEntries = entries.filter(e=>e.date===operatingDate);
   const thisWeekEntries = entries.filter(e=>e.date>=weekStart && e.date<=weekEnd);
   const activeAgentCount = agencies.filter(a=>a.active).length;
   const todaySettlement = total(todayEntries,"rakeback");
@@ -2574,7 +2574,7 @@ export default function Home() {
   const fnbDayEntries = fnbEntries.filter(item=>item.date===fnbDate);
   const fnbDayTotal = fnbDayEntries.reduce((sum,item)=>sum+item.totalAmount,0);
   const fnbDayOperatingTotal = fnbDayEntries.filter(isOperatingFnbExpense).reduce((sum,item)=>sum+item.totalAmount,0);
-  const fnbTodayEntries = fnbEntries.filter(item=>item.date===today());
+  const fnbTodayEntries = fnbEntries.filter(item=>item.date===operatingDate);
   const fnbTodayAllTotal = fnbTodayEntries.reduce((sum,item)=>sum+item.totalAmount,0);
   const fnbTodayTotal = fnbTodayEntries.filter(isOperatingFnbExpense).reduce((sum,item)=>sum+item.totalAmount,0);
   const todayBuyinRevenue = todayEntries.reduce((sum,e)=>sum + revenuePerBuyIn(e.game)*e.buyIn,0);
