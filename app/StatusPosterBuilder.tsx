@@ -129,7 +129,7 @@ export default function StatusPosterBuilder({onSave,sessions=[]}:{onSave?:(title
      ctx.fillText(String(r.tables),col[1]+15,yy);ctx.fillText(String(r.waiting),col[2]+16,yy);
      const status=getStatus(r);
      ctx.fillStyle=r.tables>0?"#e6bd73":"#e5eaf0";
-     ctx.font="bold 32px sans-serif";ctx.fillText((r.tables>0?"🔥 ":"")+status,col[3],yy-8);
+     ctx.font="bold 32px sans-serif";ctx.fillText(status,col[3],yy-8);
      ctx.fillStyle="#46505d";ctx.fillRect(pad+24,yy+29,usable-48,1);
    });
    y+=height+20;
@@ -154,7 +154,7 @@ export default function StatusPosterBuilder({onSave,sessions=[]}:{onSave?:(title
     <input type="text" aria-label={r.game+" 게임명"} value={r.game} onChange={e=>updateRow(r.id,{game:e.target.value})} spellCheck={false}/>
     {numberEditor(r,"tables","테이블 수")}
     {numberEditor(r,"waiting","대기 인원")}
-    <span className={"statusInlineState"+(r.tables>0?" statusRunning":"")}>{r.tables>0&&<span className="statusFire" aria-hidden="true">🔥</span>}{getStatus(r)}</span>
+    <span className={"statusInlineState"+(r.tables>0?" statusRunning":"")}>{getStatus(r)}</span>
     <button type="button" className="statusInlineRemove" aria-label={r.game+" 경기 삭제"} title="경기 삭제" onClick={()=>setRows(prev=>prev.filter(x=>x.id!==r.id))}>×</button>
   </div>)}
  </section>;
