@@ -2685,7 +2685,7 @@ export default function Home() {
     {key:"fnb",label:"F&B"},
     {key:"daily",label:"일일 정산"},
     {key:"weekly",label:"주간 정산"},
-    {key:"promotions",label:"홍보 자료실"},
+    {key:"promotions",label:"테이블 LIVE"},
     {key:"expenses",label:"지출 내역서"},
     {key:"reports",label:"리포트"},
     {key:"settings",label:"계정 관리"},
