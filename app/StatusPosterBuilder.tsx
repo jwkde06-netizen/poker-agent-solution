@@ -112,8 +112,8 @@ export default function StatusPosterBuilder({onSave,sessions=[]}:{onSave?:(title
   canvas.width=W;canvas.height=H;
   const bg=ctx.createLinearGradient(0,0,W,H);bg.addColorStop(0,"#26303c");bg.addColorStop(1,"#101419");ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
   ctx.fillStyle="#d2ac61";ctx.fillRect(pad,69,110,6);
-  ctx.fillStyle="#fff";ctx.font="bold 62px sans-serif";ctx.fillText("LIVE TABLE STATUS",pad,162);
-  ctx.fillStyle="#c9cfda";ctx.font="32px sans-serif";ctx.fillText(displayTime+" 기준",pad,226);
+  ctx.fillStyle="#fff";ctx.font="bold 62px sans-serif";ctx.fillText("실시간 테이블 현황",pad,162);
+  ctx.fillStyle="#c9cfda";ctx.font="32px sans-serif";ctx.textAlign="right";ctx.fillText(displayTime+" 기준",W-pad,145);ctx.textAlign="left";
   let y=290;
   sections.forEach((section,index)=>{
    const current=rows.filter(r=>r.venue===section.id);
@@ -163,7 +163,7 @@ export default function StatusPosterBuilder({onSave,sessions=[]}:{onSave?:(title
    <div className="statusTopActions"><button type="button" className="statusCopyImage" onClick={()=>void copyPoster()}>이미지 복사</button><button type="button" className="statusQuickDownload" aria-label="PNG 다운로드" title="PNG 다운로드" onClick={()=>void download()}>↓</button><button type="button" onClick={applyLive}>운영 현황 불러오기</button></div>
   </div>
   <div className="statusDirectCanvas">
-   <div className="statusPosterPreview"><div className="statusPosterGoldLine"/><h2>LIVE TABLE STATUS</h2><p className="statusPosterTime">{displayTime} 기준</p>
+   <div className="statusPosterPreview"><div className="statusPosterGoldLine"/><div className="statusPosterTitleLine"><h2>실시간 테이블 현황</h2><p className="statusPosterTime">{displayTime} 기준</p></div>
    {posterSection("dream","DREAM POKER")}{posterSection("mm","MILLION MAKER")}
    <div className="statusDirectFooter"><textarea aria-label="예약 안내" value={footer} onChange={e=>setFooter(e.target.value)} rows={2}/><input aria-label="문의 문구" value={contact} onChange={e=>setContact(e.target.value)}/></div>
    </div>
