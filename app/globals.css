@@ -16830,3 +16830,11 @@ html{scroll-behavior:smooth}
 .builderPosterBlock h3{font-size:clamp(13px,1.3vw,20px)!important}
 @media(max-width:980px){.builderColumns{grid-template-columns:1fr!important}.builderPreview{position:static!important}.builderPoster{max-width:570px;margin:auto}.builderPosterBlock p{font-size:14px!important}}
 @media(max-width:560px){.builderShell{gap:14px!important}.builderRow{gap:3px!important}.builderRowTools button{padding:5px!important}.builderSection{padding:10px!important}.builderPreview{padding:10px!important}.builderActions button{flex:1 1 40%}}
+
+
+/* Fast hourly Dream/MM live status composer */
+.builderQuickSync{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 16px;background:var(--surface-2);border:1px solid var(--line);border-radius:13px}
+.builderQuickSync>div{display:grid;gap:5px;min-width:0}.builderQuickSync b{font-size:14px;color:var(--text)}.builderQuickSync span{font-size:11px;color:var(--muted);overflow-wrap:anywhere}
+.builderQuickSync button{flex:none;background:#bd913e;color:#171717;border-color:#bd913e;font-size:12px}
+.builderSourceNotice{font-size:11px;line-height:1.5;color:var(--muted);margin:0 2px 3px}
+@media(max-width:560px){.builderQuickSync{align-items:flex-start;flex-direction:column}.builderQuickSync button{width:100%}}
