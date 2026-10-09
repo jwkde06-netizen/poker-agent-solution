@@ -23,15 +23,16 @@ export default function PromotionLibrary({sessions,canEdit}:{sessions:LiveSessio
   useEffect(()=>{try{const cached=JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]");if(Array.isArray(cached))setItems(cached)}catch{}},[]);
   useEffect(()=>{
     if(!supabase)return;
+    const client=supabase;
     let mounted=true;
     const fetchItems=async()=>{
-      const {data,error}=await supabase.from("promotion_items").select("id,title,category,body,image_url,created_at").order("created_at",{ascending:false});
+      const {data,error}=await client.from("promotion_items").select("id,title,category,body,image_url,created_at").order("created_at",{ascending:false});
       if(!mounted)return;
       if(!error){setConnected(true);setItems((data||[]) as Item[])}
     };
     void fetchItems();
-    const channel=supabase.channel("promotion-library").on("postgres_changes",{event:"*",schema:"public",table:"promotion_items"},()=>{void fetchItems()}).subscribe();
-    return()=>{mounted=false;void supabase?.removeChannel(channel)};
+    const channel=client.channel("promotion-library").on("postgres_changes",{event:"*",schema:"public",table:"promotion_items"},()=>{void fetchItems()}).subscribe();
+    return()=>{mounted=false;void client.removeChannel(channel)};
   },[]);
   useEffect(()=>{if(!connected){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(items))}catch{}}},[items,connected]);
   const flash=(t:string)=>{setNotice(t);window.setTimeout(()=>setNotice(""),2800)};
