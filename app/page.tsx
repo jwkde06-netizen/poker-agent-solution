@@ -2672,6 +2672,23 @@ export default function Home() {
     return item.key==="dashboard";
   });
 
+  useEffect(()=>{
+    const onArrow=(event:KeyboardEvent)=>{
+      if(event.key!=="ArrowUp"&&event.key!=="ArrowDown")return;
+      if(event.altKey||event.ctrlKey||event.metaKey||event.shiftKey)return;
+      const el=event.target as HTMLElement|null;
+      if(el?.closest('input,textarea,select,[contenteditable="true"],[role="textbox"],[role="combobox"],[role="dialog"]'))return;
+      const keys=navItems.map(item=>item.key);
+      const index=keys.indexOf(tab);
+      const next=Math.max(0,Math.min(keys.length-1,index+(event.key==="ArrowDown"?1:-1)));
+      if(index===next)return;
+      event.preventDefault();
+      navigateTab(keys[next] as TabKey);
+    };
+    window.addEventListener("keydown",onArrow);
+    return()=>window.removeEventListener("keydown",onArrow);
+  },[tab,profile?.role]);
+
   const mobileNavItems = [
     {key:"dashboard",label:"대시보드"},
     {key:"players",label:"플레이어"},
