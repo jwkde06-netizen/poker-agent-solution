@@ -16792,3 +16792,41 @@ html{scroll-behavior:smooth}
 .builderPosterFooter p,.builderPosterFooter strong{font-size:clamp(11px,1.15vw,17px);line-height:1.6;overflow-wrap:anywhere}
 .builderPosterFooter strong{color:#f4d383}
 @media(max-width:920px){.builderColumns{grid-template-columns:1fr}.builderPoster{max-width:540px;aspect-ratio:auto;min-height:600px}.builderPosterBlock p{font-size:15px}.builderPosterFooter p,.builderPosterFooter strong{font-size:14px}.builderEyebrow{font-size:26px}}
+
+
+/* Polished campaign editor: compact controls, clear hierarchy, quiet preview */
+.builderShell{gap:18px!important}
+.builderHead{padding:2px 0 15px;border-bottom:1px solid var(--line);align-items:center!important}
+.builderHead h2{font-size:19px!important;font-weight:750!important;letter-spacing:-.6px}
+.builderHead p{font-size:12px!important}
+.builderHead>button{background:transparent!important;color:var(--muted)!important;font-size:12px!important}
+.builderColumns{grid-template-columns:minmax(0,1.13fr) minmax(300px,.87fr)!important;gap:18px!important}
+.builderForm{gap:12px!important;min-width:0}
+.builderFormIntro{display:flex;flex-direction:column;gap:5px;padding:0 2px 4px}
+.builderFormIntro strong{font-size:15px;color:var(--text)}
+.builderFormIntro small{color:var(--muted);font-size:12px}
+.builderSection{background:var(--surface)!important;border:1px solid var(--line)!important;padding:15px!important;gap:8px!important;box-shadow:0 2px 9px rgba(0,0,0,.025)}
+.builderSectionTitle{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-bottom:9px;border-bottom:1px solid var(--line)}
+.builderSectionTitle h3{font-size:13px!important;letter-spacing:.05px}
+.builderSectionTitle span{font-size:11px;color:var(--muted)}
+.builderRow{gap:8px!important;min-width:0}
+.builderRow input{height:40px;flex:1 1 auto!important;width:0!important;font-weight:500;border-color:var(--line)!important;font-size:13px!important}
+.builderRowTools{display:flex;flex:none;gap:2px;padding:3px;border:1px solid var(--line);border-radius:9px}
+.builderRowTools button{border:0!important;background:transparent!important;color:var(--muted)!important;font-size:14px!important;padding:5px 7px!important;border-radius:6px!important}
+.builderRowTools button:hover{background:var(--surface-2)!important;color:var(--text)!important}
+.builderSection>button{border:1px dashed var(--line-strong)!important;color:var(--muted)!important;background:var(--surface-2)!important;font-size:12px!important;margin-top:3px}
+.builderForm>label{padding:4px 2px}
+.builderForm>label input,.builderForm>label textarea{font-size:13px!important}
+.builderActions{padding:15px 0 0;border-top:1px solid var(--line)}
+.builderActions button{height:40px;font-size:12px!important;flex:1;white-space:nowrap}
+.builderPreview{background:var(--surface-2);border:1px solid var(--line);border-radius:16px;padding:15px;position:sticky;top:18px}
+.builderPreviewBar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.builderPreviewBar strong{font-size:13px}
+.builderPreviewBar span{font-size:11px;color:var(--muted)}
+.builderPoster{border-radius:9px!important;box-shadow:0 6px 18px rgba(0,0,0,.13)!important;padding:8%!important;aspect-ratio:auto!important;min-height:530px!important;overflow:hidden!important}
+.builderPoster>h2{font-size:clamp(18px,1.8vw,27px)!important}
+.builderPosterBlock{padding:14px!important;margin:10px 0!important;background:#242b35!important}
+.builderPosterBlock p{font-size:clamp(12px,1.05vw,16px)!important;line-height:1.6!important;margin:7px 0!important}
+.builderPosterBlock h3{font-size:clamp(13px,1.3vw,20px)!important}
+@media(max-width:980px){.builderColumns{grid-template-columns:1fr!important}.builderPreview{position:static!important}.builderPoster{max-width:570px;margin:auto}.builderPosterBlock p{font-size:14px!important}}
+@media(max-width:560px){.builderShell{gap:14px!important}.builderRow{gap:3px!important}.builderRowTools button{padding:5px!important}.builderSection{padding:10px!important}.builderPreview{padding:10px!important}.builderActions button{flex:1 1 40%}}
