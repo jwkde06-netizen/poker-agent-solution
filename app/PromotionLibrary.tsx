@@ -87,48 +87,57 @@ export default function PromotionLibrary({sessions,canEdit}:{sessions:LiveSessio
       await navigator.clipboard.write([new ClipboardItem({"image/png":png})]);flash("이미지 복사 완료");
     }catch{flash("이 브라우저는 이미지 복사를 지원하지 않습니다. 다운로드를 이용해주세요.")}
   }
-  const visible=items.filter(i=>(category==="all"||(category==="poster"&&i.category==="poster")||(category==="notice"&&i.category==="notice"))&&(i.title+" "+i.body).toLowerCase().includes(query.toLowerCase()));
-  const buttonStyle={padding:"9px 13px",borderRadius:8,border:"1px solid var(--border-color, #7775)",cursor:"pointer"};
-  return <section className="panel" style={{padding:24,maxWidth:1250,margin:"0 auto"}}>
-    <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:12,flexWrap:"wrap"}}>
-      <div><h2 style={{margin:"0 0 5px"}}>홍보 자료실</h2><p style={{margin:0,opacity:.65}}>포스터 · 홍보 문구 · 실시간 게임 현황</p></div>
-      <span style={{fontSize:12,opacity:.65}}>{connected?"공유 자료실 연결됨":"이 기기 임시 저장 · 서버 연결 필요"}</span>
+
+  const posters=items.filter(i=>i.category==="poster"&&(i.title+" "+i.body).toLowerCase().includes(query.toLowerCase()));
+  const snippets=items.filter(i=>i.category==="notice"&&(i.title+" "+i.body).toLowerCase().includes(query.toLowerCase()));
+  const buttonStyle={padding:"9px 13px",borderRadius:9,border:"1px solid var(--border-color, #7775)",cursor:"pointer"};
+  const clearForm=()=>{setTitle("");setBody("");setImageUrl("");setEditingId("")};
+  return <section className="panel promotionWorkspace">
+    <header className="promotionWorkspaceHeader">
+      <div><h2>홍보 자료실</h2><p>현황 업데이트부터 포스터 제작·공유까지 한곳에서</p></div>
+      <span className={"promotionConnection"+(connected?" isConnected":"")}>{connected?"● 공유 자료실 연결":"○ 이 기기 임시 저장"}</span>
+    </header>
+    {notice&&<p className="promotionNotice" role="status">{notice}</p>}
+    <section className="promotionPrimary" aria-label="현황 포스터 제작">
+      <StatusPosterBuilder sessions={sessions} onSave={canEdit?saveGenerated:undefined}/>
+    </section>
+    <div className="promotionSecondary" id="promotion-library">
+      <section className="promotionUtility">
+        <div className="promotionUtilityHead"><div><h3>포스터 업로드</h3><p>이미지를 업로드하고 자료실에 저장하세요.</p></div><span>01</span></div>
+        {canEdit?<div className="promotionUtilityBody">
+          <div className={"posterDropZone"+(dragging?" dragging":"")} onDragEnter={e=>{e.preventDefault();setDragging(true)}} onDragOver={e=>{e.preventDefault();setDragging(true)}} onDragLeave={e=>{e.preventDefault();setDragging(false)}} onDrop={e=>{e.preventDefault();setDragging(false);void upload(e.dataTransfer.files[0])}}>
+            <label><strong>포스터 파일 선택 또는 드래그</strong><span>PNG · JPG · WEBP / 최대 10MB</span><input type="file" accept="image/png,image/jpeg,image/webp" onChange={e=>void upload(e.target.files?.[0])}/></label>
+            {imageUrl&&<img src={imageUrl} alt="업로드한 포스터" className="promotionUploadedPreview"/>}
+          </div>
+          <input className="promotionField" value={title} onChange={e=>setTitle(e.target.value)} placeholder="포스터 제목" aria-label="포스터 제목"/>
+          <textarea className="promotionField" rows={2} value={body} onChange={e=>setBody(e.target.value)} placeholder="설명 또는 함께 보낼 문구 (선택)" aria-label="포스터 설명"/>
+          <div className="promotionButtonRow"><button className="promotionMainButton" style={buttonStyle} disabled={uploading} onClick={()=>void save()}>{uploading?"업로드 중...":editingId?"수정 저장":"자료 저장"}</button>{editingId&&<button style={buttonStyle} onClick={clearForm}>취소</button>}</div>
+        </div>:<p className="promotionUtilityHint">포스터 업로드는 관리자 계정에서 사용할 수 있습니다.</p>}
+      </section>
+      <section className="promotionUtility">
+        <div className="promotionUtilityHead"><div><h3>공지문 클립보드</h3><p>현황 문구를 바로 복사하거나 자주 쓰는 문구를 관리합니다.</p></div><span>02</span></div>
+        <div className="promotionUtilityBody">
+          <div className="promotionClipboardQuick"><div><strong>현재 LIVE 게임 현황</strong><span>진행 중인 게임 정보를 바탕으로 자동 작성</span></div><button style={buttonStyle} onClick={()=>void copy(draftLive??liveText)}>복사</button></div>
+          <details className="promotionClipboardDetails"><summary>현황 문구 확인 · 수정</summary><textarea rows={5} value={draftLive??liveText} onChange={e=>setDraftLive(e.target.value)}/><button style={buttonStyle} onClick={()=>setDraftLive(null)}>최신 내용으로 복원</button></details>
+          <div className="promotionSnippetList">{snippets.slice(0,5).map(item=><div className="promotionSnippet" key={item.id}><div><strong>{item.title}</strong><span>{item.body}</span></div><button style={buttonStyle} onClick={()=>void copy(item.body)}>복사</button></div>)}</div>
+          {!snippets.length&&<p className="promotionUtilityHint">저장된 공지문이 없습니다. 아래 자료 목록에서 공지문을 등록할 수 있습니다.</p>}
+        </div>
+      </section>
     </div>
-    <div style={{display:"flex",gap:8,flexWrap:"wrap",margin:"24px 0 16px"}}>
-      {([["all","전체"],["poster","포스터"],["notice","공지 템플릿"],["live","실시간 현황"],["builder","현황 포스터 생성기"]] as const).map(([key,label])=><button key={key} style={{...buttonStyle,background:category===key?"var(--accent, #334155)":"transparent",color:category===key?"white":"inherit"}} onClick={()=>setCategory(key)}>{label}</button>)}
-    </div>
-    {notice&&<p role="status" style={{fontSize:13}}>{notice}</p>}
-    {category==="builder"?<StatusPosterBuilder sessions={sessions} onSave={canEdit?saveGenerated:undefined}/>:category==="live"?<div style={{display:"grid",gap:12}}>
-      <h3 style={{margin:0}}>LIVE 테이블 현황 공지</h3>
-      <p style={{margin:0,opacity:.7,fontSize:13}}>현재 운영 중인 게임을 기준으로 자동 작성합니다. 수정한 문구는 아래에서 복사할 수 있습니다.</p>
-      <textarea rows={Math.max(6,sessions.length+4)} value={draftLive??liveText} onChange={e=>setDraftLive(e.target.value)} style={{width:"100%",padding:14,borderRadius:10,boxSizing:"border-box"}}/>
-      <div style={{display:"flex",gap:8}}><button style={buttonStyle} onClick={()=>setDraftLive(null)}>최신 현황 불러오기</button><button style={buttonStyle} onClick={()=>void copy(draftLive??liveText)}>공지문 복사</button></div>
-    </div>:<>
-      <input value={query} onChange={e=>setQuery(e.target.value)} placeholder="자료 검색" style={{width:"100%",padding:12,borderRadius:9,boxSizing:"border-box",marginBottom:16}}/>
-      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill, minmax(min(100%, 280px),1fr))",gap:14}}>
-        {visible.map(item=><article key={item.id} style={{border:"1px solid #8884",borderRadius:12,padding:14,minWidth:0}}>
-          {item.image_url&&<img src={item.image_url} alt={item.title} style={{width:"100%",height:185,objectFit:"contain",borderRadius:8,background:"#8881"}}/>}
-          <h3 style={{margin:"10px 0"}}>{item.title}</h3>
-          {item.body&&<p style={{whiteSpace:"pre-wrap",overflowWrap:"anywhere",fontSize:13,maxHeight:160,overflow:"auto"}}>{item.body}</p>}
-          <div style={{display:"flex",gap:7,flexWrap:"wrap"}}>
+    <section className="promotionArchive">
+      <div className="promotionArchiveHead"><div><h3>저장된 자료</h3><p>포스터와 공지문을 한눈에 확인하고 재사용하세요.</p></div><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="자료 검색" aria-label="자료 검색"/></div>
+      <div className="promotionArchiveGrid">
+        {[...posters,...snippets].map(item=><article className="promotionArchiveCard" key={item.id}>
+          {item.image_url?<img src={item.image_url} alt={item.title}/>:<div className="promotionTextCard">{item.body.slice(0,180)}</div>}
+          <strong>{item.title}</strong>
+          <div className="promotionCardActions">
             {item.body&&<button style={buttonStyle} onClick={()=>void copy(item.body)}>문구 복사</button>}
-            {item.image_url&&<><button style={buttonStyle} onClick={()=>void copyImage(item.image_url)}>이미지 복사</button><a style={buttonStyle} href={item.image_url} target="_blank" rel="noreferrer">원본 보기 / 저장</a></>}
-            {canEdit&&<><button style={buttonStyle} onClick={()=>{setEditingId(item.id);setTitle(item.title);setBody(item.body);setImageUrl(item.image_url)}}>수정</button><button style={buttonStyle} onClick={()=>void remove(item)}>삭제</button></>}
+            {item.image_url&&<><button style={buttonStyle} onClick={()=>void copyImage(item.image_url)}>이미지 복사</button><a style={buttonStyle} href={item.image_url} target="_blank" rel="noreferrer">원본 보기</a></>}
+            {canEdit&&<><button style={buttonStyle} onClick={()=>{setEditingId(item.id);setTitle(item.title);setBody(item.body);setImageUrl(item.image_url);document.getElementById("promotion-library")?.scrollIntoView({behavior:"smooth"})}}>수정</button><button style={buttonStyle} onClick={()=>void remove(item)}>삭제</button></>}
           </div>
         </article>)}
       </div>
-      {!visible.length&&<p style={{opacity:.65}}>등록된 자료가 없습니다.</p>}
-      {canEdit&&<div style={{borderTop:"1px solid #8884",marginTop:24,paddingTop:20,display:"grid",gap:10}}>
-        <h3>{editingId?"자료 수정":"새 자료 등록"}</h3>
-        <input value={title} onChange={e=>setTitle(e.target.value)} placeholder="자료 제목" style={{padding:12,borderRadius:8}}/>
-        <textarea rows={5} value={body} onChange={e=>setBody(e.target.value)} placeholder="공지문 내용 (포스터 설명도 입력 가능)" style={{padding:12,borderRadius:8}}/>
-        <div className={"posterDropZone"+(dragging?" dragging":"")} onDragEnter={e=>{e.preventDefault();setDragging(true)}} onDragOver={e=>{e.preventDefault();setDragging(true)}} onDragLeave={e=>{e.preventDefault();setDragging(false)}} onDrop={e=>{e.preventDefault();setDragging(false);void upload(e.dataTransfer.files[0])}}>
-          <label><strong>PNG 포스터를 여기에 드래그하세요</strong><span>또는 클릭해서 업로드 · PNG / JPG / WEBP · 최대 10MB</span><input type="file" accept="image/png,image/jpeg,image/webp" onChange={e=>void upload(e.target.files?.[0])}/></label>
-          {imageUrl&&<img src={imageUrl} alt="업로드 미리보기" style={{maxHeight:220,maxWidth:"100%",objectFit:"contain"}}/>}
-        </div>
-        {imageUrl&&<span style={{fontSize:12}}>포스터 준비됨 · <button onClick={()=>setImageUrl("")}>제거</button></span>}
-        <div style={{display:"flex",gap:8}}><button style={buttonStyle} disabled={uploading} onClick={()=>void save()}>{uploading?"업로드 중...":editingId?"수정 저장":"자료 저장"}</button>{editingId&&<button style={buttonStyle} onClick={()=>{setEditingId("");setTitle("");setBody("");setImageUrl("")}}>취소</button>}</div>
-      </div>}
-    </>}
+      {!posters.length&&!snippets.length&&<p className="promotionUtilityHint">등록된 자료가 없습니다.</p>}
+    </section>
   </section>;
 }
