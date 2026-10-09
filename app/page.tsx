@@ -2534,7 +2534,7 @@ export default function Home() {
     : [];
   // Game entries store the chosen player's ID, never the Korean search text.
   // The registered player keeps the canonical English display name.
-  const selectedTableKoreanMatch = selectedTableMatches.some(p=>normalizePlayerSearch(p.koreanName)===normalizePlayerSearch(selectedTableSearch));
+  const selectedTableKoreanMatches = selectedTableMatches.filter(p=>normalizePlayerSearch(p.koreanName)===normalizePlayerSearch(selectedTableSearch));
   const managedEntry = manageEntryId ? entries.find(e=>e.id===manageEntryId) ?? null : null;
   const managedPlayer = managedEntry ? players.find(p=>p.id===managedEntry.playerId) ?? null : null;
   const manageQuery = managePlayerSearch.trim().toUpperCase();
@@ -3486,7 +3486,13 @@ export default function Home() {
                             }else if(e.key==="Enter" && selectedTableMatches.length){
                               e.preventDefault();
                               const target=selectedTableMatches[Math.min(selectedSearchIndex,selectedTableMatches.length-1)];
-                              if(target)addPlayerToSession(selectedGameSession,target.id);
+                              if(target){
+                                if(selectedTableKoreanMatches.length>1 && selectedTableKoreanMatches.some(p=>p.id===target.id)){
+                                  setMessage("동일한 한글 이름이 여러 명입니다. 목록에서 영문 이름을 확인하고 선택해주세요.");
+                                }else{
+                                  void addPlayerToSession(selectedGameSession,target.id);
+                                }
+                              }
                             }else if(e.key==="Escape"){
                               setSessionSearch(prev=>({...prev,[selectedGameSession.id]:""}));
                               setSelectedSearchIndex(0);
