@@ -16949,3 +16949,22 @@ html{scroll-behavior:smooth}
 .statusPosterRow>span.statusInlineState{font-size:11px;line-height:1.35;text-align:right;color:#e2bb73;overflow-wrap:anywhere}
 .statusPosterSection>div:last-child .statusPosterRow{border-bottom:0}
 @media(max-width:600px){.statusPosterLabels,.statusPosterRow{gap:4px}.statusPosterRow>span.statusInlineState{font-size:9px}.statusPosterLabels{font-size:8px}}
+
+/* Minimal KakaoTalk poster style */
+.statusBuilder .statusPosterPreview{background:linear-gradient(145deg,#222d3c,#151d27);padding:24px;border-radius:12px}
+.statusBuilder .statusPosterGoldLine{height:4px;width:60px;background:#e8bd70;margin-bottom:16px}
+.statusBuilder .statusPosterPreview>h2{font-size:28px;color:#fafafa;letter-spacing:0;margin:0 0 8px}
+.statusBuilder .statusPosterTime{font-size:15px;color:#c7d0df;margin:0 0 24px}
+.statusBuilder .statusPosterSection{background:#202a38;border:1px solid #344252;padding:17px;margin-bottom:14px;border-radius:14px}
+.statusBuilder .statusPosterSection h3{font-size:20px;color:#ecc27c;margin:0 0 16px}
+.statusBuilder .statusPosterLabels,.statusBuilder .statusPosterRow{grid-template-columns:minmax(0,1.2fr) .58fr .72fr minmax(0,1.15fr);gap:8px}
+.statusBuilder .statusPosterLabels{font-size:11px;padding-bottom:11px;color:#b6c1d0}
+.statusBuilder .statusPosterRow{padding:15px 0;border-bottom:1px solid #414d5d;min-height:55px;align-items:center}
+.statusBuilder .statusPosterRow strong{font-size:32px}
+.statusBuilder .statusPosterRow b{font-size:36px}
+.statusBuilder .statusPosterRow .statusInlineState{font-size:14px;font-weight:750;text-align:center;border:1px solid #506074;border-radius:9px;background:#2b3746;color:#f0f3f6;padding:10px 2px;white-space:nowrap}
+.statusBuilder .statusPosterFooter{border-top:1px solid #415062;padding-top:19px;margin-top:22px;font-size:13px;line-height:1.8}
+.statusBuilder .statusEditTable th:first-child{width:44%}
+.statusBuilder .statusEditTable th:nth-child(2),.statusBuilder .statusEditTable th:nth-child(3){width:22%}
+.statusBuilder .statusEditTable th:last-child{width:12%}
+@media(max-width:600px){.statusBuilder .statusPosterPreview{padding:14px}.statusBuilder .statusPosterSection{padding:10px}.statusBuilder .statusPosterRow{gap:4px}.statusBuilder .statusPosterRow strong{font-size:23px}.statusBuilder .statusPosterRow b{font-size:27px}.statusBuilder .statusPosterRow .statusInlineState{font-size:10px;padding:8px 2px}.statusBuilder .statusPosterLabels{font-size:9px}}
