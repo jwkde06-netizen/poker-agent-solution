@@ -88,7 +88,7 @@ export default function StatusPosterBuilder({onSave,sessions=[]}:{onSave?:(title
   const canvas=canvasRef.current;if(!canvas)throw new Error("Canvas unavailable");
   const ctx=canvas.getContext("2d");if(!ctx)throw new Error("Canvas unavailable");
   const W=1080,pad=76,usable=W-pad*2;
-  const groupHeights=sections.map(section=>Math.max(185,rows.filter(r=>r.venue===section.id).length*86+185));
+  const groupHeights=sections.map(section=>Math.max(185,rows.filter(r=>r.venue===section.id).length*108+185));
   const H=Math.max(1100,380+groupHeights.reduce((a,b)=>a+b,0)+220);
   canvas.width=W;canvas.height=H;
   const bg=ctx.createLinearGradient(0,0,W,H);bg.addColorStop(0,"#26303c");bg.addColorStop(1,"#101419");ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
@@ -103,11 +103,11 @@ export default function StatusPosterBuilder({onSave,sessions=[]}:{onSave?:(title
    ctx.fillStyle="#e2bb73";ctx.font="bold 40px sans-serif";ctx.fillText(section.name,pad+25,y+62);
    ctx.fillStyle="#abb4c1";ctx.font="24px sans-serif";ctx.fillText("GAME TYPE",pad+25,y+108);ctx.fillText("TABLES",pad+385,y+108);ctx.fillText("WAITING",pad+555,y+108);ctx.fillText("BOOKED",pad+755,y+108);
    current.forEach((r,i)=>{
-     const yy=y+158+i*86;
+     const yy=y+158+i*108;
      ctx.fillStyle="#fafafa";ctx.font="bold 38px sans-serif";ctx.fillText(r.game.slice(0,16),pad+25,yy);
      ctx.font="bold 36px sans-serif";ctx.fillText(String(r.tables),pad+410,yy);ctx.fillText(String(r.waiting),pad+580,yy);
      ctx.fillStyle="#e2bb73";ctx.font="bold 27px sans-serif";ctx.fillText(String(r.reserved||0),pad+770,yy);
-     ctx.fillStyle="#414b57";ctx.fillRect(pad+25,yy+19,usable-50,1);
+     ctx.fillStyle="#d8bd88";ctx.font="23px sans-serif";ctx.fillText(getStatus(r),pad+25,yy+36);ctx.fillStyle="#414b57";ctx.fillRect(pad+25,yy+51,usable-50,1);
    });
    y+=height+22;
   });
