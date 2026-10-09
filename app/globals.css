@@ -17226,3 +17226,24 @@ html{scroll-behavior:smooth}
  .floorBuyinPage .playerValueToolbar.alignedFinancialToolbar .opsPlayerColumnLabels,
  .floorBuyinPage .selectedPlayerList .quickBuyinRow:not(.staffPlayerRow) .dualPlayerValues{gap:5px!important}
 }
+
+/* PC daily settlement: searchable operational game log, with visible individual close control */
+.dailyPcGameLog{margin:16px 0;padding:18px;border:1px solid var(--line,#dce0e6);border-radius:15px;background:var(--surface,#fff)}
+.dailyPcGameLogHead{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.dailyPcGameLogHead h3{font-size:17px;margin:0 0 5px}
+.dailyPcGameLogHead span{font-size:12px;color:var(--muted)}
+.dailyPcGameLogHead button{background:var(--surface);color:var(--text);border:1px solid var(--line,#dce0e6);padding:9px 12px;border-radius:9px;cursor:pointer;white-space:nowrap}
+.dailyPcGameLogList{display:grid;gap:7px;max-height:400px;overflow:auto}
+.dailyPcGameLogItem{border:1px solid var(--line,#dce0e6);border-radius:10px;overflow:hidden}
+.dailyPcGameLogItem.isDuplicate{border-color:#d49e54}
+.dailyPcGameLogItem summary{cursor:pointer;display:grid;grid-template-columns:65px minmax(120px,1fr) 105px 120px 90px 20px;gap:10px;align-items:center;min-height:47px;padding:8px 12px;list-style:none}
+.dailyPcGameLogItem summary::-webkit-details-marker{display:none}
+.dailyPcGameLogItem summary strong{font-size:15px}.dailyPcGameLogItem summary small{color:var(--muted)}
+.dailyPcGameLogItem summary b{font-size:12px;color:var(--muted)}
+.dailyPcGameLogItem summary b.isLive{color:#af7b2a}
+.dailyPcGameLogItem summary em{font-style:normal;font-size:12px;text-align:right}
+.dailyPcLogExpand{text-align:center}
+.dailyPcGameLogDetails{border-top:1px solid var(--line,#dce0e6);display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:12px;font-size:12px}
+.dailyPcGameLogDetails button{margin-left:auto;border:1px solid #c59146;background:#fff5e8;color:#8b581c;border-radius:8px;padding:8px 10px;font-weight:700;cursor:pointer}
+.dailyPcGameLogEmpty{padding:20px;font-size:13px;color:var(--muted);text-align:center}
+@media(max-width:800px){.dailyPcGameLog{padding:10px}.dailyPcGameLogItem summary{grid-template-columns:40px minmax(60px,1fr) 78px 70px 18px;gap:5px}.dailyPcGameLogItem summary small{display:none}.dailyPcGameLogHead{align-items:flex-start}.dailyPcGameLogHead span{display:none}}
