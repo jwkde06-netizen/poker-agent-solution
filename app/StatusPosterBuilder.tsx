@@ -11,18 +11,6 @@ function drawLines(ctx:CanvasRenderingContext2D,text:string,x:number,y:number,ma
   if(line){ctx.fillText(line,x,current);current+=lineHeight}return current;
 }
 export default function StatusPosterBuilder({onSave,sessions=[]}:{onSave?:(title:string,body:string,blob:Blob)=>Promise<void>;sessions?:LiveSession[]}){
- const [data,setData]=useState<Data>(initial);
- const activeDream=sessions.filter(s=>s.status==="active");
- const fiveM=activeDream.filter(s=>/^5\s*M\b/i.test(s.game.trim()));
- const dreamSummary=fiveM.length?`5M 타임어택 ${fiveM.length}테이블 진행 중 🔥`:"5M 타임어택 진행 테이블 없음";
- const tableSummary=fiveM.map(s=>`T${s.tableNo} No.${s.gameNo||"-"}`).join(" · ");
- const applyLive=()=>{
-   const other=activeDream.filter(s=>!/^5\s*M\b/i.test(s.game.trim())).map(s=>`${s.game} · T${s.tableNo} No.${s.gameNo||"-"} 진행 중`);
-   const now=new Intl.DateTimeFormat("en-GB",{hour:"2-digit",minute:"2-digit",hour12:false,timeZone:"Asia/Ho_Chi_Minh"}).format(new Date());
-   setData(p=>({...p,time:now,dream:[dreamSummary,...(tableSummary?["테이블 "+tableSummary]:[]),...other]}));
-   flash("현재 Dream 게임 현황을 적용했습니다. MM과 예약 항목은 별도로 확인해주세요.");
- };
- const [feedback,setFeedback]=useState("");
  const [monitor,setMonitor]=useState<{observed_at:string;tables:Array<{table_no:string|null;event_name?:string;game:string;level:number|null;entries:number|null;entries_display?:string;blinds?:string|null;rebuys_addons?:string|null}>}|null>(null);
  const [monitorError,setMonitorError]=useState("");
  useEffect(()=>{
@@ -40,17 +28,6 @@ export default function StatusPosterBuilder({onSave,sessions=[]}:{onSave?:(title
  },[]);
  const monitorAge=monitor?Date.now()-new Date(monitor.observed_at).getTime():Infinity;
  const monitorFresh=monitorAge>=0&&monitorAge<120000;
- const applyMonitor=()=>{
-   if(!monitor||!monitorFresh){flash("최신 전광판 동기화 데이터가 없습니다.");return}
-   const entries=monitor.tables.filter(t=>t.game);
-   const fives=entries.filter(t=>/^5\s*M\b/i.test(t.game));
-   const summary=fives.length?`5M 타임어택 ${fives.length}테이블 진행 중 🔥`:"5M 진행 테이블 없음";
-   const details=entries.map(t=>`${t.table_no?`T${t.table_no} · `:""}${t.event_name||t.game}${t.level===null?"":` · Lv.${t.level}`}${t.entries===null?"":` · Entry ${t.entries_display||t.entries}`}${t.blinds?` · ${t.blinds}`:""}`);
-   const time=new Intl.DateTimeFormat("en-GB",{timeZone:"Asia/Ho_Chi_Minh",hour:"2-digit",minute:"2-digit",hour12:false}).format(new Date());
-   setData(p=>({...p,time,dream:[summary,...details]}));
-   flash("전광판 최신 데이터 적용 완료");
- };
-
  const canvasRef=useRef<HTMLCanvasElement>(null);
  type Status="진행 중"|"예약 완료"|"예약 중"|"대기 중"|"마감";
  type GameRow={id:string;venue:"dream"|"mm";game:string;tables:number;waiting:number;status:Status};
