@@ -29,10 +29,12 @@ export default function StatusPosterBuilder({onSave,sessions=[]}:{onSave?:(title
  const monitorAge=monitor?Date.now()-new Date(monitor.observed_at).getTime():Infinity;
  const monitorFresh=monitorAge>=0&&monitorAge<120000;
  const canvasRef=useRef<HTMLCanvasElement>(null);
- type Status="진행 중"|"예약 완료"|"예약 중"|"대기 중"|"마감";
- type GameRow={id:string;venue:"dream"|"mm";game:string;tables:number;waiting:number;status:Status};
- const rowKey="dream-poker-status-rows-v2";
- const makeRow=(venue:"dream"|"mm",game:string,tables=0,waiting=0,status:Status="진행 중"):GameRow=>({id:crypto.randomUUID(),venue,game,tables,waiting,status});
+ 
+ type GameRow={id:string;venue:"dream"|"mm";game:string;tables:number;waiting:number;reserved:number};
+ const rowKey="dream-poker-status-rows-v3";
+ const reservationTarget=9;
+ const getStatus=(r:GameRow)=>r.tables>0?`${r.tables}테이블 진행 중`:r.reserved>=reservationTarget?`예약 완료 · 곧 시작`:r.reserved>0?`${r.reserved}/${reservationTarget}명 예약 · 오픈 준비`:"예약 접수 중";
+ const makeRow=(venue:"dream"|"mm",game:string,tables=0,waiting=0,reserved=0):GameRow=>({id:crypto.randomUUID(),venue,game,tables,waiting,reserved});
  const [rows,setRows]=useState<GameRow[]>([]);
  const [loaded,setLoaded]=useState(false);
  const [time,setTime]=useState("17:15");
@@ -50,15 +52,15 @@ export default function StatusPosterBuilder({onSave,sessions=[]}:{onSave?:(title
        setRows(saved.rows.filter((row:GameRow)=>row&&typeof row.game==="string"));
        setTime(saved.time||nowTime());setFooter(saved.footer??initial.footer);setContact(saved.contact??initial.contact);
      }else{
-       setRows([makeRow("dream","5M",0,0),makeRow("dream","10M",0,0,"예약 중"),makeRow("mm","3M",1,0)]);
+       setRows([makeRow("dream","5M",0,0),makeRow("dream","10M",0,0),makeRow("mm","3M",0,0)]);
        setTime(nowTime());
      }
-   }catch{setRows([makeRow("dream","5M",3,4)]);setTime(nowTime())}
+   }catch{setRows([makeRow("dream","5M",0,0)]);setTime(nowTime())}
    setLoaded(true);
  },[]);
  useEffect(()=>{if(loaded)localStorage.setItem(rowKey,JSON.stringify({rows,time,footer,contact}))},[rows,time,footer,contact,loaded]);
  const updateRow=(id:string,change:Partial<GameRow>)=>setRows(prev=>prev.map(r=>r.id===id?{...r,...change}:r));
- const gameText=(r:GameRow)=>`${r.game} ${r.tables}테이블 · ${r.waiting}명 대기 · ${r.status}`;
+ const gameText=(r:GameRow)=>`${r.game} · ${getStatus(r)}${r.waiting>0?` · ${r.waiting}명 대기`:""}`;
  const sections=([{id:"dream" as const,name:"DREAM POKER"},{id:"mm" as const,name:"MILLION MAKER"}]);
  const text=useMemo(()=>["📢 실시간 테이블 현황",time+" 기준","",...sections.flatMap(section=>[section.id==="dream"?"♠️ "+section.name:"♣️ "+section.name,...rows.filter(r=>r.venue===section.id).map(r=>"• "+gameText(r)),""]),footer,"",contact].join("\n"),[rows,time,footer,contact]);
  const applyLive=()=>{
@@ -68,7 +70,7 @@ export default function StatusPosterBuilder({onSave,sessions=[]}:{onSave?:(title
    setRows(prev=>{
      const next=[...prev];
      for(const [game,count] of groups){const idx=next.findIndex(r=>r.venue==="dream"&&r.game.toLowerCase()===game.toLowerCase());
-       if(idx>=0)next[idx]={...next[idx],tables:count,status:"진행 중"};else next.push(makeRow("dream",game,count,0))}
+       if(idx>=0)next[idx]={...next[idx],tables:count};else next.push(makeRow("dream",game,count,0))}
      return next;
    });
    setTime(nowTime());
@@ -99,12 +101,12 @@ export default function StatusPosterBuilder({onSave,sessions=[]}:{onSave?:(title
    const height=groupHeights[index];
    ctx.fillStyle="#202935";ctx.beginPath();ctx.roundRect(pad,y,usable,height,20);ctx.fill();
    ctx.fillStyle="#e2bb73";ctx.font="bold 40px sans-serif";ctx.fillText(section.name,pad+25,y+62);
-   ctx.fillStyle="#abb4c1";ctx.font="24px sans-serif";ctx.fillText("GAME TYPE",pad+25,y+108);ctx.fillText("TABLES",pad+385,y+108);ctx.fillText("WAITING",pad+570,y+108);ctx.fillText("STATUS",pad+755,y+108);
+   ctx.fillStyle="#abb4c1";ctx.font="24px sans-serif";ctx.fillText("GAME TYPE",pad+25,y+108);ctx.fillText("TABLES",pad+385,y+108);ctx.fillText("WAITING",pad+555,y+108);ctx.fillText("BOOKED",pad+755,y+108);
    current.forEach((r,i)=>{
      const yy=y+158+i*86;
      ctx.fillStyle="#fafafa";ctx.font="bold 38px sans-serif";ctx.fillText(r.game.slice(0,16),pad+25,yy);
-     ctx.font="bold 36px sans-serif";ctx.fillText(String(r.tables),pad+410,yy);ctx.fillText(String(r.waiting),pad+598,yy);
-     ctx.fillStyle="#e2bb73";ctx.font="bold 27px sans-serif";ctx.fillText(r.status,pad+748,yy);
+     ctx.font="bold 36px sans-serif";ctx.fillText(String(r.tables),pad+410,yy);ctx.fillText(String(r.waiting),pad+580,yy);
+     ctx.fillStyle="#e2bb73";ctx.font="bold 27px sans-serif";ctx.fillText(String(r.reserved||0),pad+770,yy);
      ctx.fillStyle="#414b57";ctx.fillRect(pad+25,yy+19,usable-50,1);
    });
    y+=height+22;
@@ -118,17 +120,17 @@ export default function StatusPosterBuilder({onSave,sessions=[]}:{onSave?:(title
  const save=async()=>{if(!onSave)return;try{await onSave("Dream & MM 현황 "+time,text,await getPng());flash("자료실 저장 완료")}catch(e){flash("저장 실패: "+String(e))}};
  const listEditor=(venue:"dream"|"mm",name:string)=><section className="statusVenue" key={venue}>
   <div className="statusVenueTitle"><strong>{name}</strong><span>{rows.filter(r=>r.venue===venue).length}종류</span></div>
-  <div className="statusTableScroll"><table className="statusEditTable"><thead><tr><th>게임 종류</th><th>테이블</th><th>대기</th><th>상태</th><th aria-label="삭제"></th></tr></thead><tbody>
+  <div className="statusTableScroll"><table className="statusEditTable"><thead><tr><th>게임 종류</th><th>테이블</th><th>대기</th><th>예약</th><th aria-label="삭제"></th></tr></thead><tbody>
   {rows.filter(r=>r.venue===venue).map(row=><tr key={row.id}><td><input className="statusGameInput" value={row.game} aria-label="게임 종류" onChange={e=>updateRow(row.id,{game:e.target.value})}/></td>
    <td><input type="number" min="0" className="statusNumberInput" aria-label={row.game+" 테이블 수"} value={row.tables} onChange={e=>updateRow(row.id,{tables:Math.max(0,Number(e.target.value)||0)})}/></td>
    <td><input type="number" min="0" className="statusNumberInput" aria-label={row.game+" 대기 인원"} value={row.waiting} onChange={e=>updateRow(row.id,{waiting:Math.max(0,Number(e.target.value)||0)})}/></td>
-   <td><select aria-label={row.game+" 상태"} value={row.status} onChange={e=>updateRow(row.id,{status:e.target.value as Status})}>{(["진행 중","예약 완료","예약 중","대기 중","마감"] as const).map(x=><option key={x}>{x}</option>)}</select></td>
+   <td><input type="number" min="0" className="statusNumberInput" aria-label={row.game+" 예약 인원"} value={row.reserved||0} onChange={e=>updateRow(row.id,{reserved:Math.max(0,Number(e.target.value)||0)})}/></td>
    <td><button className="statusRemove" title="경기 삭제" aria-label={row.game+" 삭제"} onClick={()=>setRows(p=>p.filter(x=>x.id!==row.id))}>×</button></td></tr>)}
-  </tbody></table></div><button className="statusAdd" onClick={()=>setRows(prev=>[...prev,makeRow(venue,"새 게임",0,0,"예약 중")])}>+ 경기 추가</button>
+  </tbody></table></div><button className="statusAdd" onClick={()=>setRows(prev=>[...prev,makeRow(venue,"새 게임",0,0)])}>+ 경기 추가</button>
  </section>;
- return <div className="builderShell statusBuilder"><div className="builderHead"><div><h2>실시간 게임 현황</h2><p>숫자만 바꾸면 포스터가 바로 업데이트됩니다.</p></div><div className="statusTopActions"><button onClick={applyLive}>운영 현황 불러오기</button><button onClick={()=>{setTime(nowTime());flash("기준 시각 갱신")}}>현재 시각</button></div></div>
+ return <div className="builderShell statusBuilder"><div className="builderHead"><div><button type="button" className="statusQuickDownload" title="PNG 바로 다운로드" aria-label="PNG 바로 다운로드" onClick={()=>void download()}><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12m-4-4 4 4 4-4M5 17v4h14v-4"/></svg></button><h2>실시간 게임 현황</h2><p>테이블·대기·예약 숫자만 수정하세요. 9명 예약 시 곧 시작으로 자동 표시됩니다.</p></div><div className="statusTopActions"><button onClick={applyLive}>운영 현황 불러오기</button><button onClick={()=>{setTime(nowTime());flash("기준 시각 갱신")}}>현재 시각</button></div></div>
  <div className="builderColumns"><div className="builderForm">
- <div className="statusQuickHead"><span>GAME TYPE</span><span>TABLES</span><span>WAITING</span><span>STATUS</span></div>
+ 
  {listEditor("dream","♠ DREAM POKER")}{listEditor("mm","♣ MILLION MAKER")}
  <details className="statusAdvanced"><summary>전광판 연동 및 안내 문구 설정</summary>
  <div className="builderMonitor"><div><strong>전광판 동기화</strong><span>{monitorFresh&&monitor?`연결됨 · ${monitor.tables.length}경기`:monitorError||"연동 대기"}</span></div><button type="button" disabled={!monitorFresh} onClick={applyMonitor}>경기 수 반영</button></div>
@@ -137,5 +139,5 @@ export default function StatusPosterBuilder({onSave,sessions=[]}:{onSave?:(title
  <label>문의 문구<input value={contact} onChange={e=>setContact(e.target.value)}/></label></details>
  <div className="builderActions"><button onClick={()=>void navigator.clipboard.writeText(text).then(()=>flash("문구 복사 완료")).catch(()=>flash("복사 실패"))}>문구 복사</button><button onClick={()=>void download()}>PNG 다운로드</button>{onSave&&<button onClick={()=>void save()}>자료실 저장</button>}</div>
  {feedback&&<p role="status">{feedback}</p>}
- </div><div className="builderPreview"><div className="builderPreviewBar"><strong>포스터 미리보기</strong><span>{time} 기준</span></div><div className="statusPosterPreview"><h2>LIVE TABLE STATUS</h2>{sections.map(section=><div className="statusPosterSection" key={section.id}><h3>{section.name}</h3><div className="statusPosterLabels"><span>GAME TYPE</span><span>TABLES</span><span>WAITING</span><span>STATUS</span></div>{rows.filter(r=>r.venue===section.id).map(r=><div className="statusPosterRow" key={r.id}><strong>{r.game}</strong><b>{r.tables}</b><b>{r.waiting}</b><span>{r.status}</span></div>)}</div>)}<p className="statusPosterFooter">{footer}<br/>{contact}</p></div></div></div><canvas ref={canvasRef} style={{display:"none"}}/></div>;
+ </div><div className="builderPreview"><div className="builderPreviewBar"><strong>포스터 미리보기</strong><span>{time} 기준</span></div><div className="statusPosterPreview"><h2>LIVE TABLE STATUS</h2>{sections.map(section=><div className="statusPosterSection" key={section.id}><h3>{section.name}</h3><div className="statusPosterLabels"><span>GAME TYPE</span><span>TABLES</span><span>WAITING</span><span>BOOKED</span></div>{rows.filter(r=>r.venue===section.id).map(r=><div key={r.id}><div className="statusPosterRow"><strong>{r.game}</strong><b>{r.tables}</b><b>{r.waiting}</b><b>{r.reserved||0}</b></div><div className="statusDerivedState">{getStatus(r)}</div></div>)}</div>)}<p className="statusPosterFooter">{footer}<br/>{contact}</p></div></div></div><canvas ref={canvasRef} style={{display:"none"}}/></div>;
 }
