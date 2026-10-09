@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "../lib/supabase";
+import StatusPosterBuilder from "./StatusPosterBuilder";
 
 type LiveSession = {id:string;tableNo:string;gameNo:string;game:string;status:string};
 type Item = {id:string;title:string;category:"poster"|"notice";body:string;image_url:string;created_at?:string};
@@ -9,13 +10,14 @@ const STORAGE_KEY="dream-poker-promotion-library-v1";
 
 export default function PromotionLibrary({sessions,canEdit}:{sessions:LiveSession[];canEdit:boolean}) {
   const [items,setItems]=useState<Item[]>([]);
-  const [category,setCategory]=useState<"all"|"poster"|"notice"|"live">("all");
+  const [category,setCategory]=useState<"all"|"poster"|"notice"|"live"|"builder">("all");
   const [query,setQuery]=useState("");
   const [title,setTitle]=useState("");
   const [body,setBody]=useState("");
   const [editingId,setEditingId]=useState("");
   const [imageUrl,setImageUrl]=useState("");
   const [uploading,setUploading]=useState(false);
+  const [dragging,setDragging]=useState(false);
   const [notice,setNotice]=useState("");
   const [connected,setConnected]=useState(false);
   const [draftLive,setDraftLive]=useState<string|null>(null);
@@ -55,7 +57,7 @@ export default function PromotionLibrary({sessions,canEdit}:{sessions:LiveSessio
   }
   async function upload(file:File|undefined){
     if(!file||!supabase)return;
-    if(!file.type.startsWith("image/")){flash("이미지 파일만 업로드할 수 있습니다.");return}
+    if(!["image/png","image/jpeg","image/webp"].includes(file.type)){flash("이미지 파일만 업로드할 수 있습니다.");return}
     if(file.size>10*1024*1024){flash("이미지는 10MB 이하로 업로드해주세요.");return}
     setUploading(true);
     const safeExt=(file.name.split(".").pop()||"png").replace(/[^a-z0-9]/gi,"").toLowerCase()||"png";
@@ -64,6 +66,17 @@ export default function PromotionLibrary({sessions,canEdit}:{sessions:LiveSessio
     if(error){flash("포스터 업로드 실패: "+error.message);setUploading(false);return}
     const url=supabase.storage.from("promotion-posters").getPublicUrl(path).data.publicUrl;
     setImageUrl(url);if(!title)setTitle(file.name.replace(/\.[^.]+$/,""));setUploading(false);
+  }
+  async function saveGenerated(title:string,body:string,blob:Blob){
+    if(!canEdit||!supabase||!connected)throw new Error("관리자 서버 자료실 연결이 필요합니다.");
+    const path=crypto.randomUUID()+".png";
+    const uploaded=await supabase.storage.from("promotion-posters").upload(path,blob,{contentType:"image/png"});
+    if(uploaded.error)throw uploaded.error;
+    const image_url=supabase.storage.from("promotion-posters").getPublicUrl(path).data.publicUrl;
+    const item:Item={id:crypto.randomUUID(),title,body,category:"poster",image_url};
+    const {error}=await supabase.from("promotion_items").insert(item);
+    if(error)throw error;
+    setItems(prev=>[item,...prev]);
   }
   async function copyImage(url:string){
     try{
@@ -82,10 +95,10 @@ export default function PromotionLibrary({sessions,canEdit}:{sessions:LiveSessio
       <span style={{fontSize:12,opacity:.65}}>{connected?"공유 자료실 연결됨":"이 기기 임시 저장 · 서버 연결 필요"}</span>
     </div>
     <div style={{display:"flex",gap:8,flexWrap:"wrap",margin:"24px 0 16px"}}>
-      {([["all","전체"],["poster","포스터"],["notice","공지 템플릿"],["live","실시간 현황"]] as const).map(([key,label])=><button key={key} style={{...buttonStyle,background:category===key?"var(--accent, #334155)":"transparent",color:category===key?"white":"inherit"}} onClick={()=>setCategory(key)}>{label}</button>)}
+      {([["all","전체"],["poster","포스터"],["notice","공지 템플릿"],["live","실시간 현황"],["builder","현황 포스터 생성기"]] as const).map(([key,label])=><button key={key} style={{...buttonStyle,background:category===key?"var(--accent, #334155)":"transparent",color:category===key?"white":"inherit"}} onClick={()=>setCategory(key)}>{label}</button>)}
     </div>
     {notice&&<p role="status" style={{fontSize:13}}>{notice}</p>}
-    {category==="live"?<div style={{display:"grid",gap:12}}>
+    {category==="builder"?<StatusPosterBuilder onSave={canEdit?saveGenerated:undefined}/>:category==="live"?<div style={{display:"grid",gap:12}}>
       <h3 style={{margin:0}}>LIVE 테이블 현황 공지</h3>
       <p style={{margin:0,opacity:.7,fontSize:13}}>현재 운영 중인 게임을 기준으로 자동 작성합니다. 수정한 문구는 아래에서 복사할 수 있습니다.</p>
       <textarea rows={Math.max(6,sessions.length+4)} value={draftLive??liveText} onChange={e=>setDraftLive(e.target.value)} style={{width:"100%",padding:14,borderRadius:10,boxSizing:"border-box"}}/>
@@ -109,7 +122,10 @@ export default function PromotionLibrary({sessions,canEdit}:{sessions:LiveSessio
         <h3>{editingId?"자료 수정":"새 자료 등록"}</h3>
         <input value={title} onChange={e=>setTitle(e.target.value)} placeholder="자료 제목" style={{padding:12,borderRadius:8}}/>
         <textarea rows={5} value={body} onChange={e=>setBody(e.target.value)} placeholder="공지문 내용 (포스터 설명도 입력 가능)" style={{padding:12,borderRadius:8}}/>
-        <label style={{fontSize:13}}>포스터 이미지 업로드 <input type="file" accept="image/*" onChange={e=>void upload(e.target.files?.[0])}/></label>
+        <div className={"posterDropZone"+(dragging?" dragging":"")} onDragEnter={e=>{e.preventDefault();setDragging(true)}} onDragOver={e=>{e.preventDefault();setDragging(true)}} onDragLeave={e=>{e.preventDefault();setDragging(false)}} onDrop={e=>{e.preventDefault();setDragging(false);void upload(e.dataTransfer.files[0])}}>
+          <label><strong>PNG 포스터를 여기에 드래그하세요</strong><span>또는 클릭해서 업로드 · PNG / JPG / WEBP · 최대 10MB</span><input type="file" accept="image/png,image/jpeg,image/webp" onChange={e=>void upload(e.target.files?.[0])}/></label>
+          {imageUrl&&<img src={imageUrl} alt="업로드 미리보기" style={{maxHeight:220,maxWidth:"100%",objectFit:"contain"}}/>}
+        </div>
         {imageUrl&&<span style={{fontSize:12}}>포스터 준비됨 · <button onClick={()=>setImageUrl("")}>제거</button></span>}
         <div style={{display:"flex",gap:8}}><button style={buttonStyle} disabled={uploading} onClick={()=>void save()}>{uploading?"업로드 중...":editingId?"수정 저장":"자료 저장"}</button>{editingId&&<button style={buttonStyle} onClick={()=>{setEditingId("");setTitle("");setBody("");setImageUrl("")}}>취소</button>}</div>
       </div>}
