@@ -132,12 +132,9 @@ export default function StatusPosterBuilder({onSave,sessions=[]}:{onSave?:(title
       const baseline=y+151+i*rowH;
       ctx.fillStyle="#f8fafc";ctx.font="bold 65px sans-serif";
       ctx.fillText(r.game.slice(0,12),x+40,baseline,240);
-      if(r.tables>0){ctx.font="bold 50px sans-serif";ctx.fillText(r.tables+"테이블",x+306,baseline,290)}
-      const running=r.tables>0,state=getStatus(r);
-      const bx=x+690,by=baseline-67,bw=usable-724,bh=77;
-      ctx.fillStyle=running?"#103f39":"#44351d";ctx.beginPath();ctx.roundRect(bx,by,bw,bh,30);ctx.fill();
-      ctx.strokeStyle=running?"#47d0b0":"#e8bb57";ctx.lineWidth=2;ctx.stroke();
-      ctx.fillStyle=running?"#91f4dc":"#ffe29a";ctx.font="bold 37px sans-serif";ctx.textAlign="center";ctx.fillText(state,bx+bw/2,by+50,bw-12);ctx.textAlign="left";
+      if(r.tables>0){ctx.font="bold 50px sans-serif";ctx.fillText(String(r.tables),x+340,baseline,100)}
+      ctx.fillStyle=r.tables>0?"#f8fafc":"#f0c879";ctx.font="bold 48px sans-serif";
+      ctx.fillText(r.tables>0?"테이블 진행 중":"예약 중",x+475,baseline,usable-515);
       if(i<list.length-1){ctx.fillStyle="#405063";ctx.fillRect(x+32,baseline+26,usable-64,2)}
     });
     y+=height+22;
@@ -164,7 +161,7 @@ export default function StatusPosterBuilder({onSave,sessions=[]}:{onSave?:(title
   {rows.filter(r=>r.venue===venue).map(r=><div className="statusPosterRow statusDirectEditRow statusSummaryRow" key={r.id}>
     <input type="text" aria-label={r.game+" 게임명"} value={r.game} onChange={e=>updateRow(r.id,{game:e.target.value})} spellCheck={false}/>
     <div className="statusSummaryTables">{numberEditor(r,"tables","테이블 수")}<span>{r.tables>0?"테이블":""}</span></div>
-    <span className={"statusInlineState"+(r.tables>0?" statusRunning":"")}>{getStatus(r)}</span>
+    <span className="statusSummaryPlainState">{getStatus(r)}</span>
     <button type="button" className="statusInlineRemove" aria-label={r.game+" 경기 삭제"} title="경기 삭제" onClick={()=>setRows(prev=>prev.filter(x=>x.id!==r.id))}>×</button>
   </div>)}
  </section>;
