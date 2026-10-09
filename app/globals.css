@@ -17094,3 +17094,17 @@ html{scroll-behavior:smooth}
 .promotionPasteArea{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;min-height:100px;padding:16px 8px;margin:14px 0;border:1px dashed #a98c5c;border-radius:12px;background:color-mix(in srgb,#b99b67 7%,transparent);cursor:text;text-align:center;outline:none}
 .promotionPasteArea:focus{border-color:#d6ab60;box-shadow:0 0 0 2px #d6ab6036}
 .promotionPasteArea strong{font-size:12px}.promotionPasteArea span{font-size:11px;color:var(--muted)}
+
+/* Poster-only clipboard panel */
+.promotionQueue .promotionPasteCompact{min-height:54px;margin:12px 0 16px;padding:12px;border-radius:10px}
+.promotionQueue .promotionPasteCompact span{font-weight:650;font-size:12px}
+.promotionPosterGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+.promotionPosterTile{position:relative;min-width:0}
+.promotionPosterCopy{display:block;width:100%;overflow:hidden;border:1px solid var(--border-color,#7775);border-radius:11px;background:#1c2634;padding:0;position:relative;cursor:copy}
+.promotionPosterCopy img{display:block;width:100%;height:180px;object-fit:contain}
+.promotionPosterCopyHint{position:absolute;bottom:0;left:0;right:0;background:#121820db;color:#fff;font-weight:700;font-size:11px;padding:8px 3px;opacity:0;transition:opacity .15s}
+.promotionPosterCopy:hover .promotionPosterCopyHint,.promotionPosterCopy:focus-visible .promotionPosterCopyHint{opacity:1}
+.promotionPosterDelete{position:absolute;top:6px;right:6px;background:#131a24da!important;color:white!important;border:1px solid #ffffff55!important;border-radius:50%!important;height:26px;width:26px;cursor:pointer;font-size:19px;line-height:1;padding:0!important;opacity:0}
+.promotionPosterTile:hover .promotionPosterDelete,.promotionPosterDelete:focus-visible{opacity:1}
+@media(hover:none){.promotionPosterDelete{opacity:1}}
+@media(max-width:480px){.promotionPosterCopy img{height:155px}}
