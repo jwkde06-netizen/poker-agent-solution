@@ -1,6 +1,7 @@
 "use client";
 import {useEffect,useMemo,useRef,useState} from "react";
 type Data={time:string;dream:string[];mm:string[];footer:string;contact:string};
+type LiveSession={id:string;tableNo:string;gameNo:string;game:string;status:string};
 const key="dream-mm-status-builder-v1";
 const initial:Data={time:"17:15",dream:["5M 타임어택 4테이블 진행중 🔥","데일리 토너먼트🔥(레지마감 17:05)","10M 타임어택 예약중"],mm:["3M 타임어택 1테이블 진행 중🔥","VIP게임 예약중"],footer:"타임어택 경기는 미리 예약 후 방문하시면 대기 없이 바로 참여하실 수 있습니다.",contact:"예약 및 참가 문의는 1:1 채팅 주세요."};
 function drawLines(ctx:CanvasRenderingContext2D,text:string,x:number,y:number,maxWidth:number,lineHeight:number){
@@ -8,8 +9,18 @@ function drawLines(ctx:CanvasRenderingContext2D,text:string,x:number,y:number,ma
   for(const char of chars){if(ctx.measureText(line+char).width>maxWidth&&line){ctx.fillText(line,x,current);current+=lineHeight;line=""}line+=char}
   if(line){ctx.fillText(line,x,current);current+=lineHeight}return current;
 }
-export default function StatusPosterBuilder({onSave}:{onSave?:(title:string,body:string,blob:Blob)=>Promise<void>}){
+export default function StatusPosterBuilder({onSave,sessions=[]}:{onSave?:(title:string,body:string,blob:Blob)=>Promise<void>;sessions?:LiveSession[]}){
  const [data,setData]=useState<Data>(initial);
+ const activeDream=sessions.filter(s=>s.status==="active");
+ const fiveM=activeDream.filter(s=>/^5\s*M\b/i.test(s.game.trim()));
+ const dreamSummary=fiveM.length?`5M 타임어택 ${fiveM.length}테이블 진행 중 🔥`:"5M 타임어택 진행 테이블 없음";
+ const tableSummary=fiveM.map(s=>`T${s.tableNo} No.${s.gameNo||"-"}`).join(" · ");
+ const applyLive=()=>{
+   const other=activeDream.filter(s=>!/^5\s*M\b/i.test(s.game.trim())).map(s=>`${s.game} · T${s.tableNo} No.${s.gameNo||"-"} 진행 중`);
+   const now=new Intl.DateTimeFormat("en-GB",{hour:"2-digit",minute:"2-digit",hour12:false,timeZone:"Asia/Ho_Chi_Minh"}).format(new Date());
+   setData(p=>({...p,time:now,dream:[dreamSummary,...(tableSummary?["테이블 "+tableSummary]:[]),...other]}));
+   flash("현재 Dream 게임 현황을 적용했습니다. MM과 예약 항목은 별도로 확인해주세요.");
+ };
  const [feedback,setFeedback]=useState("");
  const canvasRef=useRef<HTMLCanvasElement>(null);
  const change=(field:keyof Data,value:string)=>setData(p=>({...p,[field]:value}));
@@ -65,7 +76,7 @@ export default function StatusPosterBuilder({onSave}:{onSave?:(title:string,body
  const save=async()=>{if(!onSave)return;try{await onSave("Dream & MM 실시간 현황 "+data.time,text,await getPng());flash("자료실에 저장 완료")}catch(e){flash("저장 실패: "+String(e))}};
  const rowSection=(side:"dream"|"mm",label:string)=><div className="builderSection"><div className="builderSectionTitle"><h3>{label}</h3><span>{data[side].length}개 항목</span></div>{data[side].map((line,i)=><div className="builderRow" key={i}><input aria-label={label+" 항목 "+(i+1)} value={line} onChange={e=>modify(side,i,e.target.value)}/><div className="builderRowTools"><button onClick={()=>move(side,i,-1)} title="위로" aria-label="위로 이동">↑</button><button onClick={()=>move(side,i,1)} title="아래로" aria-label="아래로 이동">↓</button><button onClick={()=>setData(p=>({...p,[side]:p[side].filter((_,j)=>j!==i)}))} title="삭제" aria-label="항목 삭제">×</button></div></div>)}<button onClick={()=>setData(p=>({...p,[side]:[...p[side],""]}))}>+ 항목 추가</button></div>;
  return <div className="builderShell"><div className="builderHead"><div><h2>Dream & MM 현황 포스터 생성기</h2><p>문구를 변경한 뒤 텍스트 복사 또는 PNG로 저장하세요.</p></div><button onClick={()=>setData(initial)}>기본 양식 복원</button></div>
- <div className="builderColumns"><div className="builderForm"><div className="builderFormIntro"><strong>공지 내용 편집</strong><small>변경사항은 오른쪽 포스터에 즉시 반영됩니다.</small></div><label>기준 시각 <span><input value={data.time} onChange={e=>change("time",e.target.value)} placeholder="17:15"/><button onClick={()=>change("time",new Intl.DateTimeFormat("en-GB",{hour:"2-digit",minute:"2-digit",hour12:false,timeZone:"Asia/Ho_Chi_Minh"}).format(new Date()))}>현재 시각</button></span></label>
+ <div className="builderColumns"><div className="builderForm"><div className="builderFormIntro"><strong>빠른 현황 업데이트</strong><small>Dream 게임 입력 기준 · 테이블 ${activeDream.length}개 운영 중</small></div><div className="builderQuickSync"><div><b>5M ${fiveM.length}테이블 진행</b><span>${tableSummary||"진행 중인 5M 테이블 없음"}</span></div><button type="button" onClick={applyLive}>현황 자동 입력</button></div><p className="builderSourceNotice">블라인드 레벨은 매장 현황판 연결 전까지 자동 입력하지 않습니다. 현황판: 192.168.1.9:8080 (매장 Wi-Fi)</p><label>기준 시각 <span><input value={data.time} onChange={e=>change("time",e.target.value)} placeholder="17:15"/><button onClick={()=>change("time",new Intl.DateTimeFormat("en-GB",{hour:"2-digit",minute:"2-digit",hour12:false,timeZone:"Asia/Ho_Chi_Minh"}).format(new Date()))}>현재 시각</button></span></label>
  {rowSection("dream","♠ DREAM POKER")}{rowSection("mm","♣ MILLION MAKER")}
  <label>예약 안내<textarea rows={3} value={data.footer} onChange={e=>change("footer",e.target.value)}/></label><label>문의 문구<input value={data.contact} onChange={e=>change("contact",e.target.value)}/></label>
  <div className="builderActions"><button onClick={()=>void navigator.clipboard.writeText(text).then(()=>flash("텍스트 복사 완료")).catch(()=>flash("복사 실패"))}>텍스트 복사</button><button onClick={()=>void download()}>PNG 다운로드</button>{onSave&&<button onClick={()=>void save()}>자료실에 저장</button>}</div>{feedback&&<p role="status">{feedback}</p>}
