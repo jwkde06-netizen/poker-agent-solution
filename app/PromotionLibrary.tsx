@@ -21,6 +21,10 @@ export default function PromotionLibrary({sessions,canEdit}:{sessions:LiveSessio
   const [notice,setNotice]=useState("");
   const [connected,setConnected]=useState(false);
   const [draftLive,setDraftLive]=useState<string|null>(null);
+  const [queueIds,setQueueIds]=useState<string[]>([]);
+  useEffect(()=>{try{const ids=JSON.parse(localStorage.getItem("dream-poster-queue")||"[]");if(Array.isArray(ids))setQueueIds(ids.filter((id:unknown)=>typeof id==="string"))}catch{}},[]);
+  const setQueue=(ids:string[])=>{setQueueIds(ids);localStorage.setItem("dream-poster-queue",JSON.stringify(ids))};
+
   const liveText=useMemo(()=>["♠ DREAM POKER DA NANG","📍 Live Table Status",...sessions.filter(s=>s.status==="active").sort((a,b)=>Number(a.tableNo)-Number(b.tableNo)).map(s=>`• Table ${s.tableNo} · ${s.game} · No.${s.gameNo}`),sessions.some(s=>s.status==="active")?"문의 및 예약은 데스크로 연락주세요.":"현재 진행 중인 테이블이 없습니다."].join("\n"),[sessions]);
   useEffect(()=>{try{const cached=JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]");if(Array.isArray(cached))setItems(cached)}catch{}},[]);
   useEffect(()=>{
@@ -98,9 +102,21 @@ export default function PromotionLibrary({sessions,canEdit}:{sessions:LiveSessio
       <span className={"promotionConnection"+(connected?" isConnected":"")}>{connected?"● 공유 자료실 연결":"○ 이 기기 임시 저장"}</span>
     </header>
     {notice&&<p className="promotionNotice" role="status">{notice}</p>}
+    <div className="promotionMainSplit">
     <section className="promotionPrimary" aria-label="현황 포스터 제작">
       <StatusPosterBuilder sessions={sessions} onSave={canEdit?saveGenerated:undefined}/>
     </section>
+    <aside className="promotionQueue">
+      <div className="promotionQueueHeader"><h3>포스터 대기열</h3><span>{queueIds.length}개</span></div>
+      <p className="promotionUtilityHint">자주 공유할 포스터를 모아두고 한 번에 이미지 복사</p>
+      {queueIds.map(id=>items.find(item=>item.id===id)).filter((item):item is Item=>Boolean(item&&item.image_url)).map(item=><article className="promotionQueueItem" key={item.id}>
+        <img src={item.image_url} alt={item.title}/>
+        <div><strong>{item.title}</strong><button onClick={()=>void copyImage(item.image_url)}>이미지 복사</button><button onClick={()=>setQueue(queueIds.filter(id=>id!==item.id))}>제거</button></div>
+      </article>)}
+      {!queueIds.some(id=>items.some(item=>item.id===id&&item.image_url))&&<p className="promotionQueueEmpty">저장된 자료에서 ‘대기열 추가’를 누르면 이곳에 나타납니다.</p>}
+      <div className="promotionQueueRecent"><h4>최근 포스터</h4>{items.filter(item=>item.image_url&&!queueIds.includes(item.id)).slice(0,5).map(item=><div className="promotionQueueRecentItem" key={item.id}><span>{item.title}</span><button onClick={()=>setQueue([item.id,...queueIds])}>+ 추가</button></div>)}</div>
+    </aside>
+    </div>
     <div className="promotionSecondary" id="promotion-library">
       <section className="promotionUtility">
         <div className="promotionUtilityHead"><div><h3>포스터 업로드</h3><p>이미지를 업로드하고 자료실에 저장하세요.</p></div><span>01</span></div>
@@ -132,7 +148,7 @@ export default function PromotionLibrary({sessions,canEdit}:{sessions:LiveSessio
           <strong>{item.title}</strong>
           <div className="promotionCardActions">
             {item.body&&<button style={buttonStyle} onClick={()=>void copy(item.body)}>문구 복사</button>}
-            {item.image_url&&<><button style={buttonStyle} onClick={()=>void copyImage(item.image_url)}>이미지 복사</button><a style={buttonStyle} href={item.image_url} target="_blank" rel="noreferrer">원본 보기</a></>}
+            {item.image_url&&<><button style={buttonStyle} onClick={()=>void copyImage(item.image_url)}>이미지 복사</button><button style={buttonStyle} onClick={()=>setQueue(queueIds.includes(item.id)?queueIds:[item.id,...queueIds])}>대기열 추가</button><a style={buttonStyle} href={item.image_url} target="_blank" rel="noreferrer">원본 보기</a></>}
             {canEdit&&<><button style={buttonStyle} onClick={()=>{setEditingId(item.id);setTitle(item.title);setBody(item.body);setImageUrl(item.image_url);document.getElementById("promotion-library")?.scrollIntoView({behavior:"smooth"})}}>수정</button><button style={buttonStyle} onClick={()=>void remove(item)}>삭제</button></>}
           </div>
         </article>)}
