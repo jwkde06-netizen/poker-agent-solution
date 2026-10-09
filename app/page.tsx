@@ -3525,7 +3525,7 @@ export default function Home() {
 
                     <div className="playerValueToolbar">
                       <span>플레이어 {selectedTableEntries.length}명</span>
-                      {!isStaff && <div className="opsPlayerColumnLabels"><span>매출</span><span>레이크백</span></div>}
+                      {!isStaff && <div className="opsPlayerColumnLabels"><span>엔트리피</span><span>레이크백</span></div>}
 
                     </div>
 
