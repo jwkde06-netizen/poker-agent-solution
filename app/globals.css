@@ -17065,3 +17065,7 @@ html{scroll-behavior:smooth}
  .statusDirectBuilder .statusDirectFooter textarea,.statusDirectBuilder .statusDirectFooter input{font-size:11px;padding:3px 5px}
  .statusDirectBuilder .statusDirectFooter textarea{min-height:33px}
 }
+
+/* Passive live table sync indicator */
+.statusAutoSyncLabel{display:inline-flex;align-items:center;white-space:nowrap;font-size:11px;color:var(--muted);padding:8px 4px}
+.statusAutoSyncLabel:before{content:"";width:6px;height:6px;border-radius:50%;background:#4da78c;margin-right:7px}
