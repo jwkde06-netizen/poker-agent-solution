@@ -3498,7 +3498,7 @@ export default function Home() {
                               setSelectedSearchIndex(0);
                             }
                           }}
-                          placeholder="한글 이름 입력 → 기존 영문명으로 등록"
+                          placeholder="플레이어 검색"
                           autoComplete="off"
                         />
                       </div>
