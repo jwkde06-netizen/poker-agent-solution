@@ -2532,6 +2532,9 @@ export default function Home() {
         .sort((a,b)=>b.rank-a.rank || a.player.name.localeCompare(b.player.name))
         .slice(0,8).map(result=>result.player)
     : [];
+  // Game entries store the chosen player's ID, never the Korean search text.
+  // The registered player keeps the canonical English display name.
+  const selectedTableKoreanMatch = selectedTableMatches.some(p=>normalizePlayerSearch(p.koreanName)===normalizePlayerSearch(selectedTableSearch));
   const managedEntry = manageEntryId ? entries.find(e=>e.id===manageEntryId) ?? null : null;
   const managedPlayer = managedEntry ? players.find(p=>p.id===managedEntry.playerId) ?? null : null;
   const manageQuery = managePlayerSearch.trim().toUpperCase();
@@ -3463,7 +3466,7 @@ export default function Home() {
                     <div className="selectedPlayerSearch topPlayerSearch">
                       <div className="selectedSearchLabel">
                         <strong>플레이어 추가</strong>
-                        <small>검색 후 선택 즉시 1 BUY-IN</small>
+                        <small>한글로 찾아도 영문 등록명으로 1 BUY-IN</small>
                       </div>
                       <div className="tableSearchInput selectedSearchInput">
                         <span>⌕</span>
@@ -3489,7 +3492,7 @@ export default function Home() {
                               setSelectedSearchIndex(0);
                             }
                           }}
-                          placeholder="한글·영문 이름 검색 (비슷한 철자도 추천)"
+                          placeholder="한글 이름 입력 → 기존 영문명으로 등록"
                           autoComplete="off"
                         />
                       </div>
