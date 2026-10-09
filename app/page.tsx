@@ -2677,16 +2677,17 @@ export default function Home() {
       if(event.key!=="ArrowUp"&&event.key!=="ArrowDown")return;
       if(event.altKey||event.ctrlKey||event.metaKey||event.shiftKey)return;
       const el=event.target as HTMLElement|null;
-      if(el?.closest('input,textarea,select,[contenteditable="true"],[role="textbox"],[role="combobox"],[role="dialog"]'))return;
+      // Global shortcut: ignore actual text-editing controls but handle focused menu/buttons.
+      if(el?.closest('input,textarea,select,[contenteditable="true"],[role="textbox"],[role="combobox"],[role="dialog"],[role="listbox"]'))return;
       const keys=navItems.map(item=>item.key);
-      const index=keys.indexOf(tab);
+      const index=Math.max(0,keys.indexOf(tab));
       const next=Math.max(0,Math.min(keys.length-1,index+(event.key==="ArrowDown"?1:-1)));
       if(index===next)return;
       event.preventDefault();
       navigateTab(keys[next] as TabKey);
     };
-    window.addEventListener("keydown",onArrow);
-    return()=>window.removeEventListener("keydown",onArrow);
+    document.addEventListener("keydown",onArrow,true);
+    return()=>document.removeEventListener("keydown",onArrow,true);
   },[tab,profile?.role]);
 
   const mobileNavItems = [
