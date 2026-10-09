@@ -17259,3 +17259,16 @@ html{scroll-behavior:smooth}
 .statusDirectBuilder .statusSummaryRow .statusInlineState{display:flex!important;align-items:center;justify-content:center;min-width:0}
 .statusDirectBuilder .statusDirectCanvas .statusSummaryRow input:first-child{text-align:left!important}
 @media(max-width:550px){.statusDirectBuilder .statusDirectCanvas .statusSummaryRow{grid-template-columns:minmax(0,.9fr) minmax(86px,1fr) minmax(90px,1.1fr)!important;gap:3px!important}.statusDirectBuilder .statusSummaryTables{font-size:11px!important}.statusDirectBuilder .statusSummaryTables .statusInlineNumber input{max-width:45px!important}}
+
+/* Plain one-line game status — no outlined status pill */
+.statusDirectBuilder .statusDirectCanvas .statusSummaryRow{
+  grid-template-columns:minmax(0,.7fr) minmax(100px,.8fr) minmax(105px,1fr)!important;
+  gap:6px!important;
+}
+.statusDirectBuilder .statusSummaryRow .statusSummaryPlainState{
+  color:#f8fafc!important;background:transparent!important;border:0!important;
+  padding:0!important;font-size:clamp(15px,1.7vw,22px)!important;font-weight:800!important;
+  white-space:nowrap!important;text-align:left!important;
+}
+.statusDirectBuilder .statusSummaryRow:has(.statusSummaryTables input[value="0"]) .statusSummaryPlainState{color:#f0c879!important}
+@media(max-width:550px){.statusDirectBuilder .statusDirectCanvas .statusSummaryRow{grid-template-columns:minmax(0,.7fr) minmax(84px,.8fr) minmax(75px,1fr)!important}.statusDirectBuilder .statusSummaryRow .statusSummaryPlainState{font-size:12px!important}}
