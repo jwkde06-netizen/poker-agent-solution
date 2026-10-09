@@ -17136,3 +17136,20 @@ html{scroll-behavior:smooth}
  .statusDirectBuilder .statusDirectCanvas .statusPosterSection{margin-bottom:8px!important}
  .statusDirectBuilder .statusDirectCanvas .statusPosterRow{padding:8px 0!important}
 }
+
+/* Refined navy/gold hourly status poster, visually matched to canvas export */
+.statusDirectBuilder .statusDirectCanvas .statusPosterPreview{background:linear-gradient(165deg,#16283e 0%,#0b1726 68%,#101e30 100%)!important;padding:20px!important}
+.statusDirectBuilder .statusDirectCanvas .statusPosterGoldLine{height:3px!important;background:#e8c271!important;margin-bottom:12px!important}
+.statusDirectBuilder .statusPosterTitleLine{margin-bottom:17px!important;align-items:end!important}
+.statusDirectBuilder .statusPosterTitleLine h2{color:#f0c879!important;font-size:clamp(20px,2.1vw,30px)!important;font-weight:850!important}
+.statusDirectBuilder .statusDirectCanvas .statusPosterSection{background:#122237!important;border:1px solid #d6aa5b!important;border-radius:13px!important;padding:14px!important;margin-bottom:12px!important}
+.statusDirectBuilder .statusPosterSection h3{color:#ecc477!important;font-size:19px!important}
+.statusDirectBuilder .statusDirectCanvas .statusPosterLabels{background:#1b2b40!important;border:1px solid #35465b!important;padding:9px 8px!important;border-radius:9px!important;margin:7px 0!important;color:#c1cad7!important}
+.statusDirectBuilder .statusDirectCanvas .statusPosterRow{border-color:#405063!important;min-height:54px!important}
+.statusDirectBuilder .statusDirectCanvas .statusInlineState{border-radius:22px!important}
+.statusDirectBuilder .statusDirectCanvas .statusInlineState.statusRunning{color:#91f4dc!important;border:1px solid #47d0b0!important;background:#103f39!important}
+.statusDirectBuilder .statusDirectCanvas .statusInlineState:not(.statusRunning){color:#ffe29a!important;border:1px solid #e8bb57!important;background:#44351d!important}
+.statusDirectBuilder .statusDirectCanvas .statusDirectFooter{border-top:0!important;margin-top:10px!important;padding:13px 0 0!important;gap:0!important}
+.statusDirectBuilder .statusDirectCanvas .statusDirectFooter:before{content:"";display:block;height:3px;width:45px;margin-bottom:10px;background:#e8c271}
+.statusDirectBuilder .statusDirectCanvas .statusDirectFooter textarea{resize:none!important;margin:0!important;min-height:unset!important;padding:3px 5px!important}
+.statusDirectBuilder .statusDirectCanvas .statusDirectFooter input{padding:3px 5px!important;margin:0!important}
