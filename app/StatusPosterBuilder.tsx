@@ -142,26 +142,29 @@ export default function StatusPosterBuilder({onSave,sessions=[]}:{onSave?:(title
  const download=async()=>{try{const blob=await getPng();const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="Dream-LIVE-"+displayTime.replace(":","")+".png";a.click();setTimeout(()=>URL.revokeObjectURL(url),2000);flash("PNG 저장 완료")}catch(e){flash(String(e))}};
  const copyPoster=async()=>{try{if(!navigator.clipboard?.write||typeof ClipboardItem==="undefined"){flash("이 브라우저는 이미지 복사를 지원하지 않습니다. PNG 다운로드를 이용해주세요.");return}await navigator.clipboard.write([new ClipboardItem({"image/png":getPng()})]);flash("포스터 이미지 복사 완료 · Ctrl+V로 붙여넣으세요")}catch(e){flash("이미지 복사 실패 · 브라우저 권한을 확인하거나 PNG를 다운로드하세요")}};
  const save=async()=>{if(!onSave)return;try{await onSave("Dream & MM 현황 "+displayTime,text,await getPng());flash("자료실 저장 완료")}catch(e){flash("저장 실패: "+String(e))}};
- const listEditor=(venue:"dream"|"mm",name:string)=><section className="statusVenue" key={venue}>
-  <div className="statusVenueTitle"><strong>{name}</strong><span>{rows.filter(r=>r.venue===venue).length}종류</span></div>
-  <div className="statusTableScroll"><table className="statusEditTable"><thead><tr><th>게임 종류</th><th>테이블</th><th>대기</th><th aria-label="삭제"></th></tr></thead><tbody>
-  {rows.filter(r=>r.venue===venue).map(row=><tr key={row.id}><td><input className="statusGameInput" value={row.game} aria-label="게임 종류" onChange={e=>updateRow(row.id,{game:e.target.value})}/></td>
-   <td><input type="number" min="0" className="statusNumberInput" aria-label={row.game+" 테이블 수"} value={row.tables} onChange={e=>updateRow(row.id,{tables:Math.max(0,Number(e.target.value)||0)})}/></td>
-   <td><input type="number" min="0" className="statusNumberInput" aria-label={row.game+" 대기 인원"} value={row.waiting} onChange={e=>updateRow(row.id,{waiting:Math.max(0,Number(e.target.value)||0)})}/></td>
-   
-   <td><button className="statusRemove" title="경기 삭제" aria-label={row.game+" 삭제"} onClick={()=>setRows(p=>p.filter(x=>x.id!==row.id))}>×</button></td></tr>)}
-  </tbody></table></div><button className="statusAdd" onClick={()=>setRows(prev=>[...prev,makeRow(venue,"새 게임",0,0)])}>+ 경기 추가</button>
+ const posterSection=(venue:"dream"|"mm",name:string)=><section className="statusPosterSection statusEditableSection" key={venue}>
+  <div className="statusEditableSectionHeading"><h3>{name}</h3><button type="button" onClick={()=>setRows(prev=>[...prev,makeRow(venue,"5M",0,0)])}>+ 경기 추가</button></div>
+  <div className="statusPosterLabels"><span>GAME</span><span>TABLE</span><span>WAITING</span><span>STATUS</span></div>
+  {rows.filter(r=>r.venue===venue).map(r=><div className="statusPosterRow statusDirectEditRow" key={r.id}>
+    <input type="text" aria-label={r.game+" 게임명"} value={r.game} onChange={e=>updateRow(r.id,{game:e.target.value})} spellCheck={false}/>
+    <input type="number" min="0" aria-label={r.game+" 테이블 수"} value={r.tables} onChange={e=>updateRow(r.id,{tables:Math.max(0,Number(e.target.value)||0)})}/>
+    <input type="number" min="0" aria-label={r.game+" 대기 인원"} value={r.waiting} onChange={e=>updateRow(r.id,{waiting:Math.max(0,Number(e.target.value)||0)})}/>
+    <span className="statusInlineState">{getStatus(r)}</span>
+    <button type="button" className="statusInlineRemove" aria-label={r.game+" 경기 삭제"} title="경기 삭제" onClick={()=>setRows(prev=>prev.filter(x=>x.id!==r.id))}>×</button>
+  </div>)}
  </section>;
- return <div className="builderShell statusBuilder"><div className="builderHead"><div><h2>실시간 게임 현황</h2><p>테이블과 대기 인원만 수정하면 포스터가 바로 완성됩니다.</p></div><div className="statusTopActions"><button type="button" className="statusCopyImage" onClick={()=>void copyPoster()} title="포스터 이미지를 클립보드에 복사"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg> 이미지 복사</button><button type="button" className="statusQuickDownload" title="PNG 다운로드" aria-label="PNG 다운로드" onClick={()=>void download()}><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12m-4-4 4 4 4-4M5 17v4h14v-4"/></svg></button><button onClick={applyLive}>운영 현황 불러오기</button><button onClick={()=>{setTime(nowTime());flash("기준 시각 갱신")}}>현재 시각</button></div></div>
- <div className="builderColumns"><div className="builderForm">
- 
- {listEditor("dream","♠ DREAM POKER")}{listEditor("mm","♣ MILLION MAKER")}
- <details className="statusAdvanced"><summary>전광판 연동 및 안내 문구 설정</summary>
- <div className="builderMonitor"><div><strong>전광판 동기화</strong><span>{monitorFresh&&monitor?`연결됨 · ${monitor.tables.length}경기`:monitorError||"연동 대기"}</span></div><button type="button" disabled={!monitorFresh} onClick={applyMonitor}>경기 수 반영</button></div>
- <label>기준 시각<input value={time} onChange={e=>setTime(e.target.value)}/></label>
- <label>예약 안내<textarea rows={2} value={footer} onChange={e=>setFooter(e.target.value)}/></label>
- <label>문의 문구<input value={contact} onChange={e=>setContact(e.target.value)}/></label></details>
- <div className="builderActions"><button onClick={()=>void navigator.clipboard.writeText(text).then(()=>flash("문구 복사 완료")).catch(()=>flash("복사 실패"))}>문구 복사</button><button onClick={()=>void download()}>PNG 다운로드</button>{onSave&&<button onClick={()=>void save()}>자료실 저장</button>}</div>
- {feedback&&<p role="status">{feedback}</p>}
- </div><div className="builderPreview"><div className="builderPreviewBar"><strong>포스터 미리보기</strong><span>{displayTime} 기준</span></div><div className="statusPosterPreview"><div className="statusPosterGoldLine"/><h2>LIVE TABLE STATUS</h2><p className="statusPosterTime">{displayTime} 기준</p>{sections.map(section=><div className="statusPosterSection" key={section.id}><h3>{section.name}</h3><div className="statusPosterLabels"><span>GAME</span><span>TABLE</span><span>WAITING</span><span>STATUS</span></div>{rows.filter(r=>r.venue===section.id).map(r=><div key={r.id}><div className="statusPosterRow"><strong>{r.game}</strong><b>{r.tables}</b><b>{r.waiting}</b><span className="statusInlineState">{getStatus(r)}</span></div></div>)}</div>)}<p className="statusPosterFooter">{footer}<br/>{contact}</p></div></div></div><canvas ref={canvasRef} style={{display:"none"}}/></div>;
+ return <div className="builderShell statusBuilder statusDirectBuilder">
+  <div className="builderHead"><div><h2>실시간 게임 현황</h2><p>포스터에서 숫자와 게임명을 직접 누르고 수정하세요.</p></div>
+   <div className="statusTopActions"><button type="button" className="statusCopyImage" onClick={()=>void copyPoster()}>이미지 복사</button><button type="button" className="statusQuickDownload" aria-label="PNG 다운로드" title="PNG 다운로드" onClick={()=>void download()}>↓</button><button type="button" onClick={applyLive}>운영 현황 불러오기</button></div>
+  </div>
+  <div className="statusDirectCanvas">
+   <div className="statusPosterPreview"><div className="statusPosterGoldLine"/><h2>LIVE TABLE STATUS</h2><p className="statusPosterTime">{displayTime} 기준</p>
+   {posterSection("dream","DREAM POKER")}{posterSection("mm","MILLION MAKER")}
+   <div className="statusDirectFooter"><textarea aria-label="예약 안내" value={footer} onChange={e=>setFooter(e.target.value)} rows={2}/><input aria-label="문의 문구" value={contact} onChange={e=>setContact(e.target.value)}/></div>
+   </div>
+  </div>
+  <div className="statusDirectBottom"><details className="statusAdvanced"><summary>전광판 연동</summary><div className="builderMonitor"><div><strong>전광판 동기화</strong><span>{monitorFresh&&monitor?`연결됨 · ${monitor.tables.length}경기`:monitorError||"연동 대기"}</span></div><button type="button" disabled={!monitorFresh} onClick={applyMonitor}>경기 수 반영</button></div></details>
+  <div className="builderActions"><button onClick={()=>void navigator.clipboard.writeText(text).then(()=>flash("문구 복사 완료")).catch(()=>flash("복사 실패"))}>문구 복사</button>{onSave&&<button onClick={()=>void save()}>자료실 저장</button>}</div></div>
+  {feedback&&<p role="status">{feedback}</p>}<canvas ref={canvasRef} style={{display:"none"}}/>
+ </div>;
 }
