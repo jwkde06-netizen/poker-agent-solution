@@ -66,7 +66,7 @@ export default function StatusPosterBuilder({onSave,sessions=[]}:{onSave?:(title
  const sections=([{id:"dream" as const,name:"DREAM POKER"},{id:"mm" as const,name:"MILLION MAKER"}]);
  const displayTime=clock||time;
  const text=useMemo(()=>["📢 실시간 테이블 현황",displayTime+" 기준","",...sections.flatMap(section=>[section.id==="dream"?"♠️ "+section.name:"♣️ "+section.name,...rows.filter(r=>r.venue===section.id).map(r=>"• "+gameText(r)),""]),footer,"",contact].join("\n"),[rows,displayTime,footer,contact]);
- const applyLive=()=>{
+ const syncFromSessions=(notify:boolean)=>{
    // Count physical tables, not historical session rows. The store has five
    // registered physical tables; invalid/duplicate rows must never inflate the poster.
    const knownTables=new Set(["2","4","5","12","13"]);
@@ -77,7 +77,7 @@ export default function StatusPosterBuilder({onSave,sessions=[]}:{onSave?:(title
      const game=session.game.trim().toUpperCase();
      if(!game)continue;
      if(byTable.has(table)&&byTable.get(table)!==game){
-       flash("테이블별 진행 경기 데이터가 중복됩니다. 자동 반영하지 않았습니다.");
+       if(notify)flash("테이블별 진행 경기 데이터가 중복됩니다. 자동 반영하지 않았습니다.");
        return;
      }
      byTable.set(table,game);
@@ -85,7 +85,7 @@ export default function StatusPosterBuilder({onSave,sessions=[]}:{onSave?:(title
    const groups=new Map<string,number>();
    for(const game of byTable.values())groups.set(game,(groups.get(game)||0)+1);
    if(sessions.some(session=>session.status==="active"&&!knownTables.has(session.tableNo.trim()))){
-     flash("미등록 테이블 데이터가 있어 자동 반영하지 않았습니다. 게임 입력을 확인해주세요.");
+     if(notify)flash("미등록 테이블 데이터가 있어 자동 반영하지 않았습니다. 게임 입력을 확인해주세요.");
      return;
    }
    setRows(prev=>{
@@ -93,8 +93,10 @@ export default function StatusPosterBuilder({onSave,sessions=[]}:{onSave?:(title
      for(const [game,count] of groups)if(!next.some(row=>row.venue==="dream"&&row.game.trim().toUpperCase()===game))next.push(makeRow("dream",game,count,0));
      return next;
    });
-   flash("실제 테이블 번호 기준으로 중복 없이 반영했습니다. 예약·대기는 유지됩니다.");
+   if(notify)flash("현재 운영 테이블 수를 동기화했습니다. 대기 인원은 유지됩니다.");
  };
+ // Sync whenever the shared game session data changes; no manual import required.
+ useEffect(()=>{if(loaded)syncFromSessions(false)},[sessions,loaded]);
  const applyMonitor=()=>{
    if(!monitor||!monitorFresh){flash("최신 전광판 데이터가 없습니다.");return}
    const counts=new Map<string,number>();
@@ -160,7 +162,7 @@ export default function StatusPosterBuilder({onSave,sessions=[]}:{onSave?:(title
  </section>;
  return <div className="builderShell statusBuilder statusDirectBuilder">
   <div className="builderHead"><div><p>포스터를 직접 클릭해 게임명·숫자를 수정하세요.</p></div>
-   <div className="statusTopActions"><button type="button" className="statusCopyImage" onClick={()=>void copyPoster()}>이미지 복사</button><button type="button" className="statusQuickDownload" aria-label="PNG 다운로드" title="PNG 다운로드" onClick={()=>void download()}>↓</button><button type="button" onClick={applyLive}>운영 현황 불러오기</button></div>
+   <div className="statusTopActions"><button type="button" className="statusCopyImage" onClick={()=>void copyPoster()}>이미지 복사</button><button type="button" className="statusQuickDownload" aria-label="PNG 다운로드" title="PNG 다운로드" onClick={()=>void download()}>↓</button><span className="statusAutoSyncLabel">테이블 자동 연동</span></div>
   </div>
   <div className="statusDirectCanvas">
    <div className="statusPosterPreview"><div className="statusPosterGoldLine"/><div className="statusPosterTitleLine"><h2>실시간 테이블 현황</h2><p className="statusPosterTime">{displayTime} 기준</p></div>
