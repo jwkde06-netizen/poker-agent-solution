@@ -1,5 +1,6 @@
 "use client";
 import {useEffect,useMemo,useRef,useState} from "react";
+import {supabase} from "../lib/supabase";
 type Data={time:string;dream:string[];mm:string[];footer:string;contact:string};
 type LiveSession={id:string;tableNo:string;gameNo:string;game:string;status:string};
 const key="dream-mm-status-builder-v1";
@@ -22,6 +23,34 @@ export default function StatusPosterBuilder({onSave,sessions=[]}:{onSave?:(title
    flash("현재 Dream 게임 현황을 적용했습니다. MM과 예약 항목은 별도로 확인해주세요.");
  };
  const [feedback,setFeedback]=useState("");
+ const [monitor,setMonitor]=useState<{observed_at:string;tables:Array<{table_no:string;game:string;level:number|null;entries:number|null}>}|null>(null);
+ const [monitorError,setMonitorError]=useState("");
+ useEffect(()=>{
+   if(!supabase)return;
+   const client=supabase;let active=true;
+   const refresh=async()=>{
+     const {data:row,error}=await client.from("live_monitor_snapshot").select("observed_at,tables").eq("id",1).maybeSingle();
+     if(!active)return;
+     if(error){setMonitorError("전광판 연동 설정 대기");return}
+     setMonitorError("");
+     if(row&&Array.isArray(row.tables))setMonitor(row as typeof monitor);
+   };
+   void refresh();const timer=window.setInterval(()=>void refresh(),30000);
+   return()=>{active=false;window.clearInterval(timer)};
+ },[]);
+ const monitorAge=monitor?Date.now()-new Date(monitor.observed_at).getTime():Infinity;
+ const monitorFresh=monitorAge>=0&&monitorAge<120000;
+ const applyMonitor=()=>{
+   if(!monitor||!monitorFresh){flash("최신 전광판 동기화 데이터가 없습니다.");return}
+   const entries=monitor.tables.filter(t=>t.game&&t.table_no);
+   const fives=entries.filter(t=>/^5\s*M\b/i.test(t.game));
+   const summary=fives.length?`5M 타임어택 ${fives.length}테이블 진행 중 🔥`:"5M 진행 테이블 없음";
+   const details=entries.map(t=>`T${t.table_no} · ${t.game}${t.level===null?"":` · Lv.${t.level}`}${t.entries===null?"":` · Entry ${t.entries}`}`);
+   const time=new Intl.DateTimeFormat("en-GB",{timeZone:"Asia/Ho_Chi_Minh",hour:"2-digit",minute:"2-digit",hour12:false}).format(new Date());
+   setData(p=>({...p,time,dream:[summary,...details]}));
+   flash("전광판 최신 데이터 적용 완료");
+ };
+
  const canvasRef=useRef<HTMLCanvasElement>(null);
  const change=(field:keyof Data,value:string)=>setData(p=>({...p,[field]:value}));
  useEffect(()=>{try{const saved=localStorage.getItem(key);if(saved){const parsed=JSON.parse(saved);setData({...initial,...parsed})}}catch{}},[]);
@@ -76,7 +105,7 @@ export default function StatusPosterBuilder({onSave,sessions=[]}:{onSave?:(title
  const save=async()=>{if(!onSave)return;try{await onSave("Dream & MM 실시간 현황 "+data.time,text,await getPng());flash("자료실에 저장 완료")}catch(e){flash("저장 실패: "+String(e))}};
  const rowSection=(side:"dream"|"mm",label:string)=><div className="builderSection"><div className="builderSectionTitle"><h3>{label}</h3><span>{data[side].length}개 항목</span></div>{data[side].map((line,i)=><div className="builderRow" key={i}><input aria-label={label+" 항목 "+(i+1)} value={line} onChange={e=>modify(side,i,e.target.value)}/><div className="builderRowTools"><button onClick={()=>move(side,i,-1)} title="위로" aria-label="위로 이동">↑</button><button onClick={()=>move(side,i,1)} title="아래로" aria-label="아래로 이동">↓</button><button onClick={()=>setData(p=>({...p,[side]:p[side].filter((_,j)=>j!==i)}))} title="삭제" aria-label="항목 삭제">×</button></div></div>)}<button onClick={()=>setData(p=>({...p,[side]:[...p[side],""]}))}>+ 항목 추가</button></div>;
  return <div className="builderShell"><div className="builderHead"><div><h2>Dream & MM 현황 포스터 생성기</h2><p>문구를 변경한 뒤 텍스트 복사 또는 PNG로 저장하세요.</p></div><button onClick={()=>setData(initial)}>기본 양식 복원</button></div>
- <div className="builderColumns"><div className="builderForm"><div className="builderFormIntro"><strong>빠른 현황 업데이트</strong><small>Dream 게임 입력 기준 · 테이블 ${activeDream.length}개 운영 중</small></div><div className="builderQuickSync"><div><b>5M ${fiveM.length}테이블 진행</b><span>${tableSummary||"진행 중인 5M 테이블 없음"}</span></div><button type="button" onClick={applyLive}>현황 자동 입력</button></div><p className="builderSourceNotice">블라인드 레벨은 매장 현황판 연결 전까지 자동 입력하지 않습니다. 현황판: 192.168.1.9:8080 (매장 Wi-Fi)</p><label>기준 시각 <span><input value={data.time} onChange={e=>change("time",e.target.value)} placeholder="17:15"/><button onClick={()=>change("time",new Intl.DateTimeFormat("en-GB",{hour:"2-digit",minute:"2-digit",hour12:false,timeZone:"Asia/Ho_Chi_Minh"}).format(new Date()))}>현재 시각</button></span></label>
+ <div className="builderColumns"><div className="builderForm"><div className="builderFormIntro"><strong>빠른 현황 업데이트</strong><small>Dream 게임 입력 기준 · 테이블 ${activeDream.length}개 운영 중</small></div><div className="builderMonitor"><div><strong>블라인드 전광판 연동</strong><span>{monitorFresh&&monitor?`연결됨 · ${monitor.tables.length}개 경기 · 최근 업데이트 ${new Date(monitor.observed_at).toLocaleTimeString("ko-KR",{timeZone:"Asia/Ho_Chi_Minh"})}`:monitorError||"동기화 대기 · 매장 PC 브리지 실행 필요"}</span></div><button type="button" disabled={!monitorFresh} onClick={applyMonitor}>레벨·엔트리 반영</button></div><div className="builderQuickSync"><div><b>5M ${fiveM.length}테이블 진행</b><span>${tableSummary||"진행 중인 5M 테이블 없음"}</span></div><button type="button" onClick={applyLive}>현황 자동 입력</button></div><p className="builderSourceNotice">블라인드 레벨은 매장 현황판 연결 전까지 자동 입력하지 않습니다. 현황판: 192.168.1.9:8080 (매장 Wi-Fi)</p><label>기준 시각 <span><input value={data.time} onChange={e=>change("time",e.target.value)} placeholder="17:15"/><button onClick={()=>change("time",new Intl.DateTimeFormat("en-GB",{hour:"2-digit",minute:"2-digit",hour12:false,timeZone:"Asia/Ho_Chi_Minh"}).format(new Date()))}>현재 시각</button></span></label>
  {rowSection("dream","♠ DREAM POKER")}{rowSection("mm","♣ MILLION MAKER")}
  <label>예약 안내<textarea rows={3} value={data.footer} onChange={e=>change("footer",e.target.value)}/></label><label>문의 문구<input value={data.contact} onChange={e=>change("contact",e.target.value)}/></label>
  <div className="builderActions"><button onClick={()=>void navigator.clipboard.writeText(text).then(()=>flash("텍스트 복사 완료")).catch(()=>flash("복사 실패"))}>텍스트 복사</button><button onClick={()=>void download()}>PNG 다운로드</button>{onSave&&<button onClick={()=>void save()}>자료실에 저장</button>}</div>{feedback&&<p role="status">{feedback}</p>}
