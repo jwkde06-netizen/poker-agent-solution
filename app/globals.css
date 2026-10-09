@@ -17165,3 +17165,11 @@ html{scroll-behavior:smooth}
  .floorBuyinPage .opsPlayerColumnLabels{width:clamp(124px,35%,245px)!important;gap:5px!important}
  .floorBuyinPage .selectedPlayerList .dualPlayerValues{gap:5px!important}
 }
+
+/* Player detail search overlay must sit above transformed desktop content */
+.playerDetailBackdrop{position:fixed!important;inset:0!important;z-index:99999!important;display:flex!important;align-items:center!important;justify-content:center!important}
+.playerDetailBackdrop .playerDetailModal{display:block!important;position:relative!important;z-index:1!important;max-height:min(88vh,900px);overflow-y:auto}
+.playerListTable .playerNameStack{display:flex!important;flex-direction:row!important;align-items:center!important;flex-wrap:wrap!important;gap:6px!important}
+.playerListTable .playerEnglishName{display:inline!important;font-weight:700!important}
+.playerListTable .playerKoreanName{display:inline!important;font-size:12px!important;color:var(--muted)!important;white-space:nowrap}
+@media(max-width:700px){.playerDetailBackdrop{align-items:flex-end!important}.playerListTable .playerNameStack{gap:4px!important}}
