@@ -17153,3 +17153,15 @@ html{scroll-behavior:smooth}
 .statusDirectBuilder .statusDirectCanvas .statusDirectFooter:before{content:"";display:block;height:3px;width:45px;margin-bottom:10px;background:#e8c271}
 .statusDirectBuilder .statusDirectCanvas .statusDirectFooter textarea{resize:none!important;margin:0!important;min-height:unset!important;padding:3px 5px!important}
 .statusDirectBuilder .statusDirectCanvas .statusDirectFooter input{padding:3px 5px!important;margin:0!important}
+
+/* Game entry amounts: header and values share identical centering and column proportions */
+.floorBuyinPage .playerValueToolbar{position:relative;padding-right:40px!important}
+.floorBuyinPage .opsPlayerColumnLabels{width:clamp(190px,27%,290px)!important;display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;text-align:center!important;justify-items:center!important}
+.floorBuyinPage .opsPlayerColumnLabels>span{width:100%;text-align:center!important}
+.floorBuyinPage .selectedPlayerList .dualPlayerValues{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;text-align:center!important}
+.floorBuyinPage .selectedPlayerList .dualPlayerValues>span{display:flex!important;align-items:center!important;justify-content:center!important;text-align:center!important}
+@media(max-width:820px){
+ .floorBuyinPage .playerValueToolbar{padding-right:36px!important}
+ .floorBuyinPage .opsPlayerColumnLabels{width:clamp(124px,35%,245px)!important;gap:5px!important}
+ .floorBuyinPage .selectedPlayerList .dualPlayerValues{gap:5px!important}
+}
