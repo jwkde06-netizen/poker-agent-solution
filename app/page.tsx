@@ -2679,7 +2679,7 @@ export default function Home() {
       const el=event.target as HTMLElement|null;
       // Global shortcut: ignore actual text-editing controls but handle focused menu/buttons.
       if(el?.closest('input,textarea,select,[contenteditable="true"],[role="textbox"],[role="combobox"],[role="dialog"],[role="listbox"]'))return;
-      const keys=navItems.map(item=>item.key);
+      const keys:TabKey[]=navItems.map(item=>item.key);
       const index=Math.max(0,keys.indexOf(tab));
       const next=Math.max(0,Math.min(keys.length-1,index+(event.key==="ArrowDown"?1:-1)));
       if(index===next)return;
