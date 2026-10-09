@@ -133,17 +133,19 @@ export default function PromotionLibrary({sessions,canEdit}:{sessions:LiveSessio
       <StatusPosterBuilder sessions={sessions} onSave={canEdit?saveGenerated:undefined}/>
     </section>
     <aside className="promotionQueue" onPaste={handlePosterPaste}>
-      <div className="promotionQueueHeader"><h3>포스터</h3><span>{queueIds.length}개</span></div>
-      <p className="promotionUtilityHint">이미지를 붙여넣고, 필요할 때 바로 복사</p>
-      <div className="promotionPasteArea" tabIndex={0} role="button" aria-label="포스터 이미지 붙여넣기" onClick={e=>e.currentTarget.focus()} onKeyDown={e=>{if(e.key==="Enter")e.currentTarget.focus()}}>
-       <strong>여기를 클릭하고 Ctrl+V / ⌘V</strong><span>스크린샷이나 복사한 이미지를 바로 추가</span>{uploading&&<span>저장 중...</span>}
+      <div className="promotionQueueHeader"><h3>포스터</h3><span>{queueIds.filter(id=>items.some(item=>item.id===id&&item.image_url)).length}개</span></div>
+      <div className="promotionPasteArea promotionPasteCompact" tabIndex={0} role="button" aria-label="포스터 이미지 붙여넣기" onClick={e=>e.currentTarget.focus()} onKeyDown={e=>{if(e.key==="Enter")e.currentTarget.focus()}}>
+        <span>{uploading?"이미지 저장 중...":"클릭 후 Ctrl+V / ⌘V"}</span>
       </div>
-      {queueIds.map(id=>items.find(item=>item.id===id)).filter((item):item is Item=>Boolean(item&&item.image_url)).map(item=><article className="promotionQueueItem" key={item.id}>
-        <img src={item.image_url} alt={item.title}/>
-        <div><strong>{item.title}</strong><button onClick={()=>void copyImage(item.image_url)}>이미지 복사</button><button onClick={()=>setQueue(queueIds.filter(id=>id!==item.id))}>제거</button></div>
-      </article>)}
-      {!queueIds.some(id=>items.some(item=>item.id===id&&item.image_url))&&<p className="promotionQueueEmpty">위 영역에 이미지를 붙여넣거나 아래 최근 포스터에서 추가하세요.</p>}
-      <div className="promotionQueueRecent"><h4>최근 포스터</h4>{items.filter(item=>item.image_url&&!queueIds.includes(item.id)).slice(0,5).map(item=><div className="promotionQueueRecentItem" key={item.id}><span>{item.title}</span><button onClick={()=>setQueue([item.id,...queueIds])}>+ 추가</button></div>)}</div>
+      <div className="promotionPosterGrid">
+        {queueIds.map(id=>items.find(item=>item.id===id)).filter((item):item is Item=>Boolean(item&&item.image_url)).map(item=><div className="promotionPosterTile" key={item.id}>
+          <button type="button" className="promotionPosterCopy" title="클릭하여 이미지 복사" aria-label={item.title+" 이미지 복사"} onClick={()=>void copyImage(item.image_url)}>
+            <img src={item.image_url} alt={item.title}/>
+            <span className="promotionPosterCopyHint">클릭하여 복사</span>
+          </button>
+          {canEdit&&<button type="button" className="promotionPosterDelete" title="포스터 제거" aria-label={item.title+" 제거"} onClick={()=>{setQueue(queueIds.filter(id=>id!==item.id));void remove(item)}}>×</button>}
+        </div>)}
+      </div>
     </aside>
     </div>
     <div className="promotionSecondary" id="promotion-library">
