@@ -38,7 +38,7 @@ export default function StatusPosterBuilder({onSave,sessions=[]}:{onSave?:(title
  const [time,setTime]=useState("17:15");
  const [footer,setFooter]=useState(initial.footer);
  const [contact,setContact]=useState(initial.contact);
- const [showOptions,setShowOptions]=useState(false);
+
  const [feedback,setFeedback]=useState("");
  const flash=(msg:string)=>{setFeedback(msg);window.setTimeout(()=>setFeedback(""),3200)};
  const nowTime=()=>new Intl.DateTimeFormat("en-GB",{timeZone:"Asia/Ho_Chi_Minh",hour:"2-digit",minute:"2-digit",hour12:false}).format(new Date());
@@ -50,7 +50,7 @@ export default function StatusPosterBuilder({onSave,sessions=[]}:{onSave?:(title
        setRows(saved.rows.filter((row:GameRow)=>row&&typeof row.game==="string"));
        setTime(saved.time||nowTime());setFooter(saved.footer??initial.footer);setContact(saved.contact??initial.contact);
      }else{
-       setRows([makeRow("dream","5M",3,4),makeRow("dream","10M",0,0,"예약 중"),makeRow("mm","3M",1,0)]);
+       setRows([makeRow("dream","5M",0,0),makeRow("dream","10M",0,0,"예약 중"),makeRow("mm","3M",1,0)]);
        setTime(nowTime());
      }
    }catch{setRows([makeRow("dream","5M",3,4)]);setTime(nowTime())}
@@ -86,7 +86,7 @@ export default function StatusPosterBuilder({onSave,sessions=[]}:{onSave?:(title
   const canvas=canvasRef.current;if(!canvas)throw new Error("Canvas unavailable");
   const ctx=canvas.getContext("2d");if(!ctx)throw new Error("Canvas unavailable");
   const W=1080,pad=76,usable=W-pad*2;
-  const groupHeights=sections.map(section=>Math.max(100,rows.filter(r=>r.venue===section.id).length*86+110));
+  const groupHeights=sections.map(section=>Math.max(185,rows.filter(r=>r.venue===section.id).length*86+185));
   const H=Math.max(1100,380+groupHeights.reduce((a,b)=>a+b,0)+220);
   canvas.width=W;canvas.height=H;
   const bg=ctx.createLinearGradient(0,0,W,H);bg.addColorStop(0,"#26303c");bg.addColorStop(1,"#101419");ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
