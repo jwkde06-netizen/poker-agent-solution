@@ -10,7 +10,7 @@ const STORAGE_KEY="dream-poker-promotion-library-v1";
 
 export default function PromotionLibrary({sessions,canEdit}:{sessions:LiveSession[];canEdit:boolean}) {
   const [items,setItems]=useState<Item[]>([]);
-  const [category,setCategory]=useState<"all"|"poster"|"notice"|"live"|"builder">("all");
+  const [category,setCategory]=useState<"all"|"poster"|"notice"|"live"|"builder">("builder");
   const [query,setQuery]=useState("");
   const [title,setTitle]=useState("");
   const [body,setBody]=useState("");
@@ -98,7 +98,7 @@ export default function PromotionLibrary({sessions,canEdit}:{sessions:LiveSessio
       {([["all","전체"],["poster","포스터"],["notice","공지 템플릿"],["live","실시간 현황"],["builder","현황 포스터 생성기"]] as const).map(([key,label])=><button key={key} style={{...buttonStyle,background:category===key?"var(--accent, #334155)":"transparent",color:category===key?"white":"inherit"}} onClick={()=>setCategory(key)}>{label}</button>)}
     </div>
     {notice&&<p role="status" style={{fontSize:13}}>{notice}</p>}
-    {category==="builder"?<StatusPosterBuilder onSave={canEdit?saveGenerated:undefined}/>:category==="live"?<div style={{display:"grid",gap:12}}>
+    {category==="builder"?<StatusPosterBuilder sessions={sessions} onSave={canEdit?saveGenerated:undefined}/>:category==="live"?<div style={{display:"grid",gap:12}}>
       <h3 style={{margin:0}}>LIVE 테이블 현황 공지</h3>
       <p style={{margin:0,opacity:.7,fontSize:13}}>현재 운영 중인 게임을 기준으로 자동 작성합니다. 수정한 문구는 아래에서 복사할 수 있습니다.</p>
       <textarea rows={Math.max(6,sessions.length+4)} value={draftLive??liveText} onChange={e=>setDraftLive(e.target.value)} style={{width:"100%",padding:14,borderRadius:10,boxSizing:"border-box"}}/>
