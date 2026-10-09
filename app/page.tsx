@@ -2,6 +2,7 @@
 // deploy-refresh: player-search-copy
 
 import { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import type { Session } from "@supabase/supabase-js";
 import { createProvisioningClient, isSupabaseConfigured, supabase } from "../lib/supabase";
 import { jsPDF } from "jspdf";
@@ -3218,7 +3219,7 @@ export default function Home() {
             </div>
           </div>}
 
-          {selectedPlayer && <div className="modalBackdrop playerDetailBackdrop" onClick={()=>setSelectedPlayerId(null)}>
+          {selectedPlayer && createPortal(<div className="modalBackdrop playerDetailBackdrop" onClick={()=>setSelectedPlayerId(null)}>
             <div className="playerDetailModal" onClick={e=>e.stopPropagation()}>
               <div className="modalHeader">
                 <div>
@@ -3293,7 +3294,7 @@ export default function Home() {
                 </table></div>
               </div>
             </div>
-          </div>}
+          </div>, document.body)}
         </section>}
 
         {tab==="games" && <section className={isStaff?"buyinPage floorBuyinPage staffMobileBuyinPage":"buyinPage floorBuyinPage"}>
