@@ -108,36 +108,45 @@ export default function StatusPosterBuilder({onSave,sessions=[]}:{onSave?:(title
  function renderPoster(){
   const canvas=canvasRef.current;if(!canvas)throw new Error("Canvas unavailable");
   const ctx=canvas.getContext("2d");if(!ctx)throw new Error("Canvas unavailable");
-  const W=1080,pad=76,usable=W-pad*2;
-  const groupHeights=sections.map(section=>160+Math.max(1,rows.filter(r=>r.venue===section.id).length)*124);
-  const H=Math.max(1050,290+groupHeights.reduce((a,b)=>a+b+20,0)+270);
+  const W=1080,pad=58,usable=W-pad*2;
+  const lineH=136,headerH=146;
+  const groupHeights=sections.map(section=>headerH+Math.max(1,rows.filter(r=>r.venue===section.id).length)*lineH);
+  // Reserve only the actual space necessary for the headings, groups and footer.
+  const H=216+groupHeights.reduce((a,b)=>a+b+17,0)+180;
   canvas.width=W;canvas.height=H;
-  const bg=ctx.createLinearGradient(0,0,W,H);bg.addColorStop(0,"#26303c");bg.addColorStop(1,"#101419");ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
-  ctx.fillStyle="#d2ac61";ctx.fillRect(pad,69,110,6);
-  ctx.fillStyle="#fff";ctx.font="bold 62px sans-serif";ctx.fillText("실시간 테이블 현황",pad,162);
-  ctx.fillStyle="#c9cfda";ctx.font="32px sans-serif";ctx.textAlign="right";ctx.fillText(displayTime+" 기준",W-pad,145);ctx.textAlign="left";
-  let y=290;
+  const bg=ctx.createLinearGradient(0,0,W,H);bg.addColorStop(0,"#253247");bg.addColorStop(1,"#151c27");ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+  ctx.fillStyle="#e1b96f";ctx.fillRect(pad,35,95,5);
+  ctx.fillStyle="#fff";ctx.font="bold 66px sans-serif";ctx.fillText("실시간 테이블 현황",pad,117);
+  ctx.fillStyle="#d4dce8";ctx.font="bold 28px sans-serif";ctx.textAlign="right";ctx.fillText(displayTime+" 기준",W-pad,116);ctx.textAlign="left";
+  let y=170;
   sections.forEach((section,index)=>{
-   const current=rows.filter(r=>r.venue===section.id);
-   const height=groupHeights[index];
-   ctx.fillStyle="#202935";ctx.beginPath();ctx.roundRect(pad,y,usable,height,22);ctx.fill();
-   ctx.fillStyle="#eac17a";ctx.font="bold 46px sans-serif";ctx.fillText(section.name,pad+26,y+66);
-   const col=[pad+28,pad+315,pad+505,pad+704];
-   ctx.fillStyle="#aab5c6";ctx.font="bold 24px sans-serif";
-   ["GAME","TABLE","WAITING","STATUS"].forEach((name,i)=>ctx.fillText(name,col[i],y+125));
-   current.forEach((r,i)=>{
-     const yy=y+203+i*124;
-     ctx.fillStyle="#f8fafc";ctx.font="bold 63px sans-serif";ctx.fillText(r.game.slice(0,10),col[0],yy);
-     ctx.fillText(String(r.tables),col[1]+15,yy);ctx.fillText(String(r.waiting),col[2]+16,yy);
-     const status=getStatus(r);
-     ctx.fillStyle=r.tables>0?"#e6bd73":"#e5eaf0";
-     ctx.font="bold 32px sans-serif";ctx.fillText(status,col[3],yy-8);
-     ctx.fillStyle="#46505d";ctx.fillRect(pad+24,yy+29,usable-48,1);
-   });
-   y+=height+20;
+    const current=rows.filter(r=>r.venue===section.id);
+    const height=groupHeights[index];
+    ctx.fillStyle="#202b3a";ctx.beginPath();ctx.roundRect(pad,y,usable,height,19);ctx.fill();
+    ctx.strokeStyle="#3f5065";ctx.lineWidth=2;ctx.stroke();
+    ctx.fillStyle="#f0c67d";ctx.font="bold 42px sans-serif";ctx.fillText(section.name,pad+23,y+57);
+    const col=[pad+28,pad+333,pad+510,pad+700];
+    ctx.fillStyle="#bfcbda";ctx.font="bold 23px sans-serif";
+    ["GAME","TABLE","WAITING","STATUS"].forEach((name,i)=>ctx.fillText(name,col[i],y+112));
+    current.forEach((r,i)=>{
+      const yy=y+193+i*lineH;
+      ctx.fillStyle="#ffffff";ctx.font="bold 73px sans-serif";
+      ctx.fillText(r.game.slice(0,9),col[0],yy,275);
+      ctx.fillText(String(r.tables),col[1]+9,yy);
+      ctx.fillText(String(r.waiting),col[2]+11,yy);
+      ctx.font="bold 40px sans-serif";ctx.fillStyle=r.tables>0?"#f3cc8c":"#f2f5f9";
+      ctx.fillText(getStatus(r),col[3],yy-12,usable-(col[3]-pad)-24);
+      if(i<current.length-1){ctx.fillStyle="#475569";ctx.fillRect(pad+25,yy+36,usable-50,2)}
+    });
+    y+=height+17;
   });
-  ctx.fillStyle="#dde3eb";ctx.font="25px sans-serif";y=drawLines(ctx,footer,pad,y+27,usable,38);
-  ctx.fillStyle="#e2bb73";ctx.font="bold 29px sans-serif";drawLines(ctx,contact,pad,y+18,usable,42);
+  // Keep supporting copy concise and move the contact CTA to the very bottom.
+  const bottom=H-35;
+  ctx.fillStyle="#4c5b6d";ctx.fillRect(pad,y+8,usable,2);
+  ctx.fillStyle="#e4eaf2";ctx.font="bold 27px sans-serif";
+  drawLines(ctx,footer,pad,y+47,usable,38);
+  ctx.fillStyle="#f2c57d";ctx.font="bold 34px sans-serif";
+  ctx.fillText(contact,pad,bottom,usable);
   return canvas;
  }
  const getPng=async()=>{const canvas=renderPoster();return await new Promise<Blob>((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(new Error("PNG 변환 실패")),"image/png"))};
