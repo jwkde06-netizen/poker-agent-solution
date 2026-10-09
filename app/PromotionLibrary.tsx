@@ -124,7 +124,7 @@ export default function PromotionLibrary({sessions,canEdit}:{sessions:LiveSessio
   const clearForm=()=>{setTitle("");setBody("");setImageUrl("");setEditingId("")};
   return <section className="panel promotionWorkspace">
     <header className="promotionWorkspaceHeader">
-      <div><h2>테이블 LIVE</h2></div>
+      <div><h2>실시간 테이블 현황</h2></div>
       <span className={"promotionConnection"+(connected?" isConnected":"")}>{connected?"● 공유 자료실 연결":"○ 이 기기 임시 저장"}</span>
     </header>
     {notice&&<p className="promotionNotice" role="status">{notice}</p>}
