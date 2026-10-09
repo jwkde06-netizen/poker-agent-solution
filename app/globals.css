@@ -17069,3 +17069,23 @@ html{scroll-behavior:smooth}
 /* Passive live table sync indicator */
 .statusAutoSyncLabel{display:inline-flex;align-items:center;white-space:nowrap;font-size:11px;color:var(--muted);padding:8px 4px}
 .statusAutoSyncLabel:before{content:"";width:6px;height:6px;border-radius:50%;background:#4da78c;margin-right:7px}
+
+/* Side-by-side live poster editing and clipboard queue */
+.promotionMainSplit{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(265px,.8fr);gap:16px;align-items:start}
+.promotionMainSplit .promotionPrimary{min-width:0}
+.promotionMainSplit .statusDirectBuilder{max-width:none!important}
+.promotionMainSplit .statusDirectCanvas{max-width:none!important}
+.promotionQueue{border:1px solid var(--line,#9994);border-radius:15px;padding:16px;background:var(--surface,#fff);min-width:0}
+.promotionQueueHeader{display:flex;align-items:center;justify-content:space-between;gap:9px}
+.promotionQueueHeader h3{font-size:16px;margin:0}.promotionQueueHeader span{font-size:12px;color:var(--muted)}
+.promotionQueueItem{display:grid;grid-template-columns:85px 1fr;gap:12px;padding:12px 0;border-bottom:1px solid var(--line,#9993)}
+.promotionQueueItem img{width:85px;height:95px;object-fit:contain;background:#1e293b;border-radius:8px}
+.promotionQueueItem>div{display:flex;flex-direction:column;align-items:flex-start;gap:7px;min-width:0}
+.promotionQueueItem strong{font-size:12px;overflow-wrap:anywhere}
+.promotionQueueItem button,.promotionQueueRecentItem button{padding:6px 9px;font-size:11px;border:1px solid var(--line,#9994);border-radius:8px;background:var(--surface);color:var(--text);cursor:pointer}
+.promotionQueueItem button:first-of-type{background:#c7a15c;color:#151515;border-color:#c7a15c;font-weight:700}
+.promotionQueueEmpty{padding:22px 12px;text-align:center;font-size:12px;line-height:1.7;color:var(--muted);border:1px dashed var(--line,#9995);border-radius:12px}
+.promotionQueueRecent{margin-top:16px}.promotionQueueRecent h4{font-size:12px;margin:0 0 9px}
+.promotionQueueRecentItem{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--line,#9993)}
+.promotionQueueRecentItem span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px}
+@media(max-width:1030px){.promotionMainSplit{grid-template-columns:1fr}.promotionQueue{max-width:none}}
