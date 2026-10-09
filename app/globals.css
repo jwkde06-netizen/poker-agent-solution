@@ -17117,3 +17117,22 @@ html{scroll-behavior:smooth}
 .statusDirectBuilder .statusTopActions button{white-space:nowrap}
 .statusDirectBuilder .statusAutoSyncButton{font-size:12px!important;border:1px solid #a4d8bf!important;border-radius:8px!important;background:#e7f6ee!important;color:#287e58!important;opacity:1!important;cursor:default!important;padding:9px 12px!important;font-weight:650}
 @media(max-width:680px){.statusDirectBuilder .builderHead{flex-wrap:wrap!important}.statusDirectBuilder .statusToolbarTitle strong{font-size:16px}.statusDirectBuilder .statusTopActions{width:100%;justify-content:flex-start}}
+
+/* Final live poster polish: compact spacing, readable CTA and bigger live values */
+.statusDirectBuilder .statusDirectCanvas .statusPosterPreview{background:linear-gradient(145deg,#253247,#151c27)!important}
+.statusDirectBuilder .statusDirectCanvas .statusDirectFooter{border-top:1px solid #536174!important;margin-top:10px!important;padding-top:10px!important;gap:8px!important}
+.statusDirectBuilder .statusDirectCanvas .statusDirectFooter textarea,
+.statusDirectBuilder .statusDirectCanvas .statusDirectFooter input{color:#eef3fa!important;-webkit-text-fill-color:#eef3fa!important;opacity:1!important;background:transparent!important;border:1px solid transparent!important;line-height:1.4!important}
+.statusDirectBuilder .statusDirectCanvas .statusDirectFooter input{color:#f2c57d!important;-webkit-text-fill-color:#f2c57d!important;font-size:clamp(14px,1.5vw,18px)!important;font-weight:800!important;padding-top:8px!important}
+.statusDirectBuilder .statusDirectCanvas .statusDirectFooter textarea{font-size:clamp(12px,1.2vw,15px)!important;min-height:32px!important}
+.statusDirectBuilder .statusDirectCanvas .statusDirectFooter textarea:focus,
+.statusDirectBuilder .statusDirectCanvas .statusDirectFooter input:focus{background:#1c2738!important;border-color:#d2ad70!important}
+.statusDirectBuilder .statusDirectCanvas .statusDirectEditRow input{font-size:clamp(26px,3vw,40px)!important}
+.statusDirectBuilder .statusDirectCanvas .statusPosterRow .statusInlineState{font-size:clamp(13px,1.35vw,17px)!important;font-weight:800!important}
+.statusDirectBuilder .statusDirectCanvas .statusPosterLabels{margin-top:4px!important}
+@media(min-width:900px){
+ .statusDirectBuilder .statusDirectCanvas .statusDirectEditRow input{font-size:32px!important}
+ .statusDirectBuilder .statusDirectCanvas .statusPosterRow .statusInlineState{font-size:14px!important}
+ .statusDirectBuilder .statusDirectCanvas .statusPosterSection{margin-bottom:8px!important}
+ .statusDirectBuilder .statusDirectCanvas .statusPosterRow{padding:8px 0!important}
+}
