@@ -143,7 +143,7 @@ export default function PromotionLibrary({sessions,canEdit}:{sessions:LiveSessio
             <img src={item.image_url} alt={item.title}/>
             <span className="promotionPosterCopyHint">클릭하여 복사</span>
           </button>
-          {canEdit&&<button type="button" className="promotionPosterDelete" title="포스터 제거" aria-label={item.title+" 제거"} onClick={()=>{setQueue(queueIds.filter(id=>id!==item.id));void remove(item)}}>×</button>}
+          {canEdit&&<button type="button" className="promotionPosterDelete" title="포스터 제거" aria-label={item.title+" 제거"} onClick={()=>setQueue(queueIds.filter(id=>id!==item.id))}>×</button>}
         </div>)}
       </div>
     </aside>
