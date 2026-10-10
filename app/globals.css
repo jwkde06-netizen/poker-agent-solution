@@ -17313,3 +17313,35 @@ html{scroll-behavior:smooth}
    gap:4px!important;
  }
 }
+
+/* Reservation overview redesign: scoped to the agent dashboard only. */
+.opsBookingV2{padding:22px!important;overflow:hidden}
+.opsBookingV2 .opsBookingHead{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+.opsBookingV2 .opsBookingHeading{min-width:0;flex:1}
+.opsBookingV2 .opsBookingEyebrow{display:block;font-size:10px;letter-spacing:1.5px;font-weight:800;color:#a18a59;margin-bottom:5px}
+.opsBookingV2 .opsBookingHeading h3{font-size:22px!important;line-height:1.25!important;font-weight:800!important;margin:0!important;letter-spacing:-.6px}
+.opsBookingV2 .opsBookingHeading p{font-size:12px!important;line-height:1.45!important;margin:6px 0 0!important;color:#8994a3}
+.opsBookingV2 .opsBookingActions{display:flex;gap:8px;flex-wrap:wrap}
+.opsBookingV2 .opsBookingActions a{display:inline-flex;align-items:center;justify-content:center;gap:7px;border-radius:9px;font-size:12px;font-weight:750;text-decoration:none!important;min-height:36px;padding:8px 13px;white-space:nowrap}
+.opsBookingV2 .opsBookingManage{background:#cfac6e;color:#13181f!important}
+.opsBookingV2 .opsBookingGuest{background:transparent;color:inherit!important;border:1px solid #79818b55}
+.opsBookingV2 .opsBookingSummary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:15px}
+.opsBookingV2 .opsBookingSummary>div{padding:12px 14px;border:1px solid #8a929f26;background:#85909b0b;border-radius:11px;min-width:0}
+.opsBookingV2 .opsBookingSummary span{display:block;font-size:11px;color:#8591a0;margin-bottom:6px}
+.opsBookingV2 .opsBookingSummary strong{display:block;font-size:22px;line-height:1.1;font-weight:850;font-variant-numeric:tabular-nums}
+.opsBookingV2 .opsBookingCards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr));gap:11px}
+.opsBookingV2 .opsBookingCard{border:1px solid #9299a12d;border-radius:13px;padding:15px;background:#87919d09;min-width:0}
+.opsBookingV2 .opsBookingCardHead{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.opsBookingV2 .opsBookingGameTitle{display:block;font-size:16px!important;font-weight:800;line-height:1.3;overflow-wrap:anywhere}
+.opsBookingV2 .opsBookingMeta{display:flex;flex-wrap:wrap;gap:5px;margin-top:9px}
+.opsBookingV2 .opsBookingMeta span{border:1px solid #949ba22c;border-radius:6px;padding:4px 7px;font-size:10px;white-space:nowrap;color:#8a95a2}
+.opsBookingV2 .opsBookingState{font-size:10px;line-height:1.3;font-weight:800;padding:6px 9px;white-space:nowrap;border-radius:6px}
+.opsBookingV2 .opsBookingState.isOpen{background:#154a322b;color:#2cbb78}
+.opsBookingV2 .opsBookingState.isClosed{background:#9e463b24;color:#d87870}
+.opsBookingV2 .opsBookingMetrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-top:14px;padding-top:13px;border-top:1px solid #86919d22}
+.opsBookingV2 .opsBookingMetrics>div{min-width:0;padding:4px 3px}
+.opsBookingV2 .opsBookingMetrics span{display:block;color:#8994a2;font-size:10px;white-space:nowrap;margin-bottom:5px}
+.opsBookingV2 .opsBookingMetrics strong{font-size:20px;line-height:1.2;font-weight:850;font-variant-numeric:tabular-nums}
+.opsBookingV2 .opsBookingMetrics small{font-size:10px;color:#8793a0;font-weight:600}
+.opsBookingV2 .opsBookingEmpty{border:1px dashed #919aa34e;border-radius:10px;padding:20px;font-size:13px;color:#8a95a2}
+@media(max-width:660px){.opsBookingV2{padding:15px!important}.opsBookingV2 .opsBookingHeading h3{font-size:19px!important}.opsBookingV2 .opsBookingActions{width:100%}.opsBookingV2 .opsBookingActions a{flex:1}.opsBookingV2 .opsBookingSummary{gap:6px}.opsBookingV2 .opsBookingSummary>div{padding:10px}.opsBookingV2 .opsBookingSummary strong{font-size:19px}.opsBookingV2 .opsBookingMetrics strong{font-size:18px}.opsBookingV2 .opsBookingCard{padding:12px}}
