@@ -1,16 +1,17 @@
 "use client";
 import {useEffect,useState} from "react";
 import {supabase} from "../lib/supabase";
-type Game={id:string;title:string;starts_at:string;capacity:number;table_no:string;is_open:boolean};
+type Game={id:string;title:string;starts_at:string;capacity:number;table_no:string;game_no?:string;is_open:boolean};
 type Stat={game_id:string;confirmed_count:number;pending_count:number;waiting_count:number};
 export default function ReservationOverview(){
  const [games,setGames]=useState<Game[]>([]),[stats,setStats]=useState<Stat[]>([]),[error,setError]=useState("");
+ const staffUrl="https://dream-poker-reservation.vercel.app/staff";
  useEffect(()=>{
   if(!supabase)return;
   let alive=true;
   const load=async()=>{
    const [g,s]=await Promise.all([
-    supabase!.from("reservation_games").select("id,title,starts_at,capacity,table_no,is_open").gte("starts_at",new Date(Date.now()-12*3600000).toISOString()).order("starts_at").limit(25),
+    supabase!.from("reservation_games").select("id,title,starts_at,capacity,table_no,game_no,is_open").gte("starts_at",new Date(Date.now()-36*3600000).toISOString()).order("starts_at").limit(25),
     supabase!.rpc("reservation_public_stats")
    ]);
    if(!alive)return;
@@ -22,9 +23,9 @@ export default function ReservationOverview(){
   return()=>{alive=false;clearInterval(timer)};
  },[]);
  return <section className="panel opsReservationPanel" aria-label="예약 현황">
-  <div className="opsReservationTop"><div><h3>Dream Poker 예약 현황</h3><p>플레이어 신청 · 캐셔 승인 현황 (12초마다 갱신)</p></div><a href="/?tab=games">테이블 확인</a></div>
+  <div className="opsReservationTop"><div><h3>Dream Poker 예약 현황</h3><p>플레이어 신청 · 캐셔 승인 현황 (12초마다 갱신)</p></div><div style={{display:"flex",gap:10,alignItems:"center",flexWrap:"wrap"}}><a href={staffUrl} target="_blank" rel="noopener noreferrer" style={{fontWeight:800}}>예약 관리 열기 ↗</a><a href="https://dream-poker-reservation.vercel.app" target="_blank" rel="noopener noreferrer">손님 예약 화면 ↗</a></div></div>
   {error?<p>{error}</p>:games.length===0?<p>현재 등록된 예약 게임이 없습니다.</p>:<div className="opsReservationGrid">
-    {games.map(g=>{const s=stats.find(x=>x.game_id===g.id);return <div className="opsReservationGame" key={g.id}><strong>{g.title}</strong><small>{g.table_no?"Table "+g.table_no+" · ":""}{new Date(g.starts_at).toLocaleString("ko-KR",{timeZone:"Asia/Ho_Chi_Minh",month:"numeric",day:"numeric",hour:"2-digit",minute:"2-digit"})}</small><div><span>확정 {s?.confirmed_count||0}/{g.capacity}</span><span>승인 대기 {s?.pending_count||0}</span><span>웨이팅 {s?.waiting_count||0}</span></div></div>})}
+    {games.map(g=>{const s=stats.find(x=>x.game_id===g.id);return <div className="opsReservationGame" key={g.id}><strong>{g.table_no?"Table "+g.table_no+" · ":""}{g.game_no?"No."+g.game_no+" · ":""}{g.title}</strong><small>{g.is_open?"예약 접수 중 · ":"예약 마감 · "}{g.table_no?"Table "+g.table_no+" · ":""}{new Date(g.starts_at).toLocaleString("ko-KR",{timeZone:"Asia/Ho_Chi_Minh",month:"numeric",day:"numeric",hour:"2-digit",minute:"2-digit"})}</small><div><span>잔여 {Math.max(0,g.capacity-(s?.confirmed_count||0))}석 / {g.capacity}석</span><span>확정 {s?.confirmed_count||0}</span><span>승인 대기 {s?.pending_count||0}</span><span>웨이팅 {s?.waiting_count||0}</span></div></div>})}
    </div>}
  </section>;
 }
