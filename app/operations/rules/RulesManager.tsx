@@ -36,10 +36,10 @@ export default function RulesManager({initialRules,readable}:{initialRules:Rule[
  const visible=rules.filter(r=>(category==='전체'||ruleView(r).category===category)&&r.content.toLowerCase().includes(search.toLowerCase()));
  return <main className={styles.page}><div className={styles.wrap}>
   <header><span className={styles.brand}>DREAM BUY-IN DESK</span><h1>업무 규칙</h1><p>현장에서 쓰는 기준을 한곳에서 확인하세요.</p></header>
-  <div className={styles.toolbar}><span>{rules.length}개 적용 중</span>{admin?<button className={styles.primary} onClick={()=>edit()}>＋ 규칙 추가</button>:<button onClick={()=>setLogin(!login)}>관리자 로그인</button>}</div>
+  <div className={styles.toolbar}><span>{readable||admin?`${rules.length}개 적용 중`:"관리자 전용"}</span>{admin?<button className={styles.primary} onClick={()=>edit()}>＋ 규칙 추가</button>:<button onClick={()=>setLogin(!login)}>관리자 로그인</button>}</div>
   {login&&<form className={styles.card} onSubmit={e=>{e.preventDefault();void signIn();}}><h2>관리자 로그인</h2><p>기존 드림 관리자 계정을 사용하세요.</p><label>아이디 또는 이메일<input autoComplete="username" value={email} onChange={e=>setEmail(e.target.value)} required/></label><label>비밀번호<input type="password" autoComplete="current-password" value={password} onChange={e=>setPassword(e.target.value)} required/></label><button disabled={busy} className={styles.primary}>로그인</button></form>}
   {message&&<p role="status" className={styles.notice}>{message}</p>}
-  {!readable&&!admin?<p className={styles.card}>링크가 만료되었어요. 직원방에서 /rules를 다시 누르거나 관리자 계정으로 로그인해주세요.</p>:<>
+  {!readable&&!admin?<p className={styles.card}>기존 관리자 계정으로 로그인하면 업무 규칙을 확인하고 수정할 수 있어요.</p>:<>
    <input className={styles.search} aria-label="규칙 검색" placeholder="이름, 메뉴, 업무 내용 검색" value={search} onChange={e=>setSearch(e.target.value)}/>
    <nav className={styles.tabs} aria-label="규칙 분류">{categories.map(c=><button key={c} aria-pressed={category===c} onClick={()=>setCategory(c)}>{c}</button>)}</nav>
    {visible.map(rule=>{const view=ruleView(rule);return <article className={styles.card} key={rule.id}><div className={styles.top}><span className={styles.badge}>{view.category}</span>{admin&&<div><button onClick={()=>edit(rule)}>수정</button><button onClick={()=>{setMessage('');setDeleting(rule);}}>삭제</button></div>}</div><h2>{view.title}</h2><ul>{view.lines.map((line,i)=><li key={i}>{line}</li>)}</ul></article>;})}
