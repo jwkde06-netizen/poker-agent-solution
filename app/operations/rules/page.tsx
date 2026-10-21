@@ -1,2 +1,2 @@
-import RulesManager from './RulesManager';
-export default function Page(){return <RulesManager initialRules={[]} readable={false}/>;}
+import {redirect} from 'next/navigation';
+export default function Page(){redirect('/?tab=rules');}

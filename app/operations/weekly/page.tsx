@@ -1,2 +1,2 @@
-import SettlementDesk from './SettlementDesk';
-export default function Page(){return <SettlementDesk/>;}
+import {redirect} from 'next/navigation';
+export default function Page(){redirect('/?tab=sheetWeekly');}

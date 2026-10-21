@@ -3,7 +3,7 @@ import {useEffect,useState} from 'react';
 import {db} from '../../../lib/db';
 import {Rule,ruleView,gameMapping} from '../../../lib/accounting-rules-display';
 import styles from './rules.module.css';
-export default function RulesManager({initialRules,readable}:{initialRules:Rule[];readable:boolean}){
+export default function RulesManager({initialRules,readable,embedded=false}:{initialRules:Rule[];readable:boolean;embedded?:boolean}){
  const [rules,setRules]=useState(initialRules),[admin,setAdmin]=useState(false),[login,setLogin]=useState(false),[email,setEmail]=useState(''),[password,setPassword]=useState('');
  const [category,setCategory]=useState('전체'),[search,setSearch]=useState(''),[message,setMessage]=useState(''),[busy,setBusy]=useState(false);
  const [editing,setEditing]=useState<Rule|null>(null),[adding,setAdding]=useState(false),[content,setContent]=useState(''),[mapping,setMapping]=useState<any>(null),[deleting,setDeleting]=useState<Rule|null>(null);
@@ -34,7 +34,7 @@ export default function RulesManager({initialRules,readable}:{initialRules:Rule[
  }
  const categories=['전체','바이인 기록','선수 등록','F&B','직원방 사용','게임번호 보정'];
  const visible=rules.filter(r=>(category==='전체'||ruleView(r).category===category)&&r.content.toLowerCase().includes(search.toLowerCase()));
- return <main className={styles.page}><div className={styles.wrap}>
+ return <main className={`${styles.page} ${embedded?styles.embedded:""}`}><div className={styles.wrap}>
   <header><span className={styles.brand}>DREAM BUY-IN DESK</span><h1>업무 규칙</h1><p>현장에서 쓰는 기준을 한곳에서 확인하세요.</p></header>
   <div className={styles.toolbar}><span>{readable||admin?`${rules.length}개 적용 중`:"관리자 전용"}</span>{admin?<button className={styles.primary} onClick={()=>edit()}>＋ 규칙 추가</button>:<button onClick={()=>setLogin(!login)}>관리자 로그인</button>}</div>
   {login&&<form className={styles.card} onSubmit={e=>{e.preventDefault();void signIn();}}><h2>관리자 로그인</h2><p>기존 드림 관리자 계정을 사용하세요.</p><label>아이디 또는 이메일<input autoComplete="username" value={email} onChange={e=>setEmail(e.target.value)} required/></label><label>비밀번호<input type="password" autoComplete="current-password" value={password} onChange={e=>setPassword(e.target.value)} required/></label><button disabled={busy} className={styles.primary}>로그인</button></form>}

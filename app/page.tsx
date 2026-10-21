@@ -8,6 +8,8 @@ import { createProvisioningClient, isSupabaseConfigured, supabase } from "../lib
 import { jsPDF } from "jspdf";
 import PromotionLibrary from "./PromotionLibrary";
 import ReservationOverview from "./ReservationOverview";
+import SettlementDesk from "./operations/weekly/SettlementDesk";
+import RulesManager from "./operations/rules/RulesManager";
 
 type Agency = { id: string; code: string; rate: number; active: boolean };
 type Player = { id: string; name: string; koreanName: string; cardNo: string; agencyId: string; nationality: string; customRate: number|null; note: string; createdAt: string };
@@ -223,7 +225,7 @@ function MobileBottomIcon({type}:{type:"dashboard"|"players"|"games"|"fnb"|"sett
   return <svg {...common}><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8"/><path d="M8 12h8"/><path d="M8 16h5"/></svg>;
 }
 
-function DesktopNavIcon({type}:{type:"dashboard"|"players"|"agencies"|"games"|"fnb"|"daily"|"weekly"|"promotions"|"expenses"|"reports"|"settings"}) {
+function DesktopNavIcon({type}:{type:"dashboard"|"players"|"agencies"|"games"|"fnb"|"daily"|"weekly"|"promotions"|"expenses"|"reports"|"settings"|"sheetWeekly"|"rules"}) {
   const common={width:"100%",height:"100%",viewBox:"0 0 24 24",fill:"none",stroke:"currentColor",strokeWidth:2,strokeLinecap:"round" as const,strokeLinejoin:"round" as const,ariaHidden:true};
   if(type==="dashboard") return <svg {...common}><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>;
   if(type==="players") return <svg {...common}><circle cx="9" cy="8" r="3"/><path d="M3.5 19c.7-3.2 2.6-5 5.5-5s4.8 1.8 5.5 5"/><path d="M16 7h5"/><path d="M16 11h5"/><path d="M16 15h5"/></svg>;
@@ -231,7 +233,7 @@ function DesktopNavIcon({type}:{type:"dashboard"|"players"|"agencies"|"games"|"f
   if(type==="games") return <svg {...common}><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M8 12h8"/><path d="M12 8v8"/></svg>;
   if(type==="fnb") return <svg {...common}><path d="M5 8h11v5.5A4.5 4.5 0 0 1 11.5 18h-2A4.5 4.5 0 0 1 5 13.5V8Z"/><path d="M16 10h1.5a2.5 2.5 0 0 1 0 5H16"/><path d="M4 21h15"/><path d="M8 3c0 1 .8 1.2.8 2.2S8 6.4 8 7"/></svg>;
   if(type==="daily") return <svg {...common}><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8"/><path d="M8 11h8"/><path d="M8 15h5"/></svg>;
-  if(type==="weekly") return <svg {...common}><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4"/><path d="M17 3v4"/><path d="M3 10h18"/><path d="M7 14h3"/><path d="M14 14h3"/></svg>;
+  if(type==="weekly"||type==="sheetWeekly") return <svg {...common}><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4"/><path d="M17 3v4"/><path d="M3 10h18"/><path d="M7 14h3"/><path d="M14 14h3"/></svg>;
   if(type==="expenses") return <svg {...common}><path d="M4 7h16"/><path d="M6 3h12v18H6z"/><path d="M9 11h6"/><path d="M9 15h4"/></svg>;
   if(type==="reports") return <svg {...common}><path d="M4 20V10"/><path d="M10 20V4"/><path d="M16 20v-7"/><path d="M22 20H2"/></svg>;
   return <svg {...common}><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6V21h-4v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.6-1H3v-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9L4.3 7 7.1 4.2l.1.1a1.7 1.7 0 0 0 1.9.3A1.7 1.7 0 0 0 10 3h4v.1a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.1v4H21a1.7 1.7 0 0 0-1.6 1Z"/></svg>;
@@ -239,8 +241,8 @@ function DesktopNavIcon({type}:{type:"dashboard"|"players"|"agencies"|"games"|"f
 
 
 export default function Home() {
-  const [tab, setTab] = useState<"dashboard"|"agencies"|"players"|"games"|"daily"|"weekly"|"expenses"|"reports"|"settings"|"fnb"|"staffDaily"|"promotions">("dashboard");
-  const validTabs = ["dashboard","agencies","players","games","daily","weekly","promotions","expenses","reports","settings","fnb","staffDaily"] as const;
+  const [tab, setTab] = useState<"dashboard"|"agencies"|"players"|"games"|"daily"|"weekly"|"expenses"|"reports"|"settings"|"fnb"|"staffDaily"|"promotions"|"sheetWeekly"|"rules">("dashboard");
+  const validTabs = ["dashboard","agencies","players","games","daily","weekly","promotions","expenses","reports","settings","fnb","staffDaily","sheetWeekly","rules"] as const;
   type TabKey = (typeof validTabs)[number];
 
   function navigateTab(next:TabKey){
@@ -2383,7 +2385,7 @@ export default function Home() {
   useEffect(()=>{
     const role=profile?.role;
     const available=(role==="admin"
-      ? ["dashboard","players","agencies","games","fnb","daily","weekly","promotions","expenses","reports","settings"]
+      ? ["dashboard","players","agencies","games","fnb","daily","sheetWeekly","rules","weekly","promotions","expenses","reports","settings"]
       : role==="staff"
       ? ["dashboard","players","games","fnb","promotions"]
       : role==="agent"
@@ -2712,7 +2714,9 @@ export default function Home() {
     {key:"games",label:"게임 입력"},
     {key:"fnb",label:"F&B"},
     {key:"daily",label:"일일 정산"},
-    {key:"weekly",label:"주간 정산"},
+    {key:"sheetWeekly",label:"주간 정산 · 시트"},
+    {key:"rules",label:"업무 규칙"},
+    {key:"weekly",label:"기존 주간 정산"},
     {key:"promotions",label:"실시간 테이블 현황"},
     {key:"expenses",label:"지출 내역서"},
     {key:"reports",label:"리포트"},
@@ -2742,7 +2746,6 @@ export default function Home() {
         <div><strong>Dream Poker</strong><span>{profile?.role==="admin"?"관리자":profile?.role==="staff"?"직원":profile?.role==="agent"?"에이전트":"승인 대기"}</span></div>
       </div>
 
-      <a href="/operations" style={{display:'block',margin:'18px 0 0',padding:'13px',borderRadius:10,background:'#244e3a',color:'white',textDecoration:'none',fontSize:13,fontWeight:700}}>통합 운영 · Google Sheets ↗</a>
       <nav className="sideNav" aria-label="메인 메뉴">
         <span className="sideNavActiveTrack" aria-hidden="true" style={{transform:`translate3d(0, ${Math.max(0,navItems.findIndex(item=>item.key===tab))*51}px, 0)`}}/>
         {navItems.map(item=><button key={item.key} className={tab===item.key?"active":""} aria-current={tab===item.key?"page":undefined} onClick={()=>navigateTab(item.key as TabKey)}>
@@ -2901,7 +2904,7 @@ export default function Home() {
           </div>
 
           <nav className="mobileSideMenuNav">
-            <a href="/operations" style={{display:'block',padding:16,color:'#244e3a',fontWeight:700,textDecoration:'none'}}>통합 운영 · Google Sheets ↗</a>
+            {profile?.role==="admin" && <><button onClick={()=>{navigateTab("sheetWeekly");setMobileSideMenuOpen(false)}}>주간 정산 · 시트</button><button onClick={()=>{navigateTab("rules");setMobileSideMenuOpen(false)}}>업무 규칙</button></>}
             {profile?.role==="admin" && <button onClick={()=>{navigateTab("settings");setMobileSideMenuOpen(false)}}>
               <span className="sideMenuIcon">⚙</span>
               <div><strong>계정 관리</strong><small>직원 · 에이전트 계정 생성</small></div>
@@ -2941,6 +2944,8 @@ export default function Home() {
       <div className={compactLayout?"contentArea opsCompact":"contentArea"} data-motion={motionEnabled?"on":"off"}>
         {message && <div className="note globalNote">{message}</div>}
 
+        {profile?.role==="admin" && tab==="sheetWeekly" && <SettlementDesk embedded/>}
+        {profile?.role==="admin" && tab==="rules" && <RulesManager initialRules={[]} readable={false} embedded/>}
         {tab==="dashboard" && <>
           <ReservationOverview />
           <section className={isStaff?"dashboardFinanceStrip staffDashboardStrip":"dashboardFinanceStrip"}>
@@ -4621,3 +4626,4 @@ export default function Home() {
     </nav>
   </main>;
 }
+
