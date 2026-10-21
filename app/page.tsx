@@ -8,6 +8,7 @@ import { createProvisioningClient, isSupabaseConfigured, supabase } from "../lib
 import { jsPDF } from "jspdf";
 import PromotionLibrary from "./PromotionLibrary";
 import ReservationOverview from "./ReservationOverview";
+import SheetLedger from "./SheetLedger";
 import SettlementDesk from "./operations/weekly/SettlementDesk";
 import RulesManager from "./operations/rules/RulesManager";
 
@@ -2946,7 +2947,8 @@ export default function Home() {
 
         {profile?.role==="admin" && tab==="sheetWeekly" && <SettlementDesk embedded/>}
         {profile?.role==="admin" && tab==="rules" && <RulesManager initialRules={[]} readable={false} embedded/>}
-        {tab==="dashboard" && <>
+        {profile?.role==="admin" && (tab==="dashboard"||tab==="daily"||tab==="fnb") && <SheetLedger view={tab}/> }
+        {profile?.role!=="admin" && tab==="dashboard" && <>
           <ReservationOverview />
           <section className={isStaff?"dashboardFinanceStrip staffDashboardStrip":"dashboardFinanceStrip"}>
             <div className="dashboardFinanceHeader">
@@ -3658,7 +3660,7 @@ export default function Home() {
           <p className="staffDailyFootnote">직원 화면에는 에이전트별 레이크백, 순이익 등 관리자 전용 정산 정보가 표시되지 않습니다.</p>
         </section>}
 
-        {!isStaff && tab==="daily" && <section className="compactDailyPage">
+        {!isStaff && profile?.role!=="admin" && tab==="daily" && <section className="compactDailyPage">
           
           <div className="mobileSectionSwitcher settlementSwitcher">
             <button className="active">일일정산</button>
@@ -4171,7 +4173,7 @@ export default function Home() {
           </section>
         </section>}
 
-        {tab==="fnb" && <section className="fnbPage">
+        {profile?.role!=="admin" && tab==="fnb" && <section className="fnbPage">
           <div className="fnbSummary">
             <div>
               <span>오늘 F&B</span>
