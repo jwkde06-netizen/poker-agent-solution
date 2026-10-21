@@ -2742,6 +2742,7 @@ export default function Home() {
         <div><strong>Dream Poker</strong><span>{profile?.role==="admin"?"관리자":profile?.role==="staff"?"직원":profile?.role==="agent"?"에이전트":"승인 대기"}</span></div>
       </div>
 
+      <a href="/operations" style={{display:'block',margin:'18px 0 0',padding:'13px',borderRadius:10,background:'#244e3a',color:'white',textDecoration:'none',fontSize:13,fontWeight:700}}>통합 운영 · Google Sheets ↗</a>
       <nav className="sideNav" aria-label="메인 메뉴">
         <span className="sideNavActiveTrack" aria-hidden="true" style={{transform:`translate3d(0, ${Math.max(0,navItems.findIndex(item=>item.key===tab))*51}px, 0)`}}/>
         {navItems.map(item=><button key={item.key} className={tab===item.key?"active":""} aria-current={tab===item.key?"page":undefined} onClick={()=>navigateTab(item.key as TabKey)}>
@@ -2900,6 +2901,7 @@ export default function Home() {
           </div>
 
           <nav className="mobileSideMenuNav">
+            <a href="/operations" style={{display:'block',padding:16,color:'#244e3a',fontWeight:700,textDecoration:'none'}}>통합 운영 · Google Sheets ↗</a>
             {profile?.role==="admin" && <button onClick={()=>{navigateTab("settings");setMobileSideMenuOpen(false)}}>
               <span className="sideMenuIcon">⚙</span>
               <div><strong>계정 관리</strong><small>직원 · 에이전트 계정 생성</small></div>
