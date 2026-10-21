@@ -9,6 +9,7 @@ import { jsPDF } from "jspdf";
 import PromotionLibrary from "./PromotionLibrary";
 import ReservationOverview from "./ReservationOverview";
 import SheetLedger from "./SheetLedger";
+import DeskEntry from "./DeskEntry";
 import SettlementDesk from "./operations/weekly/SettlementDesk";
 import RulesManager from "./operations/rules/RulesManager";
 
@@ -2947,6 +2948,8 @@ export default function Home() {
 
         {profile?.role==="admin" && tab==="sheetWeekly" && <SettlementDesk embedded/>}
         {profile?.role==="admin" && tab==="rules" && <RulesManager initialRules={[]} readable={false} embedded/>}
+        {profile?.role==="admin" && tab==="games" && <DeskEntry key="game" mode="game"/>}
+        {profile?.role==="admin" && tab==="players" && <DeskEntry key="register" mode="register"/>}
         {profile?.role==="admin" && (tab==="dashboard"||tab==="daily"||tab==="fnb") && <SheetLedger view={tab}/> }
         {profile?.role!=="admin" && tab==="dashboard" && <>
           <ReservationOverview />
@@ -3165,7 +3168,7 @@ export default function Home() {
           })()}
         </section>}
 
-        {tab==="players" && <section className="panel">
+        {profile?.role!=="admin" && tab==="players" && <section className="panel">
           <div className="mobileSectionSwitcher playerAccessSwitcher">
             <button className="active">플레이어 명단</button>
             <button onClick={()=>navigateTab("agencies")}>에이전트 코드</button>
@@ -3331,7 +3334,7 @@ export default function Home() {
           </div>, document.body)}
         </section>}
 
-        {tab==="games" && <section className={isStaff?"buyinPage floorBuyinPage staffMobileBuyinPage":"buyinPage floorBuyinPage"}>
+        {profile?.role!=="admin" && tab==="games" && <section className={isStaff?"buyinPage floorBuyinPage staffMobileBuyinPage":"buyinPage floorBuyinPage"}>
           
           {true && <>
           <section className="panel floorSelectorPanel">
@@ -3605,7 +3608,7 @@ export default function Home() {
           <section className="dailyPcGameLog gameInputBottomLog" aria-label="게임 로그">
               <div className="dailyPcGameLogHead">
                 <div><h3>게임 로그 · {operatingDate}</h3><span>현재 영업일 기록 · 지난 기록은 일일 정산에서 날짜별로 확인하세요.</span></div>
-                {profile?.role==="admin"&&<button type="button" className="dailyInlineUndo" disabled={closingOperatingDay||gameSessions.some(s=>s.status==="active")} onClick={()=>void closeOperatingDay()}>{closingOperatingDay?"마감 처리 중…":"영업 마감 · 다음날 시작"}</button>}
+                
                 
               </div>
               <div className="dailyPcGameLogList">

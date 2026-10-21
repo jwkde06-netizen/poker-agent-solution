@@ -1,6 +1,6 @@
 // Reuse the existing accounting service without moving credentials or ledger data.
 const backend='https://dream-poker-reservation.vercel.app/api/accounting/';
-export async function accountingProxy(request:Request,resource:'settlement'|'rules'){
+export async function accountingProxy(request:Request,resource:'settlement'|'rules'|'ledger'){
  const authorization=request.headers.get('authorization');
  if(!authorization||!/^Bearer \S+$/.test(authorization))return Response.json({error:'관리자 계정으로 로그인해주세요.'},{status:403});
  const incoming=new URL(request.url),target=new URL(backend+resource);
