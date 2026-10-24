@@ -10,7 +10,7 @@ export async function submitLedgerChange(send:Send,change:{id?:string;operation?
   const plan=await send({action:'preview',operation:change.operation,sourceHash:change.sourceHash});
   if(plan.noop)return {applied:true,noop:true};
   if(typeof plan.id!=='string')throw Error('저장 요청을 확인하지 못했습니다.');
-  id=plan.id;prepared(id);
+  const preparedId:string=plan.id;id=preparedId;prepared(preparedId);
  }
  return send({action:'apply',id});
 }
