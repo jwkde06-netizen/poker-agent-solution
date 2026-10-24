@@ -78,3 +78,15 @@
 .page .tableChoice[aria-pressed=true]{background:var(--text);color:var(--surface);border-color:var(--text)}
 .gamePanel{width:100%;box-sizing:border-box}
 @media(max-width:760px){.tableList{flex-wrap:nowrap;overflow-x:auto;padding-bottom:5px}.page .tableChoice{padding:10px 15px;font-size:12px;min-width:0}}
+
+.liveBoard{margin:18px 0;padding:20px;border:1px solid var(--line);border-radius:16px;background:var(--surface)}
+.liveBoard h2 span{font-size:14px;color:var(--muted);margin-left:8px}
+.liveCards{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+.liveCards button{display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:8px;padding:18px;border-radius:12px}
+.liveCards button[aria-pressed=true]{border-color:var(--gold-dark);background:var(--surface-2)}
+.liveCards strong{font-size:24px}.liveCards .liveFlag{font-size:12px;color:#16804a}
+.allGameStrip{display:flex;gap:8px;overflow-x:auto;padding:2px 0 14px}
+.allGameStrip button{flex-shrink:0;display:flex;flex-direction:column;gap:5px;align-items:flex-start}
+.allGameStrip button[aria-pressed=true]{border-color:var(--gold-dark);background:var(--surface-2)}
+.statusConfirm{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:12px 0;padding:14px;border:1px solid var(--gold-dark);border-radius:10px}
+@media(max-width:600px){.liveBoard{padding:14px}.liveCards{grid-template-columns:repeat(2,minmax(0,1fr))}.liveCards button{padding:12px}.liveCards strong{font-size:20px}.liveCards span{font-size:12px}.allGameStrip button{padding:10px}.selectedHead h2 small{display:block;margin-top:6px}}
