@@ -1,3 +1,5 @@
 # Project guidance
 
 When changing the daily settlement UI, read `docs/daily-settlement-ui.md` first. Its compact worksheet layout is an explicit, repeated user requirement. Keep explanatory prose and processing history out of the default view. Preserve date-scoped cumulative player totals and verify them with `tests/daily-player-totals.cjs` when aggregation changes.
+
+For game entry, keep current live-game boxes first, above the worksheet. Do not restore the stepper, explanatory text, scan diagnostics, or a date picker in the default header. Put scan/history/reservation tools in the overflow menu; historical date selection belongs in daily settlement. A scanned roster does not prove a game has started: show explicit `prepared` status as `시작 전` outside the live boxes, and include only identity-matched `active` records in those boxes. Do not infer running games from the highest game numbers. Preserve internal game number, physical table, and K홀덤 No. separately. Lifecycle changes must use the authenticated, version-checked handler and verify readback; never change sheet entries just to correct a status.
