@@ -92,32 +92,46 @@
 @media(max-width:600px){.liveBoard{padding:14px}.liveCards{grid-template-columns:repeat(2,minmax(0,1fr))}.liveCards button{padding:12px}.liveCards strong{font-size:20px}.liveCards span{font-size:12px}.allGameStrip button{padding:10px}.selectedHead h2 small{display:block;margin-top:6px}}
 
 /* Games open directly on the live cards and roster. */
-.gamePage .workspace{gap:0}
-.gameTop{display:flex;align-items:stretch;gap:12px;margin:0 0 16px}
-.compactLiveCards{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;flex:1;min-width:0}
-.compactLiveCards>button{display:flex;flex-direction:column;align-items:stretch;text-align:left;gap:11px;padding:16px 18px;background:var(--surface);border-radius:13px}
-.compactLiveCards>button[aria-pressed=true]{border-color:var(--gold-dark);box-shadow:inset 0 0 0 1px var(--gold-dark);background:var(--gold-soft)}
+.gamePage .workspace{gap:12px}
+.gameTop{display:flex;align-items:center;gap:10px;margin:0 0 12px}
+.compactLiveCards{display:flex;flex-wrap:wrap;gap:8px;flex:1;min-width:0}
+.compactLiveCards>button{display:flex;flex-direction:column;align-items:stretch;text-align:left;gap:5px;width:260px;max-width:100%;padding:9px 12px;background:var(--surface);border-radius:9px}
+.compactLiveCards>button[aria-pressed=true]{border-color:var(--gold-dark);background:var(--gold-soft)}
 .cardTitle{display:flex;align-items:center;justify-content:space-between;gap:10px}
-.cardTitle strong{font-size:25px;letter-spacing:-.04em}
-.cardTitle>span{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted)}
+.cardTitle strong{font-size:18px;letter-spacing:-.03em}
+.cardTitle>span{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--muted)}
 .cardTitle i{width:6px;height:6px;border-radius:50%;background:#16804a}
-.cardTable{display:flex;align-items:center;gap:12px;font-size:14px;font-weight:600}
-.cardTable b{font-size:12px;background:var(--surface-2);border:1px solid var(--line);border-radius:5px;padding:3px 7px}
-.compactLiveCards small{display:flex;align-items:center;gap:5px;font-size:12px}
-.compactLiveCards small b{color:var(--text);font-weight:650}.compactLiveCards small span{margin:0 3px}
-.gameTopActions{display:flex;flex-direction:column;align-items:stretch;gap:8px;flex:0 0 110px}
-.gameTopActions>.primary{flex:1;white-space:nowrap}
-.gameMenu{position:relative}.gameMenu summary{list-style:none;text-align:center;font-size:22px;line-height:28px;cursor:pointer;border:1px solid var(--line);border-radius:9px;background:var(--surface)}
+.cardTable{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600}
+.cardTable b{font-size:11px;background:var(--surface-2);border:1px solid var(--line);border-radius:4px;padding:1px 5px}
+.compactLiveCards small{display:flex;align-items:center;gap:5px;font-size:11px}
+.compactLiveCards small b{color:var(--text);font-weight:650}.compactLiveCards small span{margin:0 2px}
+.gameTopActions{display:flex;align-items:center;gap:8px;flex:0 0 auto}
+.gameTopActions>.primary{white-space:nowrap;height:36px}
+.gameMenu{position:relative}.gameMenu summary{list-style:none;text-align:center;font-size:22px;line-height:34px;min-width:36px;cursor:pointer;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
 .gameMenu summary::-webkit-details-marker{display:none}
 .gameMenu summary:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
 .gameMenuContent{position:absolute;right:0;top:calc(100% + 8px);z-index:20;width:230px;display:grid;gap:8px;padding:14px;border:1px solid var(--line);border-radius:12px;background:var(--surface);box-shadow:0 12px 30px #0002}
 .gameMenuContent label{display:grid;gap:7px;font-size:12px}.gameMenuContent input{width:100%}
-.noLive{padding:30px 18px;background:var(--surface);border:1px solid var(--line);border-radius:12px;color:var(--muted);font-size:14px}
-.gameIdentity{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.gameIdentity>span{font-size:13px;color:var(--muted)}
-.gamePage .gamePanel{padding:18px 22px}.gamePage .selectedHead{padding-bottom:14px;border-bottom:1px solid var(--line);margin-bottom:14px}
-.gamePage .selectedHead h2{font-size:21px}.gamePage .controls{gap:7px}.gamePage .controls select{max-width:220px}
-.gamePage .rosterTools{margin-bottom:10px}.gamePage .playerRow{min-height:64px;padding:9px 0}
-@media(max-width:760px){.gameTop{flex-wrap:wrap;gap:8px}.compactLiveCards{flex-basis:100%;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.compactLiveCards>button{padding:12px;gap:8px}.cardTitle strong{font-size:22px}.cardTitle>span{font-size:10px}.cardTable{font-size:12px;gap:7px}.compactLiveCards small{font-size:11px}.gameTopActions{flex-basis:100%;flex-direction:row}.gameTopActions>.primary{flex:0 0 auto}.gameMenu{margin-left:auto;min-width:44px}.gameMenu summary{line-height:36px}.gamePage .gamePanel{padding:14px 12px}.gamePage .selectedHead{flex-wrap:wrap;gap:10px}.gamePage .selectedHead>.controls{width:100%}.gamePage .controls select{flex:1;min-width:110px;max-width:none;font-size:11px}.gameIdentity>span{font-size:12px}}
+.noLive{padding:14px 18px;background:var(--surface);border:1px solid var(--line);border-radius:9px;color:var(--muted);font-size:13px}
+.gameIdentity{display:flex;align-items:center;gap:9px;flex-wrap:wrap}.gameIdentity>span{font-size:12px;color:var(--muted)}
+.gameIdentity .liveLabel{font-size:11px;color:#16804a}.gameIdentity .statusLabel{font-size:11px}
+.gamePage .gamePanel{padding:12px 16px;border-radius:10px;flex-shrink:0}
+.gamePage .selectedHead{padding-bottom:9px;border-bottom:1px solid var(--line);margin-bottom:8px}
+.gamePage .selectedHead h2{font-size:18px}.gamePage .controls{gap:6px}.gamePage .controls button{font-size:12px;padding:7px 10px}
+.gamePage .rosterTools{margin-bottom:4px;min-height:28px}.gamePage .rosterTools input{height:28px;padding:4px 9px;width:170px;font-size:11px}
+.gamePage .rosterHeading{padding-top:5px;padding-bottom:6px}
+.gamePage .playerRow{min-height:52px;padding:6px 0}.gamePage .playerName strong{font-size:13px}
+.gamePage .counter button{padding:5px 8px;min-height:34px}.gamePage .counter strong{font-size:19px}
+.gamePage .gameStack{max-height:calc(100dvh - 174px);overflow-y:auto;overscroll-behavior-y:contain;scrollbar-gutter:stable;width:100%;padding-right:4px;box-sizing:border-box}
+.gamePage .inlineEditor{margin-bottom:12px}
+@media(max-width:760px){
+ .gameTop{flex-wrap:wrap;gap:8px}.compactLiveCards{flex-basis:100%;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ .compactLiveCards>button{width:auto;max-width:none;padding:8px 10px;gap:4px}.cardTitle strong{font-size:17px}.cardTitle>span{font-size:9px}
+ .cardTable{font-size:11px;gap:6px}.compactLiveCards small{font-size:10px}.gameTopActions{flex-basis:100%;justify-content:flex-end}
+ .gameMenu summary{line-height:32px}.gamePage .gamePanel{padding:10px}.gamePage .selectedHead{flex-wrap:wrap;gap:8px}
+ .gamePage .selectedHead>.controls{width:100%;justify-content:flex-end}.gameIdentity>span{font-size:11px}
+ .gamePage .gameStack{max-height:calc(100dvh - 235px)}.gamePage .playerRow{min-height:56px}.gamePage .playerName strong{font-size:12px}
+}
 
 .pastDate{font-size:12px;font-weight:650;color:var(--text);align-self:center}
 
@@ -139,6 +153,6 @@
 .referenceEditor{display:flex;align-items:end;gap:10px;flex-wrap:wrap;padding:14px 18px;border:1px solid var(--line);border-radius:10px;background:var(--surface);margin:0 0 12px}
 .referenceEditor>strong{align-self:center}.referenceEditor label{display:grid;gap:5px;font-size:12px}.referenceEditor input{max-width:150px}
 .referenceEditor>p{flex-basis:100%;color:var(--red)}
-@media(max-width:760px){.gameFields{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.inlineEditor .dialogHead,.inlineEditor .dialogBody{padding:14px 12px}.cardTable{flex-wrap:wrap}.sourceNumber{flex-basis:100%;margin-left:0;font-size:10px}.compactLiveCards>button{gap:7px}.cardTitle strong{font-size:20px}.referenceEditor{padding:12px}.entryTable td:first-child{min-width:200px}}
+@media(max-width:760px){.gameFields{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.inlineEditor .dialogHead,.inlineEditor .dialogBody{padding:14px 12px}.cardTable{flex-wrap:wrap}.sourceNumber{flex-basis:100%;margin-left:0;font-size:10px}.referenceEditor{padding:12px}.entryTable td:first-child{min-width:200px}}
 
 .gamePage .inlineEditor{width:100%;box-sizing:border-box}

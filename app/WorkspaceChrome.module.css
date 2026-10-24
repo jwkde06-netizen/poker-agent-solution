@@ -1,4 +1,16 @@
 .topbar.topbar{justify-content:flex-end;min-height:52px;height:52px;padding-top:5px;padding-bottom:5px}@media(max-width:760px){.topbar.topbar{justify-content:space-between}}
-.topbar.topbar :global(.accountMenuTrigger){height:36px;min-width:60px;width:auto;padding:5px 8px;gap:8px;justify-content:center;border-radius:10px;box-sizing:border-box}
+.topbar.topbar :global(.accountMenuTrigger){height:36px;min-width:112px;width:auto;padding:5px 10px;gap:8px;justify-content:center;border-radius:10px;box-sizing:border-box}
 .topbar.topbar :global(.accountMenuTrigger .avatar){width:24px;height:24px;min-width:24px;flex:0 0 24px;border-radius:50%;font-size:12px;font-weight:700;line-height:1;display:grid;place-items:center}
 .topbar.topbar :global(.accountMenuTrigger .menuChevron){font-size:11px;line-height:1}
+
+.accountLabel{font-size:13px;font-weight:650;white-space:nowrap}
+.themeRow{display:flex;align-items:center;gap:12px;padding:10px 12px;color:var(--text)}
+.themeRow>strong{flex:1;font-size:13px;font-weight:600}
+.themeRow>span{width:24px;text-align:center}
+.themeToggle.themeToggle{display:inline-flex!important;align-items:center;justify-content:center;flex:0 0 44px;width:44px!important;min-width:44px;min-height:32px;padding:4px!important;border:0!important;background:transparent!important;box-shadow:none!important;cursor:pointer}
+.switchTrack.switchTrack{display:block!important;position:relative;width:36px;height:22px;min-width:36px;border-radius:20px;background:#858b94;transition:background .15s}
+.switchTrack i{position:absolute;left:3px;top:3px;width:16px;height:16px;border-radius:50%;background:white;box-shadow:0 1px 3px #0003;transition:transform .15s}
+.themeToggle[aria-checked=true] .switchTrack{background:#9d7d32}
+.themeToggle[aria-checked=true] .switchTrack i{transform:translateX(14px)}
+.themeToggle:focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:18px}
+@media(prefers-reduced-motion:reduce){.switchTrack,.switchTrack i{transition:none}}

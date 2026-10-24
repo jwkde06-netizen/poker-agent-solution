@@ -39,7 +39,7 @@ export default function LiveLedger({view='games'}:{view?:'games'|'daily'|'fnb'|'
     setNotice(operation?.kind==='buyins'?`✅ ${operation.label} · 총 ${operation.buyins}바인 반영 완료`:'✅ 입력 내용 반영 완료');
     setDraft(null);setPreview(null);setUncertain(false);
     if(operation?.kind==='game'){
-     setSelectedTable(String(operation.table));setSelectedGame('');
+     setSelectedGame('');
      if(operation.sourceNo){
       const reference={day:operation.date,game:Number(operation.game),sourceNo:operation.sourceNo};
       try{await persistReference(reference);}catch(e){setReferenceDraft(reference);setReferenceError('참가 기록은 저장됐습니다. K홀덤 No.만 저장하지 못했습니다. '+(e as Error).message);}
@@ -47,7 +47,7 @@ export default function LiveLedger({view='games'}:{view?:'games'|'daily'|'fnb'|'
     }
     await load();
     if(operation?.kind==='game'){
-     try{const fresh=await request(undefined,operation.date);setData(fresh);const row=fresh.daily.find((r:any)=>r.game===Number(operation.game));if(row){setSelectedTable(String(row.table).split('-')[0]);setSelectedGame([row.game,row.table,row.blind].join('|'));}}catch{setNotice('참가 기록은 저장됐습니다. 화면 갱신을 기다려주세요.');}
+     try{const fresh=await request(undefined,operation.date);setData(fresh);const row=fresh.daily.find((r:any)=>r.game===Number(operation.game));if(row){const id=[row.game,row.table,row.blind].join('|');setSelectedGame(id);pendingScroll.current=id;}}catch{setNotice('참가 기록은 저장됐습니다. 화면 갱신을 기다려주세요.');}
     }
    }else{setNotice((b.summary||[]).join(' · '));setUncertain(false);await load();}
   }catch(e){setNotice((e as Error).message);await load();}finally{setBusy(false);}
@@ -62,11 +62,13 @@ export default function LiveLedger({view='games'}:{view?:'games'|'daily'|'fnb'|'
  }
 
  const [gameFilter,setGameFilter]=useState(''),[floorFilter,setFloorFilter]=useState('');
- const [selectedTable,setSelectedTable]=useState(''),[selectedGame,setSelectedGame]=useState(''),[agency,setAgency]=useState(''),[limit,setLimit]=useState(80);
+ const [selectedGame,setSelectedGame]=useState(''),[agency,setAgency]=useState(''),[limit,setLimit]=useState(80);
+ const [rosterQueries,setRosterQueries]=useState<Record<string,string>>({});
+ const gameStack=useRef<HTMLDivElement>(null),gamePanels=useRef(new Map<string,HTMLElement>()),openedDay=useRef(''),pendingScroll=useRef<string|null>(null);
  const playerIndex=useMemo(()=>new Map<string,any>((data?.players||[]).map((p:any)=>[key(p.name),p])),[data?.players]);
  const records=(data?.daily||[]).filter((r:any)=>(!query||key(r.player).includes(key(query))||String(r.game)===query)&&(!gameFilter||String(r.game)===gameFilter)&&(!agency||playerIndex.get(key(r.player))?.agency===agency));
  const orders=(data?.fnb||[]).filter((r:any)=>(!query||key(r.note).includes(key(query)))&&(!floorFilter||r.floor===floorFilter));
- function selectDay(value:string){if(!value||busy||draft)return;revision.current++;setDay(value);setData(null);setError('');setSelectedGame('');setSelectedTable('');setStatusTarget(null);setReferenceDraft(null);setReferenceError('');setGameFilter('');setNotice('');}
+ function selectDay(value:string){if(!value||busy||draft)return;revision.current++;setDay(value);setData(null);setError('');setSelectedGame('');setRosterQueries({});openedDay.current='';pendingScroll.current=null;setStatusTarget(null);setReferenceDraft(null);setReferenceError('');setGameFilter('');setNotice('');}
  function shiftDay(delta:number){selectDay(new Date(Date.parse(day+'T12:00:00Z')+delta*86400000).toISOString().slice(0,10));}
  const dialog=useRef<HTMLDialogElement>(null);
  const dialogOpen=!!draft&&view!=='games';
@@ -79,17 +81,23 @@ export default function LiveLedger({view='games'}:{view?:'games'|'daily'|'fnb'|'
  const gameState=(g:any)=>(data?.gameStates||[]).find((s:any)=>s.game_no===g.game);
  const statusOf=(g:any)=>{const s=gameState(g);return s&&s.table_label===g.table&&s.blind===g.blind?s.status:'unknown';};
  const liveGames=groups.filter(g=>statusOf(g)==='active').sort((a,b)=>a.game-b.game);
- const recentGames=[...groups].sort((a,b)=>b.game-a.game);
- function chooseGame(g:any){if(draft||referenceDraft)return;setSelectedTable(g.physical);setSelectedGame(g.id);setQuery('');setStatusTarget(null);}
+ const orderedGames=[...groups].sort((a,b)=>a.game-b.game);
+ function scrollToGame(id:string,behavior:ScrollBehavior='smooth'){
+  const stack=gameStack.current,panel=gamePanels.current.get(id);if(!stack||!panel)return false;
+  stack.scrollTo({top:stack.scrollTop+panel.getBoundingClientRect().top-stack.getBoundingClientRect().top,behavior});return true;
+ }
+ function chooseGame(g:any){if(draft||referenceDraft)return;setSelectedGame(g.id);setStatusTarget(null);scrollToGame(g.id);}
+ useEffect(()=>{
+  if(view!=='games'||tab!=='main'||!data||data.day!==day||draft||!gameStack.current)return;
+  if(pendingScroll.current){if(scrollToGame(pendingScroll.current)){pendingScroll.current=null;}return;}
+  if(openedDay.current===day||!orderedGames.length)return;
+  const first=liveGames[0]||orderedGames[0];if(scrollToGame(first.id,'instant')){openedDay.current=day;setSelectedGame(first.id);}
+ },[data,day,view,tab,!!draft]);
  async function updateGameStatus(){
   if(!statusTarget)return;setBusy(true);setNotice('');
   try{await request({action:'game_status',day,game:statusTarget.game,status:statusTarget.status,version:statusTarget.version,sourceHash:statusTarget.sourceHash});setStatusTarget(null);setNotice('게임 상태 저장 완료');await load();}
   catch(e){setNotice((e as Error).message);setStatusTarget(null);await load();}finally{setBusy(false);}
  }
- const tables=Array.from(new Set<string>(groups.map(g=>g.physical))).sort((a,b)=>Number(a)-Number(b));
- const activeTable=tables.includes(selectedTable)?selectedTable:(liveGames[0]?.physical||recentGames[0]?.physical||tables[0]);
- const tableGames=groups.filter(g=>g.physical===activeTable).sort((a,b)=>(b.game||0)-(a.game||0));
- const activeGroup=tableGames.find(g=>g.id===selectedGame)||tableGames.find(g=>statusOf(g)==='active')||tableGames[0];
  const codes=Array.from(new Set<string>((data?.players||[]).map((p:any)=>String(p.agency)).filter(Boolean))).sort();
  const filteredPlayers=(data?.players||[]).filter((p:any)=>(!query||key([p.name,p.card,p.agency].join(' ')).includes(key(query)))&&(!agency||p.agency===agency));
  const title={games:'게임 · 바이인',daily:'일일 정산',fnb:'F&B',players:'플레이어 관리'}[view];
@@ -148,20 +156,24 @@ export default function LiveLedger({view='games'}:{view?:'games'|'daily'|'fnb'|'
 
  {tab==='main'&&view==='games'&&<>
  <div className={styles.gameTop}>
- <section className={styles.compactLiveCards} aria-label='진행 중인 게임'>{liveGames.map(g=><button key={g.id} aria-label={g.game+'번 게임 · 테이블 '+g.physical+' · '+g.blind} aria-pressed={activeGroup?.id===g.id} onClick={()=>chooseGame(g)}><div className={styles.cardTitle}><strong>{g.game}번 게임</strong><span><i/>진행 중</span></div><div className={styles.cardTable}>테이블 {g.physical}<b>{g.blind}</b><span className={styles.sourceNumber}>K홀덤 No. {gameState(g)?.source_no||'—'}</span></div><small>우리 코드 <b>{new Set(g.players.map((p:any)=>key(p.player))).size}명</b><span>·</span><b>{g.buyins}바인</b></small></button>)}
+ <section className={styles.compactLiveCards} aria-label='진행 중인 게임'>{liveGames.map(g=><button key={g.id} aria-label={g.game+'번 게임 · 테이블 '+g.physical+' · '+g.blind} disabled={!!draft||!!referenceDraft} aria-pressed={selectedGame===g.id} onClick={()=>chooseGame(g)}><div className={styles.cardTitle}><strong>{g.game}번 게임</strong><span><i/>진행 중</span></div><div className={styles.cardTable}>테이블 {g.physical}<b>{g.blind}</b><span className={styles.sourceNumber}>K홀덤 No. {gameState(g)?.source_no||'—'}</span></div><small>우리 코드 <b>{new Set(g.players.map((p:any)=>key(p.player))).size}명</b><span>·</span><b>{g.buyins}바인</b></small></button>)}
  {!liveGames.length&&<div className={styles.noLive}>진행 중인 게임 없음</div>}</section>
  <div className={styles.gameTopActions}>{day!==today()&&<time className={styles.pastDate} dateTime={day}>{day}</time>}<button className={styles.primary} disabled={locked||!!draft||!!referenceDraft} onClick={()=>{setTab('main');gameDraft();}}>＋ 새 게임</button>
  <details className={styles.gameMenu}><summary aria-label='날짜·예약·처리 이력'>⋯</summary><div className={styles.gameMenuContent}><label>영업일<input aria-label='영업일' type='date' value={day} disabled={busy||!!draft} onChange={e=>selectDay(e.target.value)}/></label><button disabled={refreshing} onClick={()=>void load()}>새로고침</button><button onClick={()=>setTab('reservations')}>예약 연결</button><button onClick={()=>setTab('history')}>처리 이력</button></div></details></div>
  </div>
  {referenceDraft&&<form className={styles.referenceEditor} onSubmit={e=>{e.preventDefault();void saveReference();}}><strong>{referenceDraft.game}번 게임</strong><label>K홀덤 No.<input aria-label='K홀덤 번호' inputMode='numeric' pattern='[0-9]{1,8}' maxLength={8} value={referenceDraft.sourceNo} disabled={busy} onChange={e=>setReferenceDraft({...referenceDraft,sourceNo:e.target.value})}/></label><button className={styles.primary} disabled={busy}>번호 저장</button><button type='button' disabled={busy} onClick={()=>{setReferenceDraft(null);setReferenceError('');}}>닫기</button>{referenceError&&<p role='alert'>{referenceError}</p>}</form>}
- <div className={styles.workspace}>
- {draft?<section ref={inlineEditor} className={styles.inlineEditor} aria-labelledby='ledger-editor-title'>{editorContent}</section>:activeGroup?<section className={styles.gamePanel}><div className={styles.selectedHead}><div className={styles.gameIdentity}><h2>{activeGroup.game??'—'}번 게임</h2><span>테이블 {activeTable} · {activeGroup.blind}</span><button className={styles.sourceButton} disabled={locked||!!draft} onClick={()=>{setReferenceDraft({day,game:activeGroup.game,sourceNo:gameState(activeGroup)?.source_no||'',version:gameState(activeGroup)?.version??null});setReferenceError('');}}>K홀덤 No. {gameState(activeGroup)?.source_no||'입력'}</button></div><div className={styles.controls}><select disabled={!!draft||!!referenceDraft} aria-label='다른 게임 선택' value={activeGroup.id} onChange={e=>{const g=groups.find(g=>g.id===e.target.value);if(g)chooseGame(g);}}>{recentGames.map(g=><option key={g.id} value={g.id}>{g.game}번 게임 · 테이블 {g.physical} · {statusOf(g)==='active'?'진행 중':statusOf(g)==='closed'?'종료':'미확인'}</option>)}</select><button disabled={locked||!!draft} onClick={()=>setStatusTarget({game:activeGroup.game,status:statusOf(activeGroup)==='active'?'closed':'active',version:gameState(activeGroup)?.version??null,sourceHash:data.sourceHash})}>{statusOf(activeGroup)==='active'?'게임 종료':statusOf(activeGroup)==='closed'?'다시 시작':'게임 시작'}</button><button className={styles.primary} disabled={locked||!!draft||!!referenceDraft} onClick={()=>gameDraft(undefined,activeGroup)}>＋ 참가자</button></div></div>
- {statusTarget&&<div className={styles.statusConfirm} role='alert'><strong>{statusTarget.game}번 게임을 {statusTarget.status==='active'?'진행 중':'종료'}으로 표시할까요?</strong><div className={styles.controls}><button className={styles.primary} disabled={locked} onClick={()=>void updateGameStatus()}>확인</button><button disabled={busy} onClick={()=>setStatusTarget(null)}>취소</button></div></div>}
- <div className={styles.rosterTools}><div><b>{activeGroup.players.length}</b>명 <span>·</span> 총 <b>{activeGroup.buyins}</b>바인</div><input aria-label='게임 참가자 검색' placeholder='참가자 이름 검색' value={query} onChange={e=>setQuery(e.target.value)}/></div>
+ {draft&&<section ref={inlineEditor} className={styles.inlineEditor} aria-labelledby='ledger-editor-title'>{editorContent}</section>}
+ <div ref={gameStack} className={`${styles.workspace} ${styles.gameStack}`} aria-label='게임별 참가 장부'>
+ {orderedGames.map(g=>{const rosterQuery=rosterQueries[g.id]||'';return <section key={g.id} ref={node=>{if(node)gamePanels.current.set(g.id,node);else gamePanels.current.delete(g.id);}} className={styles.gamePanel} aria-label={g.game+'번 게임 참가자'} data-game={g.game}>
+ <div className={styles.selectedHead}><div className={styles.gameIdentity}><h2>{g.game}번 게임</h2><span>테이블 {g.physical} · {g.blind}</span><span className={statusOf(g)==='active'?styles.liveLabel:styles.statusLabel}>{statusOf(g)==='active'?'● 진행 중':statusOf(g)==='closed'?'종료':'상태 미확인'}</span><button className={styles.sourceButton} disabled={locked||!!draft||!!referenceDraft} onClick={()=>{setReferenceDraft({day,game:g.game,sourceNo:gameState(g)?.source_no||'',version:gameState(g)?.version??null});setReferenceError('');}}>K홀덤 No. {gameState(g)?.source_no||'입력'}</button></div>
+ <div className={styles.controls}><button disabled={locked||!!draft||!!referenceDraft} onClick={()=>setStatusTarget({game:g.game,status:statusOf(g)==='active'?'closed':'active',version:gameState(g)?.version??null,sourceHash:data.sourceHash})}>{statusOf(g)==='active'?'게임 종료':statusOf(g)==='closed'?'다시 시작':'게임 시작'}</button><button className={styles.primary} disabled={locked||!!draft||!!referenceDraft} onClick={()=>gameDraft(undefined,g)}>＋ 참가자</button></div></div>
+ {statusTarget?.game===g.game&&<div className={styles.statusConfirm} role='alert'><strong>{statusTarget.game}번 게임을 {statusTarget.status==='active'?'진행 중':'종료'}으로 표시할까요?</strong><div className={styles.controls}><button className={styles.primary} disabled={locked||!!draft||!!referenceDraft} onClick={()=>void updateGameStatus()}>확인</button><button disabled={busy} onClick={()=>setStatusTarget(null)}>취소</button></div></div>}
+ <div className={styles.rosterTools}><div><b>{g.players.length}</b>명 <span>·</span> 총 <b>{g.buyins}</b>바인</div><input aria-label={g.game+'번 게임 참가자 검색'} placeholder='참가자 검색' value={rosterQuery} onChange={e=>setRosterQueries(prev=>({...prev,[g.id]:e.target.value}))}/></div>
  <div className={styles.rosterHeading}><span>플레이어 / 소속</span><span>누적 바이인 · 리바인 추가</span></div>
- <div className={styles.roster}>{activeGroup.players.filter((r:any)=>!query||key(r.player).includes(key(query))).map((r:any,i:number)=>{const p=playerIndex.get(key(r.player));return <div className={styles.playerRow} key={r.row}><span className={styles.seat}>{String(i+1).padStart(2,'0')}</span><div className={styles.playerName}><strong>{r.player}</strong><small><span className={styles.codeTag}>{p?.agency||'소속 확인 필요'}</span>{p?.card?'ID '+p.card:''}</small></div><div className={styles.counter}><button aria-label={r.player+' 바인 수 수정'} disabled={locked} onClick={()=>buyin(r)}><strong>{r.buyins}</strong><small>바인 · 수정</small></button><button className={styles.add} aria-label={r.player+' 리바인 1회 추가'} disabled={locked} onClick={()=>buyin(r,1)}>＋ 리바인</button></div></div>;})}</div>
- {query&&!activeGroup.players.some((r:any)=>key(r.player).includes(key(query)))&&<div className={styles.empty}>이 게임에 일치하는 참가자가 없습니다.<button onClick={()=>setQuery('')}>검색 지우기</button></div>}
- <footer className={styles.gameFooter}><span>변경 내용을 확인한 뒤 저장됩니다.</span><a href='/?tab=daily'>일일 장부 보기 →</a></footer></section>:<section className={styles.gamePanel}><div className={styles.empty}><strong>첫 게임을 입력하세요.</strong><p>게임 번호·실제 테이블·참가자를 한 번에 등록할 수 있습니다.</p><button className={styles.primary} disabled={locked} onClick={()=>gameDraft()}>＋ 새 게임 입력</button></div></section>}
+ <div className={styles.roster}>{g.players.filter((r:any)=>!rosterQuery||key(r.player).includes(key(rosterQuery))).map((r:any,i:number)=>{const p=playerIndex.get(key(r.player));return <div className={styles.playerRow} key={r.row}><span className={styles.seat}>{String(i+1).padStart(2,'0')}</span><div className={styles.playerName}><strong>{r.player}</strong><small><span className={styles.codeTag}>{p?.agency||'소속 확인 필요'}</span>{p?.card?'ID '+p.card:''}</small></div><div className={styles.counter}><button aria-label={g.game+'번 게임 '+r.player+' 바인 수 수정'} disabled={locked||!!draft||!!referenceDraft} onClick={()=>buyin(r)}><strong>{r.buyins}</strong><small>바인 · 수정</small></button><button className={styles.add} aria-label={g.game+'번 게임 '+r.player+' 리바인 1회 추가'} disabled={locked||!!draft||!!referenceDraft} onClick={()=>buyin(r,1)}>＋ 리바인</button></div></div>;})}</div>
+ {rosterQuery&&!g.players.some((r:any)=>key(r.player).includes(key(rosterQuery)))&&<div className={styles.empty}>일치하는 참가자가 없습니다.<button onClick={()=>setRosterQueries(prev=>({...prev,[g.id]:''}))}>검색 지우기</button></div>}
+ </section>;})}
+ {!orderedGames.length&&!draft&&<section className={styles.gamePanel}><div className={styles.empty}><strong>첫 게임을 입력하세요.</strong><p>게임 번호·실제 테이블·참가자를 한 번에 등록할 수 있습니다.</p><button className={styles.primary} disabled={locked} onClick={()=>gameDraft()}>＋ 새 게임 입력</button></div></section>}
  </div></>}
  {tab==='main'&&view==='daily'&&<>
  <div className={styles.metrics}>{[['기록된 게임',groups.length,'게임'],['참가 기록',data.daily.length,'건'],['총 바이인',totalBuyins,'회'],['플레이어',new Set(data.daily.map((r:any)=>key(r.player))).size,'명']].map(([label,value,unit])=><div key={String(label)}><span>{label}</span><strong>{value}<small>{unit}</small></strong></div>)}</div>

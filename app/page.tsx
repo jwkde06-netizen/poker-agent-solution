@@ -2663,7 +2663,7 @@ export default function Home() {
     <aside className="sidebar">
       <div className="brand">
         <img className="brandLogo" src="/dream-poker-logo.svg" alt="Dream Poker Da Nang"/>
-        <div><strong>Dream Poker</strong><span>{profile?.role==="admin"?"관리자":profile?.role==="staff"?"직원":profile?.role==="agent"?"에이전트":"승인 대기"}</span></div>
+        <div><strong>Dream Poker</strong></div>
       </div>
 
       <nav className="sideNav" aria-label="메인 메뉴">
@@ -2683,7 +2683,7 @@ export default function Home() {
       <header className={`workspaceTopbar ${chromeStyles.topbar}`}>
         <div className="mobileTopTitle">
           <img src="/dream-poker-logo.svg" alt=""/>
-          <span className="mobileProductTitle"><strong>Dream Poker <em>· {profile?.role==="admin"?"관리자":profile?.role==="staff"?"직원":profile?.role==="agent"?"에이전트":"승인 대기"}</em></strong></span>
+          <span className="mobileProductTitle"><strong>Dream Poker</strong></span>
         </div>
         <button
           className="mobileSideMenuButton"
@@ -2700,6 +2700,7 @@ export default function Home() {
             aria-label="계정 메뉴 열기"
           >
             <span className="avatar">{(profile?.displayName || profile?.username || "A").slice(0,1).toUpperCase()}</span>
+            <span className={chromeStyles.accountLabel}>{profile?.role==="admin"?"관리자":profile?.role==="staff"?"직원":profile?.role==="agent"?"에이전트":"승인 대기"}</span>
             <span className="menuChevron">{accountMenuOpen?"⌃":"⌄"}</span>
           </button>
 
@@ -2716,9 +2717,7 @@ export default function Home() {
               <span>⚙</span><div><strong>계정 관리</strong></div>
             </button>
 
-            <button onClick={()=>{applyTheme(theme==="dark"?"light":"dark");setAccountMenuOpen(false)}}>
-              <span>{theme==="dark"?"☀":"☾"}</span><div><strong>{theme==="dark"?"라이트 모드":"다크 모드"}</strong></div>
-            </button>
+            <div className={chromeStyles.themeRow}><span>☾</span><strong>다크 모드</strong><button type="button" className={chromeStyles.themeToggle} role="switch" aria-checked={theme==="dark"} aria-label="다크 모드" onClick={()=>applyTheme(theme==="dark"?"light":"dark")}><span className={chromeStyles.switchTrack} aria-hidden="true"><i/></span></button></div>
 
             <button onClick={()=>{setPreferencesOpen(true);setAccountMenuOpen(false)}}>
               <span>⚙</span><div><strong>설정 · 화면 옵션</strong></div>
@@ -2757,11 +2756,7 @@ export default function Home() {
               <div><strong>계정 관리</strong><small>직원 · 에이전트 계정 생성</small></div>
             </button>}
 
-            <button onClick={()=>applyTheme(theme==="dark"?"light":"dark")}>
-              <span className="sideMenuIcon">{theme==="dark"?"☀":"☾"}</span>
-              <div><strong>{theme==="dark"?"라이트 모드":"다크 모드"}</strong></div>
-              <span className={`sideThemeSwitch ${theme==="dark"?"on":""}`}><i/></span>
-            </button>
+            <div className={chromeStyles.themeRow}><span className="sideMenuIcon">☾</span><strong>다크 모드</strong><button type="button" className={chromeStyles.themeToggle} role="switch" aria-checked={theme==="dark"} aria-label="다크 모드" onClick={()=>applyTheme(theme==="dark"?"light":"dark")}><span className={chromeStyles.switchTrack} aria-hidden="true"><i/></span></button></div>
 
             <button onClick={()=>{setPreferencesOpen(true);setMobileSideMenuOpen(false)}}>
               <span className="sideMenuIcon">⚙</span><div><strong>설정 · 화면 옵션</strong></div>
@@ -2784,7 +2779,7 @@ export default function Home() {
           <div className="managedAccountModalHeader"><div><small>DISPLAY OPTIONS</small><h2>설정</h2><p>현재 화면의 표시 옵션</p></div><button onClick={()=>setPreferencesOpen(false)} aria-label="닫기">×</button></div>
           <div className="opsSettingRow"><div><strong>화면 밀도</strong><small>목록을 더 촘촘하게 표시</small></div><label><input type="checkbox" checked={compactLayout} onChange={e=>setCompactLayout(e.target.checked)}/> 컴팩트</label></div>
           <div className="opsSettingRow"><div><strong>운영 애니메이션</strong><small>진행 중 테이블 회전 상태 표시</small></div><label><input type="checkbox" checked={motionEnabled} onChange={e=>setMotionEnabled(e.target.checked)}/> 사용</label></div>
-          <div className="opsSettingRow"><div><strong>테마</strong><small>라이트 / 다크 모드</small></div><button onClick={()=>applyTheme(theme==="dark"?"light":"dark")}>{theme==="dark"?"라이트 모드":"다크 모드"}</button></div>
+          <div className="opsSettingRow"><div><strong>다크 모드</strong></div><button type="button" className={chromeStyles.themeToggle} role="switch" aria-checked={theme==="dark"} aria-label="다크 모드" onClick={()=>applyTheme(theme==="dark"?"light":"dark")}><span className={chromeStyles.switchTrack} aria-hidden="true"><i/></span></button></div>
           <button className="primary" onClick={()=>setPreferencesOpen(false)}>완료</button>
         </section>
       </div>}
