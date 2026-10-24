@@ -2949,10 +2949,11 @@ export default function Home() {
 
         {profile?.role==="admin" && tab==="sheetWeekly" && <SettlementDesk embedded/>}
         {profile?.role==="admin" && tab==="rules" && <RulesManager initialRules={[]} readable={false} embedded/>}
-        {profile?.role==="admin" && tab==="games" && <LiveLedger/>}
-        {profile?.role==="admin" && tab==="players" && <DeskEntry key="register" mode="register"/>}
-        {profile?.role==="admin" && (tab==="dashboard"||tab==="daily"||tab==="fnb") && <SheetLedger view={tab}/> }
-        {profile?.role!=="admin" && tab==="dashboard" && <>
+        {profile?.role==="admin" && tab==="games" && <LiveLedger view="games"/>}
+        {profile?.role==="admin" && tab==="players" && <LiveLedger view="players"/>}
+        {profile?.role==="admin" && tab==="dashboard" && <SheetLedger view="dashboard"/>}
+        {profile?.role==="admin" && (tab==="daily"||tab==="fnb") && <LiveLedger view={tab}/>}
+        {profile && profile.role!=="admin" && tab==="dashboard" && <>
           <ReservationOverview />
           <section className={isStaff?"dashboardFinanceStrip staffDashboardStrip":"dashboardFinanceStrip"}>
             <div className="dashboardFinanceHeader">
@@ -3169,7 +3170,7 @@ export default function Home() {
           })()}
         </section>}
 
-        {profile?.role!=="admin" && tab==="players" && <section className="panel">
+        {profile && profile.role!=="admin" && tab==="players" && <section className="panel">
           <div className="mobileSectionSwitcher playerAccessSwitcher">
             <button className="active">플레이어 명단</button>
             <button onClick={()=>navigateTab("agencies")}>에이전트 코드</button>
@@ -3335,7 +3336,7 @@ export default function Home() {
           </div>, document.body)}
         </section>}
 
-        {profile?.role!=="admin" && tab==="games" && <section className={isStaff?"buyinPage floorBuyinPage staffMobileBuyinPage":"buyinPage floorBuyinPage"}>
+        {profile && profile.role!=="admin" && tab==="games" && <section className={isStaff?"buyinPage floorBuyinPage staffMobileBuyinPage":"buyinPage floorBuyinPage"}>
           
           {true && <>
           <section className="panel floorSelectorPanel">
@@ -3664,7 +3665,7 @@ export default function Home() {
           <p className="staffDailyFootnote">직원 화면에는 에이전트별 레이크백, 순이익 등 관리자 전용 정산 정보가 표시되지 않습니다.</p>
         </section>}
 
-        {!isStaff && profile?.role!=="admin" && tab==="daily" && <section className="compactDailyPage">
+        {!isStaff && profile && profile.role!=="admin" && tab==="daily" && <section className="compactDailyPage">
           
           <div className="mobileSectionSwitcher settlementSwitcher">
             <button className="active">일일정산</button>
@@ -4177,7 +4178,7 @@ export default function Home() {
           </section>
         </section>}
 
-        {profile?.role!=="admin" && tab==="fnb" && <section className="fnbPage">
+        {profile && profile.role!=="admin" && tab==="fnb" && <section className="fnbPage">
           <div className="fnbSummary">
             <div>
               <span>오늘 F&B</span>
