@@ -14,6 +14,8 @@ export default function LiveLedger({view='games'}:{view?:'games'|'daily'|'fnb'|'
  const [day,setDay]=useState(()=>{if(typeof window==='undefined')return today();const d=new URLSearchParams(window.location.search).get('day');return d&&/^20\d{2}-\d{2}-\d{2}$/.test(d)&&!Number.isNaN(Date.parse(d))?d:today();}),[data,setData]=useState<any>(null),[error,setError]=useState(''),[notice,setNotice]=useState(''),[login,setLogin]=useState(false);
  const [account,setAccount]=useState(''),[password,setPassword]=useState(''),[busy,setBusy]=useState(false),[refreshing,setRefreshing]=useState(false),[query,setQuery]=useState(''),[tab,setTab]=useState('main');
  const [statusTarget,setStatusTarget]=useState<any>(null);
+ const [statusMessage,setStatusMessage]=useState('');
+ useEffect(()=>{if(!statusMessage)return;const timer=setTimeout(()=>setStatusMessage(''),4000);return()=>clearTimeout(timer);},[statusMessage]);
  const [referenceDraft,setReferenceDraft]=useState<any>(null),[referenceError,setReferenceError]=useState('');
  const [draft,setDraft]=useState<any>(null),[preview,setPreview]=useState<any>(null),[uncertain,setUncertain]=useState(false);
  const [rowAction,setRowAction]=useState<any>(null),inlineRunning=useRef(false);
@@ -111,7 +113,7 @@ export default function LiveLedger({view='games'}:{view?:'games'|'daily'|'fnb'|'
    const fresh=await request(undefined,day);setData(fresh);setError('');
    const saved=fresh.gameStates.find((s:any)=>s.game_no===statusTarget.game);
    if(saved?.status!==statusTarget.status)throw Error('게임 상태를 다시 확인해주세요. 다른 직원의 변경이 있을 수 있습니다.');
-   setStatusTarget(null);setNotice(statusTarget.game+'번 · '+gameStatusLabels[saved.status]);
+   setStatusTarget(null);setStatusMessage(statusTarget.game+'번 · '+gameStatusLabels[saved.status]);
   }
   catch(e){setNotice((e as Error).message);setStatusTarget(null);await load();}finally{setBusy(false);}
  }
@@ -185,6 +187,7 @@ export default function LiveLedger({view='games'}:{view?:'games'|'daily'|'fnb'|'
  <button disabled={busy} className={styles.closeButton} onClick={closeEditor}>{uncertain?'닫고 처리 이력에서 확인':'닫기'}</button></div></>;
 
  return <section className={`${styles.page} ${view==='games'?styles.gamePage:''}`}>
+ {statusMessage&&<p className={styles.statusToast} role='status'>✓ {statusMessage}</p>}
  {view!=='games'&&<> <header className={styles.header}><div><span className={styles.eyebrow}>DREAM POKER</span><h1>{title}</h1><p>{caption}</p></div><div className={styles.headerActions}>{view!=='players'&&<div className={styles.datePicker}><button aria-label='이전 날짜' disabled={busy||!!draft} onClick={()=>shiftDay(-1)}>‹</button><input aria-label='영업일' type='date' value={day} disabled={busy||!!draft} onChange={e=>selectDay(e.target.value)}/><button aria-label='다음 날짜' disabled={busy||!!draft} onClick={()=>shiftDay(1)}>›</button>{day!==today()&&<button disabled={busy||!!draft} onClick={()=>selectDay(today())}>오늘</button>}</div>}<button aria-label='기록 새로고침' disabled={refreshing} onClick={()=>void load()}>{refreshing?'갱신 중…':'↻ 새로고침'}</button><button className={styles.primary} disabled={locked||!!draft} onClick={()=>view==='fnb'?newFnb():view==='players'?newPlayer():gameDraft()}>{view==='fnb'?'+ 주문 입력':view==='players'?'+ 선수 등록':'+ 새 게임 입력'}</button></div></header>
  <div className={styles.sync} role='status'><span className={error?styles.offline:styles.dot}/>{error?'연결 확인 필요':data?'구글 시트 연결됨':'기록 불러오는 중'}<span className={styles.syncTime}>{data?new Date(data.checkedAt).toLocaleTimeString('ko-KR',{timeZone:'Asia/Ho_Chi_Minh'}):'—'} · 15초마다 갱신</span></div></>}
 

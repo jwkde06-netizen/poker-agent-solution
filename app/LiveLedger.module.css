@@ -206,7 +206,7 @@
 .pendingRowNotice button{margin-left:auto;white-space:nowrap}
 @media(max-width:760px){.gamePage .gameStack{max-height:calc(100dvh - 275px)}.sheetTable.sheetTable{min-width:760px}.sheetNavigation{margin-bottom:6px}}
 
-.gamePage .gameStack{max-height:calc(100dvh - 310px)}@media(max-width:760px){.gamePage .gameStack{max-height:calc(100dvh - 360px)}}
+.gamePage .gameStack{max-height:calc(100dvh - 234px)}@media(max-width:760px){.gamePage .gameStack{max-height:calc(100dvh - 294px)}}
 
 /* Keep current games first; history and scan diagnostics live in the overflow menu. */
 .gameMenuContent a{color:var(--text);font-size:12px;text-decoration:none;text-align:center;padding:8px}
@@ -217,4 +217,5 @@
 .preparedGames>span{margin-right:2px}
 .page .preparedGames button{min-height:27px;padding:3px 9px;font-size:11px;border-style:dashed;border-radius:5px;background:var(--surface)}
 .sheetNavigation .currency{margin-left:auto}
+.page .statusToast{position:fixed;bottom:20px;right:24px;z-index:40;padding:10px 15px;margin:0;background:var(--surface);color:var(--text);border:1px solid var(--line-strong);border-radius:9px;box-shadow:0 5px 20px #0003;font-size:12px;pointer-events:none}
 @media(max-width:760px){.compactLiveCards{display:flex;flex-wrap:nowrap;overflow-x:auto;flex-basis:auto;width:100%;padding-bottom:3px}.compactLiveCards>button{flex:0 0 216px;width:216px;max-width:216px}.gameTopActions{padding-top:0}}
