@@ -140,3 +140,5 @@
 .referenceEditor>strong{align-self:center}.referenceEditor label{display:grid;gap:5px;font-size:12px}.referenceEditor input{max-width:150px}
 .referenceEditor>p{flex-basis:100%;color:var(--red)}
 @media(max-width:760px){.gameFields{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.inlineEditor .dialogHead,.inlineEditor .dialogBody{padding:14px 12px}.cardTable{flex-wrap:wrap}.sourceNumber{flex-basis:100%;margin-left:0;font-size:10px}.compactLiveCards>button{gap:7px}.cardTitle strong{font-size:20px}.referenceEditor{padding:12px}.entryTable td:first-child{min-width:200px}}
+
+.gamePage .inlineEditor{width:100%;box-sizing:border-box}
