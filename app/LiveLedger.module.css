@@ -241,3 +241,4 @@
 .gamePage .selectedHead .controls .gameAction:hover{background:var(--text);opacity:.9}
 :global(html[data-theme="dark"]) .gamePage .selectedHead .controls .gameAction{background:#fff;color:#15171b;border-color:#fff}
 :global(html[data-theme="dark"]) .gamePage .selectedHead .controls .gameAction:hover{background:#eceef1;border-color:#eceef1}
+.scanReviewHead{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px;font-size:13px}.scanReviewHead select{min-height:34px;padding:6px 9px}.scanReviewHead span{color:var(--muted);font-size:12px}.page .scanWarning{font-size:12px;margin:6px 0;color:var(--text)}
