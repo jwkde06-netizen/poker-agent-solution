@@ -2659,31 +2659,11 @@ export default function Home() {
     {key:"staffDaily",label:"오늘 정산"},
   ] as const;
 
-  return <main className={`appShell theme-${theme}`}>
-    <aside className="sidebar">
-      <div className="brand">
-        <img className="brandLogo" src="/dream-poker-logo.svg" alt="Dream Poker Da Nang"/>
-        <div><strong>Dream Poker</strong></div>
-      </div>
-
-      <nav className="sideNav" aria-label="메인 메뉴">
-        <span className="sideNavActiveTrack" aria-hidden="true" style={{transform:`translate3d(0, ${Math.max(0,navItems.findIndex(item=>item.key===tab))*51}px, 0)`}}/>
-        {navItems.map(item=><button key={item.key} className={tab===item.key?"active":""} aria-current={tab===item.key?"page":undefined} onClick={()=>navigateTab(item.key as TabKey)}>
-          <span className="navIcon"><DesktopNavIcon type={item.key}/></span><span>{item.label}</span>
-        </button>)}
-      </nav>
-
-      <div className="agentPreview">
-        <div className="previewIcon">◉</div>
-        <div><b>에이전트 보기로 전환하기 →</b><span>에이전트 권한 화면을 확인할 수 있습니다.</span></div>
-      </div>
-    </aside>
-
-    <section className="workspace">
+  return <main className={`appShell theme-${theme} ${chromeStyles.shell}`}>
       <header className={`workspaceTopbar ${chromeStyles.topbar}`}>
-        <div className="mobileTopTitle">
-          <img src="/dream-poker-logo.svg" alt=""/>
-          <span className="mobileProductTitle"><strong>Dream Poker</strong></span>
+        <div className={chromeStyles.brand}>
+          <img src="/dream-poker-logo.svg" alt="Dream Poker Da Nang"/>
+          <strong>Dream Poker</strong>
         </div>
         <button
           className="mobileSideMenuButton"
@@ -2734,6 +2714,22 @@ export default function Home() {
           </div>}
         </div>
       </header>
+    <aside className="sidebar">
+      <nav className="sideNav" aria-label="메인 메뉴">
+        <span className="sideNavActiveTrack" aria-hidden="true" style={{transform:`translate3d(0, ${Math.max(0,navItems.findIndex(item=>item.key===tab))*51}px, 0)`}}/>
+        {navItems.map(item=><button key={item.key} className={tab===item.key?"active":""} aria-current={tab===item.key?"page":undefined} onClick={()=>navigateTab(item.key as TabKey)}>
+          <span className="navIcon"><DesktopNavIcon type={item.key}/></span><span>{item.label}</span>
+        </button>)}
+      </nav>
+
+      <div className="agentPreview">
+        <div className="previewIcon">◉</div>
+        <div><b>에이전트 보기로 전환하기 →</b><span>에이전트 권한 화면을 확인할 수 있습니다.</span></div>
+      </div>
+    </aside>
+
+    <section className="workspace">
+
 
       {mobileSideMenuOpen && <>
         <button className="mobileSideMenuBackdrop" aria-label="메뉴 닫기" onClick={()=>setMobileSideMenuOpen(false)}/>

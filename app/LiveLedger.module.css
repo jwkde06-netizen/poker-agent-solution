@@ -235,3 +235,9 @@
 .pendingDot{position:absolute;right:0;top:3px;width:4px;height:4px;border-radius:50%;background:var(--muted)}
 @media(max-width:760px){.gameFormatRow{grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}.gameFormatRow>button:nth-last-child(2){grid-column:3;justify-self:stretch}.gameTopActions{flex-wrap:wrap}.gameEntryRow{padding:9px}}
 .page .notice{background:var(--surface-2);color:var(--text);border-color:var(--line-strong)}
+.gameTopActions>button[aria-label="실행 취소"]{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:36px;white-space:nowrap}
+.undoIcon{display:block;width:17px;height:17px;flex:0 0 17px}
+.gamePage .selectedHead .controls .gameAction{display:inline-flex;align-items:center;justify-content:center;width:88px;min-width:88px;height:34px;min-height:34px;padding:0 12px;border-radius:8px;font-size:12px;line-height:1;font-weight:700;background:var(--text);color:var(--surface);border-color:var(--text);white-space:nowrap}
+.gamePage .selectedHead .controls .gameAction:hover{background:var(--text);opacity:.9}
+:global(html[data-theme="dark"]) .gamePage .selectedHead .controls .gameAction{background:#fff;color:#15171b;border-color:#fff}
+:global(html[data-theme="dark"]) .gamePage .selectedHead .controls .gameAction:hover{background:#eceef1;border-color:#eceef1}
