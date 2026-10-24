@@ -1,1 +1,4 @@
 .topbar.topbar{justify-content:flex-end;min-height:52px;height:52px;padding-top:5px;padding-bottom:5px}@media(max-width:760px){.topbar.topbar{justify-content:space-between}}
+.topbar.topbar :global(.accountMenuTrigger){height:36px;min-width:60px;width:auto;padding:5px 8px;gap:8px;justify-content:center;border-radius:10px;box-sizing:border-box}
+.topbar.topbar :global(.accountMenuTrigger .avatar){width:24px;height:24px;min-width:24px;flex:0 0 24px;border-radius:50%;font-size:12px;font-weight:700;line-height:1;display:grid;place-items:center}
+.topbar.topbar :global(.accountMenuTrigger .menuChevron){font-size:11px;line-height:1}
