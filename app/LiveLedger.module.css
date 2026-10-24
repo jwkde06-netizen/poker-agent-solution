@@ -168,6 +168,11 @@
 .sheetTable.sheetTable{width:100%;min-width:760px;table-layout:fixed;border-collapse:collapse;font-size:12px;margin:0}
 .indexCol{width:32px}.agencyCol{width:100px}.idCol{width:82px}.buyinCol{width:122px}.moneyCol{width:116px}
 .sheetTable th,.sheetTable td{box-sizing:border-box;padding:6px 10px;border:0;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sheetTable.sheetTable th,.sheetTable.sheetTable td{padding:6px 10px!important}
+.sheetTable.sheetTable thead th{padding:2px 10px!important}
+.sheetTable.sheetTable th:first-child,.sheetTable.sheetTable td.sheetIndex{padding:6px 3px!important;text-overflow:clip;text-align:center}
+.sheetTable.sheetTable tbody th{background:transparent;height:auto}
+.sheetTable.sheetTable td.rowEditorCell{padding:12px!important}
 .sheetTable thead th{position:static;background:var(--surface-2);color:var(--muted);font-size:11px;font-weight:600;height:32px;padding-top:2px;padding-bottom:2px}
 .sheetTable thead th:nth-last-child(-n+2){text-align:right}
 .sheetTable thead th:nth-child(5){text-align:center}

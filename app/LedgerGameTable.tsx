@@ -18,7 +18,7 @@ export default function LedgerGameTable({game,rows,players,playerIndex,locked,ac
  }
  return <div className={styles.sheetScroll}><table className={styles.sheetTable} aria-label={game+'번 참가 장부'}>
  <colgroup><col className={styles.indexCol}/><col className={styles.nameCol}/><col className={styles.agencyCol}/><col className={styles.idCol}/><col className={styles.buyinCol}/><col className={styles.moneyCol}/><col className={styles.moneyCol}/></colgroup>
- <thead><tr><th scope='col'>#</th><th scope='col'>이름</th><th scope='col'><select aria-label={game+'번 소속 필터'} value={agency} onChange={e=>setAgency(e.target.value)}><option value=''>소속 ▾</option>{agencies.map(a=><option key={a}>{a}</option>)}</select></th><th scope='col'>ID</th><th scope='col'>바인</th><th scope='col'>레이크</th><th scope='col'>레이크백</th></tr></thead>
+ <thead><tr><th scope='col'>#</th><th scope='col'>이름</th><th scope='col'><select aria-label={game+'번 소속 필터'} value={agency} onChange={e=>setAgency(e.target.value)}><option value=''>소속</option>{agencies.map(a=><option key={a}>{a}</option>)}</select></th><th scope='col'>ID</th><th scope='col'>바인</th><th scope='col'>레이크</th><th scope='col'>레이크백</th></tr></thead>
  <tbody>{visible.flatMap((r,i)=>{
   const p=playerIndex.get(key(r.player));const current=action?.row===r.row&&action?.player===r.player?action:null;
   const waiting=current&&['saving','uncertain'].includes(current.stage);const edit=editing?.row.row===r.row?editing:null;
