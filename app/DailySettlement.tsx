@@ -14,15 +14,15 @@ export default function DailySettlement({report,day}:{report:any;day:string}){
  return <>
   <div className={styles.dailyHeader}><h2>{d.games}개 게임 · 참가 {d.participants}건</h2><FlowLink tab='games' day={day}>게임 장부 수정 →</FlowLink></div>
   <section className={styles.dailyMetrics} aria-label='일일 정산 합계'>
-   <div className={styles.metric}><span>총 바이인</span><strong>{amount(d.buyins)}<small>회</small></strong><p>레이크 {amount(d.rake)}동</p></div>
-   <div className={styles.metric}><span>총 레이크백</span><strong>{amount(d.back)}<small>동</small></strong><p>구글 시트 계산값</p></div>
-   <div className={styles.metric}><span>F&B · 수익 차감</span><strong>{amount(d.fnbDeductible)}<small>동</small></strong><p>3F 별도 정산 {num(d.fnbExcluded)}동</p></div>
-   <div className={styles.metric}><span>당일 정산액 · 급여 전</span><strong>{amount(d.net)}<small>동</small></strong><p>코드별 정산금 {amount(d.payout)}동 차감</p></div>
+   <div className={styles.metric}><span>총 바이인</span><strong>{amount(d.buyins)}{!incomplete&&<small>회</small>}</strong><p>레이크 {amount(d.rake)}동</p></div>
+   <div className={styles.metric}><span>총 레이크백</span><strong>{amount(d.back)}{!incomplete&&<small>동</small>}</strong><p>구글 시트 계산값</p></div>
+   <div className={styles.metric}><span>F&B · 수익 차감</span><strong>{amount(d.fnbDeductible)}{!incomplete&&<small>동</small>}</strong><p>3F 별도 정산 {num(d.fnbExcluded)}동</p></div>
+   <div className={styles.metric}><span>당일 정산액 · 급여 전</span><strong>{amount(d.net)}{!incomplete&&<small>동</small>}</strong><p>코드별 정산금 {amount(d.payout)}동 차감</p></div>
   </section>
   <div className={styles.calculation}><span>당일 정산액 = 레이크백 − F&B 수익 차감 − 코드별 정산금</span><span>급여·기타 지출·지급 여부 별도</span></div>
   {undated.length>0&&<p className={styles.warning}>날짜 미확정 {undated.length}건은 위 합계에 포함되지 않았습니다. <FlowLink tab='sheetWeekly' day={day}>주간 검토에서 확인 →</FlowLink></p>}
   <ScanQueue intake={report.intake} day={day}/>
-  {issues.length>0&&<section className={styles.dailyPanel}><h2>장부 확인 {issues.length}건</h2><ul className={styles.issues}>{issues.map((i:any,n:number)=><li key={n}><span>{i.message}</span><FlowLink tab={i.sheet==='F&B 입력'?'fnb':'games'} day={i.date||day} game={i.game}>해당 장부 →</FlowLink></li>)}</ul></section>}
+  {issues.length>0&&<details className={styles.dailyPanel}><summary>장부 입력 확인 {new Set(issues.map((i:any)=>[i.sheet,i.row??i.message].join(':'))).size}건</summary><ul className={styles.issues}>{issues.map((i:any,n:number)=><li key={n}><span>{i.message}</span><FlowLink tab={i.sheet==='F&B 입력'?'fnb':'games'} day={i.date||day} game={i.game}>해당 장부 →</FlowLink></li>)}</ul></details>}
   <section className={styles.dailyPanel}><div className={styles.dailyHeader}><h2>게임별 합계</h2><FlowLink tab='fnb' day={day}>F&B 내역 →</FlowLink></div><div className={styles.scroll}><table><thead><tr><th>게임</th><th>테이블</th><th>참가</th><th>바인</th><th>레이크</th><th>레이크백</th></tr></thead><tbody>{Array.from(groups.values()).map(g=><tr key={g.id}><td><FlowLink tab='games' day={day} game={Number(g.game)}>{g.game||'미지정'}번 ↗</FlowLink></td><td>{tableLabel(g.table)}</td><td>{g.players}명</td><td>{g.valid?num(g.buyins):'확인 필요'}</td><td>{g.valid?num(g.rake):'확인 필요'}</td><td>{g.valid?num(g.back):'확인 필요'}</td></tr>)}</tbody></table></div>{!groups.size&&<p className={styles.empty}>이 날짜의 참가 기록이 없습니다.</p>}</section>
   <FlowLink tab='sheetWeekly' day={day} className={styles.next}><span>이 주 정산 검토<small>{report.start} — {report.end} · 일일 기록 자동 합산</small></span><span>→</span></FlowLink>
  </>;
