@@ -219,3 +219,19 @@
 .sheetNavigation .currency{margin-left:auto}
 .page .statusToast{position:fixed;bottom:20px;right:24px;z-index:40;padding:10px 15px;margin:0;background:var(--surface);color:var(--text);border:1px solid var(--line-strong);border-radius:9px;box-shadow:0 5px 20px #0003;font-size:12px;pointer-events:none}
 @media(max-width:760px){.compactLiveCards{display:flex;flex-wrap:nowrap;overflow-x:auto;flex-basis:auto;width:100%;padding-bottom:3px}.compactLiveCards>button{flex:0 0 216px;width:216px;max-width:216px}.gameTopActions{padding-top:0}}
+
+/* Direct worksheet actions: compact entry row, reversible edits, silent background saves. */
+.gameEntryRow{border:1px solid var(--line-strong);border-radius:9px;background:var(--surface);margin:0 0 10px;padding:12px}
+.inlineGameForm fieldset{padding:0;margin:0;border:0;min-width:0}
+.gameFormatRow{display:grid;grid-template-columns:80px 100px 130px 100px auto auto;align-items:end;gap:10px;margin-bottom:10px}
+.gameFormatRow label{display:grid;gap:5px;color:var(--muted);font-size:11px}
+.gameFormatRow input,.gameFormatRow select{width:100%;height:34px;min-height:34px;padding:6px 9px;box-sizing:border-box}
+.gameFormatRow>button{height:34px;min-height:34px;padding:6px 12px}
+.gameFormatRow>button:nth-last-child(2){justify-self:end}
+.inlineGameForm .entryTable input{min-height:36px;padding:6px 10px}
+.inlineGameForm .entryTable th{padding:6px 10px}
+.page .rowEditorFields{grid-template-columns:minmax(180px,1fr) 90px}
+.buyinValue{position:relative}
+.pendingDot{position:absolute;right:0;top:3px;width:4px;height:4px;border-radius:50%;background:var(--muted)}
+@media(max-width:760px){.gameFormatRow{grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}.gameFormatRow>button:nth-last-child(2){grid-column:3;justify-self:stretch}.gameTopActions{flex-wrap:wrap}.gameEntryRow{padding:9px}}
+.page .notice{background:var(--surface-2);color:var(--text);border-color:var(--line-strong)}

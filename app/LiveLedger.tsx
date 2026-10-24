@@ -4,6 +4,7 @@ import {db} from '../lib/db';
 import styles from './LiveLedger.module.css';
 import LedgerGameTable from './LedgerGameTable';
 import {submitLedgerChange} from '../lib/ledger-inline';
+import {LedgerCounterQueue,counterKey,CounterEntry} from '../lib/ledger-counter-queue';
 import {FlowLink,ScanQueue} from './SettlementFlow';
 import {rememberSettlementDay} from '../lib/settlement-navigation';
 const today=()=>new Date(Date.now()+7*3600000).toISOString().slice(0,10);
@@ -11,8 +12,14 @@ const key=(v:any)=>String(v||'').toUpperCase().replace(/[^A-Z0-9가-힣]/g,'');
 const gameStatusLabels:Record<string,string>={active:'진행 중',prepared:'시작 전',closed:'종료',unknown:'상태 미확인',unconfirmed:'상태 미확인'};
 const statuses:Record<string,string>={pending:'승인 대기',confirmed:'예약 확정',checked_in:'입장 완료',waitlisted:'대기',cancelled:'취소',rejected:'거절',no_show:'노쇼'};
 export default function LiveLedger({view='games'}:{view?:'games'|'daily'|'fnb'|'players'}){
- const [day,setDay]=useState(()=>{if(typeof window==='undefined')return today();const d=new URLSearchParams(window.location.search).get('day');return d&&/^20\d{2}-\d{2}-\d{2}$/.test(d)&&!Number.isNaN(Date.parse(d))?d:today();}),[data,setData]=useState<any>(null),[error,setError]=useState(''),[notice,setNotice]=useState(''),[login,setLogin]=useState(false);
+ const [day,setDay]=useState(()=>{if(typeof window==='undefined')return today();const d=new URLSearchParams(window.location.search).get('day');return d&&/^20\d{2}-\d{2}-\d{2}$/.test(d)&&!Number.isNaN(Date.parse(d))?d:today();}),[data,setRawData]=useState<any>(null),[error,setError]=useState(''),[notice,setNotice]=useState(''),[login,setLogin]=useState(false);
  const [account,setAccount]=useState(''),[password,setPassword]=useState(''),[busy,setBusy]=useState(false),[refreshing,setRefreshing]=useState(false),[query,setQuery]=useState(''),[tab,setTab]=useState('main');
+ const dataRef=useRef<any>(null);
+ const setData=(next:any)=>{dataRef.current=next;setRawData(next);};
+ const [counterEntries,setCounterEntries]=useState<CounterEntry[]>([]),counterQueue=useRef<LedgerCounterQueue|null>(null);
+ const [undoTarget,setUndoTarget]=useState<any>(null);
+ const rememberUndo=(target:any)=>{setUndoTarget(target);try{if(target)sessionStorage.setItem('dream-ledger-undo:'+day,JSON.stringify(target));else sessionStorage.removeItem('dream-ledger-undo:'+day);}catch{}};
+ useEffect(()=>{try{setUndoTarget(JSON.parse(sessionStorage.getItem('dream-ledger-undo:'+day)||'null'));}catch{setUndoTarget(null);}},[day]);
  const [statusTarget,setStatusTarget]=useState<any>(null);
  const [statusMessage,setStatusMessage]=useState('');
  useEffect(()=>{if(!statusMessage)return;const timer=setTimeout(()=>setStatusMessage(''),4000);return()=>clearTimeout(timer);},[statusMessage]);
@@ -27,7 +34,7 @@ export default function LiveLedger({view='games'}:{view?:'games'|'daily'|'fnb'|'
   const b=await r.json();if(!r.ok){if(r.status===403){setLogin(true);setData(null);}throw Error(b.error||'연결을 확인해주세요.');}if(!body&&(!Array.isArray(b.gameStates)||!Array.isArray(b.daily)||!Array.isArray(b.fnb)||!Array.isArray(b.players)||!Array.isArray(b.menu)||!Array.isArray(b.history)||!Array.isArray(b.reservations)||b.day!==selectedDay||typeof b.sourceHash!=='string'))throw Error('정산 서비스의 연동 자료를 확인하지 못했습니다. 잠시 후 새로고침해주세요.');return b;
  }
  const load=useCallback(async()=>{
-  if(reading.current===day)return;reading.current=day;const rev=revision.current;setRefreshing(true);
+  if(reading.current===day||counterQueue.current?.pending||inlineRunning.current)return;reading.current=day;const rev=revision.current;setRefreshing(true);
   try{const b=await request(undefined,day);if(alive.current&&rev===revision.current){setData(b);setLogin(false);setError('');}}
   catch(e){if(alive.current&&rev===revision.current)setError((e as Error).message);}
   finally{if(reading.current===day)reading.current=null;if(alive.current&&rev===revision.current)setRefreshing(false);}
@@ -40,17 +47,19 @@ export default function LiveLedger({view='games'}:{view?:'games'|'daily'|'fnb'|'
  async function prepare(){if(!draft)return;setBusy(true);setNotice('');try{const b=await request({action:'preview',...draft});if(b.noop){setNotice('이미 같은 내용이 반영되어 있습니다.');setDraft(null);await load();}else setPreview(b);}catch(e){setNotice((e as Error).message);}finally{setBusy(false);}}
  async function save(action='apply',id=preview?.id){
   if(!id)return;setBusy(true);
+  const savedOperation=draft?.operation,pendingKey='dream-ledger-pending:'+day;
+  if(savedOperation)try{sessionStorage.setItem(pendingKey,JSON.stringify({id,day,kind:savedOperation.kind,row:savedOperation.row||0,game:savedOperation.game||'',player:savedOperation.label||'게임 입력',reference:savedOperation.kind==='game'&&savedOperation.sourceNo?{day:savedOperation.date,game:savedOperation.game,sourceNo:savedOperation.sourceNo}:undefined}));}catch{}
   try{
    setUncertain(true);const b=await request({action,id});
    if(b.applied){
-    const operation=draft?.operation;
-    setNotice(operation?.kind==='buyins'?`✅ ${operation.label} · 총 ${operation.buyins}바인 반영 완료`:'✅ 입력 내용 반영 완료');
+    const operation=draft?.operation;if(operation&&['game','buyins','participant','cancel'].includes(operation.kind))rememberUndo({kind:'ledger',id,label:operation.kind==='game'?operation.game+'번 입력':operation.label});
+    setNotice('');setStatusMessage(operation?.kind==='game'?operation.game+'번 입력 완료':'입력 완료');try{sessionStorage.removeItem(pendingKey);}catch{}
     setDraft(null);setPreview(null);setUncertain(false);
     if(operation?.kind==='game'){
      setSelectedGame('');
      if(operation.sourceNo){
       const reference={day:operation.date,game:Number(operation.game),sourceNo:operation.sourceNo};
-      try{await persistReference(reference);}catch(e){setReferenceDraft(reference);setReferenceError('참가 기록은 저장됐습니다. K홀덤 No.만 저장하지 못했습니다. '+(e as Error).message);}
+      try{await persistReference(reference);}catch(e){setReferenceDraft(reference);setReferenceError('참가 기록은 저장됐습니다. No.만 저장하지 못했습니다. '+(e as Error).message);}
      }
     }
     await load();
@@ -63,7 +72,8 @@ export default function LiveLedger({view='games'}:{view?:'games'|'daily'|'fnb'|'
 
  const op=draft?.operation;
 
- const locked=busy||rowAction?.stage==='uncertain'||!!error||!data||data.day!==day;
+ const counterLocked=busy||rowAction?.stage==='uncertain'||!!error||!data||data.day!==day;
+ const locked=counterLocked||counterEntries.length>0;
  const stale=!!draft&&data?.sourceHash!==draft.sourceHash;
  function gameDraft(reservation?:any,group?:any){
   edit({kind:'game',date:day,game:group?.game??Math.max(0,...groups.map(g=>Number(g.game)||0))+1,table:group?Number(String(group.table).split('-')[0]):reservation?.game?.table_no?Number(reservation.game.table_no):'',blind:group?.blind||'',players:[{player:reservation?.player_name_en||reservation?.player_name||'',buyins:1}],...(reservation?{reservationId:reservation.id,reservationVersion:reservation.version}:{})});
@@ -76,7 +86,7 @@ export default function LiveLedger({view='games'}:{view?:'games'|'daily'|'fnb'|'
  const playerIndex=useMemo(()=>new Map<string,any>((data?.players||[]).map((p:any)=>[key(p.name),p])),[data?.players]);
  const records=(data?.daily||[]).filter((r:any)=>(!query||key(r.player).includes(key(query))||String(r.game)===query)&&(!gameFilter||String(r.game)===gameFilter)&&(!agency||playerIndex.get(key(r.player))?.agency===agency));
  const orders=(data?.fnb||[]).filter((r:any)=>(!query||key(r.note).includes(key(query)))&&(!floorFilter||r.floor===floorFilter));
- function selectDay(value:string){if(!value||busy||draft||rowAction?.stage==='uncertain')return;rememberSettlementDay(value);revision.current++;setDay(value);setData(null);setError('');setSelectedGame('');setRosterQueries({});openedDay.current='';pendingScroll.current=null;setStatusTarget(null);setReferenceDraft(null);setReferenceError('');setGameFilter('');setNotice('');setRowAction(null);}
+ function selectDay(value:string){if(!value||busy||draft||counterQueue.current?.pending||rowAction?.stage==='uncertain')return;rememberSettlementDay(value);revision.current++;setDay(value);setData(null);setError('');setSelectedGame('');setRosterQueries({});openedDay.current='';pendingScroll.current=null;setStatusTarget(null);setReferenceDraft(null);setReferenceError('');setGameFilter('');setNotice('');setRowAction(null);}
  useEffect(()=>{const sync=()=>{const params=new URLSearchParams(window.location.search),d=params.get('day');if(d&&d!==day)selectDay(d);else{const target=groups.find(g=>g.game===Number(params.get('game')));if(target)chooseGame(target);}};window.addEventListener('popstate',sync);return()=>window.removeEventListener('popstate',sync);},[day,data,busy,!!draft]);
  function shiftDay(delta:number){selectDay(new Date(Date.parse(day+'T12:00:00Z')+delta*86400000).toISOString().slice(0,10));}
  const dialog=useRef<HTMLDialogElement>(null);
@@ -86,7 +96,13 @@ export default function LiveLedger({view='games'}:{view?:'games'|'daily'|'fnb'|'
  useEffect(()=>{if(dialogOpen){dialog.current?.showModal();}else if(dialog.current?.open)dialog.current.close();},[dialogOpen]);
  function closeEditor(){if(busy)return;setDraft(null);setPreview(null);setUncertain(false);}
  function buyin(r:any,delta=0){edit({kind:'buyins',row:r.row,expected:r.expected,buyins:Number(r.buyins)+delta,reason:'',label:r.game+'번 게임 · '+r.player});}
- const groups=Object.values((data?.daily||[]).reduce((all:Record<string,any>,r:any)=>{const id=[r.game,r.table,r.blind].join('|');if(!all[id])all[id]={id,game:r.game,table:r.table,physical:String(r.table).split('-')[0],blind:r.blind,players:[],buyins:0};all[id].players.push(r);all[id].buyins+=Number(r.buyins)||0;return all;},{})) as any[];
+ const counterMap=new Map(counterEntries.map(e=>[e.key,e]));
+ const displayDaily=(data?.daily||[]).filter((r:any)=>!(rowAction?.stage==='saving'&&rowAction?.kind==='cancel'&&r.row===rowAction.row)).map((r:any)=>{
+  const c=counterMap.get(counterKey(r));if(c)return {...r,buyins:c.target,_pending:true};
+  if(rowAction?.stage==='saving'&&rowAction?.row===r.row)return {...r,player:rowAction.replacement||r.player,buyins:rowAction.value??r.buyins,_pending:true};
+  return r;
+ });
+ const groups=Object.values(displayDaily.reduce((all:Record<string,any>,r:any)=>{const id=[r.game,r.table,r.blind].join('|');if(!all[id])all[id]={id,game:r.game,table:r.table,physical:String(r.table).split('-')[0],blind:r.blind,players:[],buyins:0};all[id].players.push(r);all[id].buyins+=Number(r.buyins)||0;return all;},{})) as any[];
  const gameState=(g:any)=>(data?.gameStates||[]).find((s:any)=>s.game_no===g.game);
  const statusOf=(g:any)=>{const s=gameState(g);return s&&s.table_label===g.table&&s.blind===g.blind?s.status:'unknown';};
  const liveGames=groups.filter(g=>statusOf(g)==='active').sort((a,b)=>a.game-b.game);
@@ -104,16 +120,17 @@ export default function LiveLedger({view='games'}:{view?:'games'|'daily'|'fnb'|'
   const requested=Number(new URLSearchParams(window.location.search).get('game'));
   const first=orderedGames.find(g=>g.game===requested)||liveGames[0]||orderedGames[0];if(scrollToGame(first.id,'instant')){openedDay.current=day;setSelectedGame(first.id);}
  },[data,day,view,tab,!!draft]);
- async function updateGameStatus(){
-  if(!statusTarget)return;setBusy(true);setNotice('');
+ async function updateGameStatus(target=statusTarget){
+  if(!target||locked)return;setBusy(true);setNotice('');
   try{
-   await request({action:'game_status',day,game:statusTarget.game,status:statusTarget.status,version:statusTarget.version,sourceHash:statusTarget.sourceHash});
+   await request({action:'game_status',day,game:target.game,status:target.status,version:target.version,sourceHash:target.sourceHash});
    // Ignore reads started before this write, and verify the saved state before announcing completion.
    revision.current++;
    const fresh=await request(undefined,day);setData(fresh);setError('');
-   const saved=fresh.gameStates.find((s:any)=>s.game_no===statusTarget.game);
-   if(saved?.status!==statusTarget.status)throw Error('게임 상태를 다시 확인해주세요. 다른 직원의 변경이 있을 수 있습니다.');
-   setStatusTarget(null);setStatusMessage(statusTarget.game+'번 · '+gameStatusLabels[saved.status]);
+   const saved=fresh.gameStates.find((s:any)=>s.game_no===target.game);
+   if(saved?.status!==target.status)throw Error('게임 상태를 다시 확인해주세요. 다른 직원의 변경이 있을 수 있습니다.');
+   rememberUndo({kind:'status',game:target.game,status:target.previousStatus||'unconfirmed',version:saved.version});
+   setStatusTarget(null);setStatusMessage(target.game+'번 · '+gameStatusLabels[saved.status]);
   }
   catch(e){setNotice((e as Error).message);setStatusTarget(null);await load();}finally{setBusy(false);}
  }
@@ -128,12 +145,12 @@ export default function LiveLedger({view='games'}:{view?:'games'|'daily'|'fnb'|'
   // Re-read the game identity before saving its independent casino reference.
   const fresh=await request(undefined,item.day);
   const state=fresh.gameStates.find((x:any)=>x.game_no===item.game);
-  if(item.version===undefined&&state?.source_no&&state.source_no!==item.sourceNo)throw Error('다른 K홀덤 No.가 이미 저장되어 있습니다. 해당 게임에서 번호를 확인해주세요.');
+  if(item.version===undefined&&state?.source_no&&state.source_no!==item.sourceNo)throw Error('다른 No.가 이미 저장되어 있습니다. 해당 게임에서 번호를 확인해주세요.');
   await request({action:'game_reference',day:item.day,game:item.game,sourceNo:item.sourceNo,version:item.version===undefined?(state?.version??null):item.version,sourceHash:fresh.sourceHash});
  }
  async function saveReference(){
   if(!referenceDraft)return;setBusy(true);setReferenceError('');
-  try{await persistReference(referenceDraft);setReferenceDraft(null);setNotice('K홀덤 No. 저장 완료');await load();}
+  try{const before=dataRef.current.gameStates.find((s:any)=>s.game_no===referenceDraft.game);await persistReference(referenceDraft);revision.current++;const fresh=await request(undefined,day);setData(fresh);const saved=fresh.gameStates.find((s:any)=>s.game_no===referenceDraft.game);rememberUndo({kind:'reference',game:referenceDraft.game,sourceNo:before?.source_no||'',version:saved?.version});setReferenceDraft(null);setStatusMessage('No. 저장 완료');}
   catch(e){setReferenceError((e as Error).message);}finally{setBusy(false);}
  }
 
@@ -142,7 +159,7 @@ export default function LiveLedger({view='games'}:{view?:'games'|'daily'|'fnb'|'
   if(inlineRunning.current||(!retry&&(locked||draft||referenceDraft)))return false;
   inlineRunning.current=true;setBusy(true);setNotice('');revision.current++;
   let commandId=retry?rowAction?.id:undefined;
-  const context=retry?{...rowAction}:{row:row.row,player:row.player,game:row.game,value:operation.buyins,day};
+  const context=retry?{...rowAction}:{row:row.row,player:row.player,game:row.game,value:operation.buyins,kind:operation.kind,replacement:operation.kind==='participant'?operation.player:undefined,day};
   const pendingKey='dream-ledger-pending:'+day;
   const remember=(id:string)=>{commandId=id;const item={...context,id};try{sessionStorage.setItem(pendingKey,JSON.stringify(item));}catch{}setRowAction({...item,stage:'saving',message:'저장 중…'});};
   const clear=()=>{try{sessionStorage.removeItem(pendingKey);}catch{}};
@@ -154,7 +171,8 @@ export default function LiveLedger({view='games'}:{view?:'games'|'daily'|'fnb'|'
    if(result?.applied){
     revision.current++;try{const fresh=await request(undefined,day);setData(fresh);setError('');}
     catch{setRowAction({...context,id:commandId,stage:'uncertain',message:'저장은 완료됐습니다. 최신 화면을 다시 불러와주세요.'});return false;}
-    clear();setRowAction({...context,stage:'done'});setNotice('✓ '+context.game+'번 · '+context.player+' 반영 완료');return true;
+    if(retry&&context.reference)try{await persistReference(context.reference);}catch(e){setReferenceDraft(context.reference);setReferenceError((e as Error).message);}
+    clear();setRowAction({...context,stage:'done'});if(context.kind==='undo')rememberUndo(null);else if(commandId)rememberUndo({kind:'ledger',id:commandId,label:context.player});if(retry&&counterQueue.current?.pending){const row=dataRef.current?.daily.find((r:any)=>r.row===context.row&&r.player===context.player);if(row)counterQueue.current.reconcile(row);}setStatusMessage(context.kind==='undo'?'실행 취소 완료':context.game+'번 · '+context.player+' 반영 완료');return true;
    }
    if(!commandId||result?.status==='preview'||result?.status==='failed'||result?.failed||result?.applied===false&&result?.status!=='writing'){
     clear();setRowAction({...context,stage:'error',message:failure||'저장되지 않았습니다. 최신 기록을 확인해주세요.'});await load();return false;
@@ -163,16 +181,94 @@ export default function LiveLedger({view='games'}:{view?:'games'|'daily'|'fnb'|'
   }finally{inlineRunning.current=false;setBusy(false);}
  }
 
+ async function saveCounter(row:any,count:number){
+  revision.current++;
+  let id:string|undefined,result:any=null;
+  const context={row:row.row,player:row.player,game:row.game,value:count,kind:'buyins',day};
+  const pendingKey='dream-ledger-pending:'+day;
+  const remember=(value:string)=>{id=value;try{sessionStorage.setItem(pendingKey,JSON.stringify({...context,id}));}catch{}};
+  try{
+   try{result=await submitLedgerChange(body=>request(body),{operation:{kind:'buyins',row:row.row,expected:row.expected,buyins:count},sourceHash:dataRef.current?.sourceHash},remember);}
+   catch(error){if(id){try{result=await request({action:'result',id});}catch{}}if(!result?.applied)throw error;}
+   if(!result?.applied)throw Error('저장 결과를 확인해주세요.');
+   const fresh=await request(undefined,day),saved=fresh.daily.find((r:any)=>counterKey(r)===counterKey(row));
+   if(!saved||Number(saved.buyins)!==count)throw Error('최신 바이인 기록과 저장 결과를 다시 확인해주세요.');
+   revision.current++;setData(fresh);setError('');try{sessionStorage.removeItem(pendingKey);}catch{}
+   if(id)rememberUndo({kind:'ledger',id,label:row.game+'번 · '+row.player});
+   return saved;
+  }catch(error:any){
+   const uncertain=!!id&&!['preview','failed'].includes(result?.status)&&!result?.failed;
+   if(!uncertain){try{sessionStorage.removeItem(pendingKey);}catch{}}
+   throw Object.assign(Error(error.message||'저장하지 못했습니다.'),{uncertain,context:{...context,id}});
+  }
+ }
+ useEffect(()=>{
+  const queue=new LedgerCounterQueue({save:saveCounter,change:setCounterEntries,error:(row,error)=>{
+   const context=error.context||{row:row.row,player:row.player,game:row.game,day};
+   setRowAction({...context,stage:error.uncertain?'uncertain':'error',message:error.message});
+   if(!error.uncertain)setNotice(row.player+' · '+error.message);
+  }});
+  counterQueue.current=queue;
+  const leave=(event:BeforeUnloadEvent)=>{if(queue.pending||inlineRunning.current){event.preventDefault();event.returnValue='';}};
+  window.addEventListener('beforeunload',leave);
+  return()=>{window.removeEventListener('beforeunload',leave);if(!queue.pending)queue.dispose();};
+ },[day]);
+ function stepCounter(row:any,delta:number){if(counterLocked||draft||referenceDraft)return;setNotice('');counterQueue.current?.change(row,delta);}
+ async function undoLast(){
+  if(!undoTarget||locked)return;setBusy(true);setNotice('');let id:string|undefined,result:any;
+  try{
+   if(['status','reference'].includes(undoTarget.kind)){
+    await request({action:undoTarget.kind==='status'?'game_status':'game_reference',day,game:undoTarget.game,status:undoTarget.status,sourceNo:undoTarget.sourceNo,version:undoTarget.version,sourceHash:dataRef.current.sourceHash});
+   }else{
+    const preview=await request({action:'undo_preview',id:undoTarget.id});id=preview.id;
+    if(!id)throw Error('실행 취소 요청을 확인하지 못했습니다.');
+    const item={id,kind:'undo',row:0,player:'실행 취소',game:'',day};try{sessionStorage.setItem('dream-ledger-pending:'+day,JSON.stringify(item));}catch{}
+    try{result=await request({action:'apply',id});}catch(error){try{result=await request({action:'result',id});}catch{}if(!result?.applied)throw error;}
+    if(!result?.applied)throw Error('실행 취소 결과를 확인해주세요.');
+   }
+   revision.current++;const fresh=await request(undefined,day);setData(fresh);setError('');rememberUndo(null);setStatusMessage('실행 취소 완료');
+   try{sessionStorage.removeItem('dream-ledger-pending:'+day);}catch{}
+  }catch(error:any){
+   if(id&&!['preview','failed'].includes(result?.status))setRowAction({id,kind:'undo',row:0,player:'실행 취소',game:'',day,stage:'uncertain',message:'실행 취소 결과를 확인해주세요.'});
+   else{try{sessionStorage.removeItem('dream-ledger-pending:'+day);}catch{}setNotice(error.message);}
+  }finally{setBusy(false);}
+ }
+ async function saveGameInline(){
+  if(!draft||locked||stale)return;setBusy(true);setNotice('');
+  try{
+   if(preview?.id){await save('apply',preview.id);return;}
+   const next=await request({action:'preview',...draft});
+   if(next.noop){setDraft(null);setStatusMessage('이미 입력된 명단입니다.');await load();return;}
+   setPreview(next);await save('apply',next.id);
+  }catch(error){setNotice((error as Error).message);}finally{setBusy(false);}
+ }
+ const gameEntryContent=op?.kind==='game'&&<form className={styles.inlineGameForm} onSubmit={e=>{e.preventDefault();void saveGameInline();}}>
+  <fieldset disabled={busy||uncertain}>
+   <div className={styles.gameFormatRow}>
+    <label>게임<input aria-label='새 게임 번호' type='number' min='1' max='100' required value={op.game} onChange={e=>change({game:Number(e.target.value)})}/></label>
+    <label>테이블<input aria-label='새 게임 테이블' type='number' min='1' max='100' required value={op.table} onChange={e=>change({table:Number(e.target.value)})}/></label>
+    <label>게임 포맷<select aria-label='게임 포맷' required value={op.blind} onChange={e=>change({blind:e.target.value})}><option value=''>선택</option>{['3M','5M','10M','15M'].map(x=><option key={x}>{x}</option>)}</select></label>
+    <label>No.<input aria-label='새 게임 No.' inputMode='numeric' pattern='[0-9]{1,8}' maxLength={8} value={op.sourceNo||''} onChange={e=>change({sourceNo:e.target.value})}/></label>
+    <button type='submit' className={styles.primary} disabled={stale}>{busy?'저장 중…':'저장'}</button><button type='button' onClick={closeEditor}>취소</button>
+   </div>
+   <div className={styles.entryTable}><table><thead><tr><th>이름</th><th>소속</th><th>바인</th><th></th></tr></thead><tbody>{op.players.map((p:any,i:number)=><tr key={i}><td><input aria-label={'참가자 '+(i+1)+' 영문명'} list='quick-game-players' required readOnly={!!op.reservationId} placeholder='플레이어 이름' value={p.player} onChange={e=>change({players:op.players.map((v:any,j:number)=>j===i?{...v,player:e.target.value}:v)})}/></td><td>{playerIndex.get(key(p.player))?.agency||'—'}</td><td><input aria-label={'참가자 '+(i+1)+' 총 바인'} type='number' min='1' max='50' required value={p.buyins} onChange={e=>change({players:op.players.map((v:any,j:number)=>j===i?{...v,buyins:Number(e.target.value)}:v)})}/></td><td>{op.players.length>1&&!op.reservationId&&<button type='button' aria-label={'참가자 '+(i+1)+' 제외'} onClick={()=>change({players:op.players.filter((_:any,j:number)=>i!==j)})}>×</button>}</td></tr>)}</tbody></table></div>
+   {!op.reservationId&&<button type='button' className={styles.addEntryRow} disabled={op.players.length>=20} onClick={()=>change({players:[...op.players,{player:'',buyins:1}]})}>＋ 참가자</button>}
+  </fieldset>
+  <datalist id='quick-game-players'>{data?.players.map((p:any,i:number)=><option key={i} value={p.name}/>)}</datalist>
+  {notice&&<p role='alert'>{notice}</p>}{stale&&<p role='alert'>기록이 변경됐습니다. 입력을 닫고 다시 확인해주세요.</p>}
+  {uncertain&&<button type='button' disabled={busy} onClick={()=>void save('apply',preview?.id)}>저장 결과 확인</button>}
+ </form>;
+
  const editorContent=draft&&<><div className={styles.dialogHead}><h2 id='ledger-editor-title'>{op.label||({game:'게임 입력',fnb:'F&B 입력',fnb_edit:'F&B 수정',register:'신규 선수 등록'} as any)[op.kind]}</h2><button aria-label='입력창 닫기' disabled={busy} onClick={closeEditor}>✕</button></div><div className={styles.dialogBody}><div className={styles.editContext}><span>{op.date||day}</span><b>{preview?'2 · 저장 확인':'1 · 내용 입력'}</b></div>
  {notice&&<p className={styles.notice} role='status'>{notice}</p>}
  {stale&&<p role='alert'>다른 작업에서 기록이 변경됐습니다. 현재 입력을 닫고 최신 기록에서 다시 선택해주세요.</p>}
- {preview?<><h3>이 내용으로 저장할까요?</h3><ul>{preview.summary.map((s:string,i:number)=><li key={i}>{s}</li>)}{op.kind==='game'&&op.sourceNo&&<li>K홀덤 No. {op.sourceNo} (별도 번호)</li>}</ul><button className={styles.primary} disabled={busy||(!uncertain&&(stale||locked))} onClick={()=>void save()}>{busy?'저장 결과 확인 중…':uncertain?'같은 요청의 결과 다시 확인':'확인한 내용 저장'}</button>{!uncertain&&<button className={styles.backButton} disabled={busy} onClick={()=>setPreview(null)}>← 입력 내용 수정</button>}{uncertain&&<p>응답이 끊겨도 새로 입력하지 마세요. 처리 이력에서 같은 요청의 결과를 확인할 수 있습니다.</p>}</>:<form onSubmit={e=>{e.preventDefault();void prepare();}} className={styles.form}><fieldset disabled={busy}>
+ {preview?<><h3>이 내용으로 저장할까요?</h3><ul>{preview.summary.map((s:string,i:number)=><li key={i}>{s}</li>)}{op.kind==='game'&&op.sourceNo&&<li>No. {op.sourceNo} (별도 번호)</li>}</ul><button className={styles.primary} disabled={busy||(!uncertain&&(stale||locked))} onClick={()=>void save()}>{busy?'저장 결과 확인 중…':uncertain?'같은 요청의 결과 다시 확인':'확인한 내용 저장'}</button>{!uncertain&&<button className={styles.backButton} disabled={busy} onClick={()=>setPreview(null)}>← 입력 내용 수정</button>}{uncertain&&<p>응답이 끊겨도 새로 입력하지 마세요. 처리 이력에서 같은 요청의 결과를 확인할 수 있습니다.</p>}</>:<form onSubmit={e=>{e.preventDefault();void prepare();}} className={styles.form}><fieldset disabled={busy}>
  {op.kind==='game'&&<>
  <div className={styles.gameFields}>
  <label>우리 게임 순번<input aria-label='우리 게임 순번' type='number' required min='1' max='100' value={op.game} onChange={e=>change({game:Number(e.target.value)})}/></label>
  <label>실제 테이블<input type='number' required min='1' max='100' value={op.table} onChange={e=>change({table:Number(e.target.value)})}/></label>
  <label>블라인드<select required value={op.blind} onChange={e=>change({blind:e.target.value})}><option value=''>선택</option>{['3M','5M','10M','15M'].map(x=><option key={x}>{x}</option>)}</select></label>
- <label>K홀덤 No. (선택)<input inputMode='numeric' pattern='[0-9]{1,8}' maxLength={8} value={op.sourceNo||''} placeholder='영수증·전광판 번호' onChange={e=>change({sourceNo:e.target.value})}/></label>
+ <label>No.<input inputMode='numeric' pattern='[0-9]{1,8}' maxLength={8} value={op.sourceNo||''} placeholder='영수증·전광판 번호' onChange={e=>change({sourceNo:e.target.value})}/></label>
  </div>
  <div className={styles.entryTable}><table><thead><tr><th>선수 영문명</th><th>소속</th><th>총 바인</th><th></th></tr></thead><tbody>{op.players.map((p:any,i:number)=><tr key={i}><td><input aria-label={'참가자 '+(i+1)+' 영문명'} list='ledger-players' required readOnly={!!op.reservationId} value={p.player} onChange={e=>change({players:op.players.map((v:any,j:number)=>j===i?{...v,player:e.target.value}:v)})}/></td><td>{playerIndex.get(key(p.player))?.agency||'—'}</td><td><input aria-label={'참가자 '+(i+1)+' 총 바인'} type='number' required min='1' max='50' value={p.buyins} onChange={e=>change({players:op.players.map((v:any,j:number)=>j===i?{...v,buyins:Number(e.target.value)}:v)})}/></td><td>{!op.reservationId&&op.players.length>1&&<button type='button' aria-label={'참가자 '+(i+1)+' 제외'} onClick={()=>change({players:op.players.filter((_:any,j:number)=>j!==i)})}>×</button>}</td></tr>)}</tbody></table></div>
  {!op.reservationId&&<button className={styles.addEntryRow} type='button' disabled={op.players.length>=20} onClick={()=>change({players:[...op.players,{player:'',buyins:1}]})}>＋ 참가자 행 추가</button>}
@@ -203,21 +299,21 @@ export default function LiveLedger({view='games'}:{view?:'games'|'daily'|'fnb'|'
 
  {tab==='main'&&view==='games'&&<>
  <div className={styles.gameTop}>
- <section className={styles.compactLiveCards} aria-label='진행 중인 게임'>{liveGames.map(g=><button key={g.id} aria-label={g.game+'번 게임 · 테이블 '+g.physical+' · '+g.blind} disabled={!!draft||!!referenceDraft} aria-pressed={selectedGame===g.id} onClick={()=>chooseGame(g)}><div className={styles.cardTitle}><strong>{g.game}번</strong><span><i/>진행 중</span></div><div className={styles.cardTable}>테이블 {g.physical}<b>{g.blind}</b><span className={styles.sourceNumber}>K홀덤 No. {gameState(g)?.source_no||'—'}</span></div><small>우리 코드 <b>{new Set(g.players.map((p:any)=>key(p.player))).size}명</b><span>·</span><b>{g.buyins}바인</b></small></button>)}
+ <section className={styles.compactLiveCards} aria-label='진행 중인 게임'>{liveGames.map(g=><button key={g.id} aria-label={g.game+'번 게임 · 테이블 '+g.physical+' · '+g.blind} disabled={!!draft||!!referenceDraft} aria-pressed={selectedGame===g.id} onClick={()=>chooseGame(g)}><div className={styles.cardTitle}><strong>{g.game}번</strong><span><i/>진행 중</span></div><div className={styles.cardTable}>테이블 {g.physical}<b>{g.blind}</b><span className={styles.sourceNumber}>No. {gameState(g)?.source_no||'—'}</span></div><small>우리 코드 <b>{new Set(g.players.map((p:any)=>key(p.player))).size}명</b><span>·</span><b>{g.buyins}바인</b></small></button>)}
  {!liveGames.length&&<div className={styles.noLive}>진행 중인 게임 없음</div>}</section>
- <div className={styles.gameTopActions}><button className={styles.primary} disabled={locked||!!draft||!!referenceDraft} onClick={()=>{setTab('main');gameDraft();}}>＋ 새 게임</button>
+ <div className={styles.gameTopActions}><button aria-label='실행 취소' title={undoTarget?.label||'최근 입력 실행 취소'} disabled={locked||uncertain||!!referenceDraft||(!draft&&!undoTarget)} onClick={()=>draft?closeEditor():void undoLast()}>↶ 실행 취소</button><button className={styles.primary} disabled={locked||!!draft||!!referenceDraft} onClick={()=>{setTab('main');gameDraft();}}>＋ 새 게임</button>
  <details className={styles.gameMenu}><summary aria-label='게임 설정'>⋯</summary><div className={styles.gameMenuContent}><button disabled={refreshing} onClick={()=>void load()}>새로고침</button><button disabled={!!draft||!!referenceDraft} onClick={()=>setTab('scan')}>스캔 처리</button><button disabled={!!draft||!!referenceDraft} onClick={()=>setTab('reservations')}>예약 연결</button><button disabled={!!draft||!!referenceDraft} onClick={()=>setTab('history')}>처리 이력</button><FlowLink tab='daily' day={day} disabled={busy||!!draft||!!referenceDraft||rowAction?.stage==='uncertain'}>일일 정산 →</FlowLink></div></details></div>
  </div>
- {referenceDraft&&<form className={styles.referenceEditor} onSubmit={e=>{e.preventDefault();void saveReference();}}><strong>{referenceDraft.game}번 게임</strong><label>K홀덤 No.<input aria-label='K홀덤 번호' inputMode='numeric' pattern='[0-9]{1,8}' maxLength={8} value={referenceDraft.sourceNo} disabled={busy} onChange={e=>setReferenceDraft({...referenceDraft,sourceNo:e.target.value})}/></label><button className={styles.primary} disabled={busy}>번호 저장</button><button type='button' disabled={busy} onClick={()=>{setReferenceDraft(null);setReferenceError('');}}>닫기</button>{referenceError&&<p role='alert'>{referenceError}</p>}</form>}
+ {draft&&<section ref={inlineEditor} className={styles.gameEntryRow}>{op.kind==='game'?gameEntryContent:editorContent}</section>}
+ {referenceDraft&&<form className={styles.referenceEditor} onSubmit={e=>{e.preventDefault();void saveReference();}}><strong>{referenceDraft.game}번 게임</strong><label>No.<input aria-label='No.' inputMode='numeric' pattern='[0-9]{1,8}' maxLength={8} value={referenceDraft.sourceNo} disabled={busy} onChange={e=>setReferenceDraft({...referenceDraft,sourceNo:e.target.value})}/></label><button className={styles.primary} disabled={busy}>번호 저장</button><button type='button' disabled={busy} onClick={()=>{setReferenceDraft(null);setReferenceError('');}}>닫기</button>{referenceError&&<p role='alert'>{referenceError}</p>}</form>}
  <div className={styles.sheetNavigation}><select aria-label='게임 바로가기' value={selectedGame} disabled={!!draft||!!referenceDraft} onChange={e=>{const g=groups.find(g=>g.id===e.target.value);if(g)chooseGame(g);}}>{orderedGames.map(g=><option key={g.id} value={g.id}>{g.game}번 · 테이블 {g.physical}</option>)}</select>{preparedGames.length>0&&<nav className={styles.preparedGames} aria-label='시작 전 게임'><span>시작 전</span>{preparedGames.map(g=><button key={g.id} disabled={!!draft||!!referenceDraft} onClick={()=>chooseGame(g)}>{g.game}번</button>)}</nav>}<span className={styles.currency}>VND</span></div>
- {draft&&<section ref={inlineEditor} className={styles.inlineEditor} aria-labelledby='ledger-editor-title'>{editorContent}</section>}
  <div ref={gameStack} className={`${styles.workspace} ${styles.gameStack}`} aria-label='게임별 참가 장부'>
  {orderedGames.map(g=>{const rosterQuery=rosterQueries[g.id]||'';return <section key={g.id} ref={node=>{if(node)gamePanels.current.set(g.id,node);else gamePanels.current.delete(g.id);}} className={styles.gamePanel} aria-label={g.game+'번 게임 참가자'} data-game={g.game}>
- <div className={styles.selectedHead}><div className={styles.gameIdentity}><h2>{g.game}번</h2><span>테이블 {g.physical} · {g.blind}</span><select className={`${styles.gameStatus} ${statusOf(g)==='active'?styles.liveStatus:''}`} aria-label={g.game+'번 게임 상태'} value={statusOf(g)} disabled={locked||!!draft||!!referenceDraft} onChange={e=>setStatusTarget({game:g.game,status:e.target.value,version:gameState(g)?.version??null,sourceHash:data.sourceHash})}>{!['prepared','active','closed'].includes(statusOf(g))&&<option value={statusOf(g)} disabled>상태 미확인</option>}<option value='prepared'>시작 전</option><option value='active'>진행 중</option><option value='closed'>종료</option></select><button className={styles.sourceButton} disabled={locked||!!draft||!!referenceDraft} onClick={()=>{setReferenceDraft({day,game:g.game,sourceNo:gameState(g)?.source_no||'',version:gameState(g)?.version??null});setReferenceError('');}}>K홀덤 No. {gameState(g)?.source_no||'입력'}</button></div>
- <div className={styles.controls}><button className={styles.primary} disabled={locked||!!draft||!!referenceDraft} onClick={()=>gameDraft(undefined,g)}>＋ 참가자</button></div></div>
+ <div className={styles.selectedHead}><div className={styles.gameIdentity}><h2>{g.game}번</h2><span>테이블 {g.physical} · {g.blind}</span><span className={statusOf(g)==='active'?styles.liveLabel:styles.statusLabel}>{gameStatusLabels[statusOf(g)]||'상태 미확인'}</span><button className={styles.sourceButton} disabled={locked||!!draft||!!referenceDraft} onClick={()=>{setReferenceDraft({day,game:g.game,sourceNo:gameState(g)?.source_no||'',version:gameState(g)?.version??null});setReferenceError('');}}>No. {gameState(g)?.source_no||'—'}</button></div>
+ <div className={styles.controls}><button aria-label={g.game+'번 게임 '+(statusOf(g)==='active'?'종료':'시작')} disabled={locked||!!draft||!!referenceDraft} onClick={()=>void updateGameStatus({game:g.game,status:statusOf(g)==='active'?'closed':'active',previousStatus:statusOf(g)==='unknown'?'unconfirmed':statusOf(g),version:gameState(g)?.version??null,sourceHash:data.sourceHash})}>{statusOf(g)==='active'?'종료':statusOf(g)==='closed'?'다시 시작':'시작'}</button><button className={styles.primary} disabled={locked||!!draft||!!referenceDraft} onClick={()=>gameDraft(undefined,g)}>＋ 참가자</button></div></div>
  {statusTarget?.game===g.game&&<div className={styles.statusConfirm} role='alert'><strong>{statusTarget.game}번 게임을 ‘{gameStatusLabels[statusTarget.status]}’ 상태로 표시할까요?</strong><div className={styles.controls}><button className={styles.primary} disabled={locked||!!draft||!!referenceDraft} onClick={()=>void updateGameStatus()}>확인</button><button disabled={busy} onClick={()=>setStatusTarget(null)}>취소</button></div></div>}
  <div className={styles.rosterTools}><div><b>{g.players.length}</b>명 <span>·</span> 총 <b>{g.buyins}</b>바인</div><input aria-label={g.game+'번 게임 참가자 검색'} placeholder='참가자 검색' value={rosterQuery} onChange={e=>setRosterQueries(prev=>({...prev,[g.id]:e.target.value}))}/></div>
- <LedgerGameTable game={g.game} rows={g.players.filter((r:any)=>!rosterQuery||key(r.player).includes(key(rosterQuery)))} players={data.players} playerIndex={playerIndex} locked={locked||!!draft||!!referenceDraft} action={rowAction} onCommit={commitRow} onRetry={()=>void commitRow(null,null,true)} onDismiss={()=>setRowAction(null)}/>
+ <LedgerGameTable counterLocked={counterLocked||!!draft||!!referenceDraft} onStep={stepCounter} game={g.game} rows={g.players.filter((r:any)=>!rosterQuery||key(r.player).includes(key(rosterQuery)))} players={data.players} playerIndex={playerIndex} locked={locked||!!draft||!!referenceDraft} action={rowAction} onCommit={commitRow} onRetry={()=>void commitRow(null,null,true)} onDismiss={()=>setRowAction(null)}/>
 
  </section>;})}
  {!orderedGames.length&&!draft&&<section className={styles.gamePanel}><div className={styles.empty}><strong>첫 게임을 입력하세요.</strong><p>게임 번호·실제 테이블·참가자를 한 번에 등록할 수 있습니다.</p><button className={styles.primary} disabled={locked} onClick={()=>gameDraft()}>＋ 새 게임 입력</button></div></section>}
