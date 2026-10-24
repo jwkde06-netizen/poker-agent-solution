@@ -120,3 +120,23 @@
 @media(max-width:760px){.gameTop{flex-wrap:wrap;gap:8px}.compactLiveCards{flex-basis:100%;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.compactLiveCards>button{padding:12px;gap:8px}.cardTitle strong{font-size:22px}.cardTitle>span{font-size:10px}.cardTable{font-size:12px;gap:7px}.compactLiveCards small{font-size:11px}.gameTopActions{flex-basis:100%;flex-direction:row}.gameTopActions>.primary{flex:0 0 auto}.gameMenu{margin-left:auto;min-width:44px}.gameMenu summary{line-height:36px}.gamePage .gamePanel{padding:14px 12px}.gamePage .selectedHead{flex-wrap:wrap;gap:10px}.gamePage .selectedHead>.controls{width:100%}.gamePage .controls select{flex:1;min-width:110px;max-width:none;font-size:11px}.gameIdentity>span{font-size:12px}}
 
 .pastDate{font-size:12px;font-weight:650;color:var(--text);align-self:center}
+
+.sourceNumber{font-size:11px;color:var(--muted);font-weight:450;margin-left:auto;white-space:nowrap}
+.page .sourceButton{font-size:12px;color:var(--muted);border-style:dashed;padding:6px 9px}
+.inlineEditor{border:1px solid var(--line-strong);border-radius:13px;background:var(--surface);min-width:0}
+.inlineEditor .dialogHead{position:static;padding:16px 20px;border-radius:13px 13px 0 0}
+.inlineEditor .dialogBody{padding:18px 20px}.inlineEditor .editContext{margin-bottom:16px;padding-bottom:10px}
+.gameFields{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.entryTable{overflow-x:auto;border:1px solid var(--line);border-radius:8px}
+.entryTable table{width:100%;border-collapse:collapse;min-width:460px}
+.entryTable th{position:static;text-align:left;background:var(--surface-2);padding:10px 12px;font-size:12px}
+.entryTable td{padding:0;border-top:1px solid var(--line)}.entryTable td:first-child{width:58%}.entryTable td:nth-child(2){padding:10px 12px;white-space:nowrap;font-size:12px}
+.entryTable td:nth-child(3){width:90px}.entryTable td:last-child{width:40px;text-align:center}
+.entryTable input{border:0;border-radius:0;background:transparent;min-height:46px}
+.entryTable input:focus{background:var(--gold-soft);outline:2px solid var(--gold);outline-offset:-2px}
+.entryTable td:last-child button{border:0;background:transparent;font-size:18px;padding:5px}
+.page .addEntryRow{justify-self:start;border-style:dashed}
+.referenceEditor{display:flex;align-items:end;gap:10px;flex-wrap:wrap;padding:14px 18px;border:1px solid var(--line);border-radius:10px;background:var(--surface);margin:0 0 12px}
+.referenceEditor>strong{align-self:center}.referenceEditor label{display:grid;gap:5px;font-size:12px}.referenceEditor input{max-width:150px}
+.referenceEditor>p{flex-basis:100%;color:var(--red)}
+@media(max-width:760px){.gameFields{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.inlineEditor .dialogHead,.inlineEditor .dialogBody{padding:14px 12px}.cardTable{flex-wrap:wrap}.sourceNumber{flex-basis:100%;margin-left:0;font-size:10px}.compactLiveCards>button{gap:7px}.cardTitle strong{font-size:20px}.referenceEditor{padding:12px}.entryTable td:first-child{min-width:200px}}
