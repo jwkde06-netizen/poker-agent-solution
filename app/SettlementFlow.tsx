@@ -9,7 +9,7 @@ export function FlowLink({tab,day,game,children,className,disabled=false}:{tab:S
  return <a href={href} className={className} aria-disabled={disabled||undefined} tabIndex={disabled?-1:undefined} onClick={e=>{
   if(disabled){e.preventDefault();return;}
   if(e.metaKey||e.ctrlKey||e.shiftKey||e.altKey||e.button!==0||window.location.pathname!=='/')return;
-  e.preventDefault();window.history.pushState({tab},'',href);window.dispatchEvent(new PopStateEvent('popstate'));
+  e.preventDefault();window.history.pushState({tab},'',href);window.dispatchEvent(new PopStateEvent('popstate'));window.scrollTo({top:0,left:0,behavior:'auto'});
  }}>{children}</a>;
 }
 export function SettlementFlow({step,day,disabled=false}:{step:'games'|'daily'|'sheetWeekly';day:string;disabled?:boolean}){
