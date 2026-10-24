@@ -5,6 +5,7 @@ import ReservationOverview from './ReservationOverview';
 import styles from './SheetLedger.module.css';
 const today=()=>new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Ho_Chi_Minh',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
 const dateOf=(v:unknown)=>typeof v==='number'?new Date(Math.floor(v-25569)*86400000).toISOString().slice(0,10):String(v||'');
+const tableLabel=(v:unknown)=>{if(typeof v==='number'&&v>40000&&v<60000){const d=new Date((v-25569)*86400000);return `${d.getUTCMonth()+1}-${d.getUTCDate()}`;}return String(v??'—');};
 const money=(v:unknown)=>typeof v==='number'?v.toLocaleString('ko-KR'):'—';
 export default function SheetLedger({view}:{view:'dashboard'|'daily'|'fnb'}){
  const [date,setDate]=useState(today),[report,setReport]=useState<any>(null),[busy,setBusy]=useState(false),[error,setError]=useState('');
@@ -21,7 +22,7 @@ export default function SheetLedger({view}:{view:'dashboard'|'daily'|'fnb'}){
  const daily=(report?.sourceDaily||[]).filter((r:any)=>dateOf(r.values[1])===date),fnb=(report?.sourceFnb||[]).filter((r:any)=>dateOf(r.values[0])===date);
  const total=report?.days?.find((d:any)=>d.date===date);
 
- const games=Object.values(daily.reduce((all:Record<string,any>,r:any)=>{const t=String(r.values[2]??'—'),blind=String(r.values[3]||'');const id=t+'|'+blind;if(!all[id])all[id]={id,table:t,blind,players:0,buyins:0};all[id].players++;all[id].buyins+=Number(r.values[7])||0;return all;},{})) as any[];
+ const games=Object.values(daily.reduce((all:Record<string,any>,r:any)=>{const t=tableLabel(r.values[2]),blind=String(r.values[3]||'');const id=t+'|'+blind;if(!all[id])all[id]={id,table:t,blind,players:0,buyins:0};all[id].players++;all[id].buyins+=Number(r.values[7])||0;return all;},{})) as any[];
  const gameCount=new Set(daily.map((r:any)=>Number(r.values[0])).filter((n:number)=>Number.isInteger(n)&&n>0)).size;
  return <section className={styles.page} aria-label='대시보드'><div className={styles.dashboardToolbar}><div className={styles.controls}><input aria-label="조회 날짜" type="date" value={date} onChange={e=>{if(e.target.value)setDate(e.target.value);}}/><button disabled={busy} onClick={()=>document.dispatchEvent(new Event('dream-sheet-refresh'))}>{busy?'갱신 중…':'↻ 새로고침'}</button></div></div>
  {error&&<p className={styles.error} role="alert">{error}</p>}
