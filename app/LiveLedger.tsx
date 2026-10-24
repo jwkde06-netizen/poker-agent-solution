@@ -4,6 +4,8 @@ import {db} from '../lib/db';
 import styles from './LiveLedger.module.css';
 import LedgerGameTable from './LedgerGameTable';
 import {submitLedgerChange} from '../lib/ledger-inline';
+import {SettlementFlow,ScanQueue} from './SettlementFlow';
+import {rememberSettlementDay} from '../lib/settlement-navigation';
 const today=()=>new Date(Date.now()+7*3600000).toISOString().slice(0,10);
 const key=(v:any)=>String(v||'').toUpperCase().replace(/[^A-Z0-9가-힣]/g,'');
 const statuses:Record<string,string>={pending:'승인 대기',confirmed:'예약 확정',checked_in:'입장 완료',waitlisted:'대기',cancelled:'취소',rejected:'거절',no_show:'노쇼'};
@@ -71,7 +73,8 @@ export default function LiveLedger({view='games'}:{view?:'games'|'daily'|'fnb'|'
  const playerIndex=useMemo(()=>new Map<string,any>((data?.players||[]).map((p:any)=>[key(p.name),p])),[data?.players]);
  const records=(data?.daily||[]).filter((r:any)=>(!query||key(r.player).includes(key(query))||String(r.game)===query)&&(!gameFilter||String(r.game)===gameFilter)&&(!agency||playerIndex.get(key(r.player))?.agency===agency));
  const orders=(data?.fnb||[]).filter((r:any)=>(!query||key(r.note).includes(key(query)))&&(!floorFilter||r.floor===floorFilter));
- function selectDay(value:string){if(!value||busy||draft||rowAction?.stage==='uncertain')return;revision.current++;setDay(value);setData(null);setError('');setSelectedGame('');setRosterQueries({});openedDay.current='';pendingScroll.current=null;setStatusTarget(null);setReferenceDraft(null);setReferenceError('');setGameFilter('');setNotice('');setRowAction(null);}
+ function selectDay(value:string){if(!value||busy||draft||rowAction?.stage==='uncertain')return;rememberSettlementDay(value);revision.current++;setDay(value);setData(null);setError('');setSelectedGame('');setRosterQueries({});openedDay.current='';pendingScroll.current=null;setStatusTarget(null);setReferenceDraft(null);setReferenceError('');setGameFilter('');setNotice('');setRowAction(null);}
+ useEffect(()=>{const sync=()=>{const params=new URLSearchParams(window.location.search),d=params.get('day');if(d&&d!==day)selectDay(d);else{const target=groups.find(g=>g.game===Number(params.get('game')));if(target)chooseGame(target);}};window.addEventListener('popstate',sync);return()=>window.removeEventListener('popstate',sync);},[day,data,busy,!!draft]);
  function shiftDay(delta:number){selectDay(new Date(Date.parse(day+'T12:00:00Z')+delta*86400000).toISOString().slice(0,10));}
  const dialog=useRef<HTMLDialogElement>(null);
  const dialogOpen=!!draft&&view!=='games';
@@ -94,7 +97,8 @@ export default function LiveLedger({view='games'}:{view?:'games'|'daily'|'fnb'|'
   if(view!=='games'||tab!=='main'||!data||data.day!==day||draft||!gameStack.current)return;
   if(pendingScroll.current){if(scrollToGame(pendingScroll.current)){pendingScroll.current=null;}return;}
   if(openedDay.current===day||!orderedGames.length)return;
-  const first=liveGames[0]||orderedGames[0];if(scrollToGame(first.id,'instant')){openedDay.current=day;setSelectedGame(first.id);}
+  const requested=Number(new URLSearchParams(window.location.search).get('game'));
+  const first=orderedGames.find(g=>g.game===requested)||liveGames[0]||orderedGames[0];if(scrollToGame(first.id,'instant')){openedDay.current=day;setSelectedGame(first.id);}
  },[data,day,view,tab,!!draft]);
  async function updateGameStatus(){
   if(!statusTarget)return;setBusy(true);setNotice('');
@@ -171,6 +175,7 @@ export default function LiveLedger({view='games'}:{view?:'games'|'daily'|'fnb'|'
  <button disabled={busy} className={styles.closeButton} onClick={closeEditor}>{uncertain?'닫고 처리 이력에서 확인':'닫기'}</button></div></>;
 
  return <section className={`${styles.page} ${view==='games'?styles.gamePage:''}`}>
+ {view==='games'&&<SettlementFlow step='games' day={day} disabled={busy||!!draft||!!referenceDraft||rowAction?.stage==='uncertain'}/>}
  {view!=='games'&&<> <header className={styles.header}><div><span className={styles.eyebrow}>DREAM POKER</span><h1>{title}</h1><p>{caption}</p></div><div className={styles.headerActions}>{view!=='players'&&<div className={styles.datePicker}><button aria-label='이전 날짜' disabled={busy||!!draft} onClick={()=>shiftDay(-1)}>‹</button><input aria-label='영업일' type='date' value={day} disabled={busy||!!draft} onChange={e=>selectDay(e.target.value)}/><button aria-label='다음 날짜' disabled={busy||!!draft} onClick={()=>shiftDay(1)}>›</button>{day!==today()&&<button disabled={busy||!!draft} onClick={()=>selectDay(today())}>오늘</button>}</div>}<button aria-label='기록 새로고침' disabled={refreshing} onClick={()=>void load()}>{refreshing?'갱신 중…':'↻ 새로고침'}</button><button className={styles.primary} disabled={locked||!!draft} onClick={()=>view==='fnb'?newFnb():view==='players'?newPlayer():gameDraft()}>{view==='fnb'?'+ 주문 입력':view==='players'?'+ 선수 등록':'+ 새 게임 입력'}</button></div></header>
  <div className={styles.sync} role='status'><span className={error?styles.offline:styles.dot}/>{error?'연결 확인 필요':data?'구글 시트 연결됨':'기록 불러오는 중'}<span className={styles.syncTime}>{data?new Date(data.checkedAt).toLocaleTimeString('ko-KR',{timeZone:'Asia/Ho_Chi_Minh'}):'—'} · 15초마다 갱신</span></div></>}
 
@@ -185,6 +190,7 @@ export default function LiveLedger({view='games'}:{view?:'games'|'daily'|'fnb'|'
  {data&&<>
 
  {tab==='main'&&view==='games'&&<>
+ <ScanQueue intake={data.intake} error={data.intakeError} day={day}/>
  <div className={styles.gameTop}>
  <section className={styles.compactLiveCards} aria-label='진행 중인 게임'>{liveGames.map(g=><button key={g.id} aria-label={g.game+'번 게임 · 테이블 '+g.physical+' · '+g.blind} disabled={!!draft||!!referenceDraft} aria-pressed={selectedGame===g.id} onClick={()=>chooseGame(g)}><div className={styles.cardTitle}><strong>{g.game}번</strong><span><i/>진행 중</span></div><div className={styles.cardTable}>테이블 {g.physical}<b>{g.blind}</b><span className={styles.sourceNumber}>K홀덤 No. {gameState(g)?.source_no||'—'}</span></div><small>우리 코드 <b>{new Set(g.players.map((p:any)=>key(p.player))).size}명</b><span>·</span><b>{g.buyins}바인</b></small></button>)}
  {!liveGames.length&&<div className={styles.noLive}>진행 중인 게임 없음</div>}</section>

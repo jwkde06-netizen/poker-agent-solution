@@ -2634,7 +2634,7 @@ export default function Home() {
     {key:"games",label:"게임 입력"},
     {key:"fnb",label:"F&B"},
     {key:"daily",label:"일일 정산"},
-    {key:"sheetWeekly",label:"주간 정산 · 시트"},
+    {key:"sheetWeekly",label:"주간 정산"},
     {key:"rules",label:"업무 규칙"},
     {key:"weekly",label:"기존 주간 정산"},
     {key:"promotions",label:"실시간 테이블 현황"},
@@ -2643,7 +2643,7 @@ export default function Home() {
     {key:"settings",label:"계정 관리"},
   ] as const;
   const navItems = allNavItems.filter(item=>{
-    if(profile?.role==="admin") return true;
+    if(profile?.role==="admin") return item.key!=="weekly";
     if(profile?.role==="staff") return ["dashboard","players","games","fnb","promotions"].includes(item.key);
     if(profile?.role==="agent") return ["dashboard","players","daily","weekly","reports"].includes(item.key);
     return item.key==="dashboard";
@@ -2750,7 +2750,7 @@ export default function Home() {
           </div>
 
           <nav className="mobileSideMenuNav">
-            {profile?.role==="admin" && <><button onClick={()=>{navigateTab("sheetWeekly");setMobileSideMenuOpen(false)}}>주간 정산 · 시트</button><button onClick={()=>{navigateTab("rules");setMobileSideMenuOpen(false)}}>업무 규칙</button></>}
+            {profile?.role==="admin" && <><button onClick={()=>{navigateTab("sheetWeekly");setMobileSideMenuOpen(false)}}>주간 정산</button><button onClick={()=>{navigateTab("rules");setMobileSideMenuOpen(false)}}>업무 규칙</button></>}
             {profile?.role==="admin" && <button onClick={()=>{navigateTab("settings");setMobileSideMenuOpen(false)}}>
               <span className="sideMenuIcon">⚙</span>
               <div><strong>계정 관리</strong><small>직원 · 에이전트 계정 생성</small></div>
@@ -2786,12 +2786,13 @@ export default function Home() {
       <div className={compactLayout?"contentArea opsCompact":"contentArea"} data-motion={motionEnabled?"on":"off"}>
         {message && <div className="note globalNote">{message}</div>}
 
-        {profile?.role==="admin" && tab==="sheetWeekly" && <SettlementDesk embedded/>}
+        {profile?.role==="admin" && tab==="sheetWeekly" && <SettlementDesk key="weekly" embedded/>}
         {profile?.role==="admin" && tab==="rules" && <RulesManager initialRules={[]} readable={false} embedded/>}
         {profile?.role==="admin" && tab==="games" && <LiveLedger view="games"/>}
         {profile?.role==="admin" && tab==="players" && <LiveLedger view="players"/>}
         {profile?.role==="admin" && tab==="dashboard" && <SheetLedger view="dashboard"/>}
-        {profile?.role==="admin" && (tab==="daily"||tab==="fnb") && <LiveLedger view={tab}/>}
+        {profile?.role==="admin" && tab==="daily" && <SettlementDesk key="daily" embedded mode="daily"/>}
+        {profile?.role==="admin" && tab==="fnb" && <LiveLedger view="fnb"/>}
         {profile && profile.role!=="admin" && tab==="dashboard" && <>
           <ReservationOverview />
           <section className={isStaff?"dashboardFinanceStrip staffDashboardStrip":"dashboardFinanceStrip"}>

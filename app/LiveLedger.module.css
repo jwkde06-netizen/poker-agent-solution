@@ -205,3 +205,5 @@
 .pendingRowNotice{display:flex;align-items:center;gap:10px;font-size:12px;padding:9px 12px;border:1px solid var(--line);border-radius:7px;background:var(--surface);margin-bottom:10px}
 .pendingRowNotice button{margin-left:auto;white-space:nowrap}
 @media(max-width:760px){.gamePage .gameStack{max-height:calc(100dvh - 275px)}.sheetTable.sheetTable{min-width:760px}.sheetNavigation{margin-bottom:6px}}
+
+.gamePage .gameStack{max-height:calc(100dvh - 310px)}@media(max-width:760px){.gamePage .gameStack{max-height:calc(100dvh - 360px)}}
