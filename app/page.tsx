@@ -9,6 +9,7 @@ import { jsPDF } from "jspdf";
 import PromotionLibrary from "./PromotionLibrary";
 import ReservationOverview from "./ReservationOverview";
 import SheetLedger from "./SheetLedger";
+import LiveLedger from "./LiveLedger";
 import DeskEntry from "./DeskEntry";
 import SettlementDesk from "./operations/weekly/SettlementDesk";
 import RulesManager from "./operations/rules/RulesManager";
@@ -2948,7 +2949,7 @@ export default function Home() {
 
         {profile?.role==="admin" && tab==="sheetWeekly" && <SettlementDesk embedded/>}
         {profile?.role==="admin" && tab==="rules" && <RulesManager initialRules={[]} readable={false} embedded/>}
-        {profile?.role==="admin" && tab==="games" && <DeskEntry key="game" mode="game"/>}
+        {profile?.role==="admin" && tab==="games" && <LiveLedger/>}
         {profile?.role==="admin" && tab==="players" && <DeskEntry key="register" mode="register"/>}
         {profile?.role==="admin" && (tab==="dashboard"||tab==="daily"||tab==="fnb") && <SheetLedger view={tab}/> }
         {profile?.role!=="admin" && tab==="dashboard" && <>
