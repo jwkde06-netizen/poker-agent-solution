@@ -36,7 +36,7 @@ export default function ReceiptScanner({disabled,day,onReview}:{disabled:boolean
    const session=(await db?.auth.getSession())?.data.session;if(!session)throw Error('관리자 계정으로 로그인해주세요.');
    const r=await fetch('/api/operations/scan',{method:'POST',headers:{Authorization:'Bearer '+session.access_token,'Content-Type':'application/json'},body:JSON.stringify({day,image:photo}),signal:controller.signal});
    const result=await r.json();if(!r.ok)throw Error(result.error||'사진을 읽지 못했습니다.');
-   if(current!==generation.current)return;await onReview(result,controller.signal);if(current===generation.current)close();
+   if(current!==generation.current)return;await onReview(result,controller.signal);if(controller.signal.aborted)throw Error('사진 판독 시간이 초과되었습니다.');if(current===generation.current)close();
   }catch(e){if(current===generation.current)setError(controller.signal.aborted?'사진 판독 응답이 늦어졌습니다. 다시 시도해주세요.':(e as Error).message);}finally{clearTimeout(timer);if(current===generation.current)setStage('');}
  }
  return <>
