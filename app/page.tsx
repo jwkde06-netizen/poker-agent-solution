@@ -2852,10 +2852,6 @@ export default function Home() {
             aria-label="계정 메뉴 열기"
           >
             <span className="avatar">{(profile?.displayName || profile?.username || "A").slice(0,1).toUpperCase()}</span>
-            <span className="accountMenuText">
-              <strong>{profile?.role==="admin"?"관리자":profile?.role==="staff"?"직원":profile?.role==="agent"?"에이전트":"승인 대기"}</strong>
-              <small>{profile?.username ? `@${profile.username}` : ""}</small>
-            </span>
             <span className="menuChevron">{accountMenuOpen?"⌃":"⌄"}</span>
           </button>
 

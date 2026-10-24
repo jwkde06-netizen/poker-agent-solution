@@ -6,7 +6,7 @@ const today=()=>new Date(Date.now()+7*3600000).toISOString().slice(0,10);
 const key=(v:any)=>String(v||'').toUpperCase().replace(/[^A-Z0-9가-힣]/g,'');
 const statuses:Record<string,string>={pending:'승인 대기',confirmed:'예약 확정',checked_in:'입장 완료',waitlisted:'대기',cancelled:'취소',rejected:'거절',no_show:'노쇼'};
 export default function LiveLedger({view='games'}:{view?:'games'|'daily'|'fnb'|'players'}){
- const [day,setDay]=useState(today),[data,setData]=useState<any>(null),[error,setError]=useState(''),[notice,setNotice]=useState(''),[login,setLogin]=useState(false);
+ const [day,setDay]=useState(()=>{if(typeof window==='undefined')return today();const d=new URLSearchParams(window.location.search).get('day');return d&&/^20\d{2}-\d{2}-\d{2}$/.test(d)&&!Number.isNaN(Date.parse(d))?d:today();}),[data,setData]=useState<any>(null),[error,setError]=useState(''),[notice,setNotice]=useState(''),[login,setLogin]=useState(false);
  const [account,setAccount]=useState(''),[password,setPassword]=useState(''),[busy,setBusy]=useState(false),[refreshing,setRefreshing]=useState(false),[query,setQuery]=useState(''),[tab,setTab]=useState('main');
  const [draft,setDraft]=useState<any>(null),[preview,setPreview]=useState<any>(null),[uncertain,setUncertain]=useState(false);
  const reading=useRef<string|null>(null),revision=useRef(0),alive=useRef(true);
@@ -75,9 +75,9 @@ export default function LiveLedger({view='games'}:{view?:'games'|'daily'|'fnb'|'
  {tab==='main'&&view==='games'&&<>
  <div className={styles.overviewBar}><span><b>{groups.length}</b>개 게임</span><span><b>{data.daily.length}</b>건 참가</span><span>총 <b>{totalBuyins}</b>바인</span><small>선택한 영업일의 누적 기록</small></div>
  <div className={styles.workspace}>
- <aside className={styles.tableRail}><div className={styles.sectionHead}><h2>테이블</h2><span>{tables.length}개</span></div>
- {tables.length?<div className={styles.tableList}>{tables.map(t=>{const gs=groups.filter(g=>g.physical===t),last=[...gs].sort((a,b)=>(b.game||0)-(a.game||0))[0];return <button key={t} className={styles.tableChoice} aria-pressed={activeTable===t} onClick={()=>{setSelectedTable(t);setSelectedGame('');setQuery('');}}><span className={styles.tableNumber}>{t}</span><span><strong>테이블 {t}</strong><small>최근 {last.game??'미지정'}번 · {last.players.length}명</small></span><span className={styles.chevron}>›</span></button>;})}</div>:<p className={styles.empty}>등록된 테이블이 없습니다.</p>}
- <p className={styles.railNote}>장부에 기록된 테이블입니다.<br/>실제 진행 상태는 현장에서 확인하세요.</p></aside>
+ <nav className={styles.tableRail} aria-label='테이블 선택'>
+ {tables.length?<div className={styles.tableList}>{tables.map(t=><button key={t} className={styles.tableChoice} aria-pressed={activeTable===t} onClick={()=>{setSelectedTable(t);setSelectedGame('');setQuery('');}}>테이블 {t}</button>)}</div>:<p className={styles.empty}>등록된 테이블이 없습니다.</p>}
+ </nav>
  {activeGroup?<section className={styles.gamePanel}><div className={styles.selectedHead}><div><span className={styles.eyebrow}>테이블 {activeTable} · {activeGroup.blind} · 장부 {activeGroup.table}</span><h2>{activeGroup.game??'미지정'}번 게임</h2></div><button className={styles.primary} disabled={locked} onClick={()=>gameDraft(undefined,activeGroup)}>＋ 참가자 추가</button></div>
  <div className={styles.gamePills} aria-label='테이블의 게임 기록'>{tableGames.map(g=><button key={g.id} aria-pressed={activeGroup.id===g.id} onClick={()=>{setSelectedGame(g.id);setQuery('');}}>{g.game??'미지정'}번 게임 <small>{g.players.length}명</small></button>)}</div>
  <div className={styles.rosterTools}><div><b>{activeGroup.players.length}</b>명 <span>·</span> 총 <b>{activeGroup.buyins}</b>바인</div><input aria-label='게임 참가자 검색' placeholder='참가자 이름 검색' value={query} onChange={e=>setQuery(e.target.value)}/></div>
