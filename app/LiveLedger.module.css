@@ -90,3 +90,33 @@
 .allGameStrip button[aria-pressed=true]{border-color:var(--gold-dark);background:var(--surface-2)}
 .statusConfirm{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:12px 0;padding:14px;border:1px solid var(--gold-dark);border-radius:10px}
 @media(max-width:600px){.liveBoard{padding:14px}.liveCards{grid-template-columns:repeat(2,minmax(0,1fr))}.liveCards button{padding:12px}.liveCards strong{font-size:20px}.liveCards span{font-size:12px}.allGameStrip button{padding:10px}.selectedHead h2 small{display:block;margin-top:6px}}
+
+/* Games open directly on the live cards and roster. */
+.gamePage .workspace{gap:0}
+.gameTop{display:flex;align-items:stretch;gap:12px;margin:0 0 16px}
+.compactLiveCards{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;flex:1;min-width:0}
+.compactLiveCards>button{display:flex;flex-direction:column;align-items:stretch;text-align:left;gap:11px;padding:16px 18px;background:var(--surface);border-radius:13px}
+.compactLiveCards>button[aria-pressed=true]{border-color:var(--gold-dark);box-shadow:inset 0 0 0 1px var(--gold-dark);background:var(--gold-soft)}
+.cardTitle{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.cardTitle strong{font-size:25px;letter-spacing:-.04em}
+.cardTitle>span{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted)}
+.cardTitle i{width:6px;height:6px;border-radius:50%;background:#16804a}
+.cardTable{display:flex;align-items:center;gap:12px;font-size:14px;font-weight:600}
+.cardTable b{font-size:12px;background:var(--surface-2);border:1px solid var(--line);border-radius:5px;padding:3px 7px}
+.compactLiveCards small{display:flex;align-items:center;gap:5px;font-size:12px}
+.compactLiveCards small b{color:var(--text);font-weight:650}.compactLiveCards small span{margin:0 3px}
+.gameTopActions{display:flex;flex-direction:column;align-items:stretch;gap:8px;flex:0 0 110px}
+.gameTopActions>.primary{flex:1;white-space:nowrap}
+.gameMenu{position:relative}.gameMenu summary{list-style:none;text-align:center;font-size:22px;line-height:28px;cursor:pointer;border:1px solid var(--line);border-radius:9px;background:var(--surface)}
+.gameMenu summary::-webkit-details-marker{display:none}
+.gameMenu summary:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+.gameMenuContent{position:absolute;right:0;top:calc(100% + 8px);z-index:20;width:230px;display:grid;gap:8px;padding:14px;border:1px solid var(--line);border-radius:12px;background:var(--surface);box-shadow:0 12px 30px #0002}
+.gameMenuContent label{display:grid;gap:7px;font-size:12px}.gameMenuContent input{width:100%}
+.noLive{padding:30px 18px;background:var(--surface);border:1px solid var(--line);border-radius:12px;color:var(--muted);font-size:14px}
+.gameIdentity{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.gameIdentity>span{font-size:13px;color:var(--muted)}
+.gamePage .gamePanel{padding:18px 22px}.gamePage .selectedHead{padding-bottom:14px;border-bottom:1px solid var(--line);margin-bottom:14px}
+.gamePage .selectedHead h2{font-size:21px}.gamePage .controls{gap:7px}.gamePage .controls select{max-width:220px}
+.gamePage .rosterTools{margin-bottom:10px}.gamePage .playerRow{min-height:64px;padding:9px 0}
+@media(max-width:760px){.gameTop{flex-wrap:wrap;gap:8px}.compactLiveCards{flex-basis:100%;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.compactLiveCards>button{padding:12px;gap:8px}.cardTitle strong{font-size:22px}.cardTitle>span{font-size:10px}.cardTable{font-size:12px;gap:7px}.compactLiveCards small{font-size:11px}.gameTopActions{flex-basis:100%;flex-direction:row}.gameTopActions>.primary{flex:0 0 auto}.gameMenu{margin-left:auto;min-width:44px}.gameMenu summary{line-height:36px}.gamePage .gamePanel{padding:14px 12px}.gamePage .selectedHead{flex-wrap:wrap;gap:10px}.gamePage .selectedHead>.controls{width:100%}.gamePage .controls select{flex:1;min-width:110px;max-width:none;font-size:11px}.gameIdentity>span{font-size:12px}}
+
+.pastDate{font-size:12px;font-weight:650;color:var(--text);align-self:center}
