@@ -96,7 +96,7 @@
 .gameTop{display:flex;align-items:center;gap:10px;margin:0 0 12px}
 .compactLiveCards{display:flex;flex-wrap:wrap;gap:8px;flex:1;min-width:0}
 .compactLiveCards>button{display:flex;flex-direction:column;align-items:stretch;text-align:left;gap:5px;width:260px;max-width:100%;padding:9px 12px;background:var(--surface);border-radius:9px}
-.compactLiveCards>button[aria-pressed=true]{border-color:var(--gold-dark);background:var(--gold-soft)}
+.compactLiveCards>button[aria-pressed=true]{border-color:var(--gold-dark);background:color-mix(in srgb,var(--gold-dark) 14%,var(--surface))}
 .cardTitle{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .cardTitle strong{font-size:18px;letter-spacing:-.03em}
 .cardTitle>span{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--muted)}
@@ -117,8 +117,8 @@
 .gameIdentity .liveLabel{font-size:11px;color:#16804a}.gameIdentity .statusLabel{font-size:11px}
 .gamePage .gamePanel{padding:12px 16px;border-radius:10px;flex-shrink:0}
 .gamePage .selectedHead{padding-bottom:9px;border-bottom:1px solid var(--line);margin-bottom:8px}
-.gamePage .selectedHead h2{font-size:18px}.gamePage .controls{gap:6px}.gamePage .controls button{font-size:12px;padding:7px 10px}
-.gamePage .rosterTools{margin-bottom:4px;min-height:28px}.gamePage .rosterTools input{height:28px;padding:4px 9px;width:170px;font-size:11px}
+.gamePage .selectedHead h2{font-size:18px}.gamePage .controls{gap:6px}.gamePage .controls button{min-height:32px;font-size:12px;padding:7px 10px}
+.gamePage .rosterTools{margin-bottom:4px;min-height:28px}.gamePage .rosterTools input{height:28px;min-height:28px;padding:4px 9px;width:170px;font-size:11px}
 .gamePage .rosterHeading{padding-top:5px;padding-bottom:6px}
 .gamePage .playerRow{min-height:52px;padding:6px 0}.gamePage .playerName strong{font-size:13px}
 .gamePage .counter button{padding:5px 8px;min-height:34px}.gamePage .counter strong{font-size:19px}
