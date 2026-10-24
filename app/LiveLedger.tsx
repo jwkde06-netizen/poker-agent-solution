@@ -14,7 +14,7 @@ export default function LiveLedger({view='games'}:{view?:'games'|'daily'|'fnb'|'
   const session=(await db?.auth.getSession())?.data.session;
   if(!session){setLogin(true);setData(null);throw Error('기존 관리자 계정으로 로그인해주세요.');}
   const r=await fetch('/api/operations/ledger'+(body?'':'?day='+selectedDay),{method:body?'POST':'GET',cache:'no-store',headers:{Authorization:'Bearer '+session.access_token,'Content-Type':'application/json'},body:body?JSON.stringify(body):undefined});
-  const b=await r.json();if(!r.ok){if(r.status===403){setLogin(true);setData(null);}throw Error(b.error||'연결을 확인해주세요.');}return b;
+  const b=await r.json();if(!r.ok){if(r.status===403){setLogin(true);setData(null);}throw Error(b.error||'연결을 확인해주세요.');}if(!body&&(!Array.isArray(b.daily)||!Array.isArray(b.fnb)||!Array.isArray(b.players)||!Array.isArray(b.menu)||!Array.isArray(b.history)||!Array.isArray(b.reservations)||b.day!==selectedDay||typeof b.sourceHash!=='string'))throw Error('정산 서비스의 연동 자료를 확인하지 못했습니다. 잠시 후 새로고침해주세요.');return b;
  }
  const load=useCallback(async()=>{
   if(reading.current)return;reading.current=true;const rev=revision.current;setRefreshing(true);
