@@ -156,3 +156,47 @@
 @media(max-width:760px){.gameFields{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.inlineEditor .dialogHead,.inlineEditor .dialogBody{padding:14px 12px}.cardTable{flex-wrap:wrap}.sourceNumber{flex-basis:100%;margin-left:0;font-size:10px}.referenceEditor{padding:12px}.entryTable td:first-child{min-width:200px}}
 
 .gamePage .inlineEditor{width:100%;box-sizing:border-box}
+
+.sheetNavigation{display:flex;align-items:center;justify-content:space-between;margin:0 0 8px;gap:12px}
+.sheetNavigation select{min-height:28px;height:28px;max-width:180px;padding:3px 9px;font-size:12px;background:var(--surface)}
+.sheetNavigation>span{font-size:11px;color:var(--muted);padding-right:12px}
+.gamePage .gameStack{max-height:calc(100dvh - 214px)}
+.gamePage .gameIdentity .sourceButton{min-height:28px;padding:4px 7px;font-size:11px}
+.gamePage .selectedHead{padding-bottom:8px;margin-bottom:6px}
+.gamePage .rosterTools{margin-bottom:6px}
+.sheetScroll{width:100%;overflow-x:auto;border:1px solid var(--line);border-radius:6px}
+.sheetTable.sheetTable{width:100%;min-width:760px;table-layout:fixed;border-collapse:collapse;font-size:12px;margin:0}
+.indexCol{width:32px}.agencyCol{width:100px}.idCol{width:82px}.buyinCol{width:122px}.moneyCol{width:116px}
+.sheetTable th,.sheetTable td{box-sizing:border-box;padding:6px 10px;border:0;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sheetTable thead th{position:static;background:var(--surface-2);color:var(--muted);font-size:11px;font-weight:600;height:32px;padding-top:2px;padding-bottom:2px}
+.sheetTable thead th:nth-last-child(-n+2){text-align:right}
+.sheetTable thead th:nth-child(5){text-align:center}
+.sheetTable tbody tr:last-child>th,.sheetTable tbody tr:last-child>td{border-bottom:0}
+.sheetTable tbody th{font-weight:600}
+.sheetTable .sheetIndex{color:var(--muted);font-size:11px;text-align:center;padding-left:4px;padding-right:4px}
+.sheetTable .sheetId{font-variant-numeric:tabular-nums;color:var(--muted)}
+.sheetTable .sheetMoney{text-align:right;font-variant-numeric:tabular-nums;font-size:13px}
+.sheetTable .sheetName{display:flex;align-items:center;justify-content:flex-start;gap:8px;width:100%;min-height:27px;padding:0;border:0;background:transparent;color:var(--text);text-align:left;font-size:13px;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sheetName>span{opacity:0;color:var(--muted);font-size:12px;flex-shrink:0}.sheetName:hover>span,.sheetName:focus-visible>span{opacity:1}
+.sheetTable select{width:100%;min-height:27px;height:27px;margin:0;padding:0;border:0;background:transparent;font:inherit;color:var(--muted)}
+.cellStepper{display:flex;align-items:center;justify-content:center;gap:2px}
+.sheetTable .cellStepper button{height:28px;min-height:28px;min-width:26px;padding:0 5px;border:1px solid var(--line);border-radius:4px;font-size:15px;line-height:1;background:var(--surface);color:var(--text)}
+.sheetTable .cellStepper .buyinValue{font-size:14px;font-weight:700;border-color:transparent;min-width:32px}
+.sheetTable .cellStepper .rebuyPlus{background:var(--surface-2)}
+.sheetTable .savingRow{background:color-mix(in srgb,var(--gold-dark) 8%,var(--surface))}
+.sheetTable .cellFeedback{padding:6px 10px;background:var(--surface-2);white-space:normal;font-size:12px}
+.cellFeedback button{margin-left:10px;font-size:11px;min-height:26px;padding:3px 7px}
+.sheetTable .rowEditorCell{padding:12px;background:var(--surface-2);white-space:normal}
+.rowEditor fieldset{border:0;margin:0;padding:0;min-width:0}
+.rowEditorFields{display:grid;grid-template-columns:minmax(180px,1fr) 90px minmax(180px,1fr);gap:10px}
+.rowEditorFields label{display:grid;gap:5px;font-size:11px;color:var(--muted)}
+.rowEditorFields input{width:100%;height:34px;min-height:34px;box-sizing:border-box;font-size:12px}
+.rowEditorActions{display:flex;align-items:center;gap:7px;margin-top:10px}
+.rowEditorActions button{min-height:30px;padding:5px 11px;font-size:12px}
+.rowEditorActions .deleteEntry{margin-left:auto;color:var(--red);border-color:transparent;background:transparent}
+.rowEditorActions .deleteConfirm{background:#ac3333;color:white;border-color:#ac3333}
+.deleteNote{font-size:12px;color:var(--red);margin:10px 0 0}
+.sheetTable .sheetEmpty{padding:18px;text-align:center;color:var(--muted)}.sheetEmpty button{margin-left:10px}
+.pendingRowNotice{display:flex;align-items:center;gap:10px;font-size:12px;padding:9px 12px;border:1px solid var(--line);border-radius:7px;background:var(--surface);margin-bottom:10px}
+.pendingRowNotice button{margin-left:auto;white-space:nowrap}
+@media(max-width:760px){.gamePage .gameStack{max-height:calc(100dvh - 275px)}.sheetTable.sheetTable{min-width:760px}.sheetNavigation{margin-bottom:6px}}
