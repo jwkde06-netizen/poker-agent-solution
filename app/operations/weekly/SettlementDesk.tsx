@@ -3,6 +3,7 @@ import {useEffect,useRef,useState} from 'react';
 import {db} from '../../../lib/db';
 import {FlowLink,SettlementFlow} from '../../SettlementFlow';
 import DailySettlement from '../../DailySettlement';
+import dailyStyles from '../../DailySettlement.module.css';
 import {rememberSettlementDay} from '../../../lib/settlement-navigation';
 import styles from './settlement.module.css';
 const num=(v:any)=>typeof v==='number'?v.toLocaleString('ko-KR'):'미확인';
@@ -41,9 +42,11 @@ export default function SettlementDesk({embedded=false,mode='weekly'}:{embedded?
  const dirty=!!report&&(day<report.start||day>report.end||(salary!==''&&Number(salary)!==report.salary)||(salary===''&&report.salarySource==='manager'));
  const sheetLink=(tab:string,row?:number)=>report?.sheetUrl+'#gid='+report?.sheetIds[tab]+(row?'&range=A'+row+':O'+row:'');
  const text=report?[`${report.room} 주간정산 초안`,`${report.start} ~ ${report.end}`,`총 레이크백 ${num(report.totals.back)}동`,`F&B 수익 차감 ${num(report.totals.fnbDeductible ?? report.totals.fnb)}동`,`3F F&B 별도 정산 ${num(report.totals.fnbExcluded ?? 0)}동 (수익 차감 제외)`,`코드별 정산금 ${num(report.totals.mongol+report.totals.japan+report.totals.china+report.totals.house+report.totals.korea2)}동`,`직원 급여 선지출 ${num(report.salary)}${report.salary===null?'':'동'}`,`정산 잔액 ${num(report.net)}동${report.salary===null?' (급여 제외)':''}`,`확인 필요 ${report.issues.length}건`,report.closed?'기간 종료':'진행 중인 주간','기타 지출·지급 완료 여부 별도 확인',summary?'AI 설명 초안\n'+summary:''].filter(Boolean).join('\n'):'';
- return <main className={`${styles.page} ${embedded?styles.embedded:""}`}><div className={styles.wrap}>
-  <SettlementFlow step={mode==='daily'?'daily':'sheetWeekly'} day={day} disabled={busy}/>
-  <header className={styles.flowHeader}><h1>{mode==='daily'?'일일 정산':'주간 정산'}</h1><div className={styles.controls}><label>{mode==='daily'?'영업일':'정산할 주의 날짜'}<input aria-label={mode==='daily'?'정산 영업일':'정산할 주의 날짜'} type='date' value={day} disabled={busy} onChange={e=>changeDay(e.target.value)}/></label><button disabled={busy||!day} onClick={()=>void load()}>{busy?'확인 중…':'새로고침'}</button></div></header>
+ return <main className={`${styles.page} ${embedded?styles.embedded:""} ${mode==='daily'?dailyStyles.dailyPage:''}`}><div className={styles.wrap}>
+  {mode==='daily'?<header className={dailyStyles.toolbar}><div className={dailyStyles.titleGroup}><h1>일일 정산</h1><input aria-label='정산 영업일' type='date' value={day} disabled={busy} onChange={e=>changeDay(e.target.value)}/><button disabled={busy||!day} aria-label='새로고침' title='새로고침' onClick={()=>void load()}>{busy?'…':'↻'}</button></div><div className={dailyStyles.tools}><FlowLink tab='games' day={day} disabled={busy}>게임 입력</FlowLink><FlowLink tab='sheetWeekly' day={day} disabled={busy}>주간 정산</FlowLink></div></header>:<>
+   <SettlementFlow step='sheetWeekly' day={day} disabled={busy}/>
+   <header className={styles.flowHeader}><h1>주간 정산</h1><div className={styles.controls}><label>정산할 주의 날짜<input aria-label='정산할 주의 날짜' type='date' value={day} disabled={busy} onChange={e=>changeDay(e.target.value)}/></label><button disabled={busy||!day} onClick={()=>void load()}>{busy?'확인 중…':'새로고침'}</button></div></header>
+  </>}
   {message&&<p role='status' className={styles.notice}>{message}</p>}
   {login?<section className={styles.panel}><h2>관리자 로그인</h2><p>Danny와 후임 관리자도 기존 관리자 계정으로 사용할 수 있어요.</p><form onSubmit={e=>{e.preventDefault();void signIn();}} className={styles.form}><label>아이디 또는 이메일<input autoComplete='username' value={account} onChange={e=>setAccount(e.target.value)}/></label><label>비밀번호<input autoComplete='current-password' type='password' value={password} onChange={e=>setPassword(e.target.value)}/></label><button disabled={busy} className={styles.primary}>로그인</button></form></section>:<>
   {mode==='weekly'&&<section className={styles.panel}><div className={styles.controls}><label>직원 급여 선지출 (동)<input type='number' min='0' step='1' value={salary} disabled={busy} placeholder='없으면 0 · 원본 값이 있으면 자동 적용' onChange={e=>{setSalary(e.target.value);setReviewed(false);setSummary('');}}/></label><button disabled={busy||!day} className={styles.primary} onClick={()=>load()}>금액 적용</button></div><small>월~일 기준 · 급여는 주간 보고서에 적용합니다.</small></section>}

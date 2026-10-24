@@ -1,29 +1,53 @@
 'use client';
+import {useState} from 'react';
 import {FlowLink,ScanQueue} from './SettlementFlow';
-import styles from './SettlementFlow.module.css';
-const num=(v:any)=>typeof v==='number'&&Number.isFinite(v)?v.toLocaleString('ko-KR'):'확인 필요';
-const tableLabel=(v:any)=>{if(typeof v==='number'&&v>40000&&v<60000){const d=new Date((v-25569)*86400000);return `${d.getUTCMonth()+1}-${d.getUTCDate()}`;}return String(v??'');};
+import {dailyPlayerTotals} from '../lib/daily-player-totals';
+import styles from './DailySettlement.module.css';
+const num=(v:unknown)=>typeof v==='number'&&Number.isFinite(v)?v.toLocaleString('ko-KR'):'—';
+type SortKey='name'|'buyins'|'back';
+
+// Default view: toolbar, totals, player rows. Keep explanations and processing
+// history inside the optional review disclosure; do not restore intro banners.
 export default function DailySettlement({report,day}:{report:any;day:string}){
+ const [sort,setSort]=useState<{key:SortKey;asc:boolean}>({key:'buyins',asc:false});
+ const [review,setReview]=useState(false);
  const d=report.days.find((r:any)=>r.date===day);if(!d)return <p role='alert'>선택한 날짜의 정산 자료를 확인하지 못했습니다.</p>;
- const groups=new Map<string,any>();let game:any=null;
- for(const source of report.sourceDaily||[]){const r=source.values;if(r[0]!==''&&r[0]!=null)game=r[0];const date=typeof r[1]==='number'?new Date((Math.floor(r[1])-25569)*86400000).toISOString().slice(0,10):r[1];if(date!==day)continue;const id=[game,r[2],r[3]].join('|');const g=groups.get(id)||{id,game,table:r[2],players:0,buyins:0,rake:0,back:0,valid:true};g.players++;for(const [field,col] of [['buyins',7],['rake',8],['back',9]] as const){if(typeof r[col]!=='number'||!Number.isSafeInteger(r[col])||r[col]<0)g.valid=false;else g[field]+=r[col];}groups.set(id,g);}
  const issues=(d.issues||[]).filter((i:any)=>i.kind!=='pending'&&i.date===day);
  const undated=(report.issues||[]).filter((i:any)=>i.kind==='date'&&!i.date);
+ const blockedRows=new Set<number>(issues.filter((i:any)=>i.sheet==='일일 입력'&&i.row).map((i:any)=>Number(i.row)));
+ const players=dailyPlayerTotals(report.sourceDaily||[],day,blockedRows).sort((a,b)=>{
+  const av=a[sort.key],bv=b[sort.key];if(av===null)return bv===null?0:1;if(bv===null)return -1;
+  const comparison=typeof av==='string'&&typeof bv==='string'?av.localeCompare(bv,'ko'):Number(av)-Number(bv);
+  return (sort.asc?comparison:-comparison)||a.name.localeCompare(b.name,'ko');
+ });
  const incomplete=issues.some((i:any)=>['amount','date','duplicate','missing'].includes(i.kind));
- const amount=(v:any)=>incomplete?'확인 필요':num(v);
- return <>
-  <div className={styles.dailyHeader}><h2>{d.games}개 게임 · 참가 {d.participants}건</h2><FlowLink tab='games' day={day}>게임 장부 수정 →</FlowLink></div>
-  <section className={styles.dailyMetrics} aria-label='일일 정산 합계'>
-   <div className={styles.metric}><span>총 바이인</span><strong>{amount(d.buyins)}{!incomplete&&<small>회</small>}</strong><p>레이크 {amount(d.rake)}동</p></div>
-   <div className={styles.metric}><span>총 레이크백</span><strong>{amount(d.back)}{!incomplete&&<small>동</small>}</strong><p>구글 시트 계산값</p></div>
-   <div className={styles.metric}><span>F&B · 수익 차감</span><strong>{amount(d.fnbDeductible)}{!incomplete&&<small>동</small>}</strong><p>3F 별도 정산 {num(d.fnbExcluded)}동</p></div>
-   <div className={styles.metric}><span>당일 정산액 · 급여 전</span><strong>{amount(d.net)}{!incomplete&&<small>동</small>}</strong><p>코드별 정산금 {amount(d.payout)}동 차감</p></div>
+ const total=(v:unknown)=>incomplete?'—':num(v);
+ const pending=(report.intake?.items||[]).filter((i:any)=>(i.date===day||i.dates?.includes(day))&&!['verified','manual'].includes(i.status));
+ const reviewCount=new Set(issues.map((i:any)=>[i.sheet,i.row??i.message].join(':'))).size+undated.length+pending.length;
+ const sortBy=(key:SortKey)=>setSort(s=>({key,asc:s.key===key?!s.asc:key==='name'}));
+ const order=(key:SortKey)=>sort.key===key?(sort.asc?'ascending':'descending'):'none';
+ const arrow=(key:SortKey)=>sort.key===key?(sort.asc?' ↑':' ↓'):'';
+ return <div className={styles.sheet}>
+  <section className={styles.totals} aria-label='일일 정산 합계'>
+   <div className={styles.profit}><span>수익 · 급여 전</span><strong title={incomplete?'입력 확인 필요':undefined}>{total(d.net)}</strong></div>
+   <div><span>레이크백</span><strong>{total(d.back)}</strong></div>
+   <FlowLink tab='fnb' day={day} className={styles.fnb}><span>F&B</span><strong title={'수익 차감 '+num(d.fnbDeductible)+' · 3F 별도 '+num(d.fnbExcluded)}>{total(d.fnb)}</strong></FlowLink>
+   <div><span>총 바이인</span><strong>{total(d.buyins)}{!incomplete&&<small>회</small>}</strong></div>
   </section>
-  <div className={styles.calculation}><span>당일 정산액 = 레이크백 − F&B 수익 차감 − 코드별 정산금</span><span>급여·기타 지출·지급 여부 별도</span></div>
-  {undated.length>0&&<p className={styles.warning}>날짜 미확정 {undated.length}건은 위 합계에 포함되지 않았습니다. <FlowLink tab='sheetWeekly' day={day}>주간 검토에서 확인 →</FlowLink></p>}
-  <ScanQueue intake={report.intake} day={day}/>
-  {issues.length>0&&<details className={styles.dailyPanel}><summary>장부 입력 확인 {new Set(issues.map((i:any)=>[i.sheet,i.row??i.message].join(':'))).size}건</summary><ul className={styles.issues}>{issues.map((i:any,n:number)=><li key={n}><span>{i.message}</span><FlowLink tab={i.sheet==='F&B 입력'?'fnb':'games'} day={i.date||day} game={i.game}>해당 장부 →</FlowLink></li>)}</ul></details>}
-  <section className={styles.dailyPanel}><div className={styles.dailyHeader}><h2>게임별 합계</h2><FlowLink tab='fnb' day={day}>F&B 내역 →</FlowLink></div><div className={styles.scroll}><table><thead><tr><th>게임</th><th>테이블</th><th>참가</th><th>바인</th><th>레이크</th><th>레이크백</th></tr></thead><tbody>{Array.from(groups.values()).map(g=><tr key={g.id}><td><FlowLink tab='games' day={day} game={Number(g.game)}>{g.game||'미지정'}번 ↗</FlowLink></td><td>{tableLabel(g.table)}</td><td>{g.players}명</td><td>{g.valid?num(g.buyins):'확인 필요'}</td><td>{g.valid?num(g.rake):'확인 필요'}</td><td>{g.valid?num(g.back):'확인 필요'}</td></tr>)}</tbody></table></div>{!groups.size&&<p className={styles.empty}>이 날짜의 참가 기록이 없습니다.</p>}</section>
-  <FlowLink tab='sheetWeekly' day={day} className={styles.next}><span>이 주 정산 검토<small>{report.start} — {report.end} · 일일 기록 자동 합산</small></span><span>→</span></FlowLink>
- </>;
+  <div className={styles.tableBar}><div><strong>플레이어 {players.length}</strong><span>{d.games}게임</span></div><div><span>VND</span><button type='button' className={reviewCount?styles.attention:''} aria-expanded={review} aria-controls='daily-review' onClick={()=>setReview(v=>!v)}>확인{reviewCount?' '+reviewCount:''}<span aria-hidden='true'>{review?' ▴':' ▾'}</span></button></div></div>
+  {review&&<aside id='daily-review' className={styles.review} aria-label='정산 확인 항목'>
+   <dl className={styles.breakdown}><div><dt>레이크백</dt><dd>{num(d.back)}</dd></div><div><dt>F&B 차감</dt><dd>{num(d.fnbDeductible)}</dd></div><div><dt>코드별 정산금</dt><dd>{num(d.payout)}</dd></div><div><dt>3F 별도 정산</dt><dd>{num(d.fnbExcluded)}</dd></div></dl>
+   <ScanQueue intake={report.intake} day={day}/>
+   {!!undated.length&&<FlowLink tab='sheetWeekly' day={day}>날짜 미확정 {undated.length}건 →</FlowLink>}
+   {!!issues.length&&<ul>{issues.map((i:any,n:number)=><li key={n}><span>{i.message}</span><FlowLink tab={i.sheet==='F&B 입력'?'fnb':'games'} day={i.date||day} game={i.game}>장부 →</FlowLink></li>)}</ul>}
+  </aside>}
+  <div className={styles.gridScroll} tabIndex={0} role='region' aria-label='플레이어 누적 바이인 표'>
+   <table className={styles.grid} aria-label='플레이어별 누적 바이인'>
+    <thead><tr><th scope='col' className={styles.index}>#</th><th scope='col' className={styles.name} aria-sort={order('name')}><button onClick={()=>sortBy('name')}>플레이어{arrow('name')}</button></th><th scope='col'>소속</th><th scope='col'>ID</th><th scope='col'>참가 게임</th><th scope='col' aria-sort={order('buyins')} className={styles.buyins}><button onClick={()=>sortBy('buyins')}>누적 바이인{arrow('buyins')}</button></th><th scope='col'>레이크</th><th scope='col' aria-sort={order('back')}><button onClick={()=>sortBy('back')}>레이크백{arrow('back')}</button></th></tr></thead>
+    <tbody>{players.map((p,i)=><tr key={p.key}><td className={styles.index}>{i+1}</td><th scope='row' className={styles.name}>{p.name}</th><td className={styles.agency}>{p.agencies.join(' / ')||'—'}</td><td className={styles.card}>{p.card||'—'}</td><td><div className={styles.games}>{p.games.map(game=><FlowLink key={game} tab='games' day={day} game={game}>{game}</FlowLink>)}</div></td><td className={styles.buyins} title={p.buyins===null?'입력 확인 필요':undefined}>{num(p.buyins)}</td><td>{num(p.rake)}</td><td>{num(p.back)}</td></tr>)}</tbody>
+    <tfoot><tr><th colSpan={5} scope='row'>합계</th><td className={styles.buyins}>{total(d.buyins)}</td><td>{total(d.rake)}</td><td>{total(d.back)}</td></tr></tfoot>
+   </table>
+   {!players.length&&<div className={styles.empty}>참가 기록 없음</div>}
+  </div>
+ </div>;
 }

@@ -1,0 +1,15 @@
+const assert=require('node:assert/strict'),fs=require('node:fs'),ts=require('typescript');
+const exportsObject={};new Function('exports',ts.transpileModule(fs.readFileSync('lib/daily-player-totals.ts','utf8'),{compilerOptions:{target:ts.ScriptTarget.ES2020,module:ts.ModuleKind.CommonJS}}).outputText)(exportsObject);
+const {dailyPlayerTotals,sheetDate}=exportsObject;
+const row=(row,game,date,name,qty,card='',agency='KOREA')=>({row,values:[game,date,'5-2','5M',name,card,agency,qty,typeof qty==='number'?qty*500000:'',typeof qty==='number'?qty*250000:'']});
+const source=[row(1,18,46318,'PARK SOO MIN',99,2452),row(2,2,46319,'PARK SOO MIN',2,2452),row(3,'',46319,'LEE HAE WON',1),row(4,5,46319,'PARK SOO MIN',1),row(5,8,'2026-10-24','PARK SOO MIN',3,2452),row(6,1,46320,'PARK SOO MIN',98,2452)];
+const before=JSON.stringify(source),players=dailyPlayerTotals(source,'2026-10-24');
+assert.equal(players.length,2);const park=players.find(p=>p.name==='PARK SOO MIN');assert.equal(park.buyins,6);assert.equal(park.rake,3000000);assert.equal(park.back,1500000);assert.deepEqual(park.games,[2,5,8]);assert.equal(park.card,'2452');assert.deepEqual(players.find(p=>p.name==='LEE HAE WON').games,[2]);
+assert.equal(players.reduce((n,p)=>n+p.buyins,0),7,'one daily total across current game snapshots');assert.equal(JSON.stringify(source),before,'aggregation does not edit the source ledger');
+const updated=source.map(r=>({row:r.row,values:[...r.values]}));updated[4].values[7]=4;assert.equal(dailyPlayerTotals(updated,'2026-10-24')[0].buyins,7,'refresh replaces cumulative game count rather than appending an OCR event');
+assert.equal(dailyPlayerTotals([...source,row(7,9,46319,'PARK SOO MIN','')],'2026-10-24')[0].buyins,null,'blank buyins cannot become a complete zero');
+assert.equal(dailyPlayerTotals(source,'2026-10-24',new Set([4]))[0].buyins,null,'source review blocks a misleading complete player total');
+const conflict=[row(1,1,46319,'KIM MIN SU',1,'111'),row(2,2,46319,'KIM MIN SU',2,'222'),row(3,3,46319,'KIM MIN SU',3,'')];assert.equal(dailyPlayerTotals(conflict,'2026-10-24').length,3,'conflicting IDs are not silently merged');
+assert.deepEqual(dailyPlayerTotals([row(1,19,46318,'OTHER DAY',1),row(2,'',46319,'NEW DAY',1)],'2026-10-24')[0].games,[],'previous day game must not carry over');
+assert.equal(sheetDate('2026-02-30'),null);assert.equal(sheetDate(46319),'2026-10-24');assert.equal(dailyPlayerTotals(source,'2026-10-26').length,0);
+console.log('Daily player totals passed: date scope, cumulative snapshots, card conflicts, invalid rows, source preservation and game navigation.');
