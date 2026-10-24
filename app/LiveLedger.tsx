@@ -59,7 +59,7 @@ export default function LiveLedger({view='games'}:{view?:'games'|'daily'|'fnb'|'
  const title={games:'게임 · 바이인',daily:'일일 정산',fnb:'F&B',players:'플레이어 관리'}[view];
  const caption={games:'게임을 선택하고 참가자·리바인을 바로 입력하세요.',daily:'날짜별 게임과 선수 기록을 한눈에 확인하세요.',fnb:'층별 주문과 지출 내역을 관리하세요.',players:'영문 이름·카드 번호·소속 코드로 선수를 찾으세요.'}[view];
  const totalBuyins=(data?.daily||[]).reduce((n:number,r:any)=>n+(Number(r.buyins)||0),0);
- const newFnb=()=>edit({kind:'fnb',date:day,floor:'2F',amount:'',note:''});
+ const newFnb=()=>edit({kind:'fnb',date:day,floor:floorFilter||'2F',amount:'',note:''});
  const newPlayer=()=>edit({kind:'register',player:'',card:'',agency:''});
 
  return <section className={styles.page}>
