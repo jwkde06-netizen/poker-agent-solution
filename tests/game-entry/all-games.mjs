@@ -29,6 +29,6 @@ export async function verifyUnknown(tab){
  const cards=tab.playwright.getByRole('region',{name:/번 게임 참가자$/});
  const actual=await cards.evaluateAll(es=>es.filter(e=>!e.hidden&&getComputedStyle(e).display!=='none').map(e=>e.getAttribute('data-game')));
  if(actual.join(',')!=='12,11,10,9,8,1')throw Error('Unknown status hides or misorders games');
- if(await tab.playwright.getByRole('navigation',{name:'진행 게임 선택'}).getByRole('button').count()!==0)throw Error('Invented active status');
+ if(await tab.playwright.getByRole('navigation',{name:'게임 바로가기'}).locator('button[data-active=true]').count()!==0)throw Error('Invented active status');
  return 'PASS missing status: all six source games visible, no fabricated active tabs';
 }

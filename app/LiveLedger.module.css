@@ -267,3 +267,5 @@
 .quickGameBar .gameTopActions{padding:0;gap:6px}
 .gamePage .gameStack{max-height:calc(100dvh - 116px)}
 @media(max-width:760px){.quickGameBar{flex-wrap:wrap;gap:6px}.liveGameTabs{flex-basis:calc(100% - 100px)}.quickGameBar .gameTopActions{flex-basis:100%;justify-content:flex-end}.gamePage .gameStack{max-height:calc(100dvh - 170px)}}
+
+.page .liveGameTabs>button[data-active=true]{border-top:3px solid #16804a}
