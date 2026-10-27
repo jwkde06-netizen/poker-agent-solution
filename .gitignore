@@ -1,0 +1,4 @@
+node_modules
+.next/
+tsconfig.tsbuildinfo
+tests/game-entry/out/
