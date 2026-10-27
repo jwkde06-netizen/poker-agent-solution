@@ -265,6 +265,5 @@
 .gameChooser>div{position:absolute;right:0;top:calc(100% + 5px);z-index:30;display:grid;gap:10px;width:240px;padding:12px;border:1px solid var(--line);border-radius:9px;background:var(--surface);box-shadow:0 8px 24px #0002}
 .gameChooser label{display:grid;gap:5px}.gameChooser select{width:100%}.gameChooser span,.gameChooser small{font-size:11px;color:var(--muted)}
 .quickGameBar .gameTopActions{padding:0;gap:6px}
-.gamePage .gamePanel[hidden]{display:none}
 .gamePage .gameStack{max-height:calc(100dvh - 116px)}
 @media(max-width:760px){.quickGameBar{flex-wrap:wrap;gap:6px}.liveGameTabs{flex-basis:calc(100% - 100px)}.quickGameBar .gameTopActions{flex-basis:100%;justify-content:flex-end}.gamePage .gameStack{max-height:calc(100dvh - 170px)}}
