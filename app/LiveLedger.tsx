@@ -13,7 +13,7 @@ const key=(v:any)=>String(v||'').toUpperCase().replace(/[^A-Z0-9가-힣]/g,'');
 const gameStatusLabels:Record<string,string>={active:'진행 중',prepared:'시작 전',closed:'종료',unknown:'상태 미확인',unconfirmed:'상태 미확인'};
 const statuses:Record<string,string>={pending:'승인 대기',confirmed:'예약 확정',checked_in:'입장 완료',waitlisted:'대기',cancelled:'취소',rejected:'거절',no_show:'노쇼'};
 export default function LiveLedger({view='games'}:{view?:'games'|'daily'|'fnb'|'players'}){
- const [day,setDay]=useState(()=>{if(typeof window==='undefined')return today();const d=new URLSearchParams(window.location.search).get('day');return d&&/^20\d{2}-\d{2}-\d{2}$/.test(d)&&!Number.isNaN(Date.parse(d))?d:today();}),[data,setRawData]=useState<any>(null),[error,setError]=useState(''),[notice,setNotice]=useState(''),[login,setLogin]=useState(false);
+ const [day,setDay]=useState(()=>{if(typeof window==='undefined')return today();const params=new URLSearchParams(window.location.search),d=params.get('day'),game=Number(params.get('game'));const hasGameTarget=Number.isInteger(game)&&game>0;if(view==='games'&&!hasGameTarget)return today();return d&&/^20\d{2}-\d{2}-\d{2}$/.test(d)&&!Number.isNaN(Date.parse(d))?d:today();}),[data,setRawData]=useState<any>(null),[error,setError]=useState(''),[notice,setNotice]=useState(''),[login,setLogin]=useState(false);
  const [account,setAccount]=useState(''),[password,setPassword]=useState(''),[busy,setBusy]=useState(false),[refreshing,setRefreshing]=useState(false),[query,setQuery]=useState(''),[tab,setTab]=useState('main');
  const dataRef=useRef<any>(null);
  const setData=(next:any)=>{dataRef.current=next;setRawData(next);};
@@ -21,6 +21,7 @@ export default function LiveLedger({view='games'}:{view?:'games'|'daily'|'fnb'|'
  const [undoTarget,setUndoTarget]=useState<any>(null);
  const rememberUndo=(target:any)=>{setUndoTarget(target);try{if(target)sessionStorage.setItem('dream-ledger-undo:'+day,JSON.stringify(target));else sessionStorage.removeItem('dream-ledger-undo:'+day);}catch{}};
  useEffect(()=>{try{setUndoTarget(JSON.parse(sessionStorage.getItem('dream-ledger-undo:'+day)||'null'));}catch{setUndoTarget(null);}},[day]);
+ useEffect(()=>{if(view==='games'){const params=new URLSearchParams(window.location.search),game=Number(params.get('game'));if(!Number.isInteger(game)||game<1)rememberSettlementDay(day);}},[view,day]);
  const [statusTarget,setStatusTarget]=useState<any>(null);
  const [statusMessage,setStatusMessage]=useState('');
  useEffect(()=>{if(!statusMessage)return;const timer=setTimeout(()=>setStatusMessage(''),4000);return()=>clearTimeout(timer);},[statusMessage]);
@@ -119,8 +120,9 @@ export default function LiveLedger({view='games'}:{view?:'games'|'daily'|'fnb'|'
  const gameState=(g:any)=>(data?.gameStates||[]).find((s:any)=>s.game_no===g.game);
  const statusOf=(g:any)=>{const s=gameState(g);return s&&s.table_label===g.table&&s.blind===g.blind?s.status:'unknown';};
  const liveGames=groups.filter(g=>statusOf(g)==='active').sort((a,b)=>a.game-b.game);
+ const liveTableCount=new Set(liveGames.map(g=>String(g.physical))).size;
  const orderedGames=[...groups].sort((a,b)=>a.game-b.game);
- const preparedGames=orderedGames.filter(g=>statusOf(g)==='prepared');
+
  function scrollToGame(id:string,behavior:ScrollBehavior='smooth'){
   const stack=gameStack.current,panel=gamePanels.current.get(id);if(!stack||!panel)return false;
   stack.scrollTo({top:stack.scrollTop+panel.getBoundingClientRect().top-stack.getBoundingClientRect().top,behavior});return true;
@@ -317,10 +319,11 @@ export default function LiveLedger({view='games'}:{view?:'games'|'daily'|'fnb'|'
  {view!=='games'&&<> <nav className={styles.tabs} aria-label={title+' 보기'}><button aria-pressed={tab==='main'} onClick={()=>setTab('main')}>{view==='daily'?'일일 장부':view==='fnb'?'주문 내역':'선수 명단'}</button><button aria-pressed={tab==='history'} onClick={()=>setTab('history')}>처리 이력</button></nav></>}
  {view==='games'&&tab!=='main'&&<button className={styles.backButton} onClick={()=>setTab('main')}>← 게임으로 돌아가기</button>}
 
- {!data&&!error&&<div className={styles.loading} role='status'><div/><div/><div/><p>오늘의 기록을 불러오고 있습니다.</p></div>}
+ {!data&&!error&&<div className={styles.loading} role='status'><div/><div/><div/><p>{view==='players'?'플레이어 명단을 불러오고 있습니다.':'오늘의 기록을 불러오고 있습니다.'}</p></div>}
  {data&&<>
 
  {tab==='main'&&view==='games'&&<>
+ <div className={styles.gameDateBar}><div><strong>{day.replace(/-/g,'.')}</strong><span>영업일</span><b className={styles.liveTableCount}><i/>진행 중 {liveTableCount}테이블</b></div>{day!==today()&&<button type='button' onClick={()=>{const url=new URL(window.location.href);url.searchParams.delete('game');window.history.replaceState(window.history.state,'',url);selectDay(today());}}>오늘</button>}</div>
  <div className={styles.gameTop}>
  <section className={styles.compactLiveCards} aria-label='진행 중인 게임'>{liveGames.map(g=><button key={g.id} aria-label={g.game+'번 게임 · 테이블 '+g.physical+' · '+g.blind} disabled={!!draft||!!referenceDraft} aria-pressed={selectedGame===g.id} onClick={()=>chooseGame(g)}><div className={styles.cardTitle}><strong>{g.game}번</strong><span><i/>진행 중</span></div><div className={styles.cardTable}>테이블 {g.physical}<b>{g.blind}</b><span className={styles.sourceNumber}>No. {gameState(g)?.source_no||'—'}</span></div><small>우리 코드 <b>{new Set(g.players.map((p:any)=>key(p.player))).size}명</b><span>·</span><b>{g.buyins}바인</b></small></button>)}
  {!liveGames.length&&<div className={styles.noLive}>진행 중인 게임 없음</div>}</section>
@@ -329,7 +332,7 @@ export default function LiveLedger({view='games'}:{view?:'games'|'daily'|'fnb'|'
  </div>
  {draft&&<section ref={inlineEditor} className={styles.gameEntryRow}>{op.kind==='game_edit'?gameSettingsContent:['game','scan'].includes(op.kind)?gameEntryContent:editorContent}</section>}
  {referenceDraft&&<form className={styles.referenceEditor} onSubmit={e=>{e.preventDefault();void saveReference();}}><strong>{referenceDraft.game}번 게임</strong><label>No.<input aria-label='No.' inputMode='numeric' pattern='[0-9]{1,8}' maxLength={8} value={referenceDraft.sourceNo} disabled={busy} onChange={e=>setReferenceDraft({...referenceDraft,sourceNo:e.target.value})}/></label><button className={styles.primary} disabled={busy}>번호 저장</button><button type='button' disabled={busy} onClick={()=>{setReferenceDraft(null);setReferenceError('');}}>닫기</button>{referenceError&&<p role='alert'>{referenceError}</p>}</form>}
- <div className={styles.sheetNavigation}><select aria-label='게임 바로가기' value={selectedGame} disabled={!!draft||!!referenceDraft} onChange={e=>{const g=groups.find(g=>g.id===e.target.value);if(g)chooseGame(g);}}>{orderedGames.map(g=><option key={g.id} value={g.id}>{g.game}번 · 테이블 {g.physical}</option>)}</select>{preparedGames.length>0&&<nav className={styles.preparedGames} aria-label='시작 전 게임'><span>시작 전</span>{preparedGames.map(g=><button key={g.id} disabled={!!draft||!!referenceDraft} onClick={()=>chooseGame(g)}>{g.game}번</button>)}</nav>}<span className={styles.currency}>VND</span></div>
+ <div className={styles.sheetNavigation}><select aria-label='게임 바로가기' value={selectedGame} disabled={!!draft||!!referenceDraft} onChange={e=>{const g=groups.find(g=>g.id===e.target.value);if(g)chooseGame(g);}}>{orderedGames.map(g=><option key={g.id} value={g.id}>{g.game}번 · 테이블 {g.physical}</option>)}</select><span className={styles.currency}>VND</span></div>
  <div ref={gameStack} className={`${styles.workspace} ${styles.gameStack}`} aria-label='게임별 참가 장부'>
  {orderedGames.map(g=>{const rosterQuery=rosterQueries[g.id]||'';return <section key={g.id} ref={node=>{if(node)gamePanels.current.set(g.id,node);else gamePanels.current.delete(g.id);}} className={styles.gamePanel} aria-label={g.game+'번 게임 참가자'} data-game={g.game}>
  <div className={styles.selectedHead}><div className={styles.gameIdentity}><h2>{g.game}번</h2><span>테이블 {g.physical} · {g.blind}</span><span className={statusOf(g)==='active'?styles.liveLabel:styles.statusLabel}>{gameStatusLabels[statusOf(g)]||'상태 미확인'}</span><button className={styles.sourceButton} disabled={locked||!!draft||!!referenceDraft} onClick={()=>{setReferenceDraft({day,game:g.game,sourceNo:gameState(g)?.source_no||'',version:gameState(g)?.version??null});setReferenceError('');}}>No. {gameState(g)?.source_no||'—'}</button></div>
