@@ -251,3 +251,20 @@
 .liveTableCount i{display:block;width:7px;height:7px;border-radius:50%;background:#16804a}
 .page .gameDateBar>button{min-height:27px;padding:3px 9px;font-size:11px}
 @media(max-width:760px){.gameDateBar{margin-bottom:6px}.gameDateBar>div{gap:6px}.page .liveTableCount{margin-left:2px}}
+
+/* Compact game workspace: active selectors and tools share one toolbar. */
+.quickGameBar{display:flex;align-items:center;gap:8px;margin-bottom:8px;min-width:0}
+.liveGameTabs{display:flex;align-items:center;gap:6px;flex:1;min-width:0;overflow-x:auto;white-space:nowrap;padding:2px 0;scrollbar-width:thin}
+.page .liveGameTabs>button{flex:0 0 auto;display:inline-flex;align-items:center;gap:8px;min-height:36px;padding:6px 12px;border:1px solid var(--line);border-radius:7px;background:var(--surface);color:var(--text)}
+.liveGameTabs strong{font-size:14px}.liveGameTabs small{font-size:11px;color:var(--muted)}
+.page .liveGameTabs>button[aria-pressed=true]{background:var(--text);color:var(--surface);border-color:var(--text)}
+.page .liveGameTabs>button[aria-pressed=true] small{color:inherit}
+.gameHint{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis}
+.gameChooser{position:relative;flex:0 0 auto;font-size:12px}
+.gameChooser>summary{cursor:pointer;white-space:nowrap;padding:8px 10px;border:1px solid var(--line);border-radius:7px;background:var(--surface)}
+.gameChooser>div{position:absolute;right:0;top:calc(100% + 5px);z-index:30;display:grid;gap:10px;width:240px;padding:12px;border:1px solid var(--line);border-radius:9px;background:var(--surface);box-shadow:0 8px 24px #0002}
+.gameChooser label{display:grid;gap:5px}.gameChooser select{width:100%}.gameChooser span,.gameChooser small{font-size:11px;color:var(--muted)}
+.quickGameBar .gameTopActions{padding:0;gap:6px}
+.gamePage .gamePanel[hidden]{display:none}
+.gamePage .gameStack{max-height:calc(100dvh - 116px)}
+@media(max-width:760px){.quickGameBar{flex-wrap:wrap;gap:6px}.liveGameTabs{flex-basis:calc(100% - 100px)}.quickGameBar .gameTopActions{flex-basis:100%;justify-content:flex-end}.gamePage .gameStack{max-height:calc(100dvh - 170px)}}
