@@ -126,6 +126,7 @@ export default function LiveLedger({view='games'}:{view?:'games'|'daily'|'fnb'|'
  const liveGames=groups.filter(g=>statusOf(g)==='active').sort((a,b)=>Number(b.game)-Number(a.game));
  const liveTableCount=new Set(liveGames.map(g=>String(g.physical))).size;
  const orderedGames=orderGames(groups,data?.gameStates||[]);
+ const worksheetGames=[...groups].sort((a,b)=>Number(b.game)-Number(a.game)||a.id.localeCompare(b.id));
  const unknownGames=groups.filter(g=>['unknown','unconfirmed'].includes(statusOf(g)));
  const unmatchedActive=(data?.gameStates||[]).filter((s:any)=>s.status==='active'&&!groups.some(g=>gameState(g)===s));
 
@@ -133,13 +134,13 @@ export default function LiveLedger({view='games'}:{view?:'games'|'daily'|'fnb'|'
   const stack=gameStack.current,panel=gamePanels.current.get(id);if(!stack||!panel)return false;
   stack.scrollTo({top:stack.scrollTop+panel.getBoundingClientRect().top-stack.getBoundingClientRect().top,behavior});return true;
  }
- function chooseGame(g:any){if(draft||referenceDraft)return;setSelectedGame(g.id);setStatusTarget(null);gameStack.current?.scrollTo({top:0,behavior:'instant'});}
+ function chooseGame(g:any){if(draft||referenceDraft)return;setSelectedGame(g.id);setStatusTarget(null);scrollToGame(g.id);gamePanels.current.get(g.id)?.focus({preventScroll:true});}
  useEffect(()=>{
   if(view!=='games'||tab!=='main'||!data||data.day!==day||draft||!gameStack.current)return;
   if(pendingScroll.current){if(scrollToGame(pendingScroll.current)){pendingScroll.current=null;}return;}
   if((openedDay.current===day&&orderedGames.some(g=>g.id===selectedGame))||!orderedGames.length)return;
   const requested=Number(new URLSearchParams(window.location.search).get('game'));
-  const first=orderedGames.find(g=>g.game===requested)||liveGames[0]||orderedGames[0];if(scrollToGame(first.id,'instant')){openedDay.current=day;setSelectedGame(first.id);}
+  const first=orderedGames.find(g=>g.game===requested)||worksheetGames[0];if(scrollToGame(first.id,'instant')){openedDay.current=day;setSelectedGame(first.id);}
  },[data,day,view,tab,!!draft]);
  async function updateGameStatus(target=statusTarget){
   if(!target||locked)return;setBusy(true);setNotice('');
@@ -340,7 +341,7 @@ export default function LiveLedger({view='games'}:{view?:'games'|'daily'|'fnb'|'
  {nextDay&&<button disabled={locked||!!draft||!!referenceDraft} onClick={()=>selectDay(nextDay)}>현재 영업일 {nextDay} →</button>}
 
  <div ref={gameStack} className={`${styles.workspace} ${styles.gameStack}`} aria-label='게임별 참가 장부'>
- {orderedGames.map(g=>{const rosterQuery=rosterQueries[g.id]||'';return <section key={g.id} ref={node=>{if(node)gamePanels.current.set(g.id,node);else gamePanels.current.delete(g.id);}} hidden={g.id!==selectedGame} className={styles.gamePanel} aria-label={g.game+'번 게임 참가자'} data-game={g.game}>
+ {worksheetGames.map(g=>{const rosterQuery=rosterQueries[g.id]||'';return <section key={g.id} ref={node=>{if(node)gamePanels.current.set(g.id,node);else gamePanels.current.delete(g.id);}} tabIndex={-1} className={styles.gamePanel} aria-label={g.game+'번 게임 참가자'} data-game={g.game}>
  <div className={styles.selectedHead}><div className={styles.gameIdentity}><h2>{g.game}번</h2><span>테이블 {g.physical} · {g.blind}</span><span className={statusOf(g)==='active'?styles.liveLabel:styles.statusLabel}>{gameStatusLabels[statusOf(g)]||'상태 미확인'}</span><button className={styles.sourceButton} disabled={locked||!!draft||!!referenceDraft} onClick={()=>{setReferenceDraft({day,game:g.game,sourceNo:gameState(g)?.source_no||'',version:gameState(g)?.version??null});setReferenceError('');}}>No. {gameState(g)?.source_no||'—'}</button></div>
  <div className={styles.controls}><button className={styles.gameAction} aria-label={g.game+'번 게임 '+(statusOf(g)==='active'?'종료':'시작')} disabled={locked||!!draft||!!referenceDraft} onClick={()=>void updateGameStatus({game:g.game,status:statusOf(g)==='active'?'closed':'active',previousStatus:statusOf(g)==='unknown'?'unconfirmed':statusOf(g),version:gameState(g)?.version??null,sourceHash:data.sourceHash})}>{statusOf(g)==='active'?'종료':statusOf(g)==='closed'?'다시 시작':'시작'}</button><button className={styles.gameAction} aria-label={g.game+'번 게임 수정'} disabled={locked||!!draft||!!referenceDraft} onClick={()=>editGame(g)}>수정</button><button className={styles.gameAction} disabled={locked||!!draft||!!referenceDraft} onClick={()=>gameDraft(undefined,g)}>＋ 참가자</button></div></div>
  {statusTarget?.game===g.game&&<div className={styles.statusConfirm} role='alert'><strong>{statusTarget.game}번 게임을 ‘{gameStatusLabels[statusTarget.status]}’ 상태로 표시할까요?</strong><div className={styles.controls}><button className={styles.primary} disabled={locked||!!draft||!!referenceDraft} onClick={()=>void updateGameStatus()}>확인</button><button disabled={busy} onClick={()=>setStatusTarget(null)}>취소</button></div></div>}
