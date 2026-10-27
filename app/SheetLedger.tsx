@@ -28,7 +28,7 @@ export default function SheetLedger({view}:{view:'dashboard'|'daily'|'fnb'}){
  {error&&<p className={styles.error} role="alert">{error}</p>}
  {!report&&!error&&<div className={styles.empty} role="status">시트에서 오늘의 현황을 불러오고 있습니다.</div>}
  {report&&<>
- <div className={styles.metrics}>{[['총 바이인',total?.buyins,'회','games'],['레이크백',total?.back,'동','sheetWeekly'],['F&B 지출',total?.fnb,'동','fnb'],['게임 수',gameCount,'게임','daily']].map(([label,value,unit,tab])=><a className={styles.metricCard} href={'/?tab='+tab+'&day='+date} key={String(label)}><span>{label}</span><strong>{money(value)} <small>{unit}</small></strong></a>)}</div>
+ <div className={styles.metrics}>{[['총 바이인',total?.buyins,'회','games'],['레이크백',total?.back,'동','sheetWeekly'],['F&B',total?.fnb,'동','fnb'],['게임 수',gameCount,'게임','daily']].map(([label,value,unit,tab])=><a className={styles.metricCard} href={'/?tab='+tab+'&day='+date} key={String(label)}><span>{label}</span><strong>{money(value)} <small>{unit}</small></strong></a>)}</div>
 
 
  <div className={styles.dashboardGrid}><section className={styles.panel}><div className={styles.heading}><h2>테이블별 참가 기록</h2><a href="/?tab=games">게임 입력 →</a></div><p className={styles.caption}>선택한 날짜의 누적 기록 · 게임 진행 여부와는 별도입니다.</p><div className={styles.scroll}><table><thead><tr><th>테이블 / 회차</th><th>블라인드</th><th>참가</th><th>바이인</th></tr></thead><tbody>{games.map(g=><tr key={g.id}><td><b>Table {g.table}</b></td><td><span className={styles.badge}>{g.blind}</span></td><td>{g.players}건</td><td><b>{g.buyins}</b>회</td></tr>)}</tbody></table>{!games.length&&<p className={styles.empty}>기록된 게임이 없습니다.</p>}</div></section>
